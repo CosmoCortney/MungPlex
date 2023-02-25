@@ -1,0 +1,9 @@
+[submodule "include/glfw"]
+	path = include/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "include/imgui"]
+	path = include/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "include/Xertz"]
+	path = include/Xertz
+	url = https://github.com/CosmoCortney/Xertz.git
