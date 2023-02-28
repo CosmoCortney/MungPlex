@@ -1,0 +1,23 @@
+#define MungPlex_VERSION_MAJOR @MungPlex_VERSION_MAJOR@
+#define MungPlex_VERSION_MINOR @MungPlex_VERSION_MINOR@
+#define IMGUI_DEFINE_MATH_OPERATORS
+#define SELECT_EMULATOR 0
+#define SELECT_NATIVE_APP 1
+#define SELECT_REMOTE_SYSTEM 2
+#define DOLPHIN 0
+#define PJ64 0
+
+
+
+#define NO_CONNECTION "No connection..."
+#define CONNECTED_DOLPHIN_GAMECUBE "Connected with Dolphin (GameCube)"
+#define CONNECTED_DOLPHIN_WII "Connected with Dolphin (Wii)"
+#define CONNECTED_DOLPHIN_WIIWARE "Connected with Dolphin (WiiWare/Channel)"
+
+
+
+#ifndef NDEBUG
+#define SystemInfoJSON "F:\\Workspace\\MungPlex\\MungPlex\\resources\\SystemInformations.json5"
+#else
+#define SystemInfoJSON "resources\\SystemInformations.json"
+#endif
