@@ -7,3 +7,6 @@
 [submodule "include/Xertz"]
 	path = include/Xertz
 	url = https://github.com/CosmoCortney/Xertz.git
+[submodule "include/meojson"]
+	path = include/meojson
+	url = https://github.com/MistEO/meojson.git
