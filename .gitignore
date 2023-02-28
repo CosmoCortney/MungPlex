@@ -32,6 +32,4 @@
 *.app
 
 .vs/
-MungPlex/.vs
-#out/
-#MungPlex/out
+out/
