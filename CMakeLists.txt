@@ -4,6 +4,11 @@
 cmake_minimum_required (VERSION 3.8)
 
 project ("MungPlex")
-
 # Include sub-projects.
 add_subdirectory ("MungPlex")
+include_directories("include/imgui")
+add_subdirectory ("include/glfw")
+include_directories ("include/glad")
+include_directories ("include/meojson")
+include_directories ("include/Xertz")
+
