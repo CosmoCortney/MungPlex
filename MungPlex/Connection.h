@@ -2,7 +2,6 @@
 #include <iostream>
 #include <stdio.h>
 #include "GLFW/glfw3.h"
-//#include "glad/glad.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "backends/imgui_impl_glfw.h"
@@ -16,9 +15,15 @@
 #include <Windows.h>
 #include "MungPlexConfig.h"
 #include <sstream>
+#include"ProcessInformation.h"
+#include"HelperFunctions.h"
 
 namespace MungPlex
 {
+    static bool BE = false;
+    static bool s_connected = false;
+    static std::string ConnectionStatus = NO_CONNECTION;
+
     struct GameEntity
     {
         std::string Entity = "";
@@ -32,8 +37,8 @@ namespace MungPlex
     struct SystemRegion
     {
         std::string Label = "";
-        unsigned long long Base;
-        unsigned long long Size;
+        uint64_t Base;
+        uint64_t Size;
         void* BaseLocationProcess = nullptr;
 
     };
@@ -43,8 +48,8 @@ namespace MungPlex
     private:
         Connection()
         {
-            _emulators.push_back(std::pair<std::string, int>("Dolphin", 0));
-            _emulators.push_back(std::pair<std::string, int>("Project64", 1));
+            _emulators.push_back(std::pair<std::wstring, int>(L"Dolphin", 0));
+            _emulators.push_back(std::pair<std::wstring, int>(L"Project64", 1));
         }
 
         ~Connection() {};
@@ -59,61 +64,26 @@ namespace MungPlex
         }
 
         int _currentPID;
-        void InitProcess(std::string& processName, int connectionType, std::pair<std::string, int> emulator = std::pair<std::string, int>());
+        HANDLE _handle;
+        REGION_LIST _regions;
+        void InitProcess(std::wstring& processName, int connectionType, std::pair<std::wstring, int> emulator = std::pair<std::wstring, int>());
         void InitDolphin();
-        std::vector<std::pair<std::string, int>> _emulators{};
-        void LoadSystemInformationJSON(std::string& emuName);
+        void InitProject64();
+        void DrawGameInformation();
+        void DrawConnectionSelect();
+        std::vector<std::pair<std::wstring, int>> _emulators{};
+        void LoadSystemInformationJSON(std::wstring& emuName);
         void ParseJsonToEntities();
         void ObtainGameEntities(void* location);
         std::vector<GameEntity> _gameEntities{};
         std::vector<SystemRegion> _systemRegions{};
- 
-        /*   static ProcessSelect instance;
-           ProcessSelect();
+        int _currentEmulatorNumber = 0;
+        std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
 
-           QString gameTitle;
-           std::vector<unsigned long long> ranges;
-           std::vector<RangeLayout> rangeMap;
-           std::vector<MemRegion> memRegions;
-           std::vector<QStringList> info;
-           std::vector<MemRegion>* processMemRegions;
-           Hook* hook;
-           QStringList gameInfoHeader;
-           QStringList gameInfo;
-           bool BE;
-
-           void initializePJ64();
-           void initializeDolphin();
-           void initializeCemu();
-           void initializeGBA();
-           void initializeGB();
-           void initializeGBC();
-           void initializeDesmume();
-           void initializeCitra();
-           void initializeMM();
-           void initializeGG();
-           void initializeMD();
-           void initializeCD();
-           void initializeYabause();
-           void initializeNullDC();
-           void initializeEPSXE();
-           void initializePCSX2();
-           void initializeRPCS3();
-           void initializePPSSPP();
-           void initializePC();
-           */
     public:
         static void DrawWindow();
         static void SystemInformations();
-        /*
-        ProcessSelect(const ProcessSelect&) = delete;
-        static ProcessSelect& getInstance();
-        std::vector<RangeLayout> getRangeMap();
-        void initialize(Hook& hook, std::vector<MemRegion>& processMemRegions, int systemType);
-        void setBE(bool val);
-        bool isBE();
-        QStringList* getInfoHeader();
-        QStringList* getInfoData();
-        */
+        static int GetCurrentPID();
+        static std::vector<SystemRegion>& GetRegions();
     };
 }

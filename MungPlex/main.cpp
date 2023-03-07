@@ -2,7 +2,6 @@
 #include "MungPlexConfig.h"
 #include <stdio.h>
 #include "GLFW/glfw3.h"
-//#include "glad/glad.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "backends/imgui_impl_glfw.h"
@@ -10,21 +9,16 @@
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include<string>
 #include "Connection.h"
+#include "ProcessInformation.h"
 #include"Xertz.h"
-
-namespace MungPlex
-{
-
-
-}
+#include"Search.h"
+#include"HelperFunctions.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
-
-
 
 int main(int argc, char* argv[])
 {
@@ -43,10 +37,6 @@ int main(int argc, char* argv[])
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
 
-
-
-	
-
 	glfwSwapInterval(1);
 
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -59,15 +49,14 @@ int main(int argc, char* argv[])
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-
-
 	bool show_demo_window = true;
 	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	
-	//MungPlex::Connection::SystemInformations();
-
+	float SCALE = 2.0f;
+	ImFontConfig cfg;
+	cfg.SizePixels = 10 * SCALE;
+	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->FontSize = SCALE;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -80,8 +69,10 @@ int main(int argc, char* argv[])
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);
 
-		MungPlex::Connection::DrawWindow();
 
+		MungPlex::Connection::DrawWindow();
+		MungPlex::ProcessInformation::DrawWindow();
+		MungPlex::Search::DrawWindow();
 
 		ImGui::Render();
 
@@ -91,8 +82,6 @@ int main(int argc, char* argv[])
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
@@ -104,12 +93,6 @@ int main(int argc, char* argv[])
 
 		glfwSwapBuffers(window);
 	}
-	
-
-	
-
-    
-	
 	
 	return 0;
 }

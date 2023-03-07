@@ -1,10 +1,6 @@
 ﻿# CMakeList.txt : CMake project for MungPlex, include source and define
 # project specific logic here.
 
-
-
-
-
 # Add source to this project's executable.
 add_executable (MungPlex    "main.cpp" 
                             "Connection.cpp"
@@ -20,15 +16,15 @@ add_executable (MungPlex    "main.cpp"
                             "../include/Xertz/MemoryRegion.cpp"
                             "../include/Xertz/ProcessInfo.cpp"
                             "../include/Xertz/SystemInfo.cpp"
-                            #"../include/json5/include/json5/json5.hpp"
-#                            "../include/glad.c"
- "Connection.h")
+                            "Connection.h"
+                            "Connection.cpp"
+                            "ProcessInformation.h"
+                            "ProcessInformation.cpp"
+                            "Search.cpp"
+                            "HelperFunctions.h"
+               )
 
 
-#add_library(imgui "../imgui.h")
-#add_library(glad "glad.h")
-#add_library(Xertz "Xertz.h")
-#target_link_libraries(MungPlex PUBLIC imgui)
 include_directories(imgui)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)

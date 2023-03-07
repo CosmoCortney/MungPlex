@@ -1,38 +1,28 @@
 #include "Connection.h"
 
-namespace MungPlex
-{
-	bool BE = false;
-	std::string ConnectionStatus = NO_CONNECTION;
-}
-
 void MungPlex::Connection::DrawWindow()
 {
-	//ImGui::NewFrame();
-
 	ImGui::Begin("Connection");
+	GetInstance().DrawConnectionSelect();
+	GetInstance().DrawGameInformation();
+	ImGui::End();
+}
 
-
-	
+void MungPlex::Connection::DrawConnectionSelect()
+{
 	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 	if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
 	{
 		std::string emuSelect;
 		if (ImGui::BeginTabItem("Emulator"))
 		{
-			const char* items[] = { GetInstance()._emulators[0].first.c_str(), 
-									GetInstance()._emulators[1].first.c_str() };
-			static int item_current = 0;
-			ImGui::Combo("Select Emulator", &item_current, items, IM_ARRAYSIZE(items));
-
+			MungPlex::SetUpCombo("Select Emulator", _emulators, _currentEmulatorNumber);
 
 			if (ImGui::Button("Connect", ImVec2(200, 50)))
 			{
-				std::string emuSelect = GetInstance()._emulators[item_current].first;
-				GetInstance().LoadSystemInformationJSON(emuSelect);
-				std::cout << "connecting to " << emuSelect << std::endl;
+				std::wstring emuSelect = _emulators[_currentEmulatorNumber].first;
+				LoadSystemInformationJSON(emuSelect);
 			}
-
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Native Application"))
@@ -40,22 +30,20 @@ void MungPlex::Connection::DrawWindow()
 			ImGui::Button("Connect", ImVec2(200, 50));
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Remote Device"))
+		/*if (ImGui::BeginTabItem("Remote Device"))
 		{
 			ImGui::Text("Select Console.");
 			ImGui::Button("Connect", ImVec2(200, 50));
 			ImGui::EndTabItem();
-		}
+		}*/
 		ImGui::EndTabBar();
 	}
-	ImGui::Separator();
-	
+}
 
-	ImGui::Text("Game Information");
-	//ImGui::Table
+void MungPlex::Connection::DrawGameInformation()
+{
+	ImGui::SeparatorText("GameInformation");
 
-
-	// Expose a few Borders related flags interactively
 	enum ContentsType { CT_Text, CT_FillButton };
 	static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
 	static bool display_headers = false;
@@ -63,7 +51,7 @@ void MungPlex::Connection::DrawWindow()
 
 	if (ImGui::BeginTable("Game Info", 2, flags))
 	{
-		for (int row = 0; row < GetInstance()._gameEntities.size(); row++)
+		for (int row = 0; row < _gameEntities.size(); row++)
 		{
 			ImGui::TableNextRow();
 			for (int column = 0; column < 2; column++)
@@ -72,11 +60,11 @@ void MungPlex::Connection::DrawWindow()
 				char buf[256];
 				if (column == 0)
 				{
-					sprintf(buf, GetInstance()._gameEntities[row].Entity.c_str());
+					sprintf(buf, _gameEntities[row].Entity.c_str());
 				}
 				else
 				{
-					sprintf(buf, GetInstance()._gameEntities[row].Value.c_str());
+					sprintf(buf, _gameEntities[row].Value.c_str());
 				}
 
 				if (contents_type == CT_Text)
@@ -87,23 +75,9 @@ void MungPlex::Connection::DrawWindow()
 		}
 		ImGui::EndTable();
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-	
-	ImGui::End();
 }
 
-void MungPlex::Connection::LoadSystemInformationJSON(std::string& emuName)
+void MungPlex::Connection::LoadSystemInformationJSON(std::wstring& emuName)
 {
 	_gameEntities.clear();
 	_systemRegions.clear();
@@ -121,28 +95,25 @@ void MungPlex::Connection::LoadSystemInformationJSON(std::string& emuName)
 	}
 	inFile.close();
 
-	//std::cout << jsonstr.length();
-
-
 	auto doc = json::parse5(jsonstr);
 
 	if (!doc) {
 		std::cerr << "Parsing failed" << std::endl;
 		return;
 	}
+	
+	std::string emuNameBasic(emuName.begin(), emuName.end());
 
 	auto& docv = doc.value();
-	auto& regions = docv["Emulators"][emuName]["Regions"].as_array();
-	auto& entities = docv["Emulators"][emuName]["Entities"].as_array();
+	auto& regions = docv["Emulators"][emuNameBasic]["Regions"].as_array();
+	auto& entities = docv["Emulators"][emuNameBasic]["Entities"].as_array();
 
 	for (int i = 0; i < regions.size(); ++i)
 	{
 		std::string label = regions[i]["Label"].as_string();
-		unsigned long long base = regions[i]["Base"].as_long_long();
-		unsigned long long size = regions[i]["Size"].as_long_long();
-		GetInstance()._systemRegions.push_back(SystemRegion(label, base, size));
-
-		//std::cout << GetInstance()._systemRegions[i].Label << " " << std::hex << GetInstance()._systemRegions[i].Base << " " << GetInstance()._systemRegions[i].Size << std::endl;
+		uint64_t base = regions[i]["Base"].as_long_long();
+		uint64_t size = regions[i]["Size"].as_long_long();
+		_systemRegions.push_back(SystemRegion(label, base, size));
 	}
 
 	for (int i = 0; i < entities.size(); ++i)
@@ -153,72 +124,97 @@ void MungPlex::Connection::LoadSystemInformationJSON(std::string& emuName)
 		int size = entities[i]["Size"].as_integer();
 		bool hex = entities[i]["Hex"].as_boolean();
 		_gameEntities.push_back(GameEntity(entity, location, datatype, size, hex));
-
-		//std::cout << GetInstance()._gameEntities[i].Entity << " " << std::hex << GetInstance()._gameEntities[i].Location << " " << GetInstance()._gameEntities[i].Size << " " << GetInstance()._gameEntities[i].Datatype << " " << GetInstance()._gameEntities[i].Hex << std::endl;
 	}
 
-
-	for (int i = 0; i < _gameEntities.size(); ++i)
-	{
-
-	}
-
-	InitProcess(emuName, 0, std::pair<std::string, int>(emuName, 0));
+	std::cout << _currentEmulatorNumber;
+	InitProcess(emuName, 0, std::pair<std::wstring, int>(emuName, _currentEmulatorNumber));
 }
 
-void MungPlex::Connection::ParseJsonToEntities()
+void MungPlex::Connection::InitProcess(std::wstring& processName, int connectionType, std::pair<std::wstring, int> emulator)
 {
-	//static std::vector<MungPlex::GameEntity> GameEntities;
-	//json::value& docv;
-	//GetInstance()._gameEntities.clear();
+	_currentPID = Xertz::SystemInfo::GetProcessInfo(processName, Xertz::StringDefs::IS_SUBSTRING, Xertz::StringDefs::CASE_INSENSITIVE).GetPID();
+	_regions = Xertz::SystemInfo::GetProcessInfo(_currentPID).GetRegionList();
 
-	//
-}
+	if (_currentPID == -1)
+		return;
 
-void MungPlex::Connection::InitProcess(std::string& processName, int connectionType, std::pair<std::string, int> emulator)
-{
 	switch (connectionType)
 	{
 		case SELECT_EMULATOR:
 		{
 			switch (emulator.second)
 			{
-				case DOLPHIN:
-					InitDolphin();
+			case DOLPHIN:
+				InitDolphin();
+				break;
+			case PROJECT64:
+				InitProject64();
+				break;
 			}
 		}
+
+		ObtainGameEntities(_systemRegions[0].BaseLocationProcess);
+
 		case SELECT_NATIVE_APP:
 		{
 
+			break;
 		}
 		case SELECT_REMOTE_SYSTEM:
 		{
 
+			break;
+		}
+	}
+
+	MungPlex::ProcessInformation::RefreshData(_currentPID);
+}
+
+void MungPlex::Connection::InitProject64()
+{
+	BE = false;
+
+	for (uint64_t i = 0; i < _regions.size(); ++i)
+	{
+		uint64_t rSize = _regions[i].GetRegionSize();
+
+		if ((rSize == 0x400000) || (rSize == 0x800000))
+		{
+			uint32_t temp;
+
+			Xertz::SystemInfo::GetProcessInfo(_currentPID).ReadExRAM(&temp, _regions[i].GetBaseAddress<char*>() + 8, 4);
+
+			if (temp == 0x03400008)
+			{
+				_systemRegions[0].BaseLocationProcess = _regions[i].GetBaseAddress<void*>();
+				ConnectionStatus = CONNECTED_PROJECT64;
+				return;
+			}
 		}
 	}
 }
 
 void MungPlex::Connection::InitDolphin()
 {
+	BE = true;
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
 	_systemRegions.erase(_systemRegions.begin() + 2); // |- remove these lines once caches and sram are figured out
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
 
 	unsigned int temp, flagGCN, flagWii;
-	_currentPID = Xertz::SystemInfo::GetProcessInfo(L"Dolphin", Xertz::StringDefs::IS_SUBSTRING, Xertz::StringDefs::CASE_INSENSITIVE).GetPID();
-	REGION_LIST regions = Xertz::SystemInfo::GetProcessInfo(_currentPID).GetRegionList();
+	std::cout << _regions.size() << " fhgdju" << _currentPID << std::endl;
 
-	for (unsigned long long i = 0; i < regions.size(); ++i)
+	for (uint64_t i = 0; i < _regions.size(); ++i)
 	{
-		if (regions[i].GetRegionSize() == 0x2000000)
+		if (_regions[i].GetRegionSize() == 0x2000000)
 		{
-			Xertz::SystemInfo::GetProcessInfo(_currentPID).ReadExRAM(&temp, reinterpret_cast<void*>(regions[i].GetBaseAddress<unsigned long long>() + 0x28), 4);
-			Xertz::SystemInfo::GetProcessInfo(_currentPID).ReadExRAM(&flagGCN, reinterpret_cast<void*>(regions[i].GetBaseAddress<unsigned long long>() + 0x18), 4);
-			Xertz::SystemInfo::GetProcessInfo(_currentPID).ReadExRAM(&flagWii, reinterpret_cast<void*>(regions[i].GetBaseAddress<unsigned long long>() + 0x1C), 4);
+			Xertz::SystemInfo::GetProcessInfo(_currentPID).ReadExRAM(&temp, reinterpret_cast<void*>(_regions[i].GetBaseAddress<uint64_t>() + 0x28), 4);
+			Xertz::SystemInfo::GetProcessInfo(_currentPID).ReadExRAM(&flagGCN, reinterpret_cast<void*>(_regions[i].GetBaseAddress<uint64_t>() + 0x18), 4);
+			Xertz::SystemInfo::GetProcessInfo(_currentPID).ReadExRAM(&flagWii, reinterpret_cast<void*>(_regions[i].GetBaseAddress<uint64_t>() + 0x1C), 4);
 
 			if (temp == 0x8001)
 			{
-				_systemRegions[0].BaseLocationProcess = regions[i].GetBaseAddress<void*>();
+				_systemRegions[0].BaseLocationProcess = _regions[i].GetBaseAddress<void*>();
 				break;
 			}
 		}
@@ -231,16 +227,16 @@ void MungPlex::Connection::InitDolphin()
 		return;
 	}
 
-	for (unsigned long long i = 0; i < regions.size(); ++i)
+	for (uint64_t i = 0; i < _regions.size(); ++i)
 	{
-		if (regions[i].GetRegionSize() == 0x4000000)
+		if (_regions[i].GetRegionSize() == 0x4000000)
 		{
 			unsigned char temp;
-			Xertz::SystemInfo::GetProcessInfo(GetInstance()._currentPID).ReadExRAM(&temp, reinterpret_cast<void*>(regions[i].GetBaseAddress<unsigned long long>() + 1), 1);
+			Xertz::SystemInfo::GetProcessInfo(_currentPID).ReadExRAM(&temp, reinterpret_cast<void*>(_regions[i].GetBaseAddress<uint64_t>() + 1), 1);
 
 			if (temp == 0x9f)
 			{
-				_systemRegions[1].BaseLocationProcess = regions[i].GetBaseAddress<void*>();
+				_systemRegions[1].BaseLocationProcess = _regions[i].GetBaseAddress<void*>();
 				break;
 			}
 		}
@@ -256,8 +252,6 @@ void MungPlex::Connection::InitDolphin()
 		ConnectionStatus = CONNECTED_DOLPHIN_WII;
 	else
 		ConnectionStatus = "Connected with Dolphin";
-
-	ObtainGameEntities(_systemRegions[0].BaseLocationProcess);
 }
 
 void MungPlex::Connection::ObtainGameEntities(void* baseLocation)
@@ -269,7 +263,7 @@ void MungPlex::Connection::ObtainGameEntities(void* baseLocation)
 	for (int i = 0; i < _gameEntities.size(); ++i)
 	{
 		std::stringstream stream;
-		unsigned long long tempVal;
+		uint64_t tempVal;
 		int size = _gameEntities[i].Size;
 		std::string dataType = _gameEntities[i].Datatype;
 		bool hex = _gameEntities[i].Hex;
@@ -279,7 +273,7 @@ void MungPlex::Connection::ObtainGameEntities(void* baseLocation)
 
 		if (dataType.compare("INT") == 0)
 		{
-			tempVal = *(unsigned long long*)buffer;
+			tempVal = *(uint64_t*)buffer;
 			tempVal &= ~(0xFFFFFFFFFFFFFFFF << (8 * size));
 
 			if (hex)
@@ -306,4 +300,14 @@ void MungPlex::Connection::ObtainGameEntities(void* baseLocation)
 	}
 
 	free(buffer);
+}
+
+int MungPlex::Connection::GetCurrentPID()
+{
+	return GetInstance()._currentPID;
+}
+
+std::vector<MungPlex::SystemRegion>& MungPlex::Connection::GetRegions()
+{
+	return GetInstance()._systemRegions;
 }

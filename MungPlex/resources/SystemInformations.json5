@@ -590,6 +590,18 @@
           Hex: true
         }
       ]
+    },
+    Project64: {
+      Regions: [
+        {
+          Label: "Mem 1",
+          Base: 0x80000000,
+          Size:  0x800000
+        }
+      ],
+      Entities: [
+
+      ]
     }
   }
 }
