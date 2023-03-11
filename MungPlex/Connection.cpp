@@ -133,12 +133,13 @@ void MungPlex::Connection::LoadSystemInformationJSON(std::wstring& emuName)
 void MungPlex::Connection::InitProcess(std::wstring& processName, int connectionType, std::pair<std::wstring, int> emulator)
 {
 	_currentPID = Xertz::SystemInfo::GetProcessInfo(processName, Xertz::StringDefs::IS_SUBSTRING, Xertz::StringDefs::CASE_INSENSITIVE).GetPID();
-	_regions = Xertz::SystemInfo::GetProcessInfo(_currentPID).GetRegionList();
 
 	if (_currentPID == -1)
 		return;
 
 	_regions = Xertz::SystemInfo::GetProcessInfo(_currentPID).GetRegionList();
+	_handle = Xertz::SystemInfo::GetProcessInfo(_currentPID).GetHandle();
+
 	switch (connectionType)
 	{
 		case SELECT_EMULATOR:
@@ -311,4 +312,9 @@ int MungPlex::Connection::GetCurrentPID()
 std::vector<MungPlex::SystemRegion>& MungPlex::Connection::GetRegions()
 {
 	return GetInstance()._systemRegions;
+}
+
+HANDLE MungPlex::Connection::GetCurrentHandle()
+{
+	return GetInstance()._handle;
 }
