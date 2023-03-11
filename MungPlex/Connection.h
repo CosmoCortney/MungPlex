@@ -84,6 +84,7 @@ namespace MungPlex
         static void DrawWindow();
         static void SystemInformations();
         static int GetCurrentPID();
+        static HANDLE GetCurrentHandle();
         static std::vector<SystemRegion>& GetRegions();
     };
 }

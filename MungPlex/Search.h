@@ -63,6 +63,10 @@ namespace MungPlex
             _searchConditionTypes.push_back(std::pair<std::string, int>("Lower or Equal (<=)", LOWER_EQUAL));
             _searchConditionTypes.push_back(std::pair<std::string, int>("AND (has all true bits)", AND));
             _searchConditionTypes.push_back(std::pair<std::string, int>("OR (has at least 1 true bit)", OR));
+           // _searchConditionTypes.push_back(std::pair<std::string, int>("Increased by", OR));
+            //_searchConditionTypes.push_back(std::pair<std::string, int>("Decreased by", OR));
+            //_searchConditionTypes.push_back(std::pair<std::string, int>("Value Between", OR));
+           // _searchConditionTypes.push_back(std::pair<std::string, int>("Value Not Between", OR));
 
             _searchComparasionType.push_back(std::pair<std::string, int>("Unknown/Initial", UNKNOWN));
             _searchComparasionType.push_back(std::pair<std::string, int>("Known Value", KNOWN));
@@ -88,6 +92,17 @@ namespace MungPlex
         void DrawSearchOptions();
         void DrawResultsArea();
         void PickColorFromScreen();
+        void PerformSearch();
+        template <typename dType> void UnknownInitialSearch();
+        template <typename dType> void UnknownComparativeSearch();
+        template <typename dType> void KnownInitialSearch();
+        template <typename dType> void KnownComparativeSearch();
+        void ResetSearch();
+
+
+
+        uint64_t _resultcount = 0;
+        int _iterationCount = 0;
 
         std::vector<std::pair<std::string, int>> _searchValueTypes{};
         std::vector<std::pair<std::string, int>> _searchTextTypes{};
@@ -102,6 +117,7 @@ namespace MungPlex
         int _currentTextTypeSelect = 0;
         int _currentComparisionTypeSelect = 0;
         int _currentConditionTypeSelect = 0;
+        std::vector<Xertz::MemDump> _memDumps{};
         bool _signed = false;
         bool _hex = false;
         bool _cached = false;
@@ -152,5 +168,14 @@ namespace MungPlex
             std::string hexEndStr = MungPlex::ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size -1, 0).c_str();
             std::strcpy(GetInstance()._rangeEndText, hexEndStr.c_str());
         };
+
+        int MyInputTextCallback(ImGuiInputTextCallbackData* data)
+        {
+            if (data->EventFlag == ImGuiInputTextFlags_CallbackEdit)
+            {
+                std::cout << "Text changed lol\n";
+            }
+            return 0;
+        }
     };
 }

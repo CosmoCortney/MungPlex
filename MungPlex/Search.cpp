@@ -98,7 +98,9 @@ void MungPlex::Search::DrawRangeOptions()
 		GetInstance()._regions = MungPlex::Connection::GetRegions();
 		ImGui::SeparatorText("Range Options");
 		_RegionSelectSignalCombo.Draw("Region", _regions, _currentRegionSelect);
-		ImGui::InputText("Start at (hex)", _rangeStartText, IM_ARRAYSIZE(_rangeStartText));
+		int changed;
+
+		ImGui::InputText("Start at (hex)", _rangeStartText, IM_ARRAYSIZE(_rangeStartText)/*, ImGuiInputTextFlags_CallbackEdit, static_cast<ImGuiInputTextFlags_CallbackAlways>(MyInputTextCallback)*/);
 		ImGui::InputText("End at (hex)", _rangeEndText, IM_ARRAYSIZE(_rangeEndText));
 		ImGui::PopItemWidth();
 	}
@@ -113,7 +115,10 @@ void MungPlex::Search::DrawSearchOptions()
 	{
 		ImGui::PushItemWidth(groupWidth);
 		ImGui::SeparatorText("Search Options");
-		ImGui::Button("Search");
+
+		if(ImGui::Button("Search"))
+			PerformSearch();
+
 		ImGui::SameLine();
 		ImGui::Button("Cancel");
 		ImGui::InputText("Known Value", _knownValueText, IM_ARRAYSIZE(_knownValueText));
@@ -257,7 +262,49 @@ void MungPlex::Search::PickColorFromScreen()
 	_colorVec.z = (float)GetBValue(color) / (float)255;
 }
 
-void MungPlex::Search::Refresh()
+void MungPlex::Search::PerformSearch()
 {
+	std::stringstream stream;
+	stream << std::hex << std::string(_rangeStartText);
+	stream >> _rangeStartValue;
+	uint64_t offset = _rangeStartValue - MungPlex::Connection::GetRegions()[GetInstance()._currentRegionSelect].Base;
+	HANDLE handle = MungPlex::Connection::GetCurrentHandle();
+	void* baseAddressEx = MungPlex::Connection::GetRegions()[GetInstance()._currentRegionSelect].BaseLocationProcess;
+	uint64_t size;
+	stream.str(std::string());
+	stream.clear();
+	stream << std::hex << std::string(_rangeEndText);
+	stream >> _rangeEndValue;
+	size = _rangeEndValue - _rangeStartValue + 1;
+	std::cout << std::hex << size << std::endl;
+	std::cout << std::hex << handle << std::endl;
+	std::cout << std::hex << (uint64_t)((char*)baseAddressEx + offset) << std::endl;
 
+
+	if (_currentComparisionTypeSelect == ComparasionType::UNKNOWN)
+	{
+		if (_iterationCount == 0)
+		{
+			std::wstring path = L"F:\\test\\file.bin";
+			//Xertz::MemDump dump;
+			//dump = Xertz::MemDump(handle, baseAddressEx, size);
+			//dump.SaveDump(path);
+			//_memDumps[0].SaveDump(path);
+			//std::cout << "3\n";
+
+			//uint32_t offs[5] = { 1,2,3,4,5 };
+			//double vals[5] = { 1,2,3,4,5 };
+
+			//Xertz::MemCompareResult<double, uint32_t> test(false, path);
+			
+			//test.SetResultOffsets(offs);
+			//test.SetResultValues(vals);
+			//test.SetResultCount(5);
+			//std::cout << "saved: " << test.SaveResults();
+
+			//test.LoadResults(false);
+
+			Xertz::MemCompare<uint32_t, uint32_t>::Iterate(Connection::GetCurrentPID(), baseAddressEx, size, 0, false);
+		}
+	}
 }

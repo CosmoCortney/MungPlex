@@ -148,4 +148,5 @@ namespace MungPlex
             _slotsOnTextChanged.push_back(slot);
         }
     };
+
 }
