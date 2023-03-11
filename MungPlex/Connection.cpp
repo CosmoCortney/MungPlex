@@ -138,6 +138,7 @@ void MungPlex::Connection::InitProcess(std::wstring& processName, int connection
 	if (_currentPID == -1)
 		return;
 
+	_regions = Xertz::SystemInfo::GetProcessInfo(_currentPID).GetRegionList();
 	switch (connectionType)
 	{
 		case SELECT_EMULATOR:
