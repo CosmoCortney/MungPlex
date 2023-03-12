@@ -4,6 +4,7 @@
 [submodule "include/imgui"]
 	path = include/imgui
 	url = https://github.com/ocornut/imgui.git
+	branch = docking
 [submodule "include/Xertz"]
 	path = include/Xertz
 	url = https://github.com/CosmoCortney/Xertz.git
