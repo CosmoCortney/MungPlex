@@ -44,10 +44,8 @@ void MungPlex::Connection::DrawGameInformation()
 {
 	ImGui::SeparatorText("GameInformation");
 
-	enum ContentsType { CT_Text, CT_FillButton };
 	static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
 	static bool display_headers = false;
-	static int contents_type = CT_Text;
 
 	if (ImGui::BeginTable("Game Info", 2, flags))
 	{
@@ -67,10 +65,7 @@ void MungPlex::Connection::DrawGameInformation()
 					sprintf(buf, _gameEntities[row].Value.c_str());
 				}
 
-				if (contents_type == CT_Text)
-					ImGui::TextUnformatted(buf);
-				else if (contents_type == CT_FillButton)
-					ImGui::Button(buf, ImVec2(-FLT_MIN, 0.0f));
+				ImGui::TextUnformatted(buf);
 			}
 		}
 		ImGui::EndTable();
@@ -126,7 +121,6 @@ void MungPlex::Connection::LoadSystemInformationJSON(std::wstring& emuName)
 		_gameEntities.push_back(GameEntity(entity, location, datatype, size, hex));
 	}
 
-	std::cout << _currentEmulatorNumber;
 	InitProcess(emuName, 0, std::pair<std::wstring, int>(emuName, _currentEmulatorNumber));
 }
 
@@ -175,6 +169,7 @@ void MungPlex::Connection::InitProcess(std::wstring& processName, int connection
 void MungPlex::Connection::InitProject64()
 {
 	BE = false;
+	_addressWidth = 4;
 
 	for (uint64_t i = 0; i < _regions.size(); ++i)
 	{
@@ -199,12 +194,12 @@ void MungPlex::Connection::InitProject64()
 void MungPlex::Connection::InitDolphin()
 {
 	BE = true;
+	_addressWidth = 4;
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
 	_systemRegions.erase(_systemRegions.begin() + 2); // |- remove these lines once caches and sram are figured out
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
 
 	unsigned int temp, flagGCN, flagWii;
-	std::cout << _regions.size() << " fhgdju" << _currentPID << std::endl;
 
 	for (uint64_t i = 0; i < _regions.size(); ++i)
 	{
