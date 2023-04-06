@@ -54,11 +54,11 @@ void MungPlex::Search::DrawValueTypeOptions()
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
 			MungPlex::SetUpCombo("Text Type", GetInstance()._searchTextTypes, GetInstance()._currentTextTypeSelect);
 		if (_disableBecauseNoText) ImGui::EndDisabled();
-		
+
 		if (_disableBecauseNoColor) ImGui::BeginDisabled();
 			MungPlex::SetUpCombo("Color Type", GetInstance()._searchColorTypes, GetInstance()._currentColorTypeSelect);
 		if (_disableBecauseNoColor) ImGui::EndDisabled();
-
+		
 		if (!_disableBecauseNoInt) ImGui::BeginDisabled();
 		ImGui::SliderFloat("% Precision", &GetInstance()._precision, 1.0f, 100.0f, "%0.2f", NULL);
 		if (!_disableBecauseNoInt) ImGui::EndDisabled();
@@ -67,7 +67,7 @@ void MungPlex::Search::DrawValueTypeOptions()
 		ImGui::SameLine();
 
 		if (_disableBecauseNoInt) ImGui::BeginDisabled();
-			ImGui::Checkbox("Signed", &_signed);
+		ImGui::Checkbox("Signed", &_signed);
 		if (_disableBecauseNoInt) ImGui::EndDisabled();
 
 		ImGui::SameLine();
@@ -75,7 +75,7 @@ void MungPlex::Search::DrawValueTypeOptions()
 		_disableBecauseNoText = _currentValueTypeSelect != TEXT;
 
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
-			ImGui::Checkbox("Case Sensitive", &_caseSensitive);
+		ImGui::Checkbox("Case Sensitive", &_caseSensitive);
 		if (_disableBecauseNoText) ImGui::EndDisabled();
 
 
@@ -121,13 +121,14 @@ void MungPlex::Search::DrawRangeOptions()
 	ImGui::BeginGroup();
 	{
 		ImGui::PushItemWidth(groupWidth);
-		GetInstance()._regions = MungPlex::Connection::GetRegions();
+		_regions = MungPlex::Connection::GetRegions();
 		ImGui::SeparatorText("Range Options");
 		_RegionSelectSignalCombo.Draw("Region", _regions, _currentRegionSelect);
 		int changed;
 
-		ImGui::InputText("Start at (hex)", _rangeStartText, IM_ARRAYSIZE(_rangeStartText)/*, ImGuiInputTextFlags_CallbackEdit, static_cast<ImGuiInputTextFlags_CallbackAlways>(MyInputTextCallback)*/);
-		ImGui::InputText("End at (hex)", _rangeEndText, IM_ARRAYSIZE(_rangeEndText));
+		_SignalInputTextRangeStart.Draw("Start at (hex)", _rangeStartText, IM_ARRAYSIZE(_rangeStartText));
+		_SignalInputTextRangeEnd.Draw("End at (hex)", _rangeEndText, IM_ARRAYSIZE(_rangeEndText));
+
 		ImGui::PopItemWidth();
 	}
 	ImGui::EndGroup();
@@ -146,8 +147,46 @@ void MungPlex::Search::DrawSearchOptions()
 			PerformSearch();
 
 		ImGui::SameLine();
-		ImGui::Button("Cancel");
-		ImGui::InputText("Known Value", _knownValueText, IM_ARRAYSIZE(_knownValueText));
+		if (ImGui::Button("Cancel"))
+		{
+			std::string strArray = std::string(_knownValueText);
+			RemoveChars(strArray, " ");
+			std::stringstream stream(strArray);
+
+			std::vector<int> ignoreIndices;
+
+
+			OperativeArray<uint32_t> x(strArray);
+				//= StringStreamToArray<uint32_t>(stream);
+
+			for (int i = 0; i < x.ItemCount(); ++i)
+				std::cout << x[i] << std::endl;
+
+		}
+
+		if(ImGui::InputText("Known Value", _knownValueText, IM_ARRAYSIZE(_knownValueText)))
+		 {
+			/*	uint64_t val;
+			std::stringstream stream;
+			if(GetInstance()._hex && GetInstance()._currentValueTypeSelect < FLOAT)
+				stream << std::hex << std::string(_knownValueText);
+			else
+				stream << std::string(_knownValueText);
+			stream >> val;
+			_knownValueValue = val;*/
+		}
+
+		if (ImGui::InputText("Secondary Value", _secondaryKnownValueText, IM_ARRAYSIZE(_secondaryKnownValueText)))
+		{
+			/* 	uint64_t val;
+			std::stringstream stream;
+			if (GetInstance()._hex && GetInstance()._currentValueTypeSelect < FLOAT)
+				stream << std::hex << std::string(_secondaryKnownValueText);
+			else
+				stream << std::string(_secondaryKnownValueText);
+			stream >> val;
+			_secondaryKnownValueValue = val;*/
+		}
 
 		MungPlex::SetUpCombo("Comparision Type", GetInstance()._searchComparasionType, GetInstance()._currentComparisionTypeSelect);
 
@@ -158,11 +197,11 @@ void MungPlex::Search::DrawSearchOptions()
 		if ((GetInstance()._currentValueTypeSelect > INT64 && GetInstance()._currentValueTypeSelect != ARRAY)
 			|| (GetInstance()._currentValueTypeSelect == ARRAY && GetInstance()._currentArrayTypeSelect > INT64))
 		{
-			if (GetInstance()._currentConditionTypeSelect > LOWER_EQUAL)
-				GetInstance()._currentConditionTypeSelect = EQUAL;
+			if (GetInstance()._currentConditionTypeSelect > Xertz::LOWER_EQUAL)
+				GetInstance()._currentConditionTypeSelect = Xertz::EQUAL;
 
-			typeIterator = LOWER_EQUAL + 1;
-			conditionTypeItems.resize(LOWER_EQUAL + 1);
+			typeIterator = Xertz::LOWER_EQUAL + 1;
+			conditionTypeItems.resize(Xertz::LOWER_EQUAL + 1);
 		}
 
 		for (int i = 0; i < typeIterator; ++i)
@@ -172,7 +211,16 @@ void MungPlex::Search::DrawSearchOptions()
 
 		MungPlex::SetUpCombo("Condition Type", conditionTypeItems, GetInstance()._currentConditionTypeSelect);
 
-		ImGui::InputText("Alignment", _alignmentText, IM_ARRAYSIZE(_alignmentText));
+		if (ImGui::InputText("Alignment", _alignmentText, IM_ARRAYSIZE(_alignmentText)))
+		{
+			std::stringstream stream;
+			stream << std::hex << std::string(_alignmentText);
+			stream >> _alignmentValue;
+			
+			if (_alignmentValue < 1)
+				_alignmentValue = 1;
+		}
+
 		ImGui::Checkbox("Values are hex", &GetInstance()._hex);
 		ImGui::SameLine();
 		ImGui::Checkbox("Cached", &GetInstance()._cached);
@@ -190,63 +238,177 @@ void MungPlex::Search::DrawSearchOptions()
 
 void MungPlex::Search::DrawResultsArea()
 {
+	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
 	ImGui::BeginGroup();
-	enum ContentsType { CT_Text, CT_FillButton };
-	static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY;
-	static bool display_headers = true;
-	static int contents_type = CT_Text;
-	std::wstring currentModule;
 
-	if (!ImGui::BeginTable("Results", 4, flags))
-		return;
-
-	ImGui::TableSetupColumn("Address");
-	ImGui::TableSetupColumn("Value");
-	ImGui::TableSetupColumn("Previous");
-	ImGui::TableSetupColumn("Difference");
-	ImGui::TableHeadersRow();
-
-	currentModule.reserve(1024);
-
-	for (int row = 0; row < _resultCount; ++row)
+	switch (_currentValueTypeSelect)
 	{
-		ImGui::TableNextRow();
-		for (int column = 0; column < 4; ++column)
+	case INT8: {
+		if (*Connection::GetAddressWidth() > 4)
+			_signed ? DrawResultsTable<int8_t, uint64_t>() : DrawResultsTable<uint8_t, uint64_t>();
+		else
+			_signed ? DrawResultsTable<int8_t, uint32_t>() : DrawResultsTable<uint8_t, uint32_t>();
+	} break;
+	case INT16: {
+		if (*Connection::GetAddressWidth() > 4)
+			_signed ? DrawResultsTable<int16_t, uint64_t>() : DrawResultsTable<uint16_t, uint64_t>();
+		else
+			_signed ? DrawResultsTable<int16_t, uint32_t>() : DrawResultsTable<uint16_t, uint32_t>();
+	} break;
+	case INT64: {
+		if (*Connection::GetAddressWidth() > 4)
+			_signed ? DrawResultsTable<int64_t, uint64_t>() : DrawResultsTable<uint64_t, uint64_t>();
+		else
+			_signed ? DrawResultsTable<int64_t, uint32_t>() : DrawResultsTable<uint64_t, uint32_t>();
+	} break;
+	case FLOAT: {
+		if (*Connection::GetAddressWidth() > 4)
+			DrawResultsTable<float, uint64_t>();
+		else
+			DrawResultsTable<float, uint32_t>();
+	} break;
+	case DOUBLE: {
+		if (*Connection::GetAddressWidth() > 4)
+			DrawResultsTable<double, uint64_t>();
+		else
+			DrawResultsTable<double, uint32_t>();
+	} break;
+	default: { //INT32
+		if (*Connection::GetAddressWidth() > 4)
+			_signed ? DrawResultsTable<int32_t, uint64_t>() : DrawResultsTable<uint32_t, uint64_t>();
+		else
+			_signed ? DrawResultsTable<int32_t, uint32_t>() : DrawResultsTable<uint32_t, uint32_t>();
+	} break;
+	}
+
+
+	ImGui::PushItemWidth(groupWidth/5);
+	ImGui::LabelText("Results", std::to_string(_resultCount).c_str());
+	ImGui::SameLine();
+
+	ImGui::BeginGroup();
+	ImGui::PushItemWidth(groupWidth);
+	ImGui::InputText("Address", _pokeAddressText, IM_ARRAYSIZE(_pokeAddressText));
+	ImGui::PushItemWidth(groupWidth);
+	ImGui::InputText("Value", _pokeValueText, IM_ARRAYSIZE(_pokeValueText));
+	if (ImGui::Button("Poke"))
+	{
+		std::stringstream stream;
+		
+		if (!_multiPoke)
 		{
-			std::stringstream stream;
-			ImGui::TableSetColumnIndex(column);
-			char buf[256];
+			stream << std::hex << std::string(_pokeAddressText);
+			stream >> _pokeAddress;
+			stream.str(std::string());
+			stream.clear();
+		}
 
-			switch (column)
-			{
-			case 0:
-				sprintf(buf, "%llX", _searchResults[row]._address);
-				break;
-			case 1:
-				sprintf(buf, "%llX", _searchResults[row]._currentValue);
-				break;
-			case 2:
-				sprintf(buf, "%u", _searchResults[row]._previousValue);
-				break;
-			case 3:
-				sprintf(buf, "%u", _searchResults[row]._difference);
-				break;
-			}
+		if (_hex && _currentValueTypeSelect < FLOAT)
+			stream << std::hex << std::string(_pokeValueText);
+		else
+			stream << std::string(_pokeValueText);
 
-			if (contents_type == CT_Text)
-				ImGui::TextUnformatted(buf);
-			else if (contents_type == CT_FillButton)
-				ImGui::Button(buf, ImVec2(-FLT_MIN, 0.0f));
+		switch (_currentValueTypeSelect)
+		{
+			case INT8: {
+				stream >> *(uint8_t*)_pokeValue;
+				if (*Connection::GetAddressWidth() > 4)
+					PokeValue<uint8_t, uint64_t>();
+				else
+					PokeValue<uint8_t, uint32_t>();
+			} break;
+			case INT16: {
+				stream >> *(uint16_t*)_pokeValue;
+				if (*Connection::GetAddressWidth() > 4)
+					PokeValue<uint16_t, uint64_t>();
+				else
+					PokeValue<uint16_t, uint32_t>();
+			} break;
+			case INT64: {
+				stream >> *(uint64_t*)_pokeValue;
+				if (*Connection::GetAddressWidth() > 4)
+					PokeValue<uint64_t, uint64_t>();
+				else
+					PokeValue<uint64_t, uint32_t>();
+			} break;
+			case FLOAT: {
+				stream >> *(float*)_pokeValue;
+				if (*Connection::GetAddressWidth() > 4)
+					PokeValue<float, uint64_t>();
+				else
+					PokeValue<float, uint32_t>();
+			} break;
+			case DOUBLE: {
+				stream >> *(double*)_pokeValue;
+				if (*Connection::GetAddressWidth() > 4)
+					PokeValue<double, uint64_t>();
+				else
+					PokeValue<double, uint32_t>();
+			} break;
+			default: {
+				stream >> *(uint32_t*)_pokeValue;
+				if (*Connection::GetAddressWidth() > 4)
+					PokeValue<uint32_t, uint64_t>();
+				else
+					PokeValue<uint32_t, uint32_t>();
+			} break;
 		}
 	}
 
-	ImGui::EndTable();
+	ImGui::SameLine();
+	ImGui::Checkbox("Previous Value", &_pokePrevious);
+	ImGui::SameLine();
+	HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous value. No matter what's in the \"Value\" text field. If this one is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
+	ImGui::SameLine();
+	ImGui::Checkbox("Multi-Poke", &_multiPoke);
+
+	ImGui::EndGroup();
+
+	ImGui::BeginGroup();//page control
+	{	
+		ImGui::BeginGroup();
+		{
+			std::stringstream stream;
+			if (ImGui::Button("^"))
+			{
+				if (_currentPageValue < _pagesAmountValue)
+				{
+					stream << ++_currentPageValue;
+					stream >> _currentPageText;
+				}
+			}
+
+			if(ImGui::Button("v"))
+			{
+				if (_currentPageValue > 1)
+				{
+					stream << --_currentPageValue;
+					stream >> _currentPageText;
+				}
+			}
+		}
+		ImGui::EndGroup();
+	
+		ImGui::SameLine();
+
+		ImGui::BeginGroup();
+		ImGui::PushItemWidth(groupWidth/2);
+			if (ImGui::InputText("Page", _currentPageText, IM_ARRAYSIZE(_currentPageText)))
+			{
+				std::stringstream(_currentPageText) >> _currentPageValue;
+				
+				if (_currentPageValue < 1 || _currentPageValue > _pagesAmountValue)
+					ResetCurrentPage();
+			}
+
+			ImGui::SameLine();
+			ImGui::PushItemWidth(groupWidth/2);
+			ImGui::InputText("Of", _pagesAmountText, IM_ARRAYSIZE(_pagesAmountText));
+	}	ImGui::EndGroup();
+	ImGui::EndGroup();
+
 	ImGui::EndGroup();
 }
-
-
-
-
 
 void MungPlex::Search::PickColorFromScreen()
 {
@@ -290,47 +452,183 @@ void MungPlex::Search::PickColorFromScreen()
 
 void MungPlex::Search::PerformSearch()
 {
-	std::stringstream stream;
-	stream << std::hex << std::string(_rangeStartText);
-	stream >> _rangeStartValue;
-	uint64_t offset = _rangeStartValue - MungPlex::Connection::GetRegions()[GetInstance()._currentRegionSelect].Base;
-	HANDLE handle = MungPlex::Connection::GetCurrentHandle();
-	void* baseAddressEx = MungPlex::Connection::GetRegions()[GetInstance()._currentRegionSelect].BaseLocationProcess;
-	uint64_t size;
-	stream.str(std::string());
-	stream.clear();
-	stream << std::hex << std::string(_rangeEndText);
-	stream >> _rangeEndValue;
-	size = _rangeEndValue - _rangeStartValue + 1;
-	std::cout << std::hex << size << std::endl;
-	std::cout << std::hex << handle << std::endl;
-	std::cout << std::hex << (uint64_t)((char*)baseAddressEx + offset) << std::endl;
-
-
-	if (_currentComparisionTypeSelect == ComparasionType::UNKNOWN)
+	
+	
+	switch (_currentValueTypeSelect)
 	{
-		if (_iterationCount == 0)
+	case ARRAY: 
+		ArrayTypeSearch();
+		break;
+	case TEXT:
+		TextTypeSearch();
+		break;
+	case COLOR:
+		ColorTypeSearch();
+		break;
+	default:
+		PrimitiveTypeSearch();
+		break;
+	}
+
+	
+
+	++_iterationCount;
+	_selectedIndices.resize(_maxResultsPerPage);
+	_pagesAmountValue = _resultCount / _maxResultsPerPage;
+
+	if (_resultCount % _maxResultsPerPage > 0)
+		++_pagesAmountValue;
+
+	std::stringstream stream;
+	stream << std::dec << _pagesAmountValue;
+	stream >> _pagesAmountText;
+}
+
+void MungPlex::Search::PrimitiveTypeSearch()
+{
+	std::stringstream stream1, stream2; //i know this is bloated but better than keeping track if the stream is still good
+	if (_currentPrimitiveTypeSelect < FLOAT)
+	{
+		if (_signed)
 		{
-			std::wstring path = L"F:\\test\\file.bin";
-			//Xertz::MemDump dump;
-			//dump = Xertz::MemDump(handle, baseAddressEx, size);
-			//dump.SaveDump(path);
-			//_memDumps[0].SaveDump(path);
-			//std::cout << "3\n";
+			int64_t knownVal, knownValSecondary;
+			if (GetInstance()._hex)
+			{
+				stream1 << std::hex << std::string(_knownValueText);
+				stream2 << std::hex << std::string(_secondaryKnownValueText);
+			}
+			else
+			{
+				stream1 << std::string(_knownValueText);
+				stream2 << std::string(_secondaryKnownValueText);
+			}
+			stream1 >> knownVal;
+			stream2 >> knownValSecondary;
 
-			//uint32_t offs[5] = { 1,2,3,4,5 };
-			//double vals[5] = { 1,2,3,4,5 };
+			switch (_currentValueTypeSelect)
+			{
+			case INT8:
+				_resultCount = SetUpAndIterate<int8_t>(knownVal, knownValSecondary);
+				break;
+			case INT16:
+				_resultCount = SetUpAndIterate<int16_t>(knownVal, knownValSecondary);
+				break;
+			case INT32:
+				_resultCount = SetUpAndIterate<int32_t>(knownVal, knownValSecondary);
+				break;
+			case INT64:
+				_resultCount = SetUpAndIterate<int64_t>(knownVal, knownValSecondary);
+				break;
+			}
+		}
+		else
+		{
+			uint64_t knownVal, knownValSecondary;
+			if (GetInstance()._hex)
+			{
+				stream1 << std::hex << std::string(_knownValueText);
+				stream2 << std::hex << std::string(_secondaryKnownValueText);
+			}
+			else
+			{
+				stream1 << std::string(_knownValueText);
+				stream2 << std::string(_secondaryKnownValueText);
+			}
+			stream1 >> knownVal;
+			stream2 >> knownValSecondary;
 
-			//Xertz::MemCompareResult<double, uint32_t> test(false, path);
-			
-			//test.SetResultOffsets(offs);
-			//test.SetResultValues(vals);
-			//test.SetResultCount(5);
-			//std::cout << "saved: " << test.SaveResults();
-
-			//test.LoadResults(false);
-
-			Xertz::MemCompare<uint32_t, uint32_t>::Iterate(Connection::GetCurrentPID(), baseAddressEx, size, 0, false);
+			switch (_currentValueTypeSelect)
+			{
+			case INT8:
+				_resultCount = SetUpAndIterate<uint8_t>(knownVal, knownValSecondary);
+				break;
+			case INT16:
+				_resultCount = SetUpAndIterate<uint16_t>(knownVal, knownValSecondary);
+				break;
+			case INT32:
+				_resultCount = SetUpAndIterate<uint32_t>(knownVal, knownValSecondary);
+				break;
+			case INT64:
+				_resultCount = SetUpAndIterate<uint64_t>(knownVal, knownValSecondary);
+				break;
+			}
 		}
 	}
+	else if (_currentValueTypeSelect == FLOAT || _currentValueTypeSelect == DOUBLE)
+	{
+		double knownVal, knownValSecondary;
+		stream1 << std::string(_knownValueText);
+		stream2 << std::string(_secondaryKnownValueText);
+		stream1 >> knownVal;
+		stream2 >> knownValSecondary;
+
+		switch (_currentValueTypeSelect)
+		{
+		case FLOAT:
+			_resultCount = SetUpAndIterate<float>(knownVal, knownValSecondary);
+			break;
+		case DOUBLE:
+			_resultCount = SetUpAndIterate<double>(knownVal, knownValSecondary);
+			break;
+		}
+	}
+}
+
+void MungPlex::Search::ArrayTypeSearch()
+{
+	std::string strArray = std::string(_knownValueText);
+	std::string strArraySecondary = std::string(_secondaryKnownValueText);
+
+	if (_currentArrayTypeSelect < FLOAT)
+	{
+		switch (_currentArrayTypeSelect)
+		{
+		case INT8: {
+			OperativeArray<uint8_t> arrayP(strArray);
+			OperativeArray<uint8_t> arrayS(strArraySecondary);
+			_resultCount = SetUpAndIterate<OperativeArray<uint8_t>>(arrayP, arrayS);
+		}break;
+		case INT16: {
+			OperativeArray<uint16_t> arrayP(strArray);
+			OperativeArray<uint16_t> arrayS(strArraySecondary);
+			_resultCount = SetUpAndIterate<OperativeArray<uint16_t>>(arrayP, arrayS);
+		}break;
+		case INT32: {
+			OperativeArray<uint32_t> arrayP(strArray);
+			OperativeArray<uint32_t> arrayS(strArraySecondary);
+			_resultCount = SetUpAndIterate<OperativeArray<uint32_t>>(arrayP, arrayS);
+		}break;
+		case INT64: {
+			OperativeArray<uint64_t> arrayP(strArray);
+			OperativeArray<uint64_t> arrayS(strArraySecondary);
+			_resultCount = SetUpAndIterate<OperativeArray<uint64_t>>(arrayP, arrayS);
+		}break;
+		}
+	}
+	else if (_currentValueTypeSelect == FLOAT || _currentValueTypeSelect == DOUBLE)
+	{
+		switch (_currentArrayTypeSelect)
+		{
+		case FLOAT: {
+			OperativeArray<float> arrayP(strArray);
+			OperativeArray<float> arrayS(strArraySecondary);
+			_resultCount = SetUpAndIterate<OperativeArray<float>>(arrayP, arrayS);
+		}break;
+		case DOUBLE: {
+			OperativeArray<double> arrayP(strArray);
+			OperativeArray<double> arrayS(strArraySecondary);
+			_resultCount = SetUpAndIterate<OperativeArray<double>>(arrayP, arrayS);
+		}break;
+		}
+	}
+}
+
+void MungPlex::Search::TextTypeSearch()
+{
+
+}
+
+void MungPlex::Search::ColorTypeSearch()
+{
+
 }
