@@ -20,10 +20,6 @@
 
 namespace MungPlex
 {
-    static bool BE = false;
-    static bool s_connected = false;
-    static std::string ConnectionStatus = NO_CONNECTION;
-
     struct GameEntity
     {
         std::string Entity = "";
@@ -63,6 +59,10 @@ namespace MungPlex
             return Instance;
         }
 
+        bool BE = false;
+        bool s_connected = false;
+        int32_t _addressWidth = 8;
+        std::string ConnectionStatus = NO_CONNECTION;
         int _currentPID;
         HANDLE _handle;
         REGION_LIST _regions;
@@ -86,5 +86,7 @@ namespace MungPlex
         static int GetCurrentPID();
         static HANDLE GetCurrentHandle();
         static std::vector<SystemRegion>& GetRegions();
+        static bool* IsBE() { return &GetInstance().BE; }
+        static int32_t* GetAddressWidth() { return &GetInstance()._addressWidth; }
     };
 }
