@@ -29,46 +29,41 @@ void MungPlex::Search::DrawValueTypeOptions()
 	char buf[256] = { "" };
 	ImGui::BeginGroup();
 	{
-		ImGui::PushItemWidth(groupWidth);
+		ImGui::PushItemWidth(groupWidth/2);
 		ImGui::SeparatorText("Value Type Options");
 
-		ImGui::SetNextItemWidth(groupWidth);
+		ImGui::BeginGroup();
 		MungPlex::SetUpCombo("Value Type", GetInstance()._searchValueTypes, GetInstance()._currentValueTypeSelect);
 
 		_disableBecauseNoArray = GetInstance()._currentValueTypeSelect != ARRAY;
 		_disableBecauseNoColor = _currentValueTypeSelect < RGB_BYTE;
 		_disableBecauseNoInt = !(_currentValueTypeSelect < FLOAT || (_currentValueTypeSelect == ARRAY && (_currentArrayTypeSelect < FLOAT)));
 
+		//ImGui::SameLine();
+
+		if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
+			MungPlex::SetUpCombo("Primitive Type", GetInstance()._searchPrimitiveTypes, GetInstance()._currentPrimitiveTypeSelect);
+		if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
+
 		if (_disableBecauseNoArray) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Array Type", GetInstance()._searchArrayTypes, GetInstance()._currentArrayTypeSelect);
+			MungPlex::SetUpCombo("Array Type", GetInstance()._searchPrimitiveTypes, GetInstance()._currentArrayTypeSelect);
 		if (_disableBecauseNoArray) ImGui::EndDisabled();
+
+		//ImGui::SameLine();
 
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
 			MungPlex::SetUpCombo("Text Type", GetInstance()._searchTextTypes, GetInstance()._currentTextTypeSelect);
 		if (_disableBecauseNoText) ImGui::EndDisabled();
 		
 		if (_disableBecauseNoColor) ImGui::BeginDisabled();
-			if (ImGui::Button("Pick color from screen"))
-			{
-				//HWND windowHandle = GetForegroundWindow(); todo: make this work ): 
-				PickColorFromScreen();
-				//MungPlex::SetWindowToForeground(windowHandle);
-			}
-
-				float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) * 0.18f;
-				ImGui::SetNextItemWidth(w);
-				ImGui::ColorPicker3("##MyColor##5", (float*)&GetInstance()._colorVec, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs);
-				ImGui::SameLine();
-				ImGui::SetNextItemWidth(w);
-				ImGui::ColorPicker3("##MyColor##6", (float*)&GetInstance()._colorVec, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+			MungPlex::SetUpCombo("Color Type", GetInstance()._searchColorTypes, GetInstance()._currentColorTypeSelect);
 		if (_disableBecauseNoColor) ImGui::EndDisabled();
 
 		if (!_disableBecauseNoInt) ImGui::BeginDisabled();
-			ImGui::SliderInt("% Precision", &GetInstance()._precision, 1, 100, "%d", NULL);
+		ImGui::SliderFloat("% Precision", &GetInstance()._precision, 1.0f, 100.0f, "%0.2f", NULL);
 		if (!_disableBecauseNoInt) ImGui::EndDisabled();
 
-
-		ImGui::Checkbox("Big Endian", &BE);
+		ImGui::Checkbox("Big Endian", Connection::IsBE());
 		ImGui::SameLine();
 
 		if (_disableBecauseNoInt) ImGui::BeginDisabled();
@@ -82,6 +77,37 @@ void MungPlex::Search::DrawValueTypeOptions()
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
 			ImGui::Checkbox("Case Sensitive", &_caseSensitive);
 		if (_disableBecauseNoText) ImGui::EndDisabled();
+
+
+		//ImGui::SameLine();
+
+		if (_disableBecauseNoColor)
+			ImGui::BeginDisabled();
+
+			ImGui::Checkbox("Show Color Wheel", &_useColorWheel);
+			ImGui::SameLine();
+
+			if (ImGui::Button("Pick color from screen"))
+			{
+				//HWND windowHandle = GetForegroundWindow(); todo: make this work ): 
+				PickColorFromScreen();
+				//MungPlex::SetWindowToForeground(windowHandle);
+			}
+
+			ImGui::EndGroup();
+
+			ImGui::SameLine();
+
+			float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) * 0.18f;
+			ImGui::SetNextItemWidth(w);
+			ImGui::ColorPicker3("##MyColor##6", (float*)&GetInstance()._colorVec, (_useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar) );
+				
+				
+
+		if (_disableBecauseNoColor)
+			ImGui::EndDisabled();
+
+		
 
 		ImGui::PopItemWidth();
 	}
