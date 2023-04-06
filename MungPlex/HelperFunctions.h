@@ -13,10 +13,58 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include"Connection.h"
+#include<any>
+#include"OperativeArray.h"
 
 namespace MungPlex
 {
-    struct SystemRegion; //forward declaration for the compiler
+    static const char* GetStringLiteral(int valueType, bool isSigned, bool hex)
+    {
+        if (valueType == FLOAT || valueType == DOUBLE)
+            return "%f";
+        else if (hex)
+        {
+            switch (valueType)
+            {
+            case INT8:
+                return "%02X";
+            case INT16:
+                return "%04X";
+            case INT64:
+                return "%016X";
+            default:
+                return "%08X";
+            }
+        }
+        else
+        {
+            switch (valueType)
+            {
+            case INT8:
+                return isSigned ? "%hhi" : "%hhu";
+            case INT16:
+                return isSigned ? "%hi" : "%hu";
+            case INT64:
+                return isSigned ? "%lli" : "%llu";
+            default:
+                return isSigned ? "%li" : "%lu";
+            }
+        }
+    }
+
+    static void HelpMarker(const char* desc) //� ImGui devs
+    {
+        ImGui::TextDisabled("(?)");
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+        {
+            ImGui::BeginTooltip();
+            ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+            ImGui::TextUnformatted(desc);
+            ImGui::PopTextWrapPos();
+            ImGui::EndTooltip();
+        }
+    }
+    struct SystemRegion; //forward declaration for compiler
     static int s_globalWindowFlag = 0;
 	
     static void SetWindowToForeground(HWND hWnd)// todo: make this work ):
@@ -61,15 +109,15 @@ namespace MungPlex
         items_str.reserve(items.size());
         for (const auto& item : items)
         {
-            if constexpr (std::is_same_v<T, std::string>)                           //std::string>
+            if constexpr (std::is_same_v<T, std::string>)                           //std::string
                 items_str.push_back(item.c_str());
-            else if constexpr (std::is_same_v<T, std::pair<std::string, int>>)      //std::pair<std::string, int>>
+            else if constexpr (std::is_same_v<T, std::pair<std::string, int>>)      //std::pair<std::string, int>
                 items_str.push_back(item.first.c_str());
             else if constexpr (std::is_same_v<T, std::wstring>)                     //std::wstring>
                 items_str.push_back(std::string(item.begin(), item.end()).c_str());
-            else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>>)     //std::pair<std::wstring, int>>
+            else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>>)     //std::pair<std::wstring, int>
                 items_str.push_back(std::string(item.first.begin(), item.first.end()).c_str());
-            else if constexpr (std::is_same_v < T, MungPlex::SystemRegion>)         //MungPlex::SystemRegion>
+            else if constexpr (std::is_same_v < T, MungPlex::SystemRegion>)         //MungPlex::SystemRegion
             {
                 items_str.push_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
             }
@@ -95,14 +143,12 @@ namespace MungPlex
         std::vector<Slot> _slotsOnItemCountChanged{};
         std::vector<Slot> _slotsOnTextChanged{};
 
-
     public: 
         SignalCombo<T>(){}
         void Draw(const std::string& name, std::vector<T>& items, int& select)
         {
             if (items.size() > 0)
             {
-
             if (_slotsOnIndexChanged.size() > 0 && _index != select)
             {
                 for (const auto& slot : _slotsOnIndexChanged)
@@ -119,7 +165,7 @@ namespace MungPlex
                 _itemCount = items.size();
             }
 
-            if (_slotsOnTextChanged.size() > 0 && _text.compare(items[_index].Label) != 0)
+                if (_slotsOnTextChanged.size() > 0 && _text.compare(items[_index].Label) != 0)//todo: make this using a boolean flag instead
             {
                 for (const auto& slot : _slotsOnTextChanged)
                     slot();
@@ -135,18 +181,48 @@ namespace MungPlex
         {
             _slotsOnIndexChanged.push_back(slot);
         }
-            
 
         void ConnectOnItemCountChanged(Slot slot)
         {
             _slotsOnItemCountChanged.push_back(slot);
         }
             
-
         void ConnectOnTextChanged(Slot slot)
         {
             _slotsOnTextChanged.push_back(slot);
         }
     };
 
+    class SignalInputText //ImGui's InputTexts don't return true if the text was changed due to accessing the variable instead of keyboard input
+    {
+    public:
+        typedef std::function<void()> Slot;
+
+    private:
+        char _text[1024] = "";
+        std::vector<Slot> _slotsOnTextChanged{};
+
+    public:
+        SignalInputText() {}
+        bool Draw(const char* name, char* buf, uint64_t size, ImGuiInputTextFlags flags = 0)
+        {
+            bool changedByFlow = false;
+            if (std::strcmp(_text, buf) != 0)
+            {
+                for (const auto& slot : _slotsOnTextChanged)
+                    slot();
+
+                std::strcpy(_text, buf);
+                changedByFlow = true;
+            }
+
+            return ImGui::InputText(name, buf, size, flags) || changedByFlow;
+        }
+
+        void ConnectOnTextChanged(Slot slot)
+        {
+            _slotsOnTextChanged.push_back(slot);
+        }
+    };
 }
+
