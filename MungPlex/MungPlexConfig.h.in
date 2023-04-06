@@ -24,18 +24,20 @@ namespace MungPlex
 {
     enum ValueType
     {
+        PRIMITIVE = 0,
+        ARRAY = 1,
+        TEXT = 2,
+        COLOR = 3
+    };
+
+    enum PrimitiveType
+    {
         INT8 = 0,
         INT16 = 1,
         INT32 = 2,
         INT64 = 3,
         FLOAT = 4,
         DOUBLE = 5,
-        ARRAY = 6,
-        TEXT = 7,
-        RGB_BYTE = 8,
-        RGBA_BYTE = 9,
-        RGB_FLOAT = 10,
-        RGBA_FLOAT = 11
     };
 
     enum TextType
@@ -47,28 +49,16 @@ namespace MungPlex
         SHIFT_JIS = 4
     };
 
-    enum SearchType
+    enum ColorType
     {
-        EQUAL = 0,
-        UNEQUAL = 1,
-        GREATER = 2,
-        GREATER_EQUAL = 3,
-        LOWER = 4,
-        LOWER_EQUAL = 5,
-        AND = 4,
-        OR = 7
+        RGB_BYTE = 0,
+        RGBA_BYTE = 1,
+        RGB_FLOAT = 2,
+        RGBA_FLOAT = 3
     };
 
-        enum ComparasionType
-    {
-        UNKNOWN = 0,
-        KNOWN = 1
-    };
+   
+
+
 }
-
-
-
-
-
-
 
