@@ -21,6 +21,7 @@ add_executable (MungPlex    "main.cpp"
                             "ProcessInformation.cpp"
                             "Search.cpp"
                             "HelperFunctions.h"
+                            "../include/OperativeArray/OperativeArray/OperativeArray.h"
                )
 
 
@@ -49,7 +50,10 @@ target_include_directories(MungPlex PUBLIC
                            "${PROJECT_SOURCE_DIR}/../include/glad/src"
                            "${PROJECT_SOURCE_DIR}/../include/meojson/include"
                            "${PROJECT_SOURCE_DIR}/../include/Xertz"
+                           "${PROJECT_SOURCE_DIR}/../include/Xertz/zlib"
+                           "${PROJECT_SOURCE_DIR}/../include/OperativeArray/OperativeArray"
                            )
+
 
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)

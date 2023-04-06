@@ -10,5 +10,6 @@ include_directories("include/imgui")
 add_subdirectory ("include/glfw")
 include_directories ("include/glad")
 include_directories ("include/meojson")
-include_directories ("include/Xertz")
+add_subdirectory ("include/Xertz")
+include_directories ("include/OperativeArray")
 
