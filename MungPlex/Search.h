@@ -130,7 +130,7 @@ Search()
         int _lastRangeSelect = -1;
         bool _signed = false;
         bool _hex = false;
-        bool _cached = true;
+        bool _cached = false;
         float _precision = 100.0f;
         bool _disableBecauseNoPrimitive = false;
         bool _disableBecauseNoInt = false;
@@ -273,6 +273,9 @@ Search()
 
             if (!_cached && _iterationCount > 0)
             {
+                if (_iterationCount > 1 && results->at(_iterationCount - 2)->HasResults())
+                    results->at(_iterationCount - 2)->FreeData(false);
+
                 if (!results->at(_iterationCount - 1)->HasResults())
                     if (!results->at(_iterationCount - 1)->LoadResults(false))
                         return;
@@ -283,7 +286,7 @@ Search()
             ImGui::TableSetupColumn("Previous");
             ImGui::TableSetupColumn("Difference (a - b)");
             ImGui::TableHeadersRow();
-            const char* literal = GetStringLiteral(_currentValueTypeSelect, _signed, _hex);
+            const char* literal = GetStringLiteral(_currentPrimitiveTypeSelect, _signed, _hex);
 
             for (int row = 0; row < _resultCount; ++row)
             {
