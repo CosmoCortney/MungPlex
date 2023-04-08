@@ -241,7 +241,7 @@ void MungPlex::Search::DrawResultsArea()
 	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
 	ImGui::BeginGroup();
 
-	switch (_currentValueTypeSelect)
+	switch (_currentPrimitiveTypeSelect)
 	{
 	case INT8: {
 		if (*Connection::GetAddressWidth() > 4)
@@ -505,7 +505,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			stream1 >> knownVal;
 			stream2 >> knownValSecondary;
 
-			switch (_currentValueTypeSelect)
+			switch (_currentPrimitiveTypeSelect)
 			{
 			case INT8:
 				_resultCount = SetUpAndIterate<int8_t>(knownVal, knownValSecondary);
@@ -537,7 +537,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			stream1 >> knownVal;
 			stream2 >> knownValSecondary;
 
-			switch (_currentValueTypeSelect)
+			switch (_currentPrimitiveTypeSelect)
 			{
 			case INT8:
 				_resultCount = SetUpAndIterate<uint8_t>(knownVal, knownValSecondary);
@@ -554,7 +554,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			}
 		}
 	}
-	else if (_currentValueTypeSelect == FLOAT || _currentValueTypeSelect == DOUBLE)
+	else if (_currentPrimitiveTypeSelect == FLOAT || _currentPrimitiveTypeSelect == DOUBLE)
 	{
 		double knownVal, knownValSecondary;
 		stream1 << std::string(_knownValueText);
@@ -562,7 +562,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 		stream1 >> knownVal;
 		stream2 >> knownValSecondary;
 
-		switch (_currentValueTypeSelect)
+		switch (_currentPrimitiveTypeSelect)
 		{
 		case FLOAT:
 			_resultCount = SetUpAndIterate<float>(knownVal, knownValSecondary);
