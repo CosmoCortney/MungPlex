@@ -185,6 +185,7 @@ void MungPlex::Connection::InitProject64()
 			{
 				_systemRegions[0].BaseLocationProcess = _regions[i].GetBaseAddress<void*>();
 				ConnectionStatus = CONNECTED_PROJECT64;
+				_connected = true;
 				return;
 			}
 		}
@@ -221,6 +222,7 @@ void MungPlex::Connection::InitDolphin()
 	{
 		ConnectionStatus = CONNECTED_DOLPHIN_GAMECUBE;
 		_systemRegions.erase(_systemRegions.begin() + 1);
+		_connected = true;
 		return;
 	}
 
@@ -249,6 +251,8 @@ void MungPlex::Connection::InitDolphin()
 		ConnectionStatus = CONNECTED_DOLPHIN_WII;
 	else
 		ConnectionStatus = "Connected with Dolphin";
+
+	_connected = true;
 }
 
 void MungPlex::Connection::ObtainGameEntities(void* baseLocation)
@@ -312,4 +316,9 @@ std::vector<MungPlex::SystemRegion>& MungPlex::Connection::GetRegions()
 HANDLE MungPlex::Connection::GetCurrentHandle()
 {
 	return GetInstance()._handle;
+}
+
+bool MungPlex::Connection::IsConnected()
+{
+	return GetInstance()._connected;
 }

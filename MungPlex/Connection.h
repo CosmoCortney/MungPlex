@@ -60,7 +60,7 @@ namespace MungPlex
         }
 
         bool BE = false;
-        bool s_connected = false;
+        bool _connected = false;
         int32_t _addressWidth = 8;
         std::string ConnectionStatus = NO_CONNECTION;
         int _currentPID;
@@ -88,5 +88,6 @@ namespace MungPlex
         static std::vector<SystemRegion>& GetRegions();
         static bool* IsBE() { return &GetInstance().BE; }
         static int32_t* GetAddressWidth() { return &GetInstance()._addressWidth; }
+        static bool IsConnected();
     };
 }

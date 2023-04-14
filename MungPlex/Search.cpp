@@ -5,20 +5,24 @@ void MungPlex::Search::DrawWindow()
 {
 	ImGui::Begin("Search");
 
-	GetInstance().MungPlex::Search::DrawValueTypeOptions();
+	if (!MungPlex::Connection::IsConnected()) ImGui::BeginDisabled();
 
-	ImGui::SameLine();
+		GetInstance().DrawValueTypeOptions();
 
-	ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ChildBg, ImVec4(0.0f, 5.0f, 0.0f, 1.0f));
-	ImGui::BeginGroup();
-	{
-		GetInstance().DrawRangeOptions();
-		GetInstance().DrawSearchOptions();
-	}
-	ImGui::EndGroup();
-	ImGui::PopStyleColor();
+		ImGui::SameLine();
+
+		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ChildBg, ImVec4(0.0f, 5.0f, 0.0f, 1.0f));
+		ImGui::BeginGroup();
+		{
+			GetInstance().DrawRangeOptions();
+			GetInstance().DrawSearchOptions();
+		}
+		ImGui::EndGroup();
+		ImGui::PopStyleColor();
 	
-	GetInstance().DrawResultsArea();
+		GetInstance().DrawResultsArea();
+
+	if (!MungPlex::Connection::IsConnected()) ImGui::EndDisabled();
 
 	ImGui::End();
 }
@@ -33,41 +37,39 @@ void MungPlex::Search::DrawValueTypeOptions()
 		ImGui::SeparatorText("Value Type Options");
 
 		ImGui::BeginGroup();
-		MungPlex::SetUpCombo("Value Type", GetInstance()._searchValueTypes, GetInstance()._currentValueTypeSelect);
+		MungPlex::SetUpCombo("Value Type", _searchValueTypes, _currentValueTypeSelect);
 
-		_disableBecauseNoArray = GetInstance()._currentValueTypeSelect != ARRAY;
-		_disableBecauseNoColor = _currentValueTypeSelect < RGB_BYTE;
-		_disableBecauseNoInt = !(_currentValueTypeSelect < FLOAT || (_currentValueTypeSelect == ARRAY && (_currentArrayTypeSelect < FLOAT)));
-
-		//ImGui::SameLine();
+		_disableBecauseNoPrimitive = _currentValueTypeSelect != PRIMITIVE; 
+		_disableBecauseNoArray = _currentValueTypeSelect != ARRAY;
+		_disableBecauseNoColor = _currentValueTypeSelect != COLOR;
+		_disableBecauseNoText = _currentValueTypeSelect != TEXT;
+		_disableBecauseNoInt = (!_disableBecauseNoPrimitive && _currentPrimitiveTypeSelect > INT64) || (!_disableBecauseNoArray && _currentArrayTypeSelect > INT64) || !_disableBecauseNoColor;
 
 		if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Primitive Type", GetInstance()._searchPrimitiveTypes, GetInstance()._currentPrimitiveTypeSelect);
+			MungPlex::SetUpCombo("Primitive Type", GetInstance()._searchPrimitiveTypes, _currentPrimitiveTypeSelect);
 		if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
 
 		if (_disableBecauseNoArray) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Array Type", GetInstance()._searchPrimitiveTypes, GetInstance()._currentArrayTypeSelect);
+			MungPlex::SetUpCombo("Array Type", GetInstance()._searchPrimitiveTypes, _currentArrayTypeSelect);
 		if (_disableBecauseNoArray) ImGui::EndDisabled();
 
-		//ImGui::SameLine();
-
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Text Type", GetInstance()._searchTextTypes, GetInstance()._currentTextTypeSelect);
+			MungPlex::SetUpCombo("Text Type", _searchTextTypes, _currentTextTypeSelect);
 		if (_disableBecauseNoText) ImGui::EndDisabled();
 
 		if (_disableBecauseNoColor) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Color Type", GetInstance()._searchColorTypes, GetInstance()._currentColorTypeSelect);
+			MungPlex::SetUpCombo("Color Type", _searchColorTypes, _currentColorTypeSelect);
 		if (_disableBecauseNoColor) ImGui::EndDisabled();
 		
 		if (!_disableBecauseNoInt) ImGui::BeginDisabled();
-		ImGui::SliderFloat("% Precision", &GetInstance()._precision, 1.0f, 100.0f, "%0.2f", NULL);
+			ImGui::SliderFloat("% Precision", &_precision, 1.0f, 100.0f, "%0.2f", NULL);
 		if (!_disableBecauseNoInt) ImGui::EndDisabled();
 
 		ImGui::Checkbox("Big Endian", Connection::IsBE());
 		ImGui::SameLine();
 
 		if (_disableBecauseNoInt) ImGui::BeginDisabled();
-		ImGui::Checkbox("Signed", &_signed);
+			ImGui::Checkbox("Signed", &_signed);
 		if (_disableBecauseNoInt) ImGui::EndDisabled();
 
 		ImGui::SameLine();
@@ -75,7 +77,7 @@ void MungPlex::Search::DrawValueTypeOptions()
 		_disableBecauseNoText = _currentValueTypeSelect != TEXT;
 
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
-		ImGui::Checkbox("Case Sensitive", &_caseSensitive);
+			ImGui::Checkbox("Case Sensitive", &_caseSensitive);
 		if (_disableBecauseNoText) ImGui::EndDisabled();
 
 
@@ -100,7 +102,7 @@ void MungPlex::Search::DrawValueTypeOptions()
 
 			float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) * 0.18f;
 			ImGui::SetNextItemWidth(w);
-			ImGui::ColorPicker3("##MyColor##6", (float*)&GetInstance()._colorVec, (_useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar) );
+			ImGui::ColorPicker3("##MyColor##6", (float*)&_colorVec, (_useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar) );
 				
 				
 
