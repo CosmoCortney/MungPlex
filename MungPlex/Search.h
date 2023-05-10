@@ -35,19 +35,18 @@ namespace MungPlex
     private:
 Search()
         {
-            _searchValueTypes.push_back(std::pair<std::string, int>("Primitive)", PRIMITIVE));
+            _searchValueTypes.push_back(std::pair<std::string, int>("Primitive", PRIMITIVE));
             _searchValueTypes.push_back(std::pair<std::string, int>("Array", ARRAY));
             _searchValueTypes.push_back(std::pair<std::string, int>("Text", TEXT));
             _searchValueTypes.push_back(std::pair<std::string, int>("Color", COLOR));
 
-            _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Int 8 (Byte)", INT8));
-            _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Int 16 (Byte)", INT16));
-            _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Int 32 (Byte)", INT32));
-            _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Int 64 (Byte)", INT64));
+            _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Int 8 (1 Byte)", INT8));
+            _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Int 16 (2 Bytes)", INT16));
+            _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Int 32 (4 Bytes)", INT32));
+            _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Int 64 (8 Bytes)", INT64));
+            _searchArrayTypes = _searchPrimitiveTypes;
             _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Float Single", FLOAT));
             _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Float Double", DOUBLE));
-
-            //_searchArrayTypes = _searchPrimitiveTypes;
 
             _searchTextTypes.push_back(std::pair<std::string, int>("ASCII", ASCII));
             _searchTextTypes.push_back(std::pair<std::string, int>("UTF-8", UTF8));
@@ -61,17 +60,21 @@ Search()
             _searchColorTypes.push_back(std::pair<std::string, int>("Color RGBA (4 Floats)", RGBA_FLOAT));
 
             _searchConditionTypes.push_back(std::pair<std::string, int>("Equal (==)", Xertz::EQUAL));
+            _searchConditionTypesText = _searchConditionTypes;
             _searchConditionTypes.push_back(std::pair<std::string, int>("Unequal (!=)", Xertz::UNEQUAL));
+            _searchConditionTypesArray = _searchConditionTypes;
+            _searchConditionTypesColor = _searchConditionTypes;
             _searchConditionTypes.push_back(std::pair<std::string, int>("Greater (>)", Xertz::GREATER));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Greater or Equal (>=)", Xertz::GREATER_EQUAL));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Lower (<)", Xertz::LOWER));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Lower or Equal (<=)", Xertz::LOWER_EQUAL));
-            _searchConditionTypes.push_back(std::pair<std::string, int>("AND (has all true bits)", Xertz::AND));
-            _searchConditionTypes.push_back(std::pair<std::string, int>("OR (has at least 1 true bit)", Xertz::OR));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Increased by", Xertz::INCREASED_BY));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Decreased by", Xertz::DECREASED_BY));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Value Between", Xertz::BETWEEN));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Value Not Between", Xertz::NOT_BETWEEN));
+            _searchConditionTypesFloat = _searchConditionTypes;
+            _searchConditionTypes.push_back(std::pair<std::string, int>("AND (has all true bits)", Xertz::AND));
+            _searchConditionTypes.push_back(std::pair<std::string, int>("OR (has at least 1 true bit)", Xertz::OR));
 
             _searchComparasionType.push_back(std::pair<std::string, int>("Unknown/Initial", Xertz::UNKNOWN));
             _searchComparasionType.push_back(std::pair<std::string, int>("Known Value", Xertz::KNOWN));
