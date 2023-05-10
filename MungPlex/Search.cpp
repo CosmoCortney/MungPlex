@@ -50,7 +50,7 @@ void MungPlex::Search::DrawValueTypeOptions()
 		if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
 
 		if (_disableBecauseNoArray) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Array Type", GetInstance()._searchPrimitiveTypes, _currentArrayTypeSelect);
+			MungPlex::SetUpCombo("Array Type", GetInstance()._searchArrayTypes, _currentArrayTypeSelect); //use primitived types here once Arrays support floats
 		if (_disableBecauseNoArray) ImGui::EndDisabled();
 
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
@@ -151,67 +151,88 @@ void MungPlex::Search::DrawSearchOptions()
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel"))
 		{
-			std::string strArray = std::string(_knownValueText);
-			RemoveChars(strArray, " ");
-			std::stringstream stream(strArray);
-
-			std::vector<int> ignoreIndices;
-
-
-			OperativeArray<uint32_t> x(strArray);
-				//= StringStreamToArray<uint32_t>(stream);
-
-			for (int i = 0; i < x.ItemCount(); ++i)
-				std::cout << x[i] << std::endl;
-
 		}
 
-		if(ImGui::InputText("Known Value", _knownValueText, IM_ARRAYSIZE(_knownValueText)))
+		static char knownPrimaryValueLabel[64];
+		static char knownSecondaryValueLabel[64];
+		static bool disablePrimaryValueText = false;
+		static bool disableSecondaryValueText = true;
+
+		switch (_currentValueTypeSelect)
+		{
+		case PRIMITIVE:
+			if (_currentConditionTypeSelect == Xertz::BETWEEN)
+			{
+				strcpy(knownPrimaryValueLabel, "Lowest");
+				strcpy(knownSecondaryValueLabel, "Highest");
+				disableSecondaryValueText = false;
+		}
+			else if (_currentConditionTypeSelect == Xertz::NOT_BETWEEN)
 		 {
-			/*	uint64_t val;
-			std::stringstream stream;
-			if(GetInstance()._hex && GetInstance()._currentValueTypeSelect < FLOAT)
-				stream << std::hex << std::string(_knownValueText);
+				strcpy(knownPrimaryValueLabel, "Below");
+				strcpy(knownSecondaryValueLabel, "Above");
+				disableSecondaryValueText = false;
+			}
 			else
-				stream << std::string(_knownValueText);
-			stream >> val;
-			_knownValueValue = val;*/
+			{
+				strcpy(knownPrimaryValueLabel, "Value");
+				strcpy(knownSecondaryValueLabel, "Not applicable");
+			}
+			break;
+		case ARRAY:
+			strcpy(knownPrimaryValueLabel, "Array Expression");
+			strcpy(knownSecondaryValueLabel, "Not applicable");
+			break;
+		case COLOR:
+			switch(_currentColorTypeSelect)
+		case RGB_BYTE:
+		case RGBA_BYTE:
+		case RGB_FLOAT:
+		case RGBA_FLOAT:
+			strcpy(knownPrimaryValueLabel, "Color Expression");
+			strcpy(knownSecondaryValueLabel, "Not applicable");
+			break;
+		case TEXT:
+			strcpy(knownPrimaryValueLabel, "Text Value");
+			strcpy(knownSecondaryValueLabel, "Not applicable");
 		}
 
-		if (ImGui::InputText("Secondary Value", _secondaryKnownValueText, IM_ARRAYSIZE(_secondaryKnownValueText)))
+		if (disablePrimaryValueText) ImGui::BeginDisabled();
+			if(ImGui::InputText(knownPrimaryValueLabel, _knownValueText, IM_ARRAYSIZE(_knownValueText)))
 		{
-			/* 	uint64_t val;
-			std::stringstream stream;
-			if (GetInstance()._hex && GetInstance()._currentValueTypeSelect < FLOAT)
-				stream << std::hex << std::string(_secondaryKnownValueText);
+		}
+		if (disablePrimaryValueText) ImGui::EndDisabled();
+
+		if (knownSecondaryValueLabel) ImGui::BeginDisabled();
+			if (ImGui::InputText(knownSecondaryValueLabel, _secondaryKnownValueText, IM_ARRAYSIZE(_secondaryKnownValueText)))
+		{
+		}
+		if (knownSecondaryValueLabel) ImGui::EndDisabled();
+
+		MungPlex::SetUpCombo("Comparision Type", _searchComparasionType, _currentComparisionTypeSelect);
+
+		std::vector<std::pair<std::string, int>>* conditionTypeItems;
+
+		switch (_currentValueTypeSelect)
+		{
+		case PRIMITIVE:
+			if (_currentPrimitiveTypeSelect < FLOAT)
+				conditionTypeItems = &_searchConditionTypes;
 			else
-				stream << std::string(_secondaryKnownValueText);
-			stream >> val;
-			_secondaryKnownValueValue = val;*/
+				conditionTypeItems = &_searchConditionTypesFloat;
+		break;
+		case ARRAY:
+			conditionTypeItems = &_searchConditionTypesArray;
+		break;
+		case COLOR:
+			conditionTypeItems = &_searchConditionTypesColor;
+		break;
+		case TEXT:
+			conditionTypeItems = &_searchConditionTypesText;
+		break;
 		}
 
-		MungPlex::SetUpCombo("Comparision Type", GetInstance()._searchComparasionType, GetInstance()._currentComparisionTypeSelect);
-
-		std::vector<std::string> conditionTypeItems;
-		conditionTypeItems.resize(GetInstance()._searchConditionTypes.size());
-		int typeIterator = conditionTypeItems.size();
-
-		if ((GetInstance()._currentValueTypeSelect > INT64 && GetInstance()._currentValueTypeSelect != ARRAY)
-			|| (GetInstance()._currentValueTypeSelect == ARRAY && GetInstance()._currentArrayTypeSelect > INT64))
-		{
-			if (GetInstance()._currentConditionTypeSelect > Xertz::LOWER_EQUAL)
-				GetInstance()._currentConditionTypeSelect = Xertz::EQUAL;
-
-			typeIterator = Xertz::LOWER_EQUAL + 1;
-			conditionTypeItems.resize(Xertz::LOWER_EQUAL + 1);
-		}
-
-		for (int i = 0; i < typeIterator; ++i)
-		{
-			conditionTypeItems[i] = GetInstance()._searchConditionTypes[i].first;
-		}
-
-		MungPlex::SetUpCombo("Condition Type", conditionTypeItems, GetInstance()._currentConditionTypeSelect);
+		MungPlex::SetUpCombo("Condition Type", *conditionTypeItems, _currentConditionTypeSelect);
 
 		if (ImGui::InputText("Alignment", _alignmentText, IM_ARRAYSIZE(_alignmentText)))
 		{
