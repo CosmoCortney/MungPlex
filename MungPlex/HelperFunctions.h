@@ -18,6 +18,22 @@
 
 namespace MungPlex
 {
+    template<typename uType> static void SwapBytesArray(OperativeArray<uType>& arr)
+    {
+        for (int i = 0; i < arr.ItemCount(); ++i)
+        {
+            arr[i] = Xertz::SwapBytes<uType>(arr[i]);
+        }
+    }
+
+    static void RemoveChars(std::string& stringToEdit, const char* charsToRemove)
+    {
+        for (int i = 0; i < strlen(charsToRemove); ++i)
+        {
+            stringToEdit.erase(remove(stringToEdit.begin(), stringToEdit.end(), charsToRemove[i]), stringToEdit.end());
+        }
+    }
+
     static const char* GetStringLiteral(int valueType, bool isSigned, bool hex)
     {
         if (valueType == FLOAT || valueType == DOUBLE)
@@ -149,29 +165,29 @@ namespace MungPlex
         {
             if (items.size() > 0)
             {
-            if (_slotsOnIndexChanged.size() > 0 && _index != select)
-            {
-                for (const auto& slot : _slotsOnIndexChanged)
-                    slot();
+                if (_slotsOnIndexChanged.size() > 0 && _index != select)
+                {
+                    for (const auto& slot : _slotsOnIndexChanged)
+                        slot();
 
-                _index = select;
-            }
+                    _index = select;
+                }
  
-            if (_slotsOnItemCountChanged.size() > 0 && _itemCount != items.size())
-            {
-                for (const auto& slot : _slotsOnItemCountChanged)
-                    slot();
+                if (_slotsOnItemCountChanged.size() > 0 && _itemCount != items.size())
+                {
+                    for (const auto& slot : _slotsOnItemCountChanged)
+                        slot();
 
-                _itemCount = items.size();
-            }
+                    _itemCount = items.size();
+                }
 
                 if (_slotsOnTextChanged.size() > 0 && _text.compare(items[_index].Label) != 0)//todo: make this using a boolean flag instead
-            {
-                for (const auto& slot : _slotsOnTextChanged)
-                    slot();
+                {
+                    for (const auto& slot : _slotsOnTextChanged)
+                        slot();
 
-                _text = items[select].Label;
-            }
+                    _text = items[select].Label;
+                }
 
             }
             SetUpCombo(name, items, select);
@@ -185,8 +201,8 @@ namespace MungPlex
         void ConnectOnItemCountChanged(Slot slot)
         {
             _slotsOnItemCountChanged.push_back(slot);
-        }
-            
+        }  
+
         void ConnectOnTextChanged(Slot slot)
         {
             _slotsOnTextChanged.push_back(slot);
