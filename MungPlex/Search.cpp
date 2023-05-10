@@ -166,9 +166,9 @@ void MungPlex::Search::DrawSearchOptions()
 				strcpy(knownPrimaryValueLabel, "Lowest");
 				strcpy(knownSecondaryValueLabel, "Highest");
 				disableSecondaryValueText = false;
-		}
+			}
 			else if (_currentConditionTypeSelect == Xertz::NOT_BETWEEN)
-		 {
+			{
 				strcpy(knownPrimaryValueLabel, "Below");
 				strcpy(knownSecondaryValueLabel, "Above");
 				disableSecondaryValueText = false;
@@ -199,14 +199,14 @@ void MungPlex::Search::DrawSearchOptions()
 
 		if (disablePrimaryValueText) ImGui::BeginDisabled();
 			if(ImGui::InputText(knownPrimaryValueLabel, _knownValueText, IM_ARRAYSIZE(_knownValueText)))
-		{
-		}
+			{
+			}
 		if (disablePrimaryValueText) ImGui::EndDisabled();
 
 		if (knownSecondaryValueLabel) ImGui::BeginDisabled();
 			if (ImGui::InputText(knownSecondaryValueLabel, _secondaryKnownValueText, IM_ARRAYSIZE(_secondaryKnownValueText)))
-		{
-		}
+			{
+			}
 		if (knownSecondaryValueLabel) ImGui::EndDisabled();
 
 		MungPlex::SetUpCombo("Comparision Type", _searchComparasionType, _currentComparisionTypeSelect);
@@ -309,44 +309,44 @@ void MungPlex::Search::DrawResultsArea()
 			}break;
 		}
 		case PRIMITIVE:{//PRIMITIVE
-	switch (_currentPrimitiveTypeSelect)
-	{
-	case INT8: {
-		if (*Connection::GetAddressWidth() > 4)
-			_signed ? DrawResultsTable<int8_t, uint64_t>() : DrawResultsTable<uint8_t, uint64_t>();
-		else
-			_signed ? DrawResultsTable<int8_t, uint32_t>() : DrawResultsTable<uint8_t, uint32_t>();
-	} break;
-	case INT16: {
-		if (*Connection::GetAddressWidth() > 4)
-			_signed ? DrawResultsTable<int16_t, uint64_t>() : DrawResultsTable<uint16_t, uint64_t>();
-		else
-			_signed ? DrawResultsTable<int16_t, uint32_t>() : DrawResultsTable<uint16_t, uint32_t>();
-	} break;
-	case INT64: {
-		if (*Connection::GetAddressWidth() > 4)
-			_signed ? DrawResultsTable<int64_t, uint64_t>() : DrawResultsTable<uint64_t, uint64_t>();
-		else
-			_signed ? DrawResultsTable<int64_t, uint32_t>() : DrawResultsTable<uint64_t, uint32_t>();
-	} break;
-	case FLOAT: {
-		if (*Connection::GetAddressWidth() > 4)
-			DrawResultsTable<float, uint64_t>();
-		else
-			DrawResultsTable<float, uint32_t>();
-	} break;
-	case DOUBLE: {
-		if (*Connection::GetAddressWidth() > 4)
-			DrawResultsTable<double, uint64_t>();
-		else
-			DrawResultsTable<double, uint32_t>();
-	} break;
-	default: { //INT32
-		if (*Connection::GetAddressWidth() > 4)
-			_signed ? DrawResultsTable<int32_t, uint64_t>() : DrawResultsTable<uint32_t, uint64_t>();
-		else
-			_signed ? DrawResultsTable<int32_t, uint32_t>() : DrawResultsTable<uint32_t, uint32_t>();
-	} break;
+			switch (_currentPrimitiveTypeSelect)
+			{
+				case INT8: {
+					if (*Connection::GetAddressWidth() > 4)
+						_signed ? DrawResultsTable<int8_t, uint64_t>() : DrawResultsTable<uint8_t, uint64_t>();
+					else
+						_signed ? DrawResultsTable<int8_t, uint32_t>() : DrawResultsTable<uint8_t, uint32_t>();
+				} break;
+				case INT16: {
+					if (*Connection::GetAddressWidth() > 4)
+						_signed ? DrawResultsTable<int16_t, uint64_t>() : DrawResultsTable<uint16_t, uint64_t>();
+					else
+						_signed ? DrawResultsTable<int16_t, uint32_t>() : DrawResultsTable<uint16_t, uint32_t>();
+				} break;
+				case INT64: {
+					if (*Connection::GetAddressWidth() > 4)
+						_signed ? DrawResultsTable<int64_t, uint64_t>() : DrawResultsTable<uint64_t, uint64_t>();
+					else
+						_signed ? DrawResultsTable<int64_t, uint32_t>() : DrawResultsTable<uint64_t, uint32_t>();
+				} break;
+				case FLOAT: {
+					if (*Connection::GetAddressWidth() > 4)
+						DrawResultsTable<float, uint64_t>();
+					else
+						DrawResultsTable<float, uint32_t>();
+				} break;
+				case DOUBLE: {
+					if (*Connection::GetAddressWidth() > 4)
+						DrawResultsTable<double, uint64_t>();
+					else
+						DrawResultsTable<double, uint32_t>();
+				} break;
+				default: { //INT32
+					if (*Connection::GetAddressWidth() > 4)
+						_signed ? DrawResultsTable<int32_t, uint64_t>() : DrawResultsTable<uint32_t, uint64_t>();
+					else
+						_signed ? DrawResultsTable<int32_t, uint32_t>() : DrawResultsTable<uint32_t, uint32_t>();
+				} break;
 			}
 		}
 	}
@@ -424,12 +424,12 @@ void MungPlex::Search::DrawResultsArea()
 		} break;
 		default: { //PRIMITIVE
 			if (_hex && _currentPrimitiveTypeSelect < FLOAT)
-			stream << std::hex << std::string(_pokeValueText);
-		else
-			stream << std::string(_pokeValueText);
+				stream << std::hex << std::string(_pokeValueText);
+			else
+				stream << std::string(_pokeValueText);
 
 			switch (_currentPrimitiveTypeSelect)
-		{
+			{
 			case INT8: {
 				stream >> *(uint8_t*)_pokeValue;
 				if (*Connection::GetAddressWidth() > 4)
@@ -574,25 +574,21 @@ void MungPlex::Search::PickColorFromScreen()
 
 void MungPlex::Search::PerformSearch()
 {
-	
-	
 	switch (_currentValueTypeSelect)
 	{
 	case ARRAY: 
 		ArrayTypeSearch();
 		break;
-	case TEXT:
+	/*case TEXT:
 		TextTypeSearch();
-		break;
-	case COLOR:
+		break;*/
+	/*case COLOR:
 		ColorTypeSearch();
-		break;
+		break;*/
 	default:
 		PrimitiveTypeSearch();
 		break;
 	}
-
-	
 
 	++_iterationCount;
 	_selectedIndices.resize(_maxResultsPerPage);
@@ -698,6 +694,8 @@ void MungPlex::Search::PrimitiveTypeSearch()
 
 void MungPlex::Search::ArrayTypeSearch()
 {
+	_currentComparisionTypeSelect = Xertz::KNOWN;
+
 	std::string strArray = std::string(_knownValueText);
 	std::string strArraySecondary = std::string(_secondaryKnownValueText);
 
