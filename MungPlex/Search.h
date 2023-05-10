@@ -263,8 +263,8 @@ Search()
                 return true;
             }
             else
-        {
-            if (Connection::IsBE())
+            {
+                if (Connection::IsBE())
                     MungPlex::SwapBytesArray<uType>(pokeArray);
 
                 uint64_t address = _pokeAddress;
@@ -407,22 +407,22 @@ Search()
                             auto previousValue = *(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultsIndex);
                             auto difference = currentValue - previousValue;
 
-                    switch (col)
-                    {
-                    case 1: 
-                        sprintf(buf, literal, currentValue);
-                        if (!_pokePrevious)
-                            std::memcpy(tempValue, buf, 1024);
-                    break;
-                    case 2:
-                        sprintf(buf, literal, previousValue);
-                        if (_pokePrevious)
-                            std::memcpy(tempValue, buf, 1024);
-                    break;
-                    case 3:
-                        sprintf(buf, literal, difference);
-                    break;
-                    }
+                            switch (col)
+                            {
+                            case 1:
+                                sprintf(buf, literal, currentValue);
+                                if (!_pokePrevious)
+                                    std::memcpy(tempValue, buf, 1024);
+                                break;
+                            case 2:
+                                sprintf(buf, literal, previousValue);
+                                if (_pokePrevious)
+                                    std::memcpy(tempValue, buf, 1024);
+                                break;
+                            case 3:
+                                sprintf(buf, literal, difference);
+                                break;
+                            }
                         }
                         else if constexpr(Xertz::is_instantiation_of<dataType, OperativeArray>::value)
                         {
@@ -548,7 +548,44 @@ Search()
             ImGui::EndTable();
         }
 
+        template<typename T> void DrawArrayValues(int col, auto results, uint64_t itemCount, uint64_t resultIndexWithItemCount, char* buf, char* tempValue, const char* literal)
+        {
+            T* value;
+            const bool copyTempValue = (col == 1 && !_pokePrevious) || (col == 2 && _pokePrevious);
 
+            if(col == 1)
+                value = (T*)results->at(_iterationCount - 1)->GetResultValues() + resultIndexWithItemCount;
+            else if (col ==  2)
+                value = (T*)results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndexWithItemCount;
+            else
+            {
+                sprintf(buf, "");
+                return;
+            }
+
+            PrintTableArray<T>(buf, literal, itemCount, value);
+
+            if(copyTempValue)
+                std::memcpy(tempValue, buf, 1024);
+        }
+
+        template<typename T> void PrintTableArray(char* buf, const char* literal, uint32_t itemCount, T* vals)
+        {
+            std::strcpy(buf, "");
+            char temp[18];
+
+            for (uint32_t i = 0; i < itemCount; ++i)
+            {
+                sprintf(temp, literal, vals[i]);
+                if(_hex)
+                    std::strcat(buf, "0x");
+                std::strcat(buf, temp);
+                if(i < itemCount-1)
+                    std::strcat(buf, ", ");
+            }
+
+            std::puts(buf);
+        }
 
     public:
         static void DrawWindow();
@@ -584,7 +621,6 @@ Search()
             stream << std::hex << GetInstance()._regions[GetInstance()._currentRegionSelect].Base;
             std::string hexBegStr = stream.str();
             std::strcpy(GetInstance()._rangeStartText, hexBegStr.c_str());
-
             std::string hexEndStr = MungPlex::ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size -1, 0).c_str();
             std::strcpy(GetInstance()._rangeEndText, hexEndStr.c_str());
         };
