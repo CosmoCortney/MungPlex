@@ -373,7 +373,11 @@ Search()
             ImGui::TableSetupColumn("Previous");
             ImGui::TableSetupColumn("Difference (a - b)");
             ImGui::TableHeadersRow();
-            const char* literal = GetStringLiteral(_currentPrimitiveTypeSelect, _signed, _hex);
+            const char* literal;
+            if (_currentValueTypeSelect == PRIMITIVE)
+                literal = GetStringLiteral(_currentPrimitiveTypeSelect, _signed, _hex);
+            else
+                literal = GetStringLiteral(_currentArrayTypeSelect, _signed, _hex);
 
             for (int row = 0; row < _resultCount; ++row)
             {
@@ -384,13 +388,10 @@ Search()
                 static char tempValue[1024];
                 static char buf[1024];
                 int addressTextWidth = *Connection::GetAddressWidth() > 4 ? 16 : 8;
-                uint64_t resultIndex = (_currentPageValue-1) * _maxResultsPerPage;
-                uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + resultIndex + row) + _regions[_currentRegionSelect].Base;
-                auto currentValue = *(results->at(_iterationCount - 1)->GetResultValues() + resultIndex + row);
-                auto previousValue = *(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + row);
-                auto difference = currentValue - previousValue;
+                uint64_t pageIndex = (_currentPageValue-1) * _maxResultsPerPage;
+                uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + pageIndex + row) + _regions[_currentRegionSelect].Base;
                 bool rowClicked = false;
-
+                uint64_t resultsIndex = (pageIndex + row);
                 ImGui::TableNextRow(selectableFlags);
 
                 ImGui::TableNextRow();
@@ -398,12 +399,16 @@ Search()
                 {
                     ImGui::TableSetColumnIndex(col);
 
+                    if (col > 0)
+                    {
+                        if constexpr (std::is_integral_v<dataType> || std::is_floating_point_v<dataType>)
+                        {
+                            auto currentValue = *(results->at(_iterationCount - 1)->GetResultValues() + resultsIndex);
+                            auto previousValue = *(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultsIndex);
+                            auto difference = currentValue - previousValue;
+
                     switch (col)
                     {
-                    case 0:
-                        sprintf(buf, addressTextWidth == 16 ? "%016X" : "%08X", address);
-                        std::memcpy(tempAddress, buf, 17);
-                    break;
                     case 1: 
                         sprintf(buf, literal, currentValue);
                         if (!_pokePrevious)
@@ -417,6 +422,40 @@ Search()
                     case 3:
                         sprintf(buf, literal, difference);
                     break;
+                    }
+                        }
+                        else if constexpr(Xertz::is_instantiation_of<dataType, OperativeArray>::value)
+                        {
+                            uint64_t itemCount = Xertz::MemCompare<dataType, addressType>::GetValueItemCount();
+                            uint64_t resultIndexWithItemCount = resultsIndex * itemCount;
+
+                            switch (_currentArrayTypeSelect)
+                            {
+                            case INT8:
+                                DrawArrayValues<uint8_t>(col, results, itemCount, resultIndexWithItemCount, buf, tempValue, literal);
+                            break;
+                            case INT16: 
+                                DrawArrayValues<uint16_t>(col, results, itemCount, resultIndexWithItemCount, buf, tempValue, literal);
+                            break;
+                            case INT32:
+                                DrawArrayValues<uint32_t>(col, results, itemCount, resultIndexWithItemCount, buf, tempValue, literal);
+                            break;
+                            case INT64:
+                                DrawArrayValues<uint64_t>(col, results, itemCount, resultIndexWithItemCount, buf, tempValue, literal);
+                            break;
+                            /*case FLOAT:
+                                DrawArrayValues<float>(col, results, itemCount, resultIndexWithItemCount, buf, tempValue, literal);
+                            break;
+                            case DOUBLE: 
+                                DrawArrayValues<double>(col, results, itemCount, resultIndexWithItemCount, buf, tempValue, literal);
+                            break;*/
+                            }
+                        }
+                    }
+                    else
+                    {
+                        sprintf(buf, addressTextWidth == 16 ? "%016X" : "%08X", address);
+                        std::memcpy(tempAddress, buf, 17);
                     }
 
                     if (_selectedIndices[row])
