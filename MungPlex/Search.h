@@ -209,10 +209,84 @@ Search()
             }
         }
 
-        template<typename dataType, typename addressType> bool PokeValue()
+        template<typename uType, typename addressType> bool PokeArray()
+        {
+            uint64_t itemCount = OperativeArray<uType>(std::string(_knownValueText)).ItemCount();
+            int pid = Connection::GetCurrentPID();
+            std::string arrayString(_pokeValueText);
+            OperativeArray<uType> pokeArray(arrayString);
+               
+            if (_multiPoke)
+            {
+                int regionIndex;
+                auto results = Xertz::MemCompare<OperativeArray<uType>, addressType>::GetResults();
+                uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+
+                for (int index = 0; index < _selectedIndices.size(); ++index)
+                {
+                    if (_selectedIndices[index] == false)
+                        continue;
+
+                    uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
+
+                    for (int i = 0; i < _regions.size(); ++i)
+                    {
+                        if (address >= _regions[i].Base && address <= _regions[i].Base + _regions[i].Size)
+                        {
+                            regionIndex = i;
+                            break;
+                        }
+                        return false;
+                    }
+
+                    if (_pokePrevious)
+                    {
+                        uType* arr = (uType*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index);
+                        pokeArray = OperativeArray<uType>(arr, itemCount);
+                    }
+                    
+                    
+                    if (Connection::IsBE() && (index == 0 || _pokePrevious))
+                        MungPlex::SwapBytesArray<uType>(pokeArray);
+                    
+                        
+                    address -= _regions[regionIndex].Base;
+                    address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
+
+                    for (int i = 0; i < itemCount; ++i)
+                    {
+                        if(!pokeArray.IsIgnoredIndex(i))
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
+                    }
+                }
+
+                return true;
+            }
+            else
         {
             if (Connection::IsBE())
-                *(dataType*)_pokeValue = Xertz::SwapBytes<dataType>(*(dataType*)_pokeValue);
+                    MungPlex::SwapBytesArray<uType>(pokeArray);
+
+                uint64_t address = _pokeAddress;
+                for (int i = 0; i < _regions.size(); ++i)
+                {
+                    if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
+                    {
+                        address -= _regions[i].Base;
+                        address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+                        
+                        for (int i = 0; i < itemCount; ++i)
+                        {
+                            if (!pokeArray.IsIgnoredIndex(i))
+                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
+                        }
+
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         template<typename dataType, typename addressType> bool PokeValue()
         {
