@@ -15,13 +15,13 @@ add_executable (MungPlex    "main.cpp"
                             "../include/Xertz/MemoryRegion.cpp"
                             "../include/Xertz/ProcessInfo.cpp"
                             "../include/Xertz/SystemInfo.cpp"
+                            "../include/OperativeArray/OperativeArray/OperativeArray.h"
                             "Connection.h"
                             "Connection.cpp"
                             "ProcessInformation.h"
                             "ProcessInformation.cpp"
                             "Search.cpp"
                             "HelperFunctions.h"
-                            "../include/OperativeArray/OperativeArray/OperativeArray.h"
                )
 
 
@@ -29,6 +29,7 @@ include_directories(imgui)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET MungPlex PROPERTY CXX_STANDARD 20)
+  set(CMAKE_CXX_STANDARD 20)
 endif()
 
 # TODO: Add tests and install targets if needed.
@@ -50,7 +51,6 @@ target_include_directories(MungPlex PUBLIC
                            "${PROJECT_SOURCE_DIR}/../include/glad/src"
                            "${PROJECT_SOURCE_DIR}/../include/meojson/include"
                            "${PROJECT_SOURCE_DIR}/../include/Xertz"
-                           "${PROJECT_SOURCE_DIR}/../include/Xertz/zlib"
                            "${PROJECT_SOURCE_DIR}/../include/OperativeArray/OperativeArray"
                            )
 
