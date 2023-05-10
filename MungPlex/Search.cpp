@@ -264,6 +264,51 @@ void MungPlex::Search::DrawResultsArea()
 	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
 	ImGui::BeginGroup();
 
+	switch (_currentValueTypeSelect)
+	{
+		case ARRAY:
+		{
+			switch (_currentArrayTypeSelect)
+			{
+				case INT8: {
+					if (*Connection::GetAddressWidth() > 4)
+						_signed ? DrawResultsTable<OperativeArray<int8_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint8_t>, uint64_t>();
+					else
+						_signed ? DrawResultsTable<OperativeArray<int8_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint8_t>, uint32_t>();
+				} break;
+				case INT16: {
+					if (*Connection::GetAddressWidth() > 4)
+						_signed ? DrawResultsTable<OperativeArray<int16_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint16_t>, uint64_t>();
+					else
+						_signed ? DrawResultsTable<OperativeArray<int16_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint16_t>, uint32_t>();
+				} break;
+				case INT64: {
+					if (*Connection::GetAddressWidth() > 4)
+						_signed ? DrawResultsTable<OperativeArray<int64_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint64_t>, uint64_t>();
+					else
+						_signed ? DrawResultsTable<OperativeArray<int64_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint64_t>, uint32_t>();
+				} break;
+				case FLOAT: {
+					if (*Connection::GetAddressWidth() > 4)
+						DrawResultsTable<OperativeArray<float>, uint64_t>();
+					else
+						DrawResultsTable<OperativeArray<float>, uint32_t>();
+				} break;
+				case DOUBLE: {
+					if (*Connection::GetAddressWidth() > 4)
+						DrawResultsTable<OperativeArray<double>, uint64_t>();
+					else
+						DrawResultsTable<OperativeArray<double>, uint32_t>();
+				} break;
+				default: { //OperativeArray<INT32>
+					if (*Connection::GetAddressWidth() > 4)
+						_signed ? DrawResultsTable<OperativeArray<int32_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint32_t>, uint64_t>();
+					else
+						_signed ? DrawResultsTable<OperativeArray<int32_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint32_t>, uint32_t>();
+				} break;
+			}break;
+		}
+		case PRIMITIVE:{//PRIMITIVE
 	switch (_currentPrimitiveTypeSelect)
 	{
 	case INT8: {
@@ -302,6 +347,8 @@ void MungPlex::Search::DrawResultsArea()
 		else
 			_signed ? DrawResultsTable<int32_t, uint32_t>() : DrawResultsTable<uint32_t, uint32_t>();
 	} break;
+			}
+		}
 	}
 
 
@@ -326,12 +373,62 @@ void MungPlex::Search::DrawResultsArea()
 			stream.clear();
 		}
 
-		if (_hex && _currentValueTypeSelect < FLOAT)
+		switch (_currentValueTypeSelect)
+		{
+		case ARRAY: {
+			switch (_currentArrayTypeSelect)
+			{
+			case INT8: {
+				if (*Connection::GetAddressWidth() > 4)
+					PokeArray<uint8_t, uint64_t>();
+				else
+					PokeArray<uint8_t, uint32_t>();
+			} break;
+			case INT16: {
+				if (*Connection::GetAddressWidth() > 4)
+					PokeArray<uint16_t, uint64_t>();
+				else
+					PokeArray<uint16_t, uint32_t>();
+			} break;
+			case INT64: {
+				if (*Connection::GetAddressWidth() > 4)
+					PokeArray<uint64_t, uint64_t>();
+				else
+					PokeArray<uint64_t, uint32_t>();
+			} break;
+			case FLOAT: {
+				if (*Connection::GetAddressWidth() > 4)
+					PokeArray<float, uint64_t>();
+				else
+					PokeArray<float, uint32_t>();
+			} break;
+			case DOUBLE: {
+				if (*Connection::GetAddressWidth() > 4)
+					PokeArray<double, uint64_t>();
+				else
+					PokeArray<double, uint32_t>();
+			} break;
+			default: { //OperativeArray<INT32>
+				if (*Connection::GetAddressWidth() > 4)
+					PokeArray<uint32_t, uint64_t>();
+				else
+					PokeArray<uint32_t, uint32_t>();
+			} break;
+			}break;
+		} break;
+		case TEXT: {
+
+		} break;
+		case COLOR: {
+
+		} break;
+		default: { //PRIMITIVE
+			if (_hex && _currentPrimitiveTypeSelect < FLOAT)
 			stream << std::hex << std::string(_pokeValueText);
 		else
 			stream << std::string(_pokeValueText);
 
-		switch (_currentValueTypeSelect)
+			switch (_currentPrimitiveTypeSelect)
 		{
 			case INT8: {
 				stream >> *(uint8_t*)_pokeValue;
@@ -375,6 +472,8 @@ void MungPlex::Search::DrawResultsArea()
 				else
 					PokeValue<uint32_t, uint32_t>();
 			} break;
+			}
+		}
 		}
 	}
 
