@@ -11,6 +11,3 @@
 [submodule "include/meojson"]
 	path = include/meojson
 	url = https://github.com/MistEO/meojson.git
-[submodule "include/OperativeArray"]
-	path = include/OperativeArray
-	url = https://github.com/CosmoCortney/OperativeArray.git
