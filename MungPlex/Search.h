@@ -111,17 +111,18 @@ Search()
         void ColorTypeSearch();
         void ResetSearch();
 
-
-
         std::vector<std::pair<std::string, int>> _searchValueTypes{};
         std::vector<std::pair<std::string, int>> _searchPrimitiveTypes{};
         std::vector<std::pair<std::string, int>> _searchTextTypes{};
-        //std::vector<std::pair<std::string, int>> _searchArrayTypes{};
+        std::vector<std::pair<std::string, int>> _searchArrayTypes{}; //remove once Arrays support floats
         std::vector<std::pair<std::string, int>> _searchColorTypes{};
         std::vector<std::pair<std::string, int>> _searchConditionTypes{};
+        std::vector<std::pair<std::string, int>> _searchConditionTypesArray{};
+        std::vector<std::pair<std::string, int>> _searchConditionTypesFloat{};
+        std::vector<std::pair<std::string, int>> _searchConditionTypesColor{};
+        std::vector<std::pair<std::string, int>> _searchConditionTypesText{};
         std::vector<std::pair<std::string, int>> _searchComparasionType{};
         std::vector<MungPlex::SystemRegion> _regions{};
-        /*std::vector<SearchResult<std::any>>*/ 
         int _currentComparisionTypeSelect = 0;
         int _currentConditionTypeSelect = 0;
         std::vector<Xertz::MemDump> _memDumps{};
