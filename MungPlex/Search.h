@@ -214,6 +214,9 @@ Search()
             if (Connection::IsBE())
                 *(dataType*)_pokeValue = Xertz::SwapBytes<dataType>(*(dataType*)_pokeValue);
 
+        template<typename dataType, typename addressType> bool PokeValue()
+        {
+            int pid = Connection::GetCurrentPID();
             if (_multiPoke)
             {
                 int regionIndex;
@@ -240,15 +243,21 @@ Search()
                     if (_pokePrevious)
                         *(dataType*)_pokeValue = *(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index);
 
+                    if (Connection::IsBE() && (index == 0 || _pokePrevious))
+                        *(dataType*)_pokeValue = Xertz::SwapBytes<dataType>(*(dataType*)_pokeValue);
+
                     address -= _regions[regionIndex].Base;
                     address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
-                    Xertz::SystemInfo::GetProcessInfo(Connection::GetCurrentPID()).WriteExRAM(_pokeValue, reinterpret_cast<void*>(address), sizeof(dataType));
+                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(_pokeValue, reinterpret_cast<void*>(address), sizeof(dataType));
                 }
 
                 return true;
             }
             else
             {
+                if (Connection::IsBE())
+                    *(dataType*)_pokeValue = Xertz::SwapBytes<dataType>(*(dataType*)_pokeValue);
+
                 uint64_t address = _pokeAddress;
                 for (int i = 0; i < _regions.size(); ++i)
                 {
@@ -256,7 +265,7 @@ Search()
                     {
                         address -= _regions[i].Base;
                         address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
-                        Xertz::SystemInfo::GetProcessInfo(Connection::GetCurrentPID()).WriteExRAM(_pokeValue, reinterpret_cast<void*>(address), sizeof(dataType));
+                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(_pokeValue, reinterpret_cast<void*>(address), sizeof(dataType));
                         return true;
                     }
                 }
