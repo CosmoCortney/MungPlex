@@ -11,5 +11,5 @@ add_subdirectory ("include/glfw")
 include_directories ("include/glad")
 include_directories ("include/meojson")
 add_subdirectory ("include/Xertz")
-add_subdirectory ("include/OperativeArray")
+add_subdirectory ("include/Xertz/OperativeArray")
 
