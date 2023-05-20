@@ -597,9 +597,9 @@ void MungPlex::Search::PerformSearch()
 	/*case TEXT:
 		TextTypeSearch();
 		break;*/
-	/*case COLOR:
+	case COLOR:
 		ColorTypeSearch();
-		break;*/
+		break;
 	default:
 		PrimitiveTypeSearch();
 		break;
@@ -619,7 +619,7 @@ void MungPlex::Search::PerformSearch()
 
 void MungPlex::Search::PrimitiveTypeSearch()
 {
-	std::stringstream stream1, stream2; //i know this is bloated but better than keeping track if the stream is still good
+	std::stringstream stream1, stream2;
 	if (_currentPrimitiveTypeSelect < FLOAT)
 	{
 		if (_signed)
@@ -695,15 +695,10 @@ void MungPlex::Search::PrimitiveTypeSearch()
 		stream1 >> knownVal;
 		stream2 >> knownValSecondary;
 
-		switch (_currentPrimitiveTypeSelect)
-		{
-		case FLOAT:
+		if (_currentPrimitiveTypeSelect == FLOAT)
 			_resultCount = SetUpAndIterate<float>(knownVal, knownValSecondary);
-			break;
-		case DOUBLE:
+		else
 			_resultCount = SetUpAndIterate<double>(knownVal, knownValSecondary);
-			break;
-		}
 	}
 }
 
@@ -765,5 +760,11 @@ void MungPlex::Search::TextTypeSearch()
 
 void MungPlex::Search::ColorTypeSearch()
 {
+	_currentComparisionTypeSelect = Xertz::KNOWN;
+	std::string arg(_knownValueText);
+	LitColor colorP(arg);
+	arg = std::string(_secondaryKnownValueText);
+	LitColor colorS(arg);
 
+	_resultCount = SetUpAndIterate<LitColor>(colorP, colorS);
 }
