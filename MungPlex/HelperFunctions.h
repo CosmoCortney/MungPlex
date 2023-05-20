@@ -18,6 +18,42 @@
 
 namespace MungPlex
 {
+    static ImVec4 PackedColorToImVec4(uint8_t* packedColor)
+    {
+        float r = ((float)*(packedColor + 3)) / 255.0f;
+        float g = ((float)*(packedColor + 2)) / 255.0f;
+        float b = ((float)*(packedColor + 1)) / 255.0f;
+        float a = ((float)*packedColor) / 255.0f;
+
+        return ImVec4(r, g, b, a);
+    }
+
+    static void ColorValuesToCString(ImVec4& rgba, int type, char* destination)
+    {
+        std::stringstream cstream;
+
+        switch (type)
+        {
+        case LitColor::RGBA8888:
+            cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << (int)(rgba.x * 255.0f) << std::setw(2) << (int)(rgba.y * 255.0f) << std::setw(2) << (int)(rgba.z * 255.0f) << std::setw(2) << (int)(rgba.w * 255.0f);
+            break;
+        case LitColor::RGBF:
+            cstream << rgba.x << ", " << rgba.y << ", " << rgba.z;
+            break;
+        case LitColor::RGBAF:
+            cstream << rgba.x << ", " << rgba.y << ", " << rgba.z << ", " << rgba.w;
+            break;
+        case LitColor::RGB565:{
+            LitColor color((float*)&rgba);
+            cstream << "#" << std::hex << std::setfill('0') << std::setw(4) << color.GetRGB565();
+        }break;
+        default: //RGB888
+            cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << (int)(rgba.x * 255.0f) << std::setw(2) << (int)(rgba.y * 255.0f) << std::setw(2) << (int)(rgba.z * 255.0f);
+        }
+
+        strcpy(destination, cstream.str().c_str());
+    }
+
     template<typename uType> static void SwapBytesArray(OperativeArray<uType>& arr)
     {
         for (int i = 0; i < arr.ItemCount(); ++i)
@@ -241,4 +277,3 @@ namespace MungPlex
         }
     };
 }
-
