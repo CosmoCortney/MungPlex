@@ -46,11 +46,11 @@ void MungPlex::Search::DrawValueTypeOptions()
 		_disableBecauseNoInt = (!_disableBecauseNoPrimitive && _currentPrimitiveTypeSelect > INT64) || (!_disableBecauseNoArray && _currentArrayTypeSelect > INT64) || !_disableBecauseNoColor;
 
 		if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Primitive Type", GetInstance()._searchPrimitiveTypes, _currentPrimitiveTypeSelect);
+			MungPlex::SetUpCombo("Primitive Type", _searchPrimitiveTypes, _currentPrimitiveTypeSelect);
 		if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
 
 		if (_disableBecauseNoArray) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Array Type", GetInstance()._searchArrayTypes, _currentArrayTypeSelect); //use primitived types here once Arrays support floats
+			MungPlex::SetUpCombo("Array Type", _searchArrayTypes, _currentArrayTypeSelect); //use primitived types here once Arrays support floats
 		if (_disableBecauseNoArray) ImGui::EndDisabled();
 
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
@@ -102,14 +102,31 @@ void MungPlex::Search::DrawValueTypeOptions()
 
 			float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) * 0.18f;
 			ImGui::SetNextItemWidth(w);
-			ImGui::ColorPicker3("##MyColor##6", (float*)&_colorVec, (_useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar) );
+			int colorPickerFlags = ImGuiColorEditFlags_NoOptions;
+			colorPickerFlags |= _useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar;
 				
+			switch (_currentColorTypeSelect)
+			{	
+			case LitColor::RGBA8888: 
+				colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
+				break;
+			case LitColor::RGBF:
+				colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoAlpha;
+				break;
+			case LitColor::RGBAF:
+				colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
+				break;
+			default: //RGB888, RGB565
+				colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
+			}
 				
+			ImGui::ColorPicker4("##ColorPicker", (float*)&_colorVec, colorPickerFlags);
+
+			if(!_disableBecauseNoColor)
+				MungPlex::ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText);
 
 		if (_disableBecauseNoColor)
 			ImGui::EndDisabled();
-
-		
 
 		ImGui::PopItemWidth();
 	}
@@ -151,6 +168,7 @@ void MungPlex::Search::DrawSearchOptions()
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel"))
 		{
+
 		}
 
 		static char knownPrimaryValueLabel[64];
@@ -184,17 +202,13 @@ void MungPlex::Search::DrawSearchOptions()
 			strcpy(knownSecondaryValueLabel, "Not applicable");
 			break;
 		case COLOR:
-			switch(_currentColorTypeSelect)
-		case RGB_BYTE:
-		case RGBA_BYTE:
-		case RGB_FLOAT:
-		case RGBA_FLOAT:
 			strcpy(knownPrimaryValueLabel, "Color Expression");
 			strcpy(knownSecondaryValueLabel, "Not applicable");
 			break;
 		case TEXT:
 			strcpy(knownPrimaryValueLabel, "Text Value");
 			strcpy(knownSecondaryValueLabel, "Not applicable");
+			break;
 		}
 
 		if (disablePrimaryValueText) ImGui::BeginDisabled();
