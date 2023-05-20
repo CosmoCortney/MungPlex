@@ -152,9 +152,7 @@ Search()
 
         //value options
         char _knownValueText[2048] = { "" };
-        std::any _knownValueValue = 0;
         char _secondaryKnownValueText[2048] = { "" };
-        std::any _secondaryKnownValueValue = 0;
 
         //range options
         char _rangeStartText[256] = { "" };
@@ -165,7 +163,6 @@ Search()
         std::wstring _dir = L"F:\\test\\";
 
         //results table
-        std::any _searchResults = NULL;
         int _currentRegionSelect = 0;
         uint32_t _pagesAmountValue = 0;
         char _pagesAmountText[17] = {"0"};
@@ -335,7 +332,7 @@ Search()
                
             if (_multiPoke)
             {
-                int regionIndex;
+                int regionIndex = -1;
                 auto results = Xertz::MemCompare<OperativeArray<uType>, addressType>::GetResults();
                 uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
@@ -353,8 +350,10 @@ Search()
                             regionIndex = i;
                             break;
                         }
-                        return false;
                     }
+
+                    if(regionIndex == -1)
+                        return false;
 
                     if (_pokePrevious)
                     {
@@ -362,11 +361,9 @@ Search()
                         pokeArray = OperativeArray<uType>(arr, itemCount);
                     }
                     
-                    
                     if (Connection::IsBE() && (index == 0 || _pokePrevious))
                         MungPlex::SwapBytesArray<uType>(pokeArray);
                     
-                        
                     address -= _regions[regionIndex].Base;
                     address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
 
@@ -376,7 +373,6 @@ Search()
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
                     }
                 }
-
                 return true;
             }
             else
@@ -397,7 +393,6 @@ Search()
                             if (!pokeArray.IsIgnoredIndex(i))
                                 Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
                         }
-
                         return true;
                     }
                 }
@@ -410,7 +405,7 @@ Search()
             int pid = Connection::GetCurrentPID();
             if (_multiPoke)
             {
-                int regionIndex;
+                int regionIndex = -1;
                 auto results = Xertz::MemCompare<dataType, addressType>::GetResults();
                 uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
@@ -428,8 +423,10 @@ Search()
                             regionIndex = i;
                             break;
                         }
-                        return false;
                     }
+
+                    if(regionIndex == -1)
+                        return false;
 
                     if (_pokePrevious)
                         *(dataType*)_pokeValue = *(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index);
@@ -441,7 +438,6 @@ Search()
                     address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
                     Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(_pokeValue, reinterpret_cast<void*>(address), sizeof(dataType));
                 }
-
                 return true;
             }
             else

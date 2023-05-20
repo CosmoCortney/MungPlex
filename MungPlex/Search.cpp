@@ -371,7 +371,6 @@ void MungPlex::Search::DrawResultsArea()
 		}
 	}
 
-
 	ImGui::PushItemWidth(groupWidth/5);
 	ImGui::LabelText("Results", std::to_string(_resultCount).c_str());
 	ImGui::SameLine();
