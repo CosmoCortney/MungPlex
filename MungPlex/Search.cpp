@@ -584,6 +584,7 @@ void MungPlex::Search::PickColorFromScreen()
 	_colorVec.x = (float)GetRValue(color) / (float)255;
 	_colorVec.y = (float)GetGValue(color) / (float)255;
 	_colorVec.z = (float)GetBValue(color) / (float)255;
+	_colorVec.w = 1.0f;
 }
 
 void MungPlex::Search::PerformSearch()
