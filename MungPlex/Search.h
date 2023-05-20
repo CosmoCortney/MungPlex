@@ -210,6 +210,122 @@ Search()
             }
         }
 
+        template<typename addressType> bool PokeColor()
+        {
+            int pid = Connection::GetCurrentPID();
+            std::string colorString(_pokeValueText);
+            LitColor pokeValue(colorString);
+            int pokeValueWidth = pokeValue.GetSelectedType() == LitColor::RGB888 ? 3 : 4;
+
+            if (_multiPoke)
+            {
+                auto results = Xertz::MemCompare<LitColor, addressType>::GetResults();
+                uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+
+                for (int index = 0; index < _selectedIndices.size(); ++index)
+                {
+                    if (_selectedIndices[index] == false)
+                        continue;
+
+                    uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
+                    int regionIndex = -1;
+
+                    for (int i = 0; i < _regions.size(); ++i)
+                    {
+                        if (address >= _regions[i].Base && address <= _regions[i].Base + _regions[i].Size)
+                        {
+                            regionIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (regionIndex == -1)
+                        return false;
+
+                    address -= _regions[regionIndex].Base;
+                    address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
+
+                        if (pokeValue.GetSelectedType() < LitColor::RGBF) //RGB888, RGBA8888
+                        {
+                            uint32_t val = _pokePrevious ? *(uint32_t*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGBA();
+
+                            if (Connection::IsBE())
+                                val = Xertz::SwapBytes<uint32_t>(val);
+
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
+                        }
+                        else if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                        {
+                            uint16_t val = _pokePrevious ? *(uint16_t*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGB565();
+
+                            if (Connection::IsBE())
+                                val = Xertz::SwapBytes<uint16_t>(val);
+
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), sizeof(uint16_t));
+                        }
+                        else //RGBF, RGBAF
+                        {
+                            for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
+                            {
+                                float val = _pokePrevious ? *(float*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index + item * sizeof(float)) : pokeValue.GetColorValue<float>(item);
+
+                                if (Connection::IsBE())
+                                    val = Xertz::SwapBytes<float>(val);
+
+                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
+                            }
+                        }
+                }
+                return true;
+            }
+            else
+            {
+                uint64_t address = _pokeAddress;
+
+                for (int i = 0; i < _regions.size(); ++i)
+                {
+                    if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
+                    {
+                        address -= _regions[i].Base;
+                        address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+
+                        if (pokeValue.GetSelectedType() < LitColor::RGBF) //RGB888, RGBA8888
+                        {
+                            uint32_t val = pokeValue.GetRGBA();
+
+                            if (Connection::IsBE())
+                                val = Xertz::SwapBytes<uint32_t>(val);
+
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
+                        }
+                        else if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                        {
+                            uint16_t val = pokeValue.GetRGB565();
+
+                            if (Connection::IsBE())
+                                val = Xertz::SwapBytes<uint16_t>(val);
+
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), 2);
+                        }
+                        else //RGBF, RGBAF
+                        {
+                            for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
+                            {
+                                float val = pokeValue.GetColorValue<float>(item);
+
+                                if (Connection::IsBE())
+                                    val = Xertz::SwapBytes<float>(val);
+
+                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         template<typename uType, typename addressType> bool PokeArray()
         {
             uint64_t itemCount = OperativeArray<uType>(std::string(_knownValueText)).ItemCount();
@@ -345,7 +461,6 @@ Search()
                     }
                 }
             }
-
             return false;
         }
 
