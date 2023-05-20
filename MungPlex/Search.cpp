@@ -322,7 +322,13 @@ void MungPlex::Search::DrawResultsArea()
 				} break;
 			}break;
 		}
-		case PRIMITIVE:{//PRIMITIVE
+		case COLOR: {
+			if (*Connection::GetAddressWidth() > 4)
+				DrawResultsTable<LitColor, uint64_t>();
+			else
+				DrawResultsTable<LitColor, uint32_t>();
+		} break;
+		default:{//PRIMITIVE
 			switch (_currentPrimitiveTypeSelect)
 			{
 				case INT8: {
@@ -374,7 +380,7 @@ void MungPlex::Search::DrawResultsArea()
 	ImGui::PushItemWidth(groupWidth);
 	ImGui::InputText("Address", _pokeAddressText, IM_ARRAYSIZE(_pokeAddressText));
 	ImGui::PushItemWidth(groupWidth);
-	ImGui::InputText("Value", _pokeValueText, IM_ARRAYSIZE(_pokeValueText));
+	ImGui::InputText("Poke Value", _pokeValueText, IM_ARRAYSIZE(_pokeValueText));
 	if (ImGui::Button("Poke"))
 	{
 		std::stringstream stream;

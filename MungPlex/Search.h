@@ -186,7 +186,7 @@ Search()
         void ResetCurrentPage()
         {
             _currentPageValue = 1;
-            strncpy(_currentPageText, "1", 2);
+            strncpy(_currentPageText, "1", 1);
         }
 
         template <typename dataType> uint64_t SetUpAndIterate(dataType valKnown = 0, dataType valKnownSecondary = 0)
@@ -451,6 +451,63 @@ Search()
                                 DrawArrayValues<double>(col, results, itemCount, resultIndexWithItemCount, buf, tempValue, literal);
                             break;*/
                             }
+                        }
+                        else if constexpr (std::is_same_v<dataType, LitColor>)
+                        {
+                            static ImU32 rectColor;
+                            static ImVec4 vecCol;
+
+                            if (_currentColorTypeSelect != LitColor::RGBF && _currentColorTypeSelect != LitColor::RGBAF)//RGB888, RGBA8888, RGB565
+                            {
+                                if (col == 1)
+                                {
+                                    rectColor = *((uint32_t*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex);
+
+                                    if (!_pokePrevious)
+                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                }
+                                else if (col == 2)
+                                {
+                                    rectColor = *((uint32_t*)results->at(_iterationCount - 1)->GetResultPreviousValues() + resultsIndex);
+
+                                    if (_pokePrevious)
+                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                }
+                                else
+                                    break;
+                            }
+                            else //RGBF, RGBAF
+                            {
+                                static bool usesAlpha = _currentColorTypeSelect == LitColor::RGBAF;
+                                static int colorValueCount = _currentColorTypeSelect == LitColor::RGBAF ? 4 : 3;
+
+                                if (col == 1)
+                                {
+                                    rectColor = LitColor(((float*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * colorValueCount), usesAlpha).GetRGBA();
+
+                                    if (!_pokePrevious)
+                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                }
+                                else if (col == 2)
+                                {
+                                    rectColor = LitColor(((float*)results->at(_iterationCount - 1)->GetResultPreviousValues() + resultsIndex * colorValueCount), usesAlpha).GetRGBA();
+
+                                    if (_pokePrevious)
+                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                }
+                                else
+                                    break;
+                            }
+
+                            ColorValuesToCString(vecCol, _currentColorTypeSelect, buf);
+                            std::memcpy(tempValue, buf, 1024);
+                            strcpy(buf, "");
+                            ImDrawList* drawList = ImGui::GetWindowDrawList();
+                            ImVec2 rectMin = ImGui::GetCursorScreenPos();
+                            ImVec2 rectMax = ImVec2(rectMin.x + 124, rectMin.y + 30);
+                            if (_currentColorTypeSelect == LitColor::RGB888 || _currentColorTypeSelect == LitColor::RGB565)
+                                rectColor |= 0x000000FF;
+                            drawList->AddRectFilled(rectMin, rectMax, Xertz::SwapBytes<uint32_t>(rectColor));
                         }
                     }
                     else
