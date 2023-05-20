@@ -48,17 +48,4 @@ namespace MungPlex
         UTF32 = 3,
         SHIFT_JIS = 4
     };
-
-    enum ColorType
-    {
-        RGB_BYTE = 0,
-        RGBA_BYTE = 1,
-        RGB_FLOAT = 2,
-        RGBA_FLOAT = 3
-    };
-
-   
-
-
 }
-

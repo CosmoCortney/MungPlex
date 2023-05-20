@@ -46,11 +46,11 @@ void MungPlex::Search::DrawValueTypeOptions()
 		_disableBecauseNoInt = (!_disableBecauseNoPrimitive && _currentPrimitiveTypeSelect > INT64) || (!_disableBecauseNoArray && _currentArrayTypeSelect > INT64) || !_disableBecauseNoColor;
 
 		if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Primitive Type", GetInstance()._searchPrimitiveTypes, _currentPrimitiveTypeSelect);
+			MungPlex::SetUpCombo("Primitive Type", _searchPrimitiveTypes, _currentPrimitiveTypeSelect);
 		if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
 
 		if (_disableBecauseNoArray) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Array Type", GetInstance()._searchArrayTypes, _currentArrayTypeSelect); //use primitived types here once Arrays support floats
+			MungPlex::SetUpCombo("Array Type", _searchArrayTypes, _currentArrayTypeSelect); //use primitived types here once Arrays support floats
 		if (_disableBecauseNoArray) ImGui::EndDisabled();
 
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
@@ -102,14 +102,31 @@ void MungPlex::Search::DrawValueTypeOptions()
 
 			float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) * 0.18f;
 			ImGui::SetNextItemWidth(w);
-			ImGui::ColorPicker3("##MyColor##6", (float*)&_colorVec, (_useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar) );
-				
-				
+			int colorPickerFlags = ImGuiColorEditFlags_NoOptions;
+			colorPickerFlags |= _useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar;
+
+			switch (_currentColorTypeSelect)
+			{	
+			case LitColor::RGBA8888: 
+				colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
+				break;
+			case LitColor::RGBF:
+				colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoAlpha;
+				break;
+			case LitColor::RGBAF:
+				colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
+				break;
+			default: //RGB888, RGB565
+				colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
+			}
+
+			ImGui::ColorPicker4("##ColorPicker", (float*)&_colorVec, colorPickerFlags);
+
+			if(!_disableBecauseNoColor)
+				MungPlex::ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText);
 
 		if (_disableBecauseNoColor)
 			ImGui::EndDisabled();
-
-		
 
 		ImGui::PopItemWidth();
 	}
@@ -151,6 +168,7 @@ void MungPlex::Search::DrawSearchOptions()
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel"))
 		{
+
 		}
 
 		static char knownPrimaryValueLabel[64];
@@ -184,17 +202,13 @@ void MungPlex::Search::DrawSearchOptions()
 			strcpy(knownSecondaryValueLabel, "Not applicable");
 			break;
 		case COLOR:
-			switch(_currentColorTypeSelect)
-		case RGB_BYTE:
-		case RGBA_BYTE:
-		case RGB_FLOAT:
-		case RGBA_FLOAT:
 			strcpy(knownPrimaryValueLabel, "Color Expression");
 			strcpy(knownSecondaryValueLabel, "Not applicable");
 			break;
 		case TEXT:
 			strcpy(knownPrimaryValueLabel, "Text Value");
 			strcpy(knownSecondaryValueLabel, "Not applicable");
+			break;
 		}
 
 		if (disablePrimaryValueText) ImGui::BeginDisabled();
@@ -308,7 +322,13 @@ void MungPlex::Search::DrawResultsArea()
 				} break;
 			}break;
 		}
-		case PRIMITIVE:{//PRIMITIVE
+		case COLOR: {
+			if (*Connection::GetAddressWidth() > 4)
+				DrawResultsTable<LitColor, uint64_t>();
+			else
+				DrawResultsTable<LitColor, uint32_t>();
+		} break;
+		default:{//PRIMITIVE
 			switch (_currentPrimitiveTypeSelect)
 			{
 				case INT8: {
@@ -360,7 +380,7 @@ void MungPlex::Search::DrawResultsArea()
 	ImGui::PushItemWidth(groupWidth);
 	ImGui::InputText("Address", _pokeAddressText, IM_ARRAYSIZE(_pokeAddressText));
 	ImGui::PushItemWidth(groupWidth);
-	ImGui::InputText("Value", _pokeValueText, IM_ARRAYSIZE(_pokeValueText));
+	ImGui::InputText("Poke Value", _pokeValueText, IM_ARRAYSIZE(_pokeValueText));
 	if (ImGui::Button("Poke"))
 	{
 		std::stringstream stream;
@@ -420,7 +440,10 @@ void MungPlex::Search::DrawResultsArea()
 
 		} break;
 		case COLOR: {
-
+			if (*Connection::GetAddressWidth() > 4)
+				PokeColor<uint64_t>();
+			else
+				PokeColor<uint32_t>();
 		} break;
 		default: { //PRIMITIVE
 			if (_hex && _currentPrimitiveTypeSelect < FLOAT)
@@ -570,6 +593,7 @@ void MungPlex::Search::PickColorFromScreen()
 	_colorVec.x = (float)GetRValue(color) / (float)255;
 	_colorVec.y = (float)GetGValue(color) / (float)255;
 	_colorVec.z = (float)GetBValue(color) / (float)255;
+	_colorVec.w = 1.0f;
 }
 
 void MungPlex::Search::PerformSearch()
@@ -582,9 +606,9 @@ void MungPlex::Search::PerformSearch()
 	/*case TEXT:
 		TextTypeSearch();
 		break;*/
-	/*case COLOR:
+	case COLOR:
 		ColorTypeSearch();
-		break;*/
+		break;
 	default:
 		PrimitiveTypeSearch();
 		break;
@@ -604,7 +628,7 @@ void MungPlex::Search::PerformSearch()
 
 void MungPlex::Search::PrimitiveTypeSearch()
 {
-	std::stringstream stream1, stream2; //i know this is bloated but better than keeping track if the stream is still good
+	std::stringstream stream1, stream2;
 	if (_currentPrimitiveTypeSelect < FLOAT)
 	{
 		if (_signed)
@@ -680,15 +704,10 @@ void MungPlex::Search::PrimitiveTypeSearch()
 		stream1 >> knownVal;
 		stream2 >> knownValSecondary;
 
-		switch (_currentPrimitiveTypeSelect)
-		{
-		case FLOAT:
-			_resultCount = SetUpAndIterate<float>(knownVal, knownValSecondary);
-			break;
-		case DOUBLE:
+		if (_currentPrimitiveTypeSelect == FLOAT)
+		    _resultCount = SetUpAndIterate<float>(knownVal, knownValSecondary);
+		else
 			_resultCount = SetUpAndIterate<double>(knownVal, knownValSecondary);
-			break;
-		}
 	}
 }
 
@@ -750,5 +769,11 @@ void MungPlex::Search::TextTypeSearch()
 
 void MungPlex::Search::ColorTypeSearch()
 {
+	_currentComparisionTypeSelect = Xertz::KNOWN;
+	std::string arg(_knownValueText);
+	LitColor colorP(arg);
+	arg = std::string(_secondaryKnownValueText);
+	LitColor colorS(arg);
 
+	_resultCount = SetUpAndIterate<LitColor>(colorP, colorS);
 }

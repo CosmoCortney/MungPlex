@@ -54,20 +54,21 @@ Search()
             _searchTextTypes.push_back(std::pair<std::string, int>("UTF-32", UTF32));
             _searchTextTypes.push_back(std::pair<std::string, int>("Shift JIS", SHIFT_JIS));
 
-            _searchColorTypes.push_back(std::pair<std::string, int>("Color RGB (3 Bytes)", RGB_BYTE));
-            _searchColorTypes.push_back(std::pair<std::string, int>("Color RGBA (4 Bytes)", RGBA_BYTE));
-            _searchColorTypes.push_back(std::pair<std::string, int>("Color RGB (3 Floats)", RGB_FLOAT));
-            _searchColorTypes.push_back(std::pair<std::string, int>("Color RGBA (4 Floats)", RGBA_FLOAT));
+            _searchColorTypes.push_back(std::pair<std::string, int>("RGB 888 (3 Bytes)", LitColor::RGB888));
+            _searchColorTypes.push_back(std::pair<std::string, int>("RGBA 888 (4 Bytes)", LitColor::RGBA8888));
+            _searchColorTypes.push_back(std::pair<std::string, int>("RGBF (3 Floats)", LitColor::RGBF));
+            _searchColorTypes.push_back(std::pair<std::string, int>("RGBAF (4 Floats)", LitColor::RGBAF));
+            _searchColorTypes.push_back(std::pair<std::string, int>("RGB 565 (2 Bytes)", LitColor::RGB565));
 
             _searchConditionTypes.push_back(std::pair<std::string, int>("Equal (==)", Xertz::EQUAL));
             _searchConditionTypesText = _searchConditionTypes;
             _searchConditionTypes.push_back(std::pair<std::string, int>("Unequal (!=)", Xertz::UNEQUAL));
             _searchConditionTypesArray = _searchConditionTypes;
-            _searchConditionTypesColor = _searchConditionTypes;
             _searchConditionTypes.push_back(std::pair<std::string, int>("Greater (>)", Xertz::GREATER));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Greater or Equal (>=)", Xertz::GREATER_EQUAL));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Lower (<)", Xertz::LOWER));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Lower or Equal (<=)", Xertz::LOWER_EQUAL));
+            _searchConditionTypesColor = _searchConditionTypes;
             _searchConditionTypes.push_back(std::pair<std::string, int>("Increased by", Xertz::INCREASED_BY));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Decreased by", Xertz::DECREASED_BY));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Value Between", Xertz::BETWEEN));
@@ -185,7 +186,7 @@ Search()
         void ResetCurrentPage()
         {
             _currentPageValue = 1;
-            strncpy(_currentPageText, "1", 2);
+            strncpy(_currentPageText, "1", 1);
         }
 
         template <typename dataType> uint64_t SetUpAndIterate(dataType valKnown = 0, dataType valKnownSecondary = 0)
@@ -207,6 +208,122 @@ Search()
                 Xertz::MemCompare<dataType, uint32_t>::SetUp(Connection::GetCurrentPID(), _dir, _cached, Connection::IsBE(), _alignmentValue);
                 return Xertz::MemCompare<dataType, uint32_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary);
             }
+        }
+
+        template<typename addressType> bool PokeColor()
+        {
+            int pid = Connection::GetCurrentPID();
+            std::string colorString(_pokeValueText);
+            LitColor pokeValue(colorString);
+            int pokeValueWidth = pokeValue.GetSelectedType() == LitColor::RGB888 ? 3 : 4;
+
+            if (_multiPoke)
+            {
+                auto results = Xertz::MemCompare<LitColor, addressType>::GetResults();
+                uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+
+                for (int index = 0; index < _selectedIndices.size(); ++index)
+                {
+                    if (_selectedIndices[index] == false)
+                        continue;
+
+                    uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
+                    int regionIndex = -1;
+
+                    for (int i = 0; i < _regions.size(); ++i)
+                    {
+                        if (address >= _regions[i].Base && address <= _regions[i].Base + _regions[i].Size)
+                        {
+                            regionIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (regionIndex == -1)
+                        return false;
+
+                    address -= _regions[regionIndex].Base;
+                    address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
+
+                        if (pokeValue.GetSelectedType() < LitColor::RGBF) //RGB888, RGBA8888
+                        {
+                            uint32_t val = _pokePrevious ? *(uint32_t*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGBA();
+
+                            if (Connection::IsBE())
+                                val = Xertz::SwapBytes<uint32_t>(val);
+
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
+                        }
+                        else if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                        {
+                            uint16_t val = _pokePrevious ? *(uint16_t*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGB565();
+
+                            if (Connection::IsBE())
+                                val = Xertz::SwapBytes<uint16_t>(val);
+
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), sizeof(uint16_t));
+                        }
+                        else //RGBF, RGBAF
+                        {
+                            for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
+                            {
+                                float val = _pokePrevious ? *(float*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index + item * sizeof(float)) : pokeValue.GetColorValue<float>(item);
+
+                                if (Connection::IsBE())
+                                    val = Xertz::SwapBytes<float>(val);
+
+                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
+                            }
+                        }
+                }
+                return true;
+            }
+            else
+            {
+                uint64_t address = _pokeAddress;
+
+                for (int i = 0; i < _regions.size(); ++i)
+                {
+                    if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
+                    {
+                        address -= _regions[i].Base;
+                        address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+
+                        if (pokeValue.GetSelectedType() < LitColor::RGBF) //RGB888, RGBA8888
+                        {
+                            uint32_t val = pokeValue.GetRGBA();
+
+                            if (Connection::IsBE())
+                                val = Xertz::SwapBytes<uint32_t>(val);
+
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
+                        }
+                        else if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                        {
+                            uint16_t val = pokeValue.GetRGB565();
+
+                            if (Connection::IsBE())
+                                val = Xertz::SwapBytes<uint16_t>(val);
+
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), 2);
+                        }
+                        else //RGBF, RGBAF
+                        {
+                            for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
+                            {
+                                float val = pokeValue.GetColorValue<float>(item);
+
+                                if (Connection::IsBE())
+                                    val = Xertz::SwapBytes<float>(val);
+
+                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         template<typename uType, typename addressType> bool PokeArray()
@@ -344,7 +461,6 @@ Search()
                     }
                 }
             }
-
             return false;
         }
 
@@ -450,6 +566,63 @@ Search()
                                 DrawArrayValues<double>(col, results, itemCount, resultIndexWithItemCount, buf, tempValue, literal);
                             break;*/
                             }
+                        }
+                        else if constexpr (std::is_same_v<dataType, LitColor>)
+                        {
+                            static ImU32 rectColor;
+                            static ImVec4 vecCol;
+
+                            if (_currentColorTypeSelect != LitColor::RGBF && _currentColorTypeSelect != LitColor::RGBAF)//RGB888, RGBA8888, RGB565
+                            {
+                                if (col == 1)
+                                {
+                                    rectColor = *((uint32_t*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex);
+
+                                    if (!_pokePrevious)
+                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                }
+                                else if (col == 2)
+                                {
+                                    rectColor = *((uint32_t*)results->at(_iterationCount - 1)->GetResultPreviousValues() + resultsIndex);
+
+                                    if (_pokePrevious)
+                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                }
+                                else
+                                    break;
+                            }
+                            else //RGBF, RGBAF
+                            {
+                                static bool usesAlpha = _currentColorTypeSelect == LitColor::RGBAF;
+                                static int colorValueCount = _currentColorTypeSelect == LitColor::RGBAF ? 4 : 3;
+
+                                if (col == 1)
+                                {
+                                    rectColor = LitColor(((float*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * colorValueCount), usesAlpha).GetRGBA();
+
+                                    if (!_pokePrevious)
+                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                }
+                                else if (col == 2)
+                                {
+                                    rectColor = LitColor(((float*)results->at(_iterationCount - 1)->GetResultPreviousValues() + resultsIndex * colorValueCount), usesAlpha).GetRGBA();
+
+                                    if (_pokePrevious)
+                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                }
+                                else
+                                    break;
+                            }
+
+                            ColorValuesToCString(vecCol, _currentColorTypeSelect, buf);
+                            std::memcpy(tempValue, buf, 1024);
+                            strcpy(buf, "");
+                            ImDrawList* drawList = ImGui::GetWindowDrawList();
+                            ImVec2 rectMin = ImGui::GetCursorScreenPos();
+                            ImVec2 rectMax = ImVec2(rectMin.x + 124, rectMin.y + 30);
+                            if (_currentColorTypeSelect == LitColor::RGB888 || _currentColorTypeSelect == LitColor::RGB565)
+                                rectColor |= 0x000000FF;
+                            drawList->AddRectFilled(rectMin, rectMax, Xertz::SwapBytes<uint32_t>(rectColor));
                         }
                     }
                     else
