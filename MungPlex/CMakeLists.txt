@@ -16,6 +16,7 @@ add_executable (MungPlex    "main.cpp"
                             "../include/Xertz/ProcessInfo.cpp"
                             "../include/Xertz/SystemInfo.cpp"
                             "../include/Xertz/OperativeArray/OperativeArray/OperativeArray.h"
+                            "../include/Xertz/LitColor/LitColor/LitColor.h"
                             "Connection.h"
                             "Connection.cpp"
                             "ProcessInformation.h"
@@ -52,6 +53,7 @@ target_include_directories(MungPlex PUBLIC
                            "${PROJECT_SOURCE_DIR}/../include/meojson/include"
                            "${PROJECT_SOURCE_DIR}/../include/Xertz"
                            "${PROJECT_SOURCE_DIR}/../include/Xertz/OperativeArray/OperativeArray"
+                           "${PROJECT_SOURCE_DIR}/../include/Xertz/LitColor/LitColor"
                            )
 
 
