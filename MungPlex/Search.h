@@ -54,20 +54,21 @@ Search()
             _searchTextTypes.push_back(std::pair<std::string, int>("UTF-32", UTF32));
             _searchTextTypes.push_back(std::pair<std::string, int>("Shift JIS", SHIFT_JIS));
 
-            _searchColorTypes.push_back(std::pair<std::string, int>("Color RGB (3 Bytes)", RGB_BYTE));
-            _searchColorTypes.push_back(std::pair<std::string, int>("Color RGBA (4 Bytes)", RGBA_BYTE));
-            _searchColorTypes.push_back(std::pair<std::string, int>("Color RGB (3 Floats)", RGB_FLOAT));
-            _searchColorTypes.push_back(std::pair<std::string, int>("Color RGBA (4 Floats)", RGBA_FLOAT));
+            _searchColorTypes.push_back(std::pair<std::string, int>("RGB 888 (3 Bytes)", LitColor::RGB888));
+            _searchColorTypes.push_back(std::pair<std::string, int>("RGBA 888 (4 Bytes)", LitColor::RGBA8888));
+            _searchColorTypes.push_back(std::pair<std::string, int>("RGBF (3 Floats)", LitColor::RGBF));
+            _searchColorTypes.push_back(std::pair<std::string, int>("RGBAF (4 Floats)", LitColor::RGBAF));
+            _searchColorTypes.push_back(std::pair<std::string, int>("RGB 565 (2 Bytes)", LitColor::RGB565));
 
             _searchConditionTypes.push_back(std::pair<std::string, int>("Equal (==)", Xertz::EQUAL));
             _searchConditionTypesText = _searchConditionTypes;
             _searchConditionTypes.push_back(std::pair<std::string, int>("Unequal (!=)", Xertz::UNEQUAL));
             _searchConditionTypesArray = _searchConditionTypes;
-            _searchConditionTypesColor = _searchConditionTypes;
             _searchConditionTypes.push_back(std::pair<std::string, int>("Greater (>)", Xertz::GREATER));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Greater or Equal (>=)", Xertz::GREATER_EQUAL));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Lower (<)", Xertz::LOWER));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Lower or Equal (<=)", Xertz::LOWER_EQUAL));
+            _searchConditionTypesColor = _searchConditionTypes;
             _searchConditionTypes.push_back(std::pair<std::string, int>("Increased by", Xertz::INCREASED_BY));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Decreased by", Xertz::DECREASED_BY));
             _searchConditionTypes.push_back(std::pair<std::string, int>("Value Between", Xertz::BETWEEN));
