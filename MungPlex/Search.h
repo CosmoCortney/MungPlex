@@ -637,6 +637,34 @@ Search()
                                 rectColor |= 0x000000FF;
                             drawList->AddRectFilled(rectMin, rectMax, Xertz::SwapBytes<uint32_t>(rectColor));
                         }
+                        else if constexpr (std::is_same_v<dataType, MorphText>)
+                        {
+                            static int strLength = 0;
+
+                            if (col == 1)
+                            {
+                                switch (_currentTextTypeSelect)
+                                {
+                                case MorphText::ASCII:
+                                    if (!strLength)
+                                        strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetASCII())+1;
+                                        sprintf(buf, "%s\n", ((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
+                                    if (!_pokePrevious)
+                                        std::memcpy(tempValue, buf, 1024);
+                                    break;
+                                case MorphText::SHIFTJIS:
+                                    static std::string temputf8 = MorphText::ShiftJis_To_Utf8((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength);
+                                    if (!strLength)
+                                        strLength = strlen(temputf8.c_str());
+                                    sprintf(buf, "%s\n", temputf8.c_str());
+                                    if (!_pokePrevious)
+                                        std::memcpy(tempValue, buf, 1024);
+                                    break;
+                                }
+                            }
+                            else
+                                break;
+                        }
                     }
                     else
                     {
