@@ -48,11 +48,28 @@ Search()
             _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Float Single", FLOAT));
             _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Float Double", DOUBLE));
 
-            _searchTextTypes.push_back(std::pair<std::string, int>("ASCII", ASCII));
-            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-8", UTF8));
-            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-16", UTF16));
-            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-32", UTF32));
-            _searchTextTypes.push_back(std::pair<std::string, int>("Shift JIS", SHIFT_JIS));
+            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-8", MorphText::UTF8));
+            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-16 Little Endian", MorphText::UTF16LE));
+            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-16 Big Endian", MorphText::UTF16BE));
+            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-32 Little Endian", MorphText::UTF32LE));
+            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-32 Big Endian", MorphText::UTF32BE));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ASCII", MorphText::ASCII));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-1 (Latin-1)", MorphText::ISO_8859_1));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-2 (Latin-2)", MorphText::ISO_8859_2));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-3 (Latin-3)", MorphText::ISO_8859_3));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-4 (Latin-4)", MorphText::ISO_8859_4));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-5 (Cyrillic)", MorphText::ISO_8859_5));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-6 (Arabic)", MorphText::ISO_8859_6));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-7 (Greek)", MorphText::ISO_8859_7));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-8 (Hebrew)", MorphText::ISO_8859_8));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-9 (Turkish, Latin-5)", MorphText::ISO_8859_9));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-10 (Nordic, Latin-6)", MorphText::ISO_8859_10));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-11 (Thai)", MorphText::ISO_8859_11));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-13 (Baltic, Latin-7)", MorphText::ISO_8859_13));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-14 (Celtic, Latin-8)", MorphText::ISO_8859_14));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-15 (West European, Latin-9)", MorphText::ISO_8859_15));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-16 (South-East European, Latin-10)", MorphText::ISO_8859_16));
+            _searchTextTypes.push_back(std::pair<std::string, int>("Shift-Jis", MorphText::SHIFTJIS));
 
             _searchColorTypes.push_back(std::pair<std::string, int>("RGB 888 (3 Bytes)", LitColor::RGB888));
             _searchColorTypes.push_back(std::pair<std::string, int>("RGBA 888 (4 Bytes)", LitColor::RGBA8888));
