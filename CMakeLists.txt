@@ -13,4 +13,5 @@ include_directories ("include/meojson")
 add_subdirectory ("include/Xertz")
 add_subdirectory ("include/Xertz/OperativeArray")
 add_subdirectory ("include/Xertz/LitColor")
+add_subdirectory ("include/Xertz/MorphText")
 
