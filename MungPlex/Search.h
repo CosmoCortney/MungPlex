@@ -224,6 +224,62 @@ Search()
             }
         }
 
+
+        
+        template<typename addressType> bool PokeText()
+        {
+            int pid = Connection::GetCurrentPID();
+            std::string pokeTextp(_pokeValueText);
+            MorphText pokeValue(pokeTextp);
+            int format = pokeValue.GetPrimaryFormat();
+            int textLength;
+
+            if (_multiPoke)
+            {
+
+            }
+            else
+            {
+                uint64_t address = _pokeAddress;
+
+                for (int i = 0; i < _regions.size(); ++i)
+                {
+                    if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
+                    {
+                        address -= _regions[i].Base;
+                        address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+
+                        switch (_currentTextTypeSelect)
+                        {
+                        case MorphText::ASCII: {
+                            textLength = strlen(pokeValue.GetASCII());
+
+                            if (_pokeValueText[textLength - 1] == '\n')
+                                --textLength;
+
+                            char* pokeText = new char[textLength];
+                            memcpy(pokeText, pokeValue.GetASCII(), textLength);
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
+                            return true;
+                        } break;
+                        case MorphText::SHIFTJIS: {
+                            textLength = strlen(pokeValue.GetShiftJis());
+
+                            if (_pokeValueText[textLength - 1] == '\n')
+                                --textLength;
+
+                            char* pokeText = new char[textLength];
+                            memcpy(pokeText, pokeValue.GetShiftJis(), textLength);
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
+                            return true;
+                        } break;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         template<typename addressType> bool PokeColor()
         {
             int pid = Connection::GetCurrentPID();
