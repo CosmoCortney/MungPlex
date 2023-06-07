@@ -236,7 +236,59 @@ Search()
 
             if (_multiPoke)
             {
+                auto results = Xertz::MemCompare<MorphText, addressType>::GetResults();
+                uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
+                for (int index = 0; index < _selectedIndices.size(); ++index)
+                {
+                    if (_selectedIndices[index] == false)
+                        continue;
+
+                    uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
+                    int regionIndex = -1;
+
+                    for (int i = 0; i < _regions.size(); ++i)
+                    {
+                        if (address >= _regions[i].Base && address <= _regions[i].Base + _regions[i].Size)
+                        {
+                            regionIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (regionIndex == -1)
+                        return false;
+
+                    address -= _regions[regionIndex].Base;
+                    address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
+
+                    switch (_currentTextTypeSelect)
+                    {
+                    case MorphText::ASCII: {
+                        textLength = strlen(pokeValue.GetASCII());
+
+                        if (_pokeValueText[textLength - 1] == '\n')
+                            --textLength;
+
+                        char* pokeText = new char[textLength];
+                        memcpy(pokeText, pokeValue.GetASCII(), textLength);
+                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
+                        delete[] pokeText;
+                    } break;
+                    case MorphText::SHIFTJIS: {
+                        textLength = strlen(pokeValue.GetShiftJis());
+
+                        if (_pokeValueText[textLength - 1] == '\n')
+                            --textLength;
+
+                        char* pokeText = new char[textLength];
+                        memcpy(pokeText, pokeValue.GetShiftJis(), textLength);
+                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
+                        delete[] pokeText;
+                    } break;
+                    }
+                }
+                return true;
             }
             else
             {
@@ -260,6 +312,7 @@ Search()
                             char* pokeText = new char[textLength];
                             memcpy(pokeText, pokeValue.GetASCII(), textLength);
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
+                            delete[] pokeText;
                             return true;
                         } break;
                         case MorphText::SHIFTJIS: {
@@ -271,6 +324,7 @@ Search()
                             char* pokeText = new char[textLength];
                             memcpy(pokeText, pokeValue.GetShiftJis(), textLength);
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
+                            delete[] pokeText;
                             return true;
                         } break;
                         }
