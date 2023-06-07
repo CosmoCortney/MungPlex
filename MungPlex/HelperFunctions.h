@@ -18,6 +18,21 @@
 
 namespace MungPlex
 {
+    static bool WriteTextEx(const uint32_t pid, const char* text, const uint64_t address)
+    {
+        int textLength = strlen(text);//pokeValue.GetASCII()
+
+        if (text[textLength - 1] == '\n')
+            --textLength;
+
+        char* pokeText = new char[textLength];
+        memcpy(pokeText, text, textLength);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
+        delete[] pokeText;
+        return true;
+    }
+
+
     static ImVec4 PackedColorToImVec4(uint8_t* packedColor)
     {
         float r = ((float)*(packedColor + 3)) / 255.0f;

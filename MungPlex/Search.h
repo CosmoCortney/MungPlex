@@ -264,40 +264,15 @@ Search()
 
                     switch (_currentTextTypeSelect)
                     {
-                    case MorphText::ASCII: {
-                        textLength = strlen(pokeValue.GetASCII());
-
-                        if (_pokeValueText[textLength - 1] == '\n')
-                            --textLength;
-
-                        char* pokeText = new char[textLength];
-                        memcpy(pokeText, pokeValue.GetASCII(), textLength);
-                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
-                        delete[] pokeText;
-                    } break;
-                    case MorphText::SHIFTJIS: {
-                        textLength = strlen(pokeValue.GetShiftJis());
-
-                        if (_pokeValueText[textLength - 1] == '\n')
-                            --textLength;
-
-                        char* pokeText = new char[textLength];
-                        memcpy(pokeText, pokeValue.GetShiftJis(), textLength);
-                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
-                        delete[] pokeText;
-                    } break;
-                    case MorphText::UTF8: {
-                        textLength = strlen(pokeValue.GetUTF8().c_str());
-
-                        if (_pokeValueText[textLength - 1] == '\n')
-                            --textLength;
-
-                        char* pokeText = new char[textLength];
-                        memcpy(pokeText, pokeValue.GetUTF8().c_str(), textLength);
-                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
-                        delete[] pokeText;
-                        return true;
-                    } break;
+                    case MorphText::ASCII:
+                        WriteTextEx(pid, pokeValue.GetASCII(), address);
+                    break;
+                    case MorphText::SHIFTJIS:
+                        WriteTextEx(pid, pokeValue.GetShiftJis(), address);
+                    break;
+                    case MorphText::UTF8:
+                        WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
+                    break;
                     }
                 }
                 return true;
@@ -315,42 +290,12 @@ Search()
 
                         switch (_currentTextTypeSelect)
                         {
-                        case MorphText::ASCII: {
-                            textLength = strlen(pokeValue.GetASCII());
-
-                            if (_pokeValueText[textLength - 1] == '\n')
-                                --textLength;
-
-                            char* pokeText = new char[textLength];
-                            memcpy(pokeText, pokeValue.GetASCII(), textLength);
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
-                            delete[] pokeText;
-                            return true;
-                        } break;
-                        case MorphText::SHIFTJIS: {
-                            textLength = strlen(pokeValue.GetShiftJis());
-
-                            if (_pokeValueText[textLength - 1] == '\n')
-                                --textLength;
-
-                            char* pokeText = new char[textLength];
-                            memcpy(pokeText, pokeValue.GetShiftJis(), textLength);
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
-                            delete[] pokeText;
-                            return true;
-                        } break;
-                        case MorphText::UTF8: {
-                            textLength = strlen(pokeValue.GetUTF8().c_str());
-
-                            if (_pokeValueText[textLength - 1] == '\n')
-                                --textLength;
-
-                            char* pokeText = new char[textLength];
-                            memcpy(pokeText, pokeValue.GetUTF8().c_str(), textLength);
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
-                            delete[] pokeText;
-                            return true;
-                        } break;
+                        case MorphText::ASCII:
+                            return WriteTextEx(pid, pokeValue.GetASCII(), address);
+                        case MorphText::SHIFTJIS:
+                            return WriteTextEx(pid, pokeValue.GetShiftJis(), address);
+                        case MorphText::UTF8:
+                            return WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
                         }
                     }
                 }
