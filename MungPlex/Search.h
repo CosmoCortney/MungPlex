@@ -286,6 +286,18 @@ Search()
                         Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
                         delete[] pokeText;
                     } break;
+                    case MorphText::UTF8: {
+                        textLength = strlen(pokeValue.GetUTF8().c_str());
+
+                        if (_pokeValueText[textLength - 1] == '\n')
+                            --textLength;
+
+                        char* pokeText = new char[textLength];
+                        memcpy(pokeText, pokeValue.GetUTF8().c_str(), textLength);
+                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
+                        delete[] pokeText;
+                        return true;
+                    } break;
                     }
                 }
                 return true;
@@ -323,6 +335,18 @@ Search()
 
                             char* pokeText = new char[textLength];
                             memcpy(pokeText, pokeValue.GetShiftJis(), textLength);
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
+                            delete[] pokeText;
+                            return true;
+                        } break;
+                        case MorphText::UTF8: {
+                            textLength = strlen(pokeValue.GetUTF8().c_str());
+
+                            if (_pokeValueText[textLength - 1] == '\n')
+                                --textLength;
+
+                            char* pokeText = new char[textLength];
+                            memcpy(pokeText, pokeValue.GetUTF8().c_str(), textLength);
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
                             delete[] pokeText;
                             return true;
@@ -757,16 +781,23 @@ Search()
                                 {
                                 case MorphText::ASCII:
                                     if (!strLength)
-                                        strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetASCII())+1;
-                                        sprintf(buf, "%s\n", ((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
+                                        strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetASCII()) + 1;
+                                    sprintf(buf, "%s\n", ((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
                                     if (!_pokePrevious)
                                         std::memcpy(tempValue, buf, 1024);
                                     break;
-                                case MorphText::SHIFTJIS:
+                                case MorphText::SHIFTJIS: {
                                     static std::string temputf8 = MorphText::ShiftJis_To_Utf8((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength);
                                     if (!strLength)
                                         strLength = strlen(temputf8.c_str());
                                     sprintf(buf, "%s\n", temputf8.c_str());
+                                    if (!_pokePrevious)
+                                        std::memcpy(tempValue, buf, 1024);
+                                } break;
+                                case MorphText::UTF8:
+                                    if (!strLength)
+                                        strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF8().c_str())+1;
+                                    sprintf(buf, "%s\n", ((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
                                     if (!_pokePrevious)
                                         std::memcpy(tempValue, buf, 1024);
                                     break;
