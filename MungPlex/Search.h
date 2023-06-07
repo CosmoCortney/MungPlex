@@ -274,6 +274,8 @@ Search()
                     case MorphText::UTF16LE: case MorphText::UTF16BE:
                         WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
                         break;
+                    case MorphText::UTF32LE: case MorphText::UTF32BE:
+                        WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
                     }
                 }
                 return true;
@@ -299,6 +301,8 @@ Search()
                             return WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
                         case MorphText::UTF16LE: case MorphText::UTF16BE:
                             return WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
+                        case MorphText::UTF32LE: case MorphText::UTF32BE:
+                            return WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
                         }
                     }
                 }
@@ -756,6 +760,18 @@ Search()
                                     static std::string temp = _currentTextTypeSelect == MorphText::UTF16BE
                                         ? MorphText::Utf16BE_To_Utf8( (wchar_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
                                         : MorphText::Utf16LE_To_Utf8( (wchar_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
+
+                                    sprintf(buf, "%s\n", temp.c_str());
+                                    if (!_pokePrevious)
+                                        std::memcpy(tempValue, buf, 1024);
+                                } break;
+                                case MorphText::UTF32LE: case MorphText::UTF32BE: {//todo: fix this - strings won`t be rendered properly
+                                    if (!strLength)
+                                        strLength = strlen((char*)Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str()) + 1;
+
+                                    static std::string temp = _currentTextTypeSelect == MorphText::UTF32BE
+                                        ? MorphText::Utf32BE_To_Utf8( (char32_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
+                                        : MorphText::Utf32LE_To_Utf8( (char32_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
 
                                     sprintf(buf, "%s\n", temp.c_str());
                                     if (!_pokePrevious)

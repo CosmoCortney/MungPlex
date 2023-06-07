@@ -14,6 +14,7 @@
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include"Connection.h"
 #include<any>
+#include<cstdint>
 #include"OperativeArray.h"
 
 namespace MungPlex
@@ -40,6 +41,16 @@ namespace MungPlex
         return true;
     }
 
+    static bool WriteTextEx(const uint32_t pid, const char32_t* text, const uint64_t address)
+    {
+        int textLength = std::char_traits<char32_t>::length(text);
+
+        if (text[textLength - 1] == '\n')
+            --textLength;
+
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM((void*)text, reinterpret_cast<void*>(address), textLength * 4);
+        return true;
+    }
 
     static ImVec4 PackedColorToImVec4(uint8_t* packedColor)
     {
