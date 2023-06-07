@@ -20,15 +20,23 @@ namespace MungPlex
 {
     static bool WriteTextEx(const uint32_t pid, const char* text, const uint64_t address)
     {
-        int textLength = strlen(text);//pokeValue.GetASCII()
+        int textLength = strlen(text);
 
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        char* pokeText = new char[textLength];
-        memcpy(pokeText, text, textLength);
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeText, reinterpret_cast<void*>(address), textLength);
-        delete[] pokeText;
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM((void*)text, reinterpret_cast<void*>(address), textLength);
+        return true;
+    }
+
+    static bool WriteTextEx(const uint32_t pid, const wchar_t* text, const uint64_t address)
+    {
+        int textLength = wcslen(text);
+
+        if (text[textLength - 1] == '\n')
+            --textLength;
+
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM((void*)text, reinterpret_cast<void*>(address), textLength*2);
         return true;
     }
 

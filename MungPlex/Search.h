@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <iostream>
 #include <stdio.h>
 #include "GLFW/glfw3.h"
@@ -19,6 +19,7 @@
 #include<any>
 #include<algorithm>
 #include"MemCompareResult.h"
+#include <cstdio>
 
 namespace MungPlex
 {
@@ -223,8 +224,6 @@ Search()
                 return Xertz::MemCompare<dataType, uint32_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary);
             }
         }
-
-
         
         template<typename addressType> bool PokeText()
         {
@@ -232,7 +231,6 @@ Search()
             std::string pokeTextp(_pokeValueText);
             MorphText pokeValue(pokeTextp);
             int format = pokeValue.GetPrimaryFormat();
-            int textLength;
 
             if (_multiPoke)
             {
@@ -273,6 +271,9 @@ Search()
                     case MorphText::UTF8:
                         WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
                     break;
+                    case MorphText::UTF16LE: case MorphText::UTF16BE:
+                        WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
+                        break;
                     }
                 }
                 return true;
@@ -296,6 +297,8 @@ Search()
                             return WriteTextEx(pid, pokeValue.GetShiftJis(), address);
                         case MorphText::UTF8:
                             return WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
+                        case MorphText::UTF16LE: case MorphText::UTF16BE:
+                            return WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
                         }
                     }
                 }
@@ -746,6 +749,18 @@ Search()
                                     if (!_pokePrevious)
                                         std::memcpy(tempValue, buf, 1024);
                                     break;
+                                case MorphText::UTF16LE: case MorphText::UTF16BE: {//todo: fix this - strings won`t be rendered properly
+                                    if (!strLength)
+                                        strLength = strlen((char*)Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str()) + 1;
+
+                                    static std::string temp = _currentTextTypeSelect == MorphText::UTF16BE
+                                        ? MorphText::Utf16BE_To_Utf8( (wchar_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
+                                        : MorphText::Utf16LE_To_Utf8( (wchar_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
+
+                                    sprintf(buf, "%s\n", temp.c_str());
+                                    if (!_pokePrevious)
+                                        std::memcpy(tempValue, buf, 1024);
+                                } break;
                                 }
                             }
                             else
