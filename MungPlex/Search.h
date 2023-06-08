@@ -159,7 +159,7 @@ Search()
         bool _disableBecauseNoInt = false;
         bool _disableBecauseNoText = false;
         bool _disableBecauseNoColor = false;
-        bool _caseSensitive = false;
+        bool _caseSensitive = true;
         bool _disableBecauseNoArray = false;
         int _currentValueTypeSelect = 0;
         int _currentPrimitiveTypeSelect = 0;

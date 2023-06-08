@@ -43,7 +43,10 @@ void MungPlex::Search::DrawValueTypeOptions()
 		_disableBecauseNoArray = _currentValueTypeSelect != ARRAY;
 		_disableBecauseNoColor = _currentValueTypeSelect != COLOR;
 		_disableBecauseNoText = _currentValueTypeSelect != TEXT;
-		_disableBecauseNoInt = (!_disableBecauseNoPrimitive && _currentPrimitiveTypeSelect > INT64) || (!_disableBecauseNoArray && _currentArrayTypeSelect > INT64) || !_disableBecauseNoColor;
+		_disableBecauseNoInt = (!_disableBecauseNoPrimitive && _currentPrimitiveTypeSelect > INT64) 
+			|| (!_disableBecauseNoArray && _currentArrayTypeSelect > INT64) 
+			|| !_disableBecauseNoColor
+			|| !_disableBecauseNoText;
 
 		if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
 			MungPlex::SetUpCombo("Primitive Type", _searchPrimitiveTypes, _currentPrimitiveTypeSelect);
@@ -61,9 +64,9 @@ void MungPlex::Search::DrawValueTypeOptions()
 			MungPlex::SetUpCombo("Color Type", _searchColorTypes, _currentColorTypeSelect);
 		if (_disableBecauseNoColor) ImGui::EndDisabled();
 		
-		if (!_disableBecauseNoInt) ImGui::BeginDisabled();
+		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::BeginDisabled();
 			ImGui::SliderFloat("% Precision", &_precision, 1.0f, 100.0f, "%0.2f", NULL);
-		if (!_disableBecauseNoInt) ImGui::EndDisabled();
+		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::EndDisabled();
 
 		ImGui::Checkbox("Big Endian", Connection::IsBE());
 		ImGui::SameLine();
@@ -223,7 +226,9 @@ void MungPlex::Search::DrawSearchOptions()
 			}
 		if (knownSecondaryValueLabel) ImGui::EndDisabled();
 
+		if(!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::BeginDisabled();
 		MungPlex::SetUpCombo("Comparision Type", _searchComparasionType, _currentComparisionTypeSelect);
+		if (!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::EndDisabled();
 
 		std::vector<std::pair<std::string, int>>* conditionTypeItems;
 
@@ -246,7 +251,9 @@ void MungPlex::Search::DrawSearchOptions()
 		break;
 		}
 
+		if (!_disableBecauseNoText) ImGui::BeginDisabled();
 		MungPlex::SetUpCombo("Condition Type", *conditionTypeItems, _currentConditionTypeSelect);
+		if (!_disableBecauseNoText) ImGui::EndDisabled();
 
 		if (ImGui::InputText("Alignment", _alignmentText, IM_ARRAYSIZE(_alignmentText)))
 		{
