@@ -276,6 +276,9 @@ Search()
                         break;
                     case MorphText::UTF32LE: case MorphText::UTF32BE:
                         WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
+                        break;
+                    default: //ISO-8859-X
+                        WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
                     }
                 }
                 return true;
@@ -303,6 +306,8 @@ Search()
                             return WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
                         case MorphText::UTF32LE: case MorphText::UTF32BE:
                             return WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
+                        default: //ISO-8859-X
+                            return WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
                         }
                     }
                 }
@@ -735,23 +740,20 @@ Search()
                                     if (!strLength)
                                         strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetASCII()) + 1;
                                     sprintf(buf, "%s\n", ((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
-                                    if (!_pokePrevious)
-                                        std::memcpy(tempValue, buf, 1024);
+                                    std::memcpy(tempValue, buf, 1024);
                                     break;
                                 case MorphText::SHIFTJIS: {
                                     static std::string temputf8 = MorphText::ShiftJis_To_Utf8((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength);
                                     if (!strLength)
                                         strLength = strlen(temputf8.c_str());
                                     sprintf(buf, "%s\n", temputf8.c_str());
-                                    if (!_pokePrevious)
-                                        std::memcpy(tempValue, buf, 1024);
+                                    std::memcpy(tempValue, buf, 1024);
                                 } break;
                                 case MorphText::UTF8:
                                     if (!strLength)
                                         strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF8().c_str())+1;
                                     sprintf(buf, "%s\n", ((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
-                                    if (!_pokePrevious)
-                                        std::memcpy(tempValue, buf, 1024);
+                                    std::memcpy(tempValue, buf, 1024);
                                     break;
                                 case MorphText::UTF16LE: case MorphText::UTF16BE: {//todo: fix this - strings won`t be rendered properly
                                     if (!strLength)
@@ -762,8 +764,7 @@ Search()
                                         : MorphText::Utf16LE_To_Utf8( (wchar_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
 
                                     sprintf(buf, "%s\n", temp.c_str());
-                                    if (!_pokePrevious)
-                                        std::memcpy(tempValue, buf, 1024);
+                                    std::memcpy(tempValue, buf, 1024);
                                 } break;
                                 case MorphText::UTF32LE: case MorphText::UTF32BE: {//todo: fix this - strings won`t be rendered properly
                                     if (!strLength)
@@ -774,8 +775,14 @@ Search()
                                         : MorphText::Utf32LE_To_Utf8( (char32_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
 
                                     sprintf(buf, "%s\n", temp.c_str());
-                                    if (!_pokePrevious)
-                                        std::memcpy(tempValue, buf, 1024);
+                                    std::memcpy(tempValue, buf, 1024);
+                                } break;
+                                default: { //ISO-8859-X
+                                    static std::string temputf8 = MorphText::ISO8859X_To_Utf8((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength, _currentTextTypeSelect);
+                                    if (!strLength)
+                                        strLength = strlen(temputf8.c_str())+1;
+                                    sprintf(buf, "%s\n", temputf8.c_str(), strLength);
+                                    std::memcpy(tempValue, buf, 1024);
                                 } break;
                                 }
                             }
