@@ -516,7 +516,11 @@ void MungPlex::Search::DrawResultsArea()
 	}
 
 	ImGui::SameLine();
+
+	if (!_disableBecauseNoText) ImGui::BeginDisabled();
 	ImGui::Checkbox("Previous Value", &_pokePrevious);
+	if (!_disableBecauseNoText) ImGui::EndDisabled();
+
 	ImGui::SameLine();
 	HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous value. No matter what's in the \"Value\" text field. If this one is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
 	ImGui::SameLine();
