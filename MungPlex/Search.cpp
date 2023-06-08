@@ -194,6 +194,16 @@ void MungPlex::Search::DrawSearchOptions()
 				strcpy(knownSecondaryValueLabel, "Above");
 				disableSecondaryValueText = false;
 			}
+			else if (_currentConditionTypeSelect == Xertz::INCREASED_BY)
+			{
+				strcpy(knownPrimaryValueLabel, "Increased by");
+				strcpy(knownSecondaryValueLabel, "Not applicable");
+			}
+			else if (_currentConditionTypeSelect == Xertz::DECREASED_BY)
+			{
+				strcpy(knownPrimaryValueLabel, "Decreased by");
+				strcpy(knownSecondaryValueLabel, "Not applicable");
+			}
 			else
 			{
 				strcpy(knownPrimaryValueLabel, "Value");
@@ -220,11 +230,11 @@ void MungPlex::Search::DrawSearchOptions()
 			}
 		if (disablePrimaryValueText) ImGui::EndDisabled();
 
-		if (knownSecondaryValueLabel) ImGui::BeginDisabled();
+		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < Xertz::BETWEEN || _currentConditionTypeSelect > Xertz::NOT_BETWEEN))) ImGui::BeginDisabled();
 			if (ImGui::InputText(knownSecondaryValueLabel, _secondaryKnownValueText, IM_ARRAYSIZE(_secondaryKnownValueText)))
 			{
 			}
-		if (knownSecondaryValueLabel) ImGui::EndDisabled();
+		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < Xertz::BETWEEN || _currentConditionTypeSelect > Xertz::NOT_BETWEEN))) ImGui::EndDisabled();
 
 		if(!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::BeginDisabled();
 		MungPlex::SetUpCombo("Comparision Type", _searchComparasionType, _currentComparisionTypeSelect);
