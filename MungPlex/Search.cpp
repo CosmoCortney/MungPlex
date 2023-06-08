@@ -328,6 +328,12 @@ void MungPlex::Search::DrawResultsArea()
 			else
 				DrawResultsTable<LitColor, uint32_t>();
 		} break;
+		case TEXT: {
+			if (*Connection::GetAddressWidth() > 4)
+				DrawResultsTable<MorphText, uint64_t>();
+			else
+				DrawResultsTable<MorphText, uint32_t>();
+		} break;
 		default:{//PRIMITIVE
 			switch (_currentPrimitiveTypeSelect)
 			{
@@ -436,7 +442,10 @@ void MungPlex::Search::DrawResultsArea()
 			}break;
 		} break;
 		case TEXT: {
-
+			if (*Connection::GetAddressWidth() > 4)
+				PokeText<uint64_t>();
+			else
+				PokeText<uint32_t>();
 		} break;
 		case COLOR: {
 			if (*Connection::GetAddressWidth() > 4)
@@ -602,9 +611,9 @@ void MungPlex::Search::PerformSearch()
 	case ARRAY: 
 		ArrayTypeSearch();
 		break;
-	/*case TEXT:
+	case TEXT:
 		TextTypeSearch();
-		break;*/
+		break;
 	case COLOR:
 		ColorTypeSearch();
 		break;
@@ -763,7 +772,11 @@ void MungPlex::Search::ArrayTypeSearch()
 
 void MungPlex::Search::TextTypeSearch()
 {
-
+	_currentComparisionTypeSelect = Xertz::KNOWN;
+	MorphText searchText = MorphText(std::string(_knownValueText));
+	searchText.SetMaxLength(256);
+	searchText.SetPrimaryFormat(_currentTextTypeSelect);
+	_resultCount = SetUpAndIterate<MorphText>(searchText, searchText);
 }
 
 void MungPlex::Search::ColorTypeSearch()

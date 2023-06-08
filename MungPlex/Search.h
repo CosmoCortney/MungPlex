@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <iostream>
 #include <stdio.h>
 #include "GLFW/glfw3.h"
@@ -19,6 +19,7 @@
 #include<any>
 #include<algorithm>
 #include"MemCompareResult.h"
+#include <cstdio>
 
 namespace MungPlex
 {
@@ -48,11 +49,28 @@ Search()
             _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Float Single", FLOAT));
             _searchPrimitiveTypes.push_back(std::pair<std::string, int>("Float Double", DOUBLE));
 
-            _searchTextTypes.push_back(std::pair<std::string, int>("ASCII", ASCII));
-            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-8", UTF8));
-            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-16", UTF16));
-            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-32", UTF32));
-            _searchTextTypes.push_back(std::pair<std::string, int>("Shift JIS", SHIFT_JIS));
+            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-8", MorphText::UTF8));
+            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-16 Little Endian", MorphText::UTF16LE));
+            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-16 Big Endian", MorphText::UTF16BE));
+            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-32 Little Endian", MorphText::UTF32LE));
+            _searchTextTypes.push_back(std::pair<std::string, int>("UTF-32 Big Endian", MorphText::UTF32BE));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ASCII", MorphText::ASCII));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-1 (Latin-1)", MorphText::ISO_8859_1));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-2 (Latin-2)", MorphText::ISO_8859_2));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-3 (Latin-3)", MorphText::ISO_8859_3));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-4 (Latin-4)", MorphText::ISO_8859_4));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-5 (Cyrillic)", MorphText::ISO_8859_5));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-6 (Arabic)", MorphText::ISO_8859_6));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-7 (Greek)", MorphText::ISO_8859_7));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-8 (Hebrew)", MorphText::ISO_8859_8));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-9 (Turkish, Latin-5)", MorphText::ISO_8859_9));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-10 (Nordic, Latin-6)", MorphText::ISO_8859_10));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-11 (Thai)", MorphText::ISO_8859_11));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-13 (Baltic, Latin-7)", MorphText::ISO_8859_13));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-14 (Celtic, Latin-8)", MorphText::ISO_8859_14));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-15 (West European, Latin-9)", MorphText::ISO_8859_15));
+            _searchTextTypes.push_back(std::pair<std::string, int>("ISO-8859-16 (South-East European, Latin-10)", MorphText::ISO_8859_16));
+            _searchTextTypes.push_back(std::pair<std::string, int>("Shift-Jis", MorphText::SHIFTJIS));
 
             _searchColorTypes.push_back(std::pair<std::string, int>("RGB 888 (3 Bytes)", LitColor::RGB888));
             _searchColorTypes.push_back(std::pair<std::string, int>("RGBA 888 (4 Bytes)", LitColor::RGBA8888));
@@ -205,6 +223,96 @@ Search()
                 Xertz::MemCompare<dataType, uint32_t>::SetUp(Connection::GetCurrentPID(), _dir, _cached, Connection::IsBE(), _alignmentValue);
                 return Xertz::MemCompare<dataType, uint32_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary);
             }
+        }
+        
+        template<typename addressType> bool PokeText()
+        {
+            int pid = Connection::GetCurrentPID();
+            std::string pokeTextp(_pokeValueText);
+            MorphText pokeValue(pokeTextp);
+            int format = pokeValue.GetPrimaryFormat();
+
+            if (_multiPoke)
+            {
+                auto results = Xertz::MemCompare<MorphText, addressType>::GetResults();
+                uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+
+                for (int index = 0; index < _selectedIndices.size(); ++index)
+                {
+                    if (_selectedIndices[index] == false)
+                        continue;
+
+                    uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
+                    int regionIndex = -1;
+
+                    for (int i = 0; i < _regions.size(); ++i)
+                    {
+                        if (address >= _regions[i].Base && address <= _regions[i].Base + _regions[i].Size)
+                        {
+                            regionIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (regionIndex == -1)
+                        return false;
+
+                    address -= _regions[regionIndex].Base;
+                    address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
+
+                    switch (_currentTextTypeSelect)
+                    {
+                    case MorphText::ASCII:
+                        WriteTextEx(pid, pokeValue.GetASCII(), address);
+                    break;
+                    case MorphText::SHIFTJIS:
+                        WriteTextEx(pid, pokeValue.GetShiftJis(), address);
+                    break;
+                    case MorphText::UTF8:
+                        WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
+                    break;
+                    case MorphText::UTF16LE: case MorphText::UTF16BE:
+                        WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
+                        break;
+                    case MorphText::UTF32LE: case MorphText::UTF32BE:
+                        WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
+                        break;
+                    default: //ISO-8859-X
+                        WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                uint64_t address = _pokeAddress;
+
+                for (int i = 0; i < _regions.size(); ++i)
+                {
+                    if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
+                    {
+                        address -= _regions[i].Base;
+                        address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+
+                        switch (_currentTextTypeSelect)
+                        {
+                        case MorphText::ASCII:
+                            return WriteTextEx(pid, pokeValue.GetASCII(), address);
+                        case MorphText::SHIFTJIS:
+                            return WriteTextEx(pid, pokeValue.GetShiftJis(), address);
+                        case MorphText::UTF8:
+                            return WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
+                        case MorphText::UTF16LE: case MorphText::UTF16BE:
+                            return WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
+                        case MorphText::UTF32LE: case MorphText::UTF32BE:
+                            return WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
+                        default: //ISO-8859-X
+                            return WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         template<typename addressType> bool PokeColor()
@@ -619,6 +727,67 @@ Search()
                             if (_currentColorTypeSelect == LitColor::RGB888 || _currentColorTypeSelect == LitColor::RGB565)
                                 rectColor |= 0x000000FF;
                             drawList->AddRectFilled(rectMin, rectMax, Xertz::SwapBytes<uint32_t>(rectColor));
+                        }
+                        else if constexpr (std::is_same_v<dataType, MorphText>)
+                        {
+                            static int strLength = 0;
+
+                            if (col == 1)
+                            {
+                                switch (_currentTextTypeSelect)
+                                {
+                                case MorphText::ASCII:
+                                    if (!strLength)
+                                        strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetASCII()) + 1;
+                                    sprintf(buf, "%s\n", ((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
+                                    std::memcpy(tempValue, buf, 1024);
+                                    break;
+                                case MorphText::SHIFTJIS: {
+                                    static std::string temputf8 = MorphText::ShiftJis_To_Utf8((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength);
+                                    if (!strLength)
+                                        strLength = strlen(temputf8.c_str());
+                                    sprintf(buf, "%s\n", temputf8.c_str());
+                                    std::memcpy(tempValue, buf, 1024);
+                                } break;
+                                case MorphText::UTF8:
+                                    if (!strLength)
+                                        strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF8().c_str())+1;
+                                    sprintf(buf, "%s\n", ((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
+                                    std::memcpy(tempValue, buf, 1024);
+                                    break;
+                                case MorphText::UTF16LE: case MorphText::UTF16BE: {//todo: fix this - strings won`t be rendered properly
+                                    if (!strLength)
+                                        strLength = strlen((char*)Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str()) + 1;
+
+                                    static std::string temp = _currentTextTypeSelect == MorphText::UTF16BE
+                                        ? MorphText::Utf16BE_To_Utf8( (wchar_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
+                                        : MorphText::Utf16LE_To_Utf8( (wchar_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
+
+                                    sprintf(buf, "%s\n", temp.c_str());
+                                    std::memcpy(tempValue, buf, 1024);
+                                } break;
+                                case MorphText::UTF32LE: case MorphText::UTF32BE: {//todo: fix this - strings won`t be rendered properly
+                                    if (!strLength)
+                                        strLength = strlen((char*)Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str()) + 1;
+
+                                    static std::string temp = _currentTextTypeSelect == MorphText::UTF32BE
+                                        ? MorphText::Utf32BE_To_Utf8( (char32_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
+                                        : MorphText::Utf32LE_To_Utf8( (char32_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
+
+                                    sprintf(buf, "%s\n", temp.c_str());
+                                    std::memcpy(tempValue, buf, 1024);
+                                } break;
+                                default: { //ISO-8859-X
+                                    static std::string temputf8 = MorphText::ISO8859X_To_Utf8((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength, _currentTextTypeSelect);
+                                    if (!strLength)
+                                        strLength = strlen(temputf8.c_str())+1;
+                                    sprintf(buf, "%s\n", temputf8.c_str(), strLength);
+                                    std::memcpy(tempValue, buf, 1024);
+                                } break;
+                                }
+                            }
+                            else
+                                break;
                         }
                     }
                     else

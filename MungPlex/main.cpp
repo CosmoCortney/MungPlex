@@ -56,7 +56,11 @@ int main(int argc, char* argv[])
 	float SCALE = 2.0f;
 	ImFontConfig cfg;
 	cfg.SizePixels = 10 * SCALE;
-	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->FontSize = SCALE;
+	static const ImWchar icons_ranges[] = { 0x0000, 0xf3ff, 0 };
+	bool fontLoaded = io.Fonts->AddFontFromFileTTF("F:\\Workspace\\MungPlex\\MungPlex\\resources\\NotoSansJP-Black.ttf", 30, &cfg, io.Fonts->GetGlyphRangesJapanese());
+
+	const char* version = (const char*)glGetString(GL_VERSION);
+	std::cout << "OpenGL Version: " << version << std::endl;
 
 	while (!glfwWindowShouldClose(window))
 	{
