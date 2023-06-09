@@ -20,6 +20,8 @@
 #include<algorithm>
 #include"MemCompareResult.h"
 #include <cstdio>
+#include<string>
+#include<tuple>
 
 namespace MungPlex
 {
@@ -171,6 +173,8 @@ Search()
         //value options
         char _knownValueText[2048] = { "" };
         char _secondaryKnownValueText[2048] = { "" };
+        std::vector<const char*> _iterations;
+        int _iterationIndex = 0;
 
         //range options
         char _rangeStartText[256] = { "" };
@@ -186,7 +190,6 @@ Search()
         char _pagesAmountText[17] = {"0"};
         uint32_t _currentPageValue = 1;
         char _currentPageText[8] = { "1" };
-        uint64_t _resultCount = 0;
         std::vector<bool> _selectedIndices{};
         int _maxResultsPerPage = 256;
         bool _multiPoke = false;
@@ -195,8 +198,7 @@ Search()
         char _pokeValueText[1024] = { "0" };
         uint64_t _pokeAddress = 0;
         char _pokeAddressText[17] = { "0" };
-        uint64_t _resultcount = 0;
-        int _iterationCount = 0;
+        std::tuple<uint64_t, int> _searchStats;
 
         void ResetCurrentPage()
         {
@@ -204,7 +206,7 @@ Search()
             strncpy(_currentPageText, "1", 1);
         }
 
-        template <typename dataType> uint64_t SetUpAndIterate(dataType valKnown = 0, dataType valKnownSecondary = 0)
+        template <typename dataType> std::tuple<uint64_t, int> SetUpAndIterate(dataType valKnown = 0, dataType valKnownSecondary = 0)
         {
             uint64_t offset = _rangeStartValue - MungPlex::Connection::GetRegions()[_currentRegionSelect].Base;
             void* baseAddressEx = MungPlex::Connection::GetRegions()[_currentRegionSelect].BaseLocationProcess;
@@ -216,12 +218,12 @@ Search()
             if (isWideAddress)
             {
                 Xertz::MemCompare<dataType, uint64_t>::SetUp(Connection::GetCurrentPID(), _dir, _cached, Connection::IsBE(), _alignmentValue);
-                return Xertz::MemCompare<dataType, uint64_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary);
+                return Xertz::MemCompare<dataType, uint64_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary, _iterationIndex+1);
             }
             else
             {
                 Xertz::MemCompare<dataType, uint32_t>::SetUp(Connection::GetCurrentPID(), _dir, _cached, Connection::IsBE(), _alignmentValue);
-                return Xertz::MemCompare<dataType, uint32_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary);
+                return Xertz::MemCompare<dataType, uint32_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary, _iterationIndex +1);
             }
         }
         
@@ -242,7 +244,7 @@ Search()
                     if (_selectedIndices[index] == false)
                         continue;
 
-                    uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
+                    uint64_t address = *(results->at(std::get<1>(_searchStats) - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
                     int regionIndex = -1;
 
                     for (int i = 0; i < _regions.size(); ++i)
@@ -332,7 +334,7 @@ Search()
                     if (_selectedIndices[index] == false)
                         continue;
 
-                    uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
+                    uint64_t address = *(results->at(std::get<1>(_searchStats) - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
                     int regionIndex = -1;
 
                     for (int i = 0; i < _regions.size(); ++i)
@@ -352,7 +354,7 @@ Search()
 
                         if (pokeValue.GetSelectedType() < LitColor::RGBF) //RGB888, RGBA8888
                         {
-                            uint32_t val = _pokePrevious ? *(uint32_t*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGBA();
+                            uint32_t val = _pokePrevious ? *(uint32_t*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGBA();
 
                             if (Connection::IsBE())
                                 val = Xertz::SwapBytes<uint32_t>(val);
@@ -361,7 +363,7 @@ Search()
                         }
                         else if (pokeValue.GetSelectedType() == LitColor::RGB565)
                         {
-                            uint16_t val = _pokePrevious ? *(uint16_t*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGB565();
+                            uint16_t val = _pokePrevious ? *(uint16_t*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGB565();
 
                             if (Connection::IsBE())
                                 val = Xertz::SwapBytes<uint16_t>(val);
@@ -372,7 +374,7 @@ Search()
                         {
                             for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
                             {
-                                float val = _pokePrevious ? *(float*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index + item * sizeof(float)) : pokeValue.GetColorValue<float>(item);
+                                float val = _pokePrevious ? *(float*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index + item * sizeof(float)) : pokeValue.GetColorValue<float>(item);
 
                                 if (Connection::IsBE())
                                     val = Xertz::SwapBytes<float>(val);
@@ -449,7 +451,7 @@ Search()
                     if (_selectedIndices[index] == false)
                         continue;
 
-                    uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
+                    uint64_t address = *(results->at(std::get<1>(_searchStats) - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
 
                     for (int i = 0; i < _regions.size(); ++i)
                     {
@@ -465,7 +467,7 @@ Search()
 
                     if (_pokePrevious)
                     {
-                        uType* arr = (uType*)(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index);
+                        uType* arr = (uType*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index);
                         pokeArray = OperativeArray<uType>(arr, itemCount);
                     }
                     
@@ -522,7 +524,7 @@ Search()
                     if (_selectedIndices[index] == false)
                         continue;
 
-                    uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
+                    uint64_t address = *(results->at(std::get<1>(_searchStats) - 1)->GetResultOffsets() + resultIndex + index) + _regions[_currentRegionSelect].Base;
 
                     for (int i = 0; i < _regions.size(); ++i)
                     {
@@ -537,7 +539,7 @@ Search()
                         return false;
 
                     if (_pokePrevious)
-                        *(dataType*)_pokeValue = *(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndex + index);
+                        *(dataType*)_pokeValue = *(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index);
 
                     if (Connection::IsBE() && (index == 0 || _pokePrevious))
                         *(dataType*)_pokeValue = Xertz::SwapBytes<dataType>(*(dataType*)_pokeValue);
@@ -577,17 +579,18 @@ Search()
                 return;
                     
             auto results = Xertz::MemCompare<dataType, addressType>::GetResults();
-
-            if (!_cached && _iterationCount > 0)
+            int iterationCount = std::get<1>(_searchStats);
+            if (!_cached && iterationCount > 0)
             {
-                if (_iterationCount > 1 && results->at(_iterationCount - 2)->HasResults())
-                    results->at(_iterationCount - 2)->FreeData(false);
+                if (iterationCount > 1 && results->at(iterationCount - 2)->HasResults())
+                    results->at(iterationCount - 2)->FreeData(false);
 
-                if (!results->at(_iterationCount - 1)->HasResults())
-                    if (!results->at(_iterationCount - 1)->LoadResults(false))
+                if (!results->at(iterationCount - 1)->HasResults())
+                    if (!results->at(iterationCount - 1)->LoadResults(false))
                         return;
             }
                     
+            uint64_t resultCount = std::get<0>(_searchStats);
             ImGui::TableSetupColumn("Address");
             ImGui::TableSetupColumn("Value");
             ImGui::TableSetupColumn("Previous");
@@ -599,9 +602,9 @@ Search()
             else
                 literal = GetStringLiteral(_currentArrayTypeSelect, _signed, _hex);
 
-            for (int row = 0; row < _resultCount; ++row)
+            for (int row = 0; row < resultCount; ++row)
             {
-                if (row >= _maxResultsPerPage || row >= _resultCount || (_currentPageValue >= _pagesAmountValue && row >= _resultCount % _maxResultsPerPage))
+                if (row >= _maxResultsPerPage || row >= resultCount || (_currentPageValue >= _pagesAmountValue && row >= resultCount % _maxResultsPerPage))
                     break;
 
                 static char tempAddress[1024];
@@ -609,7 +612,7 @@ Search()
                 static char buf[1024];
                 int addressTextWidth = *Connection::GetAddressWidth() > 4 ? 16 : 8;
                 uint64_t pageIndex = (_currentPageValue-1) * _maxResultsPerPage;
-                uint64_t address = *(results->at(_iterationCount - 1)->GetResultOffsets() + pageIndex + row) + _regions[_currentRegionSelect].Base;
+                uint64_t address = *(results->at(iterationCount - 1)->GetResultOffsets() + pageIndex + row) + _regions[_currentRegionSelect].Base;
                 bool rowClicked = false;
                 uint64_t resultsIndex = (pageIndex + row);
                 ImGui::TableNextRow(selectableFlags);
@@ -623,8 +626,8 @@ Search()
                     {
                         if constexpr (std::is_integral_v<dataType> || std::is_floating_point_v<dataType>)
                         {
-                            auto currentValue = *(results->at(_iterationCount - 1)->GetResultValues() + resultsIndex);
-                            auto previousValue = *(results->at(_iterationCount - 1)->GetResultPreviousValues() + resultsIndex);
+                            auto currentValue = *(results->at(iterationCount - 1)->GetResultValues() + resultsIndex);
+                            auto previousValue = *(results->at(iterationCount - 1)->GetResultPreviousValues() + resultsIndex);
                             auto difference = currentValue - previousValue;
 
                             switch (col)
@@ -680,14 +683,14 @@ Search()
                             {
                                 if (col == 1)
                                 {
-                                    rectColor = *((uint32_t*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex);
+                                    rectColor = *((uint32_t*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex);
 
                                     if (!_pokePrevious)
                                         vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
                                 }
                                 else if (col == 2)
                                 {
-                                    rectColor = *((uint32_t*)results->at(_iterationCount - 1)->GetResultPreviousValues() + resultsIndex);
+                                    rectColor = *((uint32_t*)results->at(iterationCount - 1)->GetResultPreviousValues() + resultsIndex);
 
                                     if (_pokePrevious)
                                         vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
@@ -702,14 +705,14 @@ Search()
 
                                 if (col == 1)
                                 {
-                                    rectColor = LitColor(((float*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * colorValueCount), usesAlpha).GetRGBA();
+                                    rectColor = LitColor(((float*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * colorValueCount), usesAlpha).GetRGBA();
 
                                     if (!_pokePrevious)
                                         vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
                                 }
                                 else if (col == 2)
                                 {
-                                    rectColor = LitColor(((float*)results->at(_iterationCount - 1)->GetResultPreviousValues() + resultsIndex * colorValueCount), usesAlpha).GetRGBA();
+                                    rectColor = LitColor(((float*)results->at(iterationCount - 1)->GetResultPreviousValues() + resultsIndex * colorValueCount), usesAlpha).GetRGBA();
 
                                     if (_pokePrevious)
                                         vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
@@ -739,11 +742,11 @@ Search()
                                 case MorphText::ASCII:
                                     if (!strLength)
                                         strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetASCII()) + 1;
-                                    sprintf(buf, "%s\n", ((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
+                                    sprintf(buf, "%s\n", ((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
                                     std::memcpy(tempValue, buf, 1024);
                                     break;
                                 case MorphText::SHIFTJIS: {
-                                    static std::string temputf8 = MorphText::ShiftJis_To_Utf8((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength);
+                                    static std::string temputf8 = MorphText::ShiftJis_To_Utf8((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength);
                                     if (!strLength)
                                         strLength = strlen(temputf8.c_str());
                                     sprintf(buf, "%s\n", temputf8.c_str());
@@ -752,7 +755,7 @@ Search()
                                 case MorphText::UTF8:
                                     if (!strLength)
                                         strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF8().c_str())+1;
-                                    sprintf(buf, "%s\n", ((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
+                                    sprintf(buf, "%s\n", ((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
                                     std::memcpy(tempValue, buf, 1024);
                                     break;
                                 case MorphText::UTF16LE: case MorphText::UTF16BE: {//todo: fix this - strings won`t be rendered properly
@@ -760,8 +763,8 @@ Search()
                                         strLength = strlen((char*)Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str()) + 1;
 
                                     static std::string temp = _currentTextTypeSelect == MorphText::UTF16BE
-                                        ? MorphText::Utf16BE_To_Utf8( (wchar_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
-                                        : MorphText::Utf16LE_To_Utf8( (wchar_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
+                                        ? MorphText::Utf16BE_To_Utf8( (wchar_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
+                                        : MorphText::Utf16LE_To_Utf8( (wchar_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
 
                                     sprintf(buf, "%s\n", temp.c_str());
                                     std::memcpy(tempValue, buf, 1024);
@@ -771,14 +774,14 @@ Search()
                                         strLength = strlen((char*)Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str()) + 1;
 
                                     static std::string temp = _currentTextTypeSelect == MorphText::UTF32BE
-                                        ? MorphText::Utf32BE_To_Utf8( (char32_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
-                                        : MorphText::Utf32LE_To_Utf8( (char32_t*)((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
+                                        ? MorphText::Utf32BE_To_Utf8( (char32_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
+                                        : MorphText::Utf32LE_To_Utf8( (char32_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
 
                                     sprintf(buf, "%s\n", temp.c_str());
                                     std::memcpy(tempValue, buf, 1024);
                                 } break;
                                 default: { //ISO-8859-X
-                                    static std::string temputf8 = MorphText::ISO8859X_To_Utf8((char*)results->at(_iterationCount - 1)->GetResultValues() + resultsIndex * strLength, _currentTextTypeSelect);
+                                    static std::string temputf8 = MorphText::ISO8859X_To_Utf8((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength, _currentTextTypeSelect);
                                     if (!strLength)
                                         strLength = strlen(temputf8.c_str())+1;
                                     sprintf(buf, "%s\n", temputf8.c_str(), strLength);
@@ -888,13 +891,14 @@ Search()
 
         template<typename T> void DrawArrayValues(int col, auto results, uint64_t itemCount, uint64_t resultIndexWithItemCount, char* buf, char* tempValue, const char* literal)
         {
+            int iterationCount = std::get<1>(_searchStats);
             T* value;
             const bool copyTempValue = (col == 1 && !_pokePrevious) || (col == 2 && _pokePrevious);
 
             if(col == 1)
-                value = (T*)results->at(_iterationCount - 1)->GetResultValues() + resultIndexWithItemCount;
+                value = (T*)results->at(iterationCount - 1)->GetResultValues() + resultIndexWithItemCount;
             else if (col ==  2)
-                value = (T*)results->at(_iterationCount - 1)->GetResultPreviousValues() + resultIndexWithItemCount;
+                value = (T*)results->at(iterationCount - 1)->GetResultPreviousValues() + resultIndexWithItemCount;
             else
             {
                 sprintf(buf, "");
