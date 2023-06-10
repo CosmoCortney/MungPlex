@@ -43,7 +43,10 @@ void MungPlex::Search::DrawValueTypeOptions()
 		_disableBecauseNoArray = _currentValueTypeSelect != ARRAY;
 		_disableBecauseNoColor = _currentValueTypeSelect != COLOR;
 		_disableBecauseNoText = _currentValueTypeSelect != TEXT;
-		_disableBecauseNoInt = (!_disableBecauseNoPrimitive && _currentPrimitiveTypeSelect > INT64) || (!_disableBecauseNoArray && _currentArrayTypeSelect > INT64) || !_disableBecauseNoColor;
+		_disableBecauseNoInt = (!_disableBecauseNoPrimitive && _currentPrimitiveTypeSelect > INT64) 
+			|| (!_disableBecauseNoArray && _currentArrayTypeSelect > INT64) 
+			|| !_disableBecauseNoColor
+			|| !_disableBecauseNoText;
 
 		if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
 			MungPlex::SetUpCombo("Primitive Type", _searchPrimitiveTypes, _currentPrimitiveTypeSelect);
@@ -61,9 +64,9 @@ void MungPlex::Search::DrawValueTypeOptions()
 			MungPlex::SetUpCombo("Color Type", _searchColorTypes, _currentColorTypeSelect);
 		if (_disableBecauseNoColor) ImGui::EndDisabled();
 		
-		if (!_disableBecauseNoInt) ImGui::BeginDisabled();
+		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::BeginDisabled();
 			ImGui::SliderFloat("% Precision", &_precision, 1.0f, 100.0f, "%0.2f", NULL);
-		if (!_disableBecauseNoInt) ImGui::EndDisabled();
+		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::EndDisabled();
 
 		ImGui::Checkbox("Big Endian", Connection::IsBE());
 		ImGui::SameLine();
@@ -166,15 +169,121 @@ void MungPlex::Search::DrawSearchOptions()
 			PerformSearch();
 
 		ImGui::SameLine();
-		if (ImGui::Button("Cancel"))
-		{
 
-		}
+		int iterationCount = std::get<1>(_searchStats);
+		if (iterationCount < 1) ImGui::BeginDisabled();
+			if (ImGui::Button("Reset"))
+			{
+				static int addressWidth = *Connection::GetAddressWidth();
+				switch (_currentValueTypeSelect)
+				{
+				case ARRAY:
+				{
+					switch (_currentArrayTypeSelect)
+					{
+					case INT8: {
+						if (addressWidth > 4)
+							_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int8_t>, uint64_t>::Reset() : Xertz::MemCompare<OperativeArray<uint8_t>, uint64_t>::Reset();
+						else
+							_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int8_t>, uint32_t>::Reset() : Xertz::MemCompare<OperativeArray<uint8_t>, uint32_t>::Reset();
+					} break;
+					case INT16: {
+						if (addressWidth > 4)
+							_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int16_t>, uint64_t>::Reset() : Xertz::MemCompare<OperativeArray<uint16_t>, uint64_t>::Reset();
+						else
+							_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int16_t>, uint32_t>::Reset() : Xertz::MemCompare<OperativeArray<uint16_t>, uint32_t>::Reset();
+					} break;
+					case INT64: {
+						if (addressWidth > 4)
+							_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int64_t>, uint64_t>::Reset() : Xertz::MemCompare<OperativeArray<uint64_t>, uint64_t>::Reset();
+						else
+							_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int64_t>, uint32_t>::Reset() : Xertz::MemCompare<OperativeArray<uint64_t>, uint32_t>::Reset();
+					} break;
+					case FLOAT: {
+						if (addressWidth > 4)
+							_searchStats = Xertz::MemCompare<OperativeArray<float>, uint64_t>::Reset();
+						else
+							_searchStats = Xertz::MemCompare<OperativeArray<float>, uint32_t>::Reset();
+					} break;
+					case DOUBLE: {
+						if (addressWidth > 4)
+							_searchStats = Xertz::MemCompare<OperativeArray<double>, uint64_t>::Reset();
+						else
+							_searchStats = Xertz::MemCompare<OperativeArray<double>, uint32_t>::Reset();
+					} break;
+					default: { //OperativeArray<INT32>
+						if (addressWidth > 4)
+							_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int32_t>, uint64_t>::Reset() : Xertz::MemCompare<OperativeArray<uint32_t>, uint64_t>::Reset();
+						else
+							_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int32_t>, uint32_t>::Reset() : Xertz::MemCompare<OperativeArray<uint32_t>, uint32_t>::Reset();
+					}
+					}
+				} break;
+				case COLOR: {
+					if (addressWidth > 4)
+						_searchStats = Xertz::MemCompare<LitColor, uint64_t>::Reset();
+					else
+						_searchStats = Xertz::MemCompare<LitColor, uint32_t>::Reset();
+				} break;
+				case TEXT: {
+					if (addressWidth > 4)
+						_searchStats = Xertz::MemCompare<MorphText, uint64_t>::Reset();
+					else
+						_searchStats = Xertz::MemCompare<MorphText, uint32_t>::Reset();
+				} break;
+				default: {//PRIMITIVE
+					switch (_currentPrimitiveTypeSelect)
+					{
+					case INT8: {
+						if (addressWidth > 4)
+							_searchStats = _signed ? Xertz::MemCompare<int8_t, uint64_t>::Reset() : Xertz::MemCompare<uint8_t, uint64_t>::Reset();
+						else
+							_searchStats = _signed ? Xertz::MemCompare<int8_t, uint32_t>::Reset() : Xertz::MemCompare<uint8_t, uint32_t>::Reset();
+					} break;
+					case INT16: {
+						if (addressWidth > 4)
+							_searchStats = _signed ? Xertz::MemCompare<int16_t, uint64_t>::Reset() : Xertz::MemCompare<uint16_t, uint64_t>::Reset();
+						else
+							_searchStats = _signed ? Xertz::MemCompare<int16_t, uint32_t>::Reset() : Xertz::MemCompare<uint16_t, uint32_t>::Reset();
+					} break;
+					case INT64: {
+						if (addressWidth > 4)
+							_searchStats = _signed ? Xertz::MemCompare<int64_t, uint64_t>::Reset() : Xertz::MemCompare<uint64_t, uint64_t>::Reset();
+						else
+							_searchStats = _signed ? Xertz::MemCompare<int64_t, uint32_t>::Reset() : Xertz::MemCompare<uint64_t, uint32_t>::Reset();
+					} break;
+					case FLOAT: {
+						if (addressWidth > 4)
+							_searchStats = Xertz::MemCompare<float, uint64_t>::Reset();
+						else
+							_searchStats = Xertz::MemCompare<float, uint32_t>::Reset();
+					} break;
+					case DOUBLE: {
+						if (addressWidth > 4)
+							_searchStats = Xertz::MemCompare<double, uint64_t>::Reset();
+						else
+							_searchStats = Xertz::MemCompare<double, uint32_t>::Reset();
+					} break;
+					default: { //INT32
+						if (addressWidth > 4)
+							_searchStats = _signed ? Xertz::MemCompare<int32_t, uint64_t>::Reset() : Xertz::MemCompare<uint32_t, uint64_t>::Reset();
+						else
+							_searchStats = _signed ? Xertz::MemCompare<int32_t, uint32_t>::Reset() : Xertz::MemCompare<uint32_t, uint32_t>::Reset();
+					} break;
+					}
+				}
+				}
+
+				_iterations.clear();
+				_iterationIndex = 0;
+			}
+		if (iterationCount < 1) ImGui::EndDisabled();
 
 		static char knownPrimaryValueLabel[64];
 		static char knownSecondaryValueLabel[64];
 		static bool disablePrimaryValueText = false;
 		static bool disableSecondaryValueText = true;
+		iterationCount = std::get<1>(_searchStats);
 
 		switch (_currentValueTypeSelect)
 		{
@@ -190,6 +299,16 @@ void MungPlex::Search::DrawSearchOptions()
 				strcpy(knownPrimaryValueLabel, "Below");
 				strcpy(knownSecondaryValueLabel, "Above");
 				disableSecondaryValueText = false;
+			}
+			else if (_currentConditionTypeSelect == Xertz::INCREASED_BY)
+			{
+				strcpy(knownPrimaryValueLabel, "Increased by");
+				strcpy(knownSecondaryValueLabel, "Not applicable");
+			}
+			else if (_currentConditionTypeSelect == Xertz::DECREASED_BY)
+			{
+				strcpy(knownPrimaryValueLabel, "Decreased by");
+				strcpy(knownSecondaryValueLabel, "Not applicable");
 			}
 			else
 			{
@@ -217,13 +336,15 @@ void MungPlex::Search::DrawSearchOptions()
 			}
 		if (disablePrimaryValueText) ImGui::EndDisabled();
 
-		if (knownSecondaryValueLabel) ImGui::BeginDisabled();
+		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < Xertz::BETWEEN || _currentConditionTypeSelect > Xertz::NOT_BETWEEN))) ImGui::BeginDisabled();
 			if (ImGui::InputText(knownSecondaryValueLabel, _secondaryKnownValueText, IM_ARRAYSIZE(_secondaryKnownValueText)))
 			{
 			}
-		if (knownSecondaryValueLabel) ImGui::EndDisabled();
+		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < Xertz::BETWEEN || _currentConditionTypeSelect > Xertz::NOT_BETWEEN))) ImGui::EndDisabled();
 
-		MungPlex::SetUpCombo("Comparision Type", _searchComparasionType, _currentComparisionTypeSelect);
+		if(!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::BeginDisabled();
+			MungPlex::SetUpCombo("Comparision Type", _searchComparasionType, _currentComparisionTypeSelect);
+		if (!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::EndDisabled();
 
 		std::vector<std::pair<std::string, int>>* conditionTypeItems;
 
@@ -246,7 +367,9 @@ void MungPlex::Search::DrawSearchOptions()
 		break;
 		}
 
-		MungPlex::SetUpCombo("Condition Type", *conditionTypeItems, _currentConditionTypeSelect);
+		if (!_disableBecauseNoText) ImGui::BeginDisabled();
+			MungPlex::SetUpCombo("Condition Type", *conditionTypeItems, _currentConditionTypeSelect);
+		if (!_disableBecauseNoText) ImGui::EndDisabled();
 
 		if (ImGui::InputText("Alignment", _alignmentText, IM_ARRAYSIZE(_alignmentText)))
 		{
@@ -260,14 +383,15 @@ void MungPlex::Search::DrawSearchOptions()
 
 		ImGui::Checkbox("Values are hex", &GetInstance()._hex);
 		ImGui::SameLine();
-		ImGui::Checkbox("Cached", &GetInstance()._cached);
 
+		if(iterationCount) ImGui::BeginDisabled();
+			ImGui::Checkbox("Cached", &GetInstance()._cached);
+		if (iterationCount) ImGui::EndDisabled();
 
-		std::vector<std::string> iterationItems;
-		iterationItems.resize(0);
-		std::vector<const char*> iterationItems_cstr(iterationItems.size());
-		int tempselect = 0;
-		ImGui::Combo("Compare against iteration", &tempselect, iterationItems_cstr.data(), iterationItems.size());
+		if (!iterationCount) ImGui::BeginDisabled();
+			ImGui::Combo("Compare against iteration", &_iterationIndex, _iterations.data(), _iterations.size());
+		if (!iterationCount) ImGui::EndDisabled();
+
 		ImGui::PopItemWidth();
 	}
 	ImGui::EndGroup();
@@ -378,7 +502,7 @@ void MungPlex::Search::DrawResultsArea()
 	}
 
 	ImGui::PushItemWidth(groupWidth/5);
-	ImGui::LabelText("Results", std::to_string(_resultCount).c_str());
+	ImGui::LabelText("Results", std::to_string(std::get<0>(_searchStats)).c_str());
 	ImGui::SameLine();
 
 	ImGui::BeginGroup();
@@ -509,7 +633,11 @@ void MungPlex::Search::DrawResultsArea()
 	}
 
 	ImGui::SameLine();
-	ImGui::Checkbox("Previous Value", &_pokePrevious);
+
+	if (!_disableBecauseNoText) ImGui::BeginDisabled();
+		ImGui::Checkbox("Previous Value", &_pokePrevious);
+	if (!_disableBecauseNoText) ImGui::EndDisabled();
+
 	ImGui::SameLine();
 	HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous value. No matter what's in the \"Value\" text field. If this one is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
 	ImGui::SameLine();
@@ -622,11 +750,21 @@ void MungPlex::Search::PerformSearch()
 		break;
 	}
 
-	++_iterationCount;
-	_selectedIndices.resize(_maxResultsPerPage);
-	_pagesAmountValue = _resultCount / _maxResultsPerPage;
+	char* x = new char[4];
+	int iter = std::get<1>(_searchStats);
+	if (iter < _iterations.size())
+		_iterations.erase(_iterations.begin() + iter-1, _iterations.end());
 
-	if (_resultCount % _maxResultsPerPage > 0)
+	strcpy(x, std::to_string(iter).c_str());
+	_iterations.push_back(x);
+
+	_iterationIndex = --iter;
+
+	_selectedIndices.resize(_maxResultsPerPage);
+	uint64_t resultCount = std::get<0>(_searchStats);
+	_pagesAmountValue = resultCount / _maxResultsPerPage;
+
+	if (resultCount % _maxResultsPerPage > 0)
 		++_pagesAmountValue;
 
 	std::stringstream stream;
@@ -658,16 +796,16 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			switch (_currentPrimitiveTypeSelect)
 			{
 			case INT8:
-				_resultCount = SetUpAndIterate<int8_t>(knownVal, knownValSecondary);
+				_searchStats = SetUpAndIterate<int8_t>(knownVal, knownValSecondary);
 				break;
 			case INT16:
-				_resultCount = SetUpAndIterate<int16_t>(knownVal, knownValSecondary);
+				_searchStats = SetUpAndIterate<int16_t>(knownVal, knownValSecondary);
 				break;
 			case INT32:
-				_resultCount = SetUpAndIterate<int32_t>(knownVal, knownValSecondary);
+				_searchStats = SetUpAndIterate<int32_t>(knownVal, knownValSecondary);
 				break;
 			case INT64:
-				_resultCount = SetUpAndIterate<int64_t>(knownVal, knownValSecondary);
+				_searchStats = SetUpAndIterate<int64_t>(knownVal, knownValSecondary);
 				break;
 			}
 		}
@@ -690,16 +828,16 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			switch (_currentPrimitiveTypeSelect)
 			{
 			case INT8:
-				_resultCount = SetUpAndIterate<uint8_t>(knownVal, knownValSecondary);
+				_searchStats = SetUpAndIterate<uint8_t>(knownVal, knownValSecondary);
 				break;
 			case INT16:
-				_resultCount = SetUpAndIterate<uint16_t>(knownVal, knownValSecondary);
+				_searchStats = SetUpAndIterate<uint16_t>(knownVal, knownValSecondary);
 				break;
 			case INT32:
-				_resultCount = SetUpAndIterate<uint32_t>(knownVal, knownValSecondary);
+				_searchStats = SetUpAndIterate<uint32_t>(knownVal, knownValSecondary);
 				break;
 			case INT64:
-				_resultCount = SetUpAndIterate<uint64_t>(knownVal, knownValSecondary);
+				_searchStats = SetUpAndIterate<uint64_t>(knownVal, knownValSecondary);
 				break;
 			}
 		}
@@ -713,9 +851,9 @@ void MungPlex::Search::PrimitiveTypeSearch()
 		stream2 >> knownValSecondary;
 
 		if (_currentPrimitiveTypeSelect == FLOAT)
-		    _resultCount = SetUpAndIterate<float>(knownVal, knownValSecondary);
+			_searchStats = SetUpAndIterate<float>(knownVal, knownValSecondary);
 		else
-			_resultCount = SetUpAndIterate<double>(knownVal, knownValSecondary);
+			_searchStats = SetUpAndIterate<double>(knownVal, knownValSecondary);
 	}
 }
 
@@ -733,22 +871,22 @@ void MungPlex::Search::ArrayTypeSearch()
 		case INT8: {
 			OperativeArray<uint8_t> arrayP(strArray);
 			OperativeArray<uint8_t> arrayS(strArraySecondary);
-			_resultCount = SetUpAndIterate<OperativeArray<uint8_t>>(arrayP, arrayS);
+			_searchStats = SetUpAndIterate<OperativeArray<uint8_t>>(arrayP, arrayS);
 		}break;
 		case INT16: {
 			OperativeArray<uint16_t> arrayP(strArray);
 			OperativeArray<uint16_t> arrayS(strArraySecondary);
-			_resultCount = SetUpAndIterate<OperativeArray<uint16_t>>(arrayP, arrayS);
+			_searchStats = SetUpAndIterate<OperativeArray<uint16_t>>(arrayP, arrayS);
 		}break;
 		case INT32: {
 			OperativeArray<uint32_t> arrayP(strArray);
 			OperativeArray<uint32_t> arrayS(strArraySecondary);
-			_resultCount = SetUpAndIterate<OperativeArray<uint32_t>>(arrayP, arrayS);
+			_searchStats = SetUpAndIterate<OperativeArray<uint32_t>>(arrayP, arrayS);
 		}break;
 		case INT64: {
 			OperativeArray<uint64_t> arrayP(strArray);
 			OperativeArray<uint64_t> arrayS(strArraySecondary);
-			_resultCount = SetUpAndIterate<OperativeArray<uint64_t>>(arrayP, arrayS);
+			_searchStats = SetUpAndIterate<OperativeArray<uint64_t>>(arrayP, arrayS);
 		}break;
 		}
 	}
@@ -759,12 +897,12 @@ void MungPlex::Search::ArrayTypeSearch()
 		case FLOAT: {
 			OperativeArray<float> arrayP(strArray);
 			OperativeArray<float> arrayS(strArraySecondary);
-			_resultCount = SetUpAndIterate<OperativeArray<float>>(arrayP, arrayS);
+			_searchStats = SetUpAndIterate<OperativeArray<float>>(arrayP, arrayS);
 		}break;
 		case DOUBLE: {
 			OperativeArray<double> arrayP(strArray);
 			OperativeArray<double> arrayS(strArraySecondary);
-			_resultCount = SetUpAndIterate<OperativeArray<double>>(arrayP, arrayS);
+			_searchStats = SetUpAndIterate<OperativeArray<double>>(arrayP, arrayS);
 		}break;
 		}
 	}
@@ -776,7 +914,7 @@ void MungPlex::Search::TextTypeSearch()
 	MorphText searchText = MorphText(std::string(_knownValueText));
 	searchText.SetMaxLength(256);
 	searchText.SetPrimaryFormat(_currentTextTypeSelect);
-	_resultCount = SetUpAndIterate<MorphText>(searchText, searchText);
+	_searchStats = SetUpAndIterate<MorphText>(searchText, searchText);
 }
 
 void MungPlex::Search::ColorTypeSearch()
@@ -787,5 +925,5 @@ void MungPlex::Search::ColorTypeSearch()
 	arg = std::string(_secondaryKnownValueText);
 	LitColor colorS(arg);
 
-	_resultCount = SetUpAndIterate<LitColor>(colorP, colorS);
+	_searchStats = SetUpAndIterate<LitColor>(colorP, colorS);
 }
