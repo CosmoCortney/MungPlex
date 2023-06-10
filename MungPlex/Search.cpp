@@ -5,7 +5,7 @@ void MungPlex::Search::DrawWindow()
 {
 	ImGui::Begin("Search");
 
-	//if (!MungPlex::Connection::IsConnected()) ImGui::BeginDisabled();
+	if (!MungPlex::Connection::IsConnected()) ImGui::BeginDisabled();
 
 		GetInstance().DrawValueTypeOptions();
 
@@ -22,7 +22,7 @@ void MungPlex::Search::DrawWindow()
 	
 		GetInstance().DrawResultsArea();
 
-	//if (!MungPlex::Connection::IsConnected()) ImGui::EndDisabled();
+	if (!MungPlex::Connection::IsConnected()) ImGui::EndDisabled();
 
 	ImGui::End();
 }
