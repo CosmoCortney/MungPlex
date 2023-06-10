@@ -11,3 +11,6 @@
 [submodule "include/meojson"]
 	path = include/meojson
 	url = https://github.com/MistEO/meojson.git
+[submodule "include/sol2"]
+	path = include/sol2
+	url = https://github.com/ThePhD/sol2.git
