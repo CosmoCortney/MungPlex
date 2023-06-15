@@ -9,6 +9,8 @@ find_package(Lua REQUIRED)
 # Find sol2
 find_package(sol2 CONFIG REQUIRED)
 
+# Find glfw
+find_package(glfw3 CONFIG REQUIRED)
 
 # Generate MungPlexConfig.h using MungPlexConfig.h.in
 configure_file(MungPlexConfig.h.in ${CMAKE_BINARY_DIR}/MungPlexConfig.h @ONLY)
@@ -60,8 +62,6 @@ target_link_libraries(MungPlex
     #MainLibrary
     glfw
     OpenGL::GL
-    lua
-    sol2
 )
 
 # Set C++ version
