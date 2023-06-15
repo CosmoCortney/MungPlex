@@ -13,6 +13,7 @@
 #include"Xertz.h"
 #include"Search.h"
 #include"HelperFunctions.h"
+#include"Cheats.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -77,6 +78,7 @@ int main(int argc, char* argv[])
 		MungPlex::Connection::DrawWindow();
 		MungPlex::ProcessInformation::DrawWindow();
 		MungPlex::Search::DrawWindow();
+		MungPlex::Cheats::DrawWindow();
 
 		ImGui::Render();
 
