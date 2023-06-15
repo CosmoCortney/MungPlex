@@ -13,7 +13,6 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
-#include "json5.hpp"
 
 namespace MungPlex
 {

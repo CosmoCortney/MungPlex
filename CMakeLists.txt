@@ -15,7 +15,6 @@ add_subdirectory ("MungPlex")
 target_include_directories(MungPlex PRIVATE
     "include/imgui"
     "include/glad"
-    "include/meojson/include"
     "include/Xertz"
     "include/Xertz/OperativeArray/OperativeArray"
     "include/Xertz/LitColor/LitColor"

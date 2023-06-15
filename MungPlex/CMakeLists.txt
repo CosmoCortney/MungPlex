@@ -12,6 +12,9 @@ find_package(sol2 CONFIG REQUIRED)
 # Find glfw
 find_package(glfw3 CONFIG REQUIRED)
 
+# Find nlohmann-json
+find_package(nlohmann_json CONFIG REQUIRED)
+
 # Generate MungPlexConfig.h using MungPlexConfig.h.in
 configure_file(MungPlexConfig.h.in ${CMAKE_BINARY_DIR}/MungPlexConfig.h @ONLY)
 
@@ -75,8 +78,6 @@ set_target_properties(MungPlex PROPERTIES
 set (GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set (GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set (GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
-
 
 # Include the binary directory to access the generated MungPlexConfig.h
 target_include_directories(MungPlex PRIVATE ${CMAKE_BINARY_DIR})
