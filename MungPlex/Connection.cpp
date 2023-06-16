@@ -103,17 +103,17 @@ void MungPlex::Connection::LoadSystemInformationJSON(std::wstring& emuName)
 		for (int i = 0; i < regions.size(); ++i)
 		{
 			std::string label = regions[i]["Label"].get<std::string>();
-			uint64_t base = regions[i]["Base"].get<uint64_t>();
-			uint64_t size = regions[i]["Size"].get<uint64_t>();
+			uint64_t base = std::stoll(regions[i]["Base"].get<std::string>(), 0, 0);
+			uint64_t size = std::stoll(regions[i]["Size"].get<std::string>(), 0, 0);
 			_systemRegions.push_back(SystemRegion(label, base, size));
 		}
 
 		for (int i = 0; i < entities.size(); ++i)
 		{
 			std::string entity = entities[i]["Entity"].get<std::string>();
-			int location = entities[i]["Location"].get<int>();
+			int location = std::stoi(entities[i]["Location"].get<std::string>(), 0, 0);
 			std::string datatype = entities[i]["Datatype"].get<std::string>();
-			int size = entities[i]["Size"].get<int>();
+			int size = std::stoi(entities[i]["Size"].get<std::string>(), 0, 0);
 			bool hex = entities[i]["Hex"].get<bool>();
 			_gameEntities.push_back(GameEntity(entity, location, datatype, size, hex));
 		}
