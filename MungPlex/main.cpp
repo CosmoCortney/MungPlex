@@ -65,7 +65,8 @@ int main(int argc, char* argv[])
 	ImFontConfig cfg;
 	cfg.SizePixels = 10 * SCALE;
 	static const ImWchar icons_ranges[] = { 0x0000, 0xf3ff, 0 };
-	bool fontLoaded = io.Fonts->AddFontFromFileTTF("F:\\Workspace\\MungPlex\\MungPlex\\resources\\NotoSansJP-Black.ttf", 30, &cfg, io.Fonts->GetGlyphRangesJapanese());
+	// While developing, manually copy the resources folder into the output directory where the EXE resides, otherwise this won't be resolvable
+	bool fontLoaded = io.Fonts->AddFontFromFileTTF("resources\\NotoSansJP-Black.ttf", 30, &cfg, io.Fonts->GetGlyphRangesJapanese());
 
 	const char* version = (const char*)glGetString(GL_VERSION);
 	std::cout << "OpenGL Version: " << version << std::endl;
