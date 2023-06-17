@@ -33,6 +33,7 @@ namespace MungPlex
             _lua.set("BOOL", BOOL);
 
             _lua.set_function("ReadFromRAM", &readFromRAM);
+            _lua.set_function("WriteToRAM", &writeToRAM);
         }
 
         ~Cheats()
@@ -61,6 +62,7 @@ namespace MungPlex
         void DrawCheatInformation(); //top-right
         void DrawControl(); //bottom left
 
+        //legacy function to keep older cheats functioning
         static double readFromRAM(int type, uint64_t address)
         {
             bool bigEndian = Connection::IsBE();
@@ -118,6 +120,59 @@ namespace MungPlex
             return returnValue;
         }
 
+        //legacy function to keep older cheats functioning
+        static void writeToRAM(int type, uint64_t address, double value)
+        {
+            bool bigEndian = Connection::IsBE();
+            int pid = Connection::GetCurrentPID();
+            std::vector<SystemRegion> regions = Connection::GetRegions();
+            uint64_t writeValue;
+
+            for (int i = 0; i < regions.size(); ++i)
+            {
+                if (address < regions[i].Base || address >= regions[i].Base + regions[i].Size)
+                    continue;
+
+                void* writeAddress = (char*)regions[i].BaseLocationProcess + address - regions[i].Base;
+                switch (type)
+                {
+                case BOOL:
+                    writeValue = value != 0;
+                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&writeValue, writeAddress, 1);
+                    return;
+                case INT8:
+                    writeValue = (int8_t)value;
+                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&writeValue, writeAddress, 1);
+                    return;
+                case INT16:
+                    writeValue = (int16_t)value;
+                    if (bigEndian) writeValue = Xertz::SwapBytes<int16_t>(writeValue);
+                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&writeValue, writeAddress, 2);
+                    return;
+                case INT32:
+                    writeValue = (int32_t)value;
+                    if (bigEndian) writeValue = Xertz::SwapBytes<int32_t>(writeValue);
+                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&writeValue, writeAddress, 4);
+                    return;
+                case INT64:
+                    writeValue = (int64_t)value;
+                    if (bigEndian) writeValue = Xertz::SwapBytes<int64_t>(writeValue);
+                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&writeValue, writeAddress, 8);
+                    return;
+                case FLOAT: {
+                    float temp = (float)value;
+                    writeValue = *(int32_t*)&temp;
+                        if (bigEndian) writeValue = Xertz::SwapBytes<int32_t>(writeValue);
+                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&writeValue, writeAddress, 4);
+                    } return;
+                case DOUBLE: {
+                    writeValue = *(int64_t*)&value;
+                    if (bigEndian) writeValue = Xertz::SwapBytes<int64_t>(writeValue);
+                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&writeValue, writeAddress, 8);
+                } return;
+                }
+            }
+        }
 
     public:
         static void DrawWindow();
