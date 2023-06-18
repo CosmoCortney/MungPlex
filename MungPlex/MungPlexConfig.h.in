@@ -14,7 +14,7 @@
 #define CONNECTED_DOLPHIN_WIIWARE "Connected to Dolphin (WiiWare/Channel)"
 #define CONNECTED_PROJECT64 "Connected to Project 64"
 #ifndef NDEBUG
-#define SystemInfoJSON "F:\\Workspace\\MungPlex\\MungPlex\\resources\\SystemInformations.json5"
+#define SystemInfoJSON "F:\\Workspace\\MungPlex\\MungPlex\\resources\\SystemInformation.json"
 #else
 #define SystemInfoJSON "resources\\SystemInformations.json"
 #endif
@@ -38,6 +38,7 @@ namespace MungPlex
         INT64 = 3,
         FLOAT = 4,
         DOUBLE = 5,
+        BOOL = 6
     };
 
     enum TextType

@@ -34,3 +34,16 @@
 .vs/
 out/
 *.vscode
+*.vcxproj
+*.filters
+cmake_install.cmake
+CMakeCache.txt
+*.sln
+CMakeFiles/
+x64/
+lua/
+sol2/
+MungPlex/Debug/
+MungPlex/lualib.dir/
+MungPlex/MainLibrary.dir/
+MungPlex/MungPlex.dir/

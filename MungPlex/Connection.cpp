@@ -1,4 +1,5 @@
 #include "Connection.h"
+#include <nlohmann/json.hpp>
 
 void MungPlex::Connection::DrawWindow()
 {
@@ -90,35 +91,37 @@ void MungPlex::Connection::LoadSystemInformationJSON(std::wstring& emuName)
 	}
 	inFile.close();
 
-	auto doc = json::parse5(jsonstr);
+	try
+	{
+		auto doc = nlohmann::json::parse(jsonstr);
 
-	if (!doc) {
-		std::cerr << "Parsing failed" << std::endl;
+		std::string emuNameBasic(emuName.begin(), emuName.end());
+
+		auto& regions = doc["Emulators"][emuNameBasic]["Regions"];
+		auto& entities = doc["Emulators"][emuNameBasic]["Entities"];
+
+		for (int i = 0; i < regions.size(); ++i)
+		{
+			std::string label = regions[i]["Label"].get<std::string>();
+			uint64_t base = std::stoll(regions[i]["Base"].get<std::string>(), 0, 0);
+			uint64_t size = std::stoll(regions[i]["Size"].get<std::string>(), 0, 0);
+			_systemRegions.push_back(SystemRegion(label, base, size));
+		}
+
+		for (int i = 0; i < entities.size(); ++i)
+		{
+			std::string entity = entities[i]["Entity"].get<std::string>();
+			int location = std::stoi(entities[i]["Location"].get<std::string>(), 0, 0);
+			std::string datatype = entities[i]["Datatype"].get<std::string>();
+			int size = std::stoi(entities[i]["Size"].get<std::string>(), 0, 0);
+			bool hex = entities[i]["Hex"].get<bool>();
+			_gameEntities.push_back(GameEntity(entity, location, datatype, size, hex));
+		}
+	}
+	catch (const nlohmann::json::parse_error &exception)
+	{
+		std::cerr << "Parsing failed: " << exception.what() << std::endl;
 		return;
-	}
-	
-	std::string emuNameBasic(emuName.begin(), emuName.end());
-
-	auto& docv = doc.value();
-	auto& regions = docv["Emulators"][emuNameBasic]["Regions"].as_array();
-	auto& entities = docv["Emulators"][emuNameBasic]["Entities"].as_array();
-
-	for (int i = 0; i < regions.size(); ++i)
-	{
-		std::string label = regions[i]["Label"].as_string();
-		uint64_t base = regions[i]["Base"].as_long_long();
-		uint64_t size = regions[i]["Size"].as_long_long();
-		_systemRegions.push_back(SystemRegion(label, base, size));
-	}
-
-	for (int i = 0; i < entities.size(); ++i)
-	{
-		std::string entity = entities[i]["Entity"].as_string();
-		int location = entities[i]["Location"].as_integer();
-		std::string datatype = entities[i]["Datatype"].as_string();;
-		int size = entities[i]["Size"].as_integer();
-		bool hex = entities[i]["Hex"].as_boolean();
-		_gameEntities.push_back(GameEntity(entity, location, datatype, size, hex));
 	}
 
 	InitProcess(emuName, 0, std::pair<std::wstring, int>(emuName, _currentEmulatorNumber));
