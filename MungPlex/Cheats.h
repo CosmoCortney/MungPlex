@@ -42,13 +42,14 @@ namespace MungPlex
             _lua.set_function("ReadFloat", &readFloat);
             _lua.set_function("ReadDouble", &readDouble);
 
-
-
-
-
-
-
             _lua.set_function("WriteToRAM", &writeToRAM);
+            _lua.set_function("WriteBool", &writeBool);
+            _lua.set_function("WriteInt8", &writeInt8);
+            _lua.set_function("WriteInt16", &writeInt16);
+            _lua.set_function("WriteInt32", &writeInt32);
+            _lua.set_function("WriteInt64", &writeInt64);
+            _lua.set_function("WriteFloat", &writeFloat);
+            _lua.set_function("WriteDouble", &writeDouble);
         }
 
         ~Cheats()
@@ -172,7 +173,7 @@ namespace MungPlex
 
         static int64_t readInt64(uint64_t address)
         {
-            int64_t readValue = false;
+            int64_t readValue = 0;
             int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
@@ -211,7 +212,6 @@ namespace MungPlex
             if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<double>(readValue);
             return readValue;
         }
-
 
         //legacy function to keep older cheats functioning
         static void writeToRAM(int type, uint64_t address, double value)
@@ -261,10 +261,89 @@ namespace MungPlex
                 Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).WriteExRAM(&writeValue, writeAddress, 8);
             } return;
             }
-            
         }
 
+        static void writeBool(uint64_t address, bool value)
+        {
+            int rangeIndex = GetInstance().getRangeIndex(address);
 
+            if (rangeIndex == -1)
+                return;
+
+            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).WriteExRAM(&value, writeAddress, 1);
+        }
+
+        static void writeInt8(uint64_t address, int8_t value)
+        {
+            int rangeIndex = GetInstance().getRangeIndex(address);
+
+            if (rangeIndex == -1)
+                return;
+
+            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).WriteExRAM(&value, writeAddress, 1);
+        }
+
+        static void writeInt16(uint64_t address, int16_t value)
+        {
+            int rangeIndex = GetInstance().getRangeIndex(address);
+
+            if (rangeIndex == -1)
+                return;
+
+            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int16_t>(value);
+            Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).WriteExRAM(&value, writeAddress, 2);
+        }
+
+        static void writeInt32(uint64_t address, int32_t value)
+        {
+            int rangeIndex = GetInstance().getRangeIndex(address);
+
+            if (rangeIndex == -1)
+                return;
+
+            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int32_t>(value);
+            Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).WriteExRAM(&value, writeAddress, 4);
+        }
+
+        static void writeInt64(uint64_t address, int64_t value)
+        {
+            int rangeIndex = GetInstance().getRangeIndex(address);
+
+            if (rangeIndex == -1)
+                return;
+
+            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int64_t>(value);
+            Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).WriteExRAM(&value, writeAddress, 8);
+        }
+
+        static void writeFloat(uint64_t address, float value)
+        {
+            int rangeIndex = GetInstance().getRangeIndex(address);
+
+            if (rangeIndex == -1)
+                return;
+
+            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<float>(value);
+            Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).WriteExRAM(&value, writeAddress, 4);
+        }
+
+        static void writeDouble(uint64_t address, double value)
+        {
+            int rangeIndex = GetInstance().getRangeIndex(address);
+
+            if (rangeIndex == -1)
+                return;
+
+            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<double>(value);
+            Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).WriteExRAM(&value, writeAddress, 8);
+        }
 
     public:
         static void DrawWindow();
