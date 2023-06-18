@@ -72,18 +72,30 @@ namespace MungPlex
             _regions = Connection::GetRegions();
         }
 
+        int getRangeIndex(uint64_t address)
+        {
+            int rangeIndex = -1;
+
+            for (int i = 0; i < _regions.size(); ++i)
+            {
+                if (address >= _regions[i].Base && address < _regions[i].Base + _regions[i].Size)
+                    return i;
+            }
+
+            return rangeIndex;
+        }
+
         //legacy function to keep older cheats functioning
         static double readFromRAM(int type, uint64_t address)
         {
             int64_t readValue = 0;
             double returnValue = 0.0;
+            int rangeIndex = GetInstance().getRangeIndex(address);
 
-            for (int i = 0; i < GetInstance()._regions.size(); ++i)
-            {
-                if (address < GetInstance()._regions[i].Base || address >= GetInstance()._regions[i].Base + GetInstance()._regions[i].Size)
-                    continue;
+            if (rangeIndex == -1)
+                return returnValue = NAN;
 
-                void* readAddress = (char*)GetInstance()._regions[i].BaseLocationProcess + address - GetInstance()._regions[i].Base;
+            void* readAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
 
                 switch (type)
                 {
@@ -131,13 +143,13 @@ namespace MungPlex
         static void writeToRAM(int type, uint64_t address, double value)
         {
             uint64_t writeValue;
+            int rangeIndex = GetInstance().getRangeIndex(address);
 
-            for (int i = 0; i < GetInstance()._regions.size(); ++i)
-            {
-                if (address < GetInstance()._regions[i].Base || address >= GetInstance()._regions[i].Base + GetInstance()._regions[i].Size)
-                    continue;
+            if (rangeIndex == -1)
+                return;
 
-                void* writeAddress = (char*)GetInstance()._regions[i].BaseLocationProcess + address - GetInstance()._regions[i].Base;
+            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+
                 switch (type)
                 {
                 case BOOL:
