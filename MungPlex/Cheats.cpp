@@ -47,6 +47,7 @@ void MungPlex::Cheats::DrawControl()
 		
 		if (ImGui::Button("Apply Cheats"))
 		{
+			updateConnectionInfo();
 			_lua.script(_textCheatLua);
 		}
 		
