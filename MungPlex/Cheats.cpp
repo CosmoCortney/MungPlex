@@ -51,6 +51,7 @@ void MungPlex::Cheats::DrawControl()
 			_lua.script(_textCheatLua);
 		}
 		
+		ImGui::SliderInt("Interval", &_perSecond, 1, 240);
 
 	}
 	ImGui::EndGroup();

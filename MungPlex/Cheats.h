@@ -90,6 +90,7 @@ namespace MungPlex
         bool _isBigEndian = false;
         int _pid = 0;
         std::vector<SystemRegion> _regions{};
+        int _perSecond = 60;
         bool _cheatError = false;
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description)
