@@ -45,14 +45,52 @@ void MungPlex::Cheats::DrawControl()
 
 		static char buf[256];
 		
-		if (ImGui::Button("Apply Cheats"))
+		if (ImGui::Button(_executeCheats ? "Terminate Cheats" : "Apply Cheats"))
+		{
+			if (_cheatError)
+			{
+				_cheatThread.join();
+				_cheatError = false;
+			}
+
+			if (_executeCheats)
+			{
+				_executeCheats = false;
+				_cheatThread.join();
+			}
+			else
 		{
 			updateConnectionInfo();
-			_lua.script(_textCheatLua);
+				_processInfo = Xertz::SystemInfo::GetProcessInfo(_pid);
+				_executeCheats = true;
+				_cheatThread = std::thread(&Cheats::cheatRoutine, this);
+			}
 		}
 		
 		ImGui::SliderInt("Interval", &_perSecond, 1, 240);
 
 	}
 	ImGui::EndGroup();
+}
+
+void MungPlex::Cheats::cheatRoutine()
+{
+	_cheatError = false;
+	sol::protected_function_result pfr = _lua.safe_script(_textCheatLua, sol::script_pass_on_error);
+
+	if (!pfr.valid())
+	{
+		sol_c_assert(!pfr.valid());
+		sol::error err = pfr;
+		std::cout << err.what() << std::endl;
+		_executeCheats = false;
+		_cheatError = true;
+		return;
+	}
+
+	while (_executeCheats)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _perSecond));
+		_lua.safe_script(_textCheatLua, sol::script_pass_on_error);
+	}
 }

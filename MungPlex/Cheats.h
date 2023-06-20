@@ -1,4 +1,5 @@
 #pragma once
+#define SOL_ALL_SAFETIES_ON 1
 #include "lua.hpp"
 #include "sol/sol.hpp"
 #include <cassert>
@@ -15,6 +16,9 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include"Connection.h"
+#include<thread>
+#include<chrono>
+#include <future>
 
 namespace MungPlex
 {
@@ -91,6 +95,11 @@ namespace MungPlex
         int _pid = 0;
         std::vector<SystemRegion> _regions{};
         int _perSecond = 60;
+        bool _executeCheats = false;
+        bool _cheatList = false;
+        bool _rememberEnabled = false;
+        std::thread _cheatThread;
+        PROCESS_INFO _processInfo;
         bool _cheatError = false;
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description)
@@ -135,6 +144,8 @@ namespace MungPlex
 
             return rangeIndex;
         }
+
+        void cheatRoutine();
 
         //legacy function to keep older cheats functioning
         static double readFromRAM(int type, uint64_t address)
