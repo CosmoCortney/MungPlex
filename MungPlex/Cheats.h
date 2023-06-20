@@ -24,7 +24,15 @@ namespace MungPlex
         Cheats()
         {
             updateConnectionInfo();
-            _lua.open_libraries(sol::lib::base, sol::lib::string);
+            _lua.open_libraries(sol::lib::base,
+            sol::lib::string,
+            sol::lib::math,
+            sol::lib::package,
+            sol::lib::coroutine,
+            sol::lib::table,
+            sol::lib::io,
+            sol::lib::os);
+            
             _lua.set("INT8", INT8);
             _lua.set("INT16", INT16);
             _lua.set("INT32", INT32);
