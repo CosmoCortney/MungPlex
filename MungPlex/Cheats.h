@@ -62,6 +62,8 @@ namespace MungPlex
             _lua.set_function("WriteInt64", &writeInt64);
             _lua.set_function("WriteFloat", &writeFloat);
             _lua.set_function("WriteDouble", &writeDouble);
+
+            _lua.set_exception_handler(&luaExceptionHandler);
         }
 
         ~Cheats()
@@ -88,6 +90,27 @@ namespace MungPlex
         bool _isBigEndian = false;
         int _pid = 0;
         std::vector<SystemRegion> _regions{};
+        bool _cheatError = false;
+
+        static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description)
+        {
+            std::cout << "An exception occurred";
+            if (exception)
+            {
+                std::cout << "\nError: ";
+                const std::exception& ex = *exception;
+                std::cout << ex.what() << std::endl;
+            }
+            else
+            {
+                std::cout << "\nDetails: ";
+                std::cout.write(description.data(),
+                    static_cast<std::streamsize>(description.size()));
+                std::cout << std::endl;
+            }
+
+            return sol::stack::push(L, description);
+        }
 
         void DrawCheatList(); //top-left
         void DrawCheatInformation(); //top-right
