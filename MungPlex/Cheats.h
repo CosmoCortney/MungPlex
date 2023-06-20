@@ -39,6 +39,10 @@ namespace MungPlex
             _lua.set_function("ReadInt16", &readInt16);
             _lua.set_function("ReadInt32", &readInt32);
             _lua.set_function("ReadInt64", &readInt64);
+            _lua.set_function("ReadUInt8", &readUInt8);
+            _lua.set_function("ReadUInt16", &readUInt16);
+            _lua.set_function("ReadUInt32", &readUInt32);
+            _lua.set_function("ReadUInt64", &readUInt64);
             _lua.set_function("ReadFloat", &readFloat);
             _lua.set_function("ReadDouble", &readDouble);
 
@@ -161,14 +165,29 @@ namespace MungPlex
             return GetInstance()._isBigEndian ? readInt64(address) >> 56 : readInt64(address);
         }
 
+        static uint8_t readUInt8(uint64_t address)
+        {
+            return readInt8(address);
+        }
+
         static int16_t readInt16(uint64_t address)
         {
             return GetInstance()._isBigEndian ? readInt64(address) >> 48 : readInt64(address);
         }
 
+        static uint16_t readUInt16(uint64_t address)
+        {
+            return readInt16(address);
+        }
+
         static int32_t readInt32(uint64_t address)
         {
             return GetInstance()._isBigEndian ? readInt64(address) >> 32 : readInt64(address);
+        }
+
+        static uint32_t readUInt32(uint64_t address)
+        {
+            return readUInt32(address);
         }
 
         static int64_t readInt64(uint64_t address)
@@ -183,6 +202,11 @@ namespace MungPlex
             GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
             if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int64_t>(readValue);
             return readValue;
+        }
+
+        static uint64_t readUInt64(uint64_t address)
+        {
+            return readUInt64(address);
         }
 
         static float readFloat(uint64_t address)
