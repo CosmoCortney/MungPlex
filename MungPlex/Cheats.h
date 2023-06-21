@@ -30,6 +30,7 @@ namespace MungPlex
     struct LuaCheat
     {
         int ID = -1;
+        bool Checked = false;
         std::string Title;
         std::string Hacker;
         std::string Lua;

@@ -238,11 +238,12 @@ void MungPlex::Cheats::initCheatFile()
 		for (int i = 0; i < cheats.size(); ++i)
 		{
 			int id = cheats[i]["ID"].get<int>();
+			bool checked = cheats[i]["Checked"].get<bool>();
 			std::string title = cheats[i]["Title"].get<std::string>();
 			std::string hacker = cheats[i]["Hacker"].get<std::string>();
 			std::string lua = cheats[i]["Lua"].get<std::string>();
 			std::string description = cheats[i]["Description"].get<std::string>();
-			_luaCheats.push_back(LuaCheat(id, title, hacker, lua, description));
+			_luaCheats.push_back(LuaCheat(id, checked, title, hacker, lua, description));
 		}
 	}
 	catch (const nlohmann::json::parse_error& exception)
