@@ -160,7 +160,7 @@ namespace MungPlex
 
         static uint32_t readUInt32(uint64_t address)
         {
-            return readUInt32(address);
+            return readInt32(address);
         }
 
         static int64_t readInt64(uint64_t address)
@@ -179,7 +179,7 @@ namespace MungPlex
 
         static uint64_t readUInt64(uint64_t address)
         {
-            return readUInt64(address);
+            return readInt64(address);
         }
 
         static float readFloat(uint64_t address)
