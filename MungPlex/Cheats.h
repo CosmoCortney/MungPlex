@@ -23,9 +23,20 @@
 #include <shlobj.h>
 #include <filesystem>
 #include<string>
+#include"nlohmann/json.hpp"
 
 namespace MungPlex
 {
+    struct LuaCheat
+    {
+        int ID = -1;
+        std::string Title;
+        std::string Hacker;
+        std::string Lua;
+        std::string Description;
+    };
+
+
     class Cheats
 	{
     private:
@@ -67,6 +78,7 @@ namespace MungPlex
         std::wstring _currentCheatFile;
         std::string _currentCheatListFile;
         std::string _placeholderCheatFile = "{\"Cheats\": [{\"ID\": 0, \"Title\": \"Sample Title\", \"Hacker\": \"Sample Hacker\", \"Lua\": \"print(\\\"test\\\")\", \"Description\": \"test\" }]}";
+        std::vector<LuaCheat> _luaCheats{};
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
 

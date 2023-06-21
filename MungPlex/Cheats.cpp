@@ -213,11 +213,43 @@ void MungPlex::Cheats::initCheatFile()
 			file << _placeholderCheatFile;
 			file.close();
 		}
-
 	}
-
-
 	
+	_luaCheats.clear();
+	std::ifstream inFile;
+	std::string buffer;
+	std::string jsonstr;
+	inFile.open(_currentCheatFile);
+
+	if (inFile)
+	{
+		while (std::getline(inFile, buffer))
+		{
+			jsonstr.append(buffer).append("\n");
+		}
+	}
+	inFile.close();
+	
+	try
+	{
+		auto doc = nlohmann::json::parse(jsonstr);
+		auto& cheats = doc["Cheats"];
+
+		for (int i = 0; i < cheats.size(); ++i)
+		{
+			int id = cheats[i]["ID"].get<int>();
+			std::string title = cheats[i]["Title"].get<std::string>();
+			std::string hacker = cheats[i]["Hacker"].get<std::string>();
+			std::string lua = cheats[i]["Lua"].get<std::string>();
+			std::string description = cheats[i]["Description"].get<std::string>();
+			_luaCheats.push_back(LuaCheat(id, title, hacker, lua, description));
+		}
+	}
+	catch (const nlohmann::json::parse_error& exception)
+	{
+		std::cerr << "Failed parsing Lua Cheat: " << exception.what() << std::endl;
+		return;
+	}
 }
 
 int MungPlex::Cheats::luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description)
