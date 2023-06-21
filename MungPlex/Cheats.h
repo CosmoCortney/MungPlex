@@ -19,6 +19,10 @@
 #include<thread>
 #include<chrono>
 #include <future>
+#include<Windows.h>
+#include <shlobj.h>
+#include <filesystem>
+#include<string>
 
 namespace MungPlex
 {
@@ -58,6 +62,11 @@ namespace MungPlex
         std::thread _cheatThread;
         PROCESS_INFO _processInfo;
         bool _cheatError = false;
+        std::wstring _documentsPath;
+        std::wstring _currentGameID;
+        std::wstring _currentCheatFile;
+        std::string _currentCheatListFile;
+        std::string _placeholderCheatFile = "{\"Cheats\": [{\"ID\": 0, \"Title\": \"Sample Title\", \"Hacker\": \"Sample Hacker\", \"Lua\": \"print(\\\"test\\\")\", \"Description\": \"test\" }]}";
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
 
@@ -344,5 +353,6 @@ namespace MungPlex
 
     public:
         static void DrawWindow();
+        static void SetGameID(const char* ID);
 	};
 }

@@ -45,14 +45,59 @@ MungPlex::Cheats::Cheats()
 
 	_lua.set_exception_handler(&luaExceptionHandler);
 
+	//put this into the settings class later
+	PWSTR path = new wchar_t[256];
+	if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &path)))
+	{
+		std::cout << "Cheats: Documents path couldn't be retrieved.\n" << std::endl;
+	}
+	else
+	{
+		_documentsPath = std::wstring(path);
+		_documentsPath.append(L"\\MungPlex");
+		std::wcout << _documentsPath;
+
+		if (!std::filesystem::is_directory(_documentsPath))
+		{
+			std::filesystem::create_directory(_documentsPath);
+			_documentsPath.append(L"\\Cheats");
+			std::filesystem::create_directory(_documentsPath);
+			_documentsPath.append(L"\\GameCube");
+			std::filesystem::create_directory(_documentsPath);
+		}
+		else
+			_documentsPath.append(L"\\Cheats\\GameCube");
+	}
+
+	CoTaskMemFree(path);
+
+	_currentGameID = std::wstring(L"GFZE01");
+	//SetGameID("GFZE01");
+	initCheatFile();
 }
 
 void MungPlex::Cheats::DrawWindow()
 {
 	ImGui::Begin("Cheats");
-	GetInstance().DrawCheatInformation();
+	GetInstance().DrawCheatList();
+	ImGui::SameLine();
+	GetInstance().DrawCheatInformation(); 
 	GetInstance().DrawControl();
 	ImGui::End();
+}
+
+void MungPlex::Cheats::DrawCheatList()
+{
+	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
+	ImGui::BeginGroup();
+	{
+		ImGui::PushItemWidth(groupWidth);
+		ImGui::SeparatorText("Cheat List");
+
+		
+
+	}
+	ImGui::EndGroup();
 }
 
 void MungPlex::Cheats::DrawCheatInformation()
@@ -65,9 +110,9 @@ void MungPlex::Cheats::DrawCheatInformation()
 		ImGui::SeparatorText("Cheat Information");
 
 		static char buf[256];
-		strcpy(buf, "dummy\0");
+		strcpy(buf, "test\0");
 		ImGui::InputText("Title", buf, IM_ARRAYSIZE(buf));
-		strcpy(buf, "dummy\0");
+		strcpy(buf, "test\0");
 		ImGui::InputText("Hacker(s)", buf, IM_ARRAYSIZE(buf));
 
 		_textCheatLua;
@@ -76,6 +121,10 @@ void MungPlex::Cheats::DrawCheatInformation()
 		ImGui::InputTextMultiline("Lua Cheat", _textCheatLua, IM_ARRAYSIZE(_textCheatLua), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
 		ImGui::InputTextMultiline("Description", _textCheatDescription, IM_ARRAYSIZE(_textCheatDescription), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
 
+		if (ImGui::Button("Save to list"))
+		{
+
+		}
 	}
 	ImGui::EndGroup();
 }
@@ -105,16 +154,21 @@ void MungPlex::Cheats::DrawControl()
 				_cheatThread.join();
 			}
 			else
-		{
-			updateConnectionInfo();
+			{
+				updateConnectionInfo();
 				_processInfo = Xertz::SystemInfo::GetProcessInfo(_pid);
 				_executeCheats = true;
 				_cheatThread = std::thread(&Cheats::cheatRoutine, this);
 			}
 		}
-		
+
 		ImGui::SliderInt("Interval", &_perSecond, 1, 240);
 
+		if (ImGui::RadioButton("Cheat List", _cheatList))
+			_cheatList = true;
+
+		if (ImGui::RadioButton("Text Cheat", !_cheatList))
+			_cheatList = false;
 	}
 	ImGui::EndGroup();
 }
@@ -139,6 +193,31 @@ void MungPlex::Cheats::cheatRoutine()
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _perSecond));
 		_lua.safe_script(_textCheatLua, sol::script_pass_on_error);
 	}
+}
+
+void MungPlex::Cheats::SetGameID(const char* ID)
+{
+	GetInstance()._currentGameID = MorphText::Utf8_To_Utf16LE(ID);
+}
+
+void MungPlex::Cheats::initCheatFile()
+{
+	_currentCheatFile = _documentsPath + L"\\" + _currentGameID + L".json";
+	if (!std::filesystem::exists(_currentCheatFile))
+	{
+		std::ofstream file(_currentCheatFile, std::ios::binary);
+
+		if (file.is_open())
+		{
+			file << "\xEF\xBB\xBF"; //write BOM
+			file << _placeholderCheatFile;
+			file.close();
+		}
+
+	}
+
+
+	
 }
 
 int MungPlex::Cheats::luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description)
