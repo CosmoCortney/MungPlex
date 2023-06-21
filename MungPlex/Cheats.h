@@ -80,6 +80,8 @@ namespace MungPlex
         std::string _currentCheatListFile;
         std::string _placeholderCheatFile = "{\"Cheats\": [{\"ID\": 0, \"Title\": \"Sample Title\", \"Hacker\": \"Sample Hacker\", \"Lua\": \"print(\\\"test\\\")\", \"Description\": \"test\" }]}";
         std::vector<LuaCheat> _luaCheats{};
+        std::vector<bool> _markedCheats{};
+        std::vector<std::string> _checkBoxIDs{};
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
 

@@ -94,7 +94,18 @@ void MungPlex::Cheats::DrawCheatList()
 		ImGui::PushItemWidth(groupWidth);
 		ImGui::SeparatorText("Cheat List");
 
-		
+		ImGui::BeginChild("child", ImVec2(500, 500), true);
+		{
+			for (int i = 0; i < _luaCheats.size(); ++i)
+			{
+				bool marked = _markedCheats[i];
+				ImGui::Checkbox(_checkBoxIDs[i].c_str(), &_luaCheats[i].Checked);
+				ImGui::SameLine();
+				ImGui::Selectable(_luaCheats[i].Title.c_str(), &marked);
+				_markedCheats[i] = marked;
+			}
+		}
+		ImGui::EndChild();
 
 	}
 	ImGui::EndGroup();
@@ -244,6 +255,8 @@ void MungPlex::Cheats::initCheatFile()
 			std::string lua = cheats[i]["Lua"].get<std::string>();
 			std::string description = cheats[i]["Description"].get<std::string>();
 			_luaCheats.push_back(LuaCheat(id, checked, title, hacker, lua, description));
+			_markedCheats.push_back(false);
+			_checkBoxIDs.push_back("##cheat_" + std::to_string(_luaCheats[i].ID));
 		}
 	}
 	catch (const nlohmann::json::parse_error& exception)
