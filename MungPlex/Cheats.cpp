@@ -230,6 +230,8 @@ void MungPlex::Cheats::initCheatFile()
 	}
 	
 	_luaCheats.clear();
+	_markedCheats.clear();
+	_checkBoxIDs.clear();
 	std::ifstream inFile;
 	std::string buffer;
 	std::string jsonstr;
