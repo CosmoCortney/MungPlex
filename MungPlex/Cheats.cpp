@@ -165,18 +165,38 @@ void MungPlex::Cheats::DrawCheatInformation()
 			_checkBoxIDs.push_back("##cheat_" + std::to_string(_luaCheats.back().ID));
 		}
 
-		if (ImGui::Button("Update Entry"))
-		{
-			copyCheatToList(_selectedID);
-			saveCheatList();
-			_unsavedChangesTextCheat = false;
-		}
+		static bool disableFlag = false;
+		if (!_luaCheats.size())
+			_disableEditButtons = true;
 
-		if (ImGui::Button("Delete Entry"))
+		if (_disableEditButtons) ImGui::BeginDisabled();
+			if (ImGui::Button("Update Entry"))
+			{
+				copyCheatToList(_selectedID);
+				saveCheatList();
+				_unsavedChangesTextCheat = false;
+				disableFlag = false;
+			}
+
+			if (ImGui::Button("Delete Entry"))
+			{
+				deleteCheat(_selectedID);
+				saveCheatList();
+				_unsavedChangesTextCheat = false;
+				
+				if (!_luaCheats.size())
+					disableFlag = true;
+			}
+		if (_disableEditButtons) ImGui::EndDisabled();
+
+		if (disableFlag)
 		{
-			deleteCheat(_selectedID);
-			saveCheatList();
-			_unsavedChangesTextCheat = false;
+			disableFlag = false;
+			_disableEditButtons = true;
+		}
+		else
+		{
+			_disableEditButtons = false;
 		}
 	}
 	ImGui::EndGroup();
@@ -402,7 +422,7 @@ bool MungPlex::Cheats::saveCheatList()
 		}
 		else
 		{
-			jsonData = "{\"Cheats\":[]}";
+			jsonData["Cheats"].push_back("");
 		}
 
 		file << "\xEF\xBB\xBF"; //write BOM

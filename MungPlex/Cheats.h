@@ -89,6 +89,7 @@ namespace MungPlex
         bool _unsavedChangesTextCheat = false;
         bool _unsavedChangesCheatList = false;
         int _selectedID = -1;
+        bool _disableEditButtons = false;
 
 
 
