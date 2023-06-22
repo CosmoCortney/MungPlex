@@ -110,6 +110,7 @@ void MungPlex::Cheats::DrawCheatList()
 				{
 					_markedCheats.assign(_markedCheats.size(), false);
 					_markedCheats[i] = marked;
+					_selectedID = i;
 					copyCheatToInformationBox(i);
 				}
 			}
@@ -154,9 +155,27 @@ void MungPlex::Cheats::DrawCheatInformation()
 			_unsavedChangesTextCheat = true;
 		}
 
-		if (ImGui::Button("Save to list"))
+		if (ImGui::Button("Add to list"))
 		{
+			copyCheatToList(-1);
+			saveCheatList();
+			_unsavedChangesTextCheat = false;
+			_markedCheats.assign(_markedCheats.size(), false);
+			_markedCheats.push_back(true);
+			_checkBoxIDs.push_back("##cheat_" + std::to_string(_luaCheats.back().ID));
+		}
 
+		if (ImGui::Button("Update Entry"))
+		{
+			copyCheatToList(_selectedID);
+			saveCheatList();
+			_unsavedChangesTextCheat = false;
+		}
+
+		if (ImGui::Button("Delete Entry"))
+		{
+			deleteCheat(_selectedID);
+			saveCheatList();
 			_unsavedChangesTextCheat = false;
 		}
 	}
@@ -336,4 +355,61 @@ void MungPlex::Cheats::copyCheatToInformationBox(const int index)
 	strcpy(_textCheatHacker, _luaCheats[index].Hacker.c_str());
 	strcpy(_textCheatLua, _luaCheats[index].Lua.c_str());
 	strcpy(_textCheatDescription, _luaCheats[index].Description.c_str());
+}
+
+void MungPlex::Cheats::copyCheatToList(const int index)
+{
+	if (index == -1)
+	{
+		_luaCheats.push_back(LuaCheat(_luaCheats.back().ID + 1,
+			true,
+			_textCheatTitle,
+			_textCheatHacker,
+			_textCheatLua,
+			_textCheatDescription));
+	}
+	else
+	{
+		strcpy(_textCheatTitle, _luaCheats[index].Title.c_str());
+		strcpy(_textCheatHacker, _luaCheats[index].Hacker.c_str());
+		strcpy(_textCheatLua, _luaCheats[index].Lua.c_str());
+		strcpy(_textCheatDescription, _luaCheats[index].Description.c_str());
+	}
+}
+
+bool MungPlex::Cheats::saveCheatList()
+{
+	std::ofstream file(_currentCheatFile, std::ios::binary);
+	bool isOpen = file.is_open();
+
+	if (isOpen)
+	{
+		nlohmann::json jsonData;
+
+		for (const auto& cheat : _luaCheats) {
+			nlohmann::json cheatJson;
+			cheatJson["ID"] = cheat.ID;
+			cheatJson["Checked"] = cheat.Checked;
+			cheatJson["Title"] = cheat.Title;
+			cheatJson["Hacker"] = cheat.Hacker;
+			cheatJson["Lua"] = cheat.Lua;
+			cheatJson["Description"] = cheat.Description;
+
+			jsonData["Cheats"].push_back(cheatJson);
+		}
+
+		file << "\xEF\xBB\xBF"; //write BOM
+		file << jsonData.dump(4);
+		file.close();
+	}
+
+	return isOpen;
+}
+
+void MungPlex::Cheats::deleteCheat(const uint16_t index)
+{
+	if (index >= _luaCheats.size())
+		return;
+
+	_luaCheats.erase(_luaCheats.begin() + index);
 }

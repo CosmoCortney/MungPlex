@@ -88,11 +88,15 @@ namespace MungPlex
         std::vector<std::string> _checkBoxIDs{};
         bool _unsavedChangesTextCheat = false;
         bool _unsavedChangesCheatList = false;
+        int _selectedID = -1;
 
 
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
         void copyCheatToInformationBox(const int index);
+        void copyCheatToList(const int index);
+        bool saveCheatList();
+        void deleteCheat(const uint16_t index);
         void DrawCheatList(); //top-left
         void DrawCheatInformation(); //top-right
         void DrawControl(); //bottom left
