@@ -101,8 +101,11 @@ void MungPlex::Cheats::DrawCheatList()
 				bool marked = _markedCheats[i];
 				ImGui::Checkbox(_checkBoxIDs[i].c_str(), &_luaCheats[i].Checked);
 				ImGui::SameLine();
-				ImGui::Selectable(_luaCheats[i].Title.c_str(), &marked);
-				_markedCheats[i] = marked;
+				if (ImGui::Selectable(_luaCheats[i].Title.c_str(), &marked))
+				{
+					_markedCheats.assign(_markedCheats.size(), false);
+					_markedCheats[i] = marked;
+				}
 			}
 		}
 		ImGui::EndChild();
