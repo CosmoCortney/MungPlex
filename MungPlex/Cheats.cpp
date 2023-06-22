@@ -370,10 +370,10 @@ void MungPlex::Cheats::copyCheatToList(const int index)
 	}
 	else
 	{
-		strcpy(_textCheatTitle, _luaCheats[index].Title.c_str());
-		strcpy(_textCheatHacker, _luaCheats[index].Hacker.c_str());
-		strcpy(_textCheatLua, _luaCheats[index].Lua.c_str());
-		strcpy(_textCheatDescription, _luaCheats[index].Description.c_str());
+		_luaCheats[index].Title = _textCheatTitle;
+		_luaCheats[index].Hacker = _textCheatHacker;
+		_luaCheats[index].Lua = _textCheatLua;
+		_luaCheats[index].Description = _textCheatDescription;
 	}
 }
 
