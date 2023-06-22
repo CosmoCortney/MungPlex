@@ -386,16 +386,23 @@ bool MungPlex::Cheats::saveCheatList()
 	{
 		nlohmann::json jsonData;
 
-		for (const auto& cheat : _luaCheats) {
-			nlohmann::json cheatJson;
-			cheatJson["ID"] = cheat.ID;
-			cheatJson["Checked"] = cheat.Checked;
-			cheatJson["Title"] = cheat.Title;
-			cheatJson["Hacker"] = cheat.Hacker;
-			cheatJson["Lua"] = cheat.Lua;
-			cheatJson["Description"] = cheat.Description;
+		if (_luaCheats.size())
+		{
+			for (const auto& cheat : _luaCheats) {
+				nlohmann::json cheatJson;
+				cheatJson["ID"] = cheat.ID;
+				cheatJson["Checked"] = cheat.Checked;
+				cheatJson["Title"] = cheat.Title;
+				cheatJson["Hacker"] = cheat.Hacker;
+				cheatJson["Lua"] = cheat.Lua;
+				cheatJson["Description"] = cheat.Description;
 
-			jsonData["Cheats"].push_back(cheatJson);
+				jsonData["Cheats"].push_back(cheatJson);
+			}
+		}
+		else
+		{
+			jsonData = "{\"Cheats\":[]}";
 		}
 
 		file << "\xEF\xBB\xBF"; //write BOM
