@@ -43,6 +43,24 @@ MungPlex::Cheats::Cheats()
 	_lua.set_function("WriteFloat", &writeFloat);
 	_lua.set_function("WriteDouble", &writeDouble);
 
+	lua_State* L = _lua.lua_state();
+	for (int i = 0; i < 32; ++i)
+	{
+		std::string nr = ((i < 10) ? std::to_string(0).append(std::to_string(i)) : std::to_string(i));
+		std::string name = std::string("INTREG").append(nr);
+		
+		lua_pushinteger(L, 0);
+		lua_setglobal(L, name.c_str());
+
+		name = std::string("NUMREG").append(nr);
+		lua_pushnumber(L, 0);
+		lua_setglobal(L, name.c_str());
+
+		name = std::string("BOOLREG").append(nr);
+		lua_pushboolean(L, false);
+		lua_setglobal(L, name.c_str());
+	}
+
 	_lua.set_exception_handler(&luaExceptionHandler);
 
 	//put this into the settings class later
