@@ -82,7 +82,7 @@ namespace MungPlex
         std::wstring _currentGameID;
         std::wstring _currentCheatFile;
         std::string _currentCheatListFile;
-        std::string _placeholderCheatFile = "{\"Cheats\": [{\"ID\": 0, \"Title\": \"Sample Title\", \"Hacker\": \"Sample Hacker\", \"Lua\": \"print(\\\"test\\\")\", \"Description\": \"test\" }]}";
+        std::string _placeholderCheatFile = "{\"Cheats\":[]}";
         std::vector<LuaCheat> _luaCheats{};
         std::vector<bool> _markedCheats{};
         std::vector<std::string> _checkBoxIDs{};

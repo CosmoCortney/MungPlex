@@ -361,7 +361,7 @@ void MungPlex::Cheats::copyCheatToList(const int index)
 {
 	if (index == -1)
 	{
-		_luaCheats.push_back(LuaCheat(_luaCheats.back().ID + 1,
+		_luaCheats.push_back(LuaCheat(_luaCheats.size() ? _luaCheats.back().ID + 1 : 0,
 			true,
 			_textCheatTitle,
 			_textCheatHacker,
