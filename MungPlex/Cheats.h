@@ -45,6 +45,8 @@ namespace MungPlex
 
         ~Cheats()
         {
+            delete[] _textCheatTitle;
+            delete[] _textCheatHacker;
             delete[] _textCheatLua;
             delete[] _textCheatDescription;
         }
@@ -59,6 +61,8 @@ namespace MungPlex
             return Instance;
         }
 
+        char _textCheatTitle[256];
+        char _textCheatHacker[128];
         char _textCheatLua[1024 * 128];
         char _textCheatDescription[1024 * 16];
         std::wstring _cheatListPath;
@@ -82,9 +86,13 @@ namespace MungPlex
         std::vector<LuaCheat> _luaCheats{};
         std::vector<bool> _markedCheats{};
         std::vector<std::string> _checkBoxIDs{};
+        bool _unsavedChangesTextCheat = false;
+        bool _unsavedChangesCheatList = false;
+
+
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
-
+        void copyCheatToInformationBox(const int index);
         void DrawCheatList(); //top-left
         void DrawCheatInformation(); //top-right
         void DrawControl(); //bottom left
