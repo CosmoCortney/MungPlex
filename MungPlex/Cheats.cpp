@@ -458,3 +458,17 @@ void MungPlex::Cheats::deleteCheat(const uint16_t index)
 
 	_luaCheats.erase(_luaCheats.begin() + index);
 }
+
+void MungPlex::Cheats::refreshModuleList()
+{
+	lua_State* L = _lua.lua_state();
+	int moduleCount = _processInfo.GetModuleList().size();
+	lua_createtable(L, 0, moduleCount);
+
+	for (int i = 0; i < moduleCount; ++i)
+	{
+		lua_pushinteger(L, _processInfo.GetModuleList()[i].second);
+		lua_setfield(L, -2, MorphText::Utf16LE_To_Utf8(_processInfo.GetModuleList()[i].first).c_str());
+	}
+	lua_setglobal(L, "Modules");
+}

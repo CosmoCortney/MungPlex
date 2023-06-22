@@ -98,6 +98,7 @@ namespace MungPlex
         void copyCheatToList(const int index);
         bool saveCheatList();
         void deleteCheat(const uint16_t index);
+        void refreshModuleList();
         void DrawCheatList(); //top-left
         void DrawCheatInformation(); //top-right
         void DrawControl(); //bottom left
@@ -106,6 +107,7 @@ namespace MungPlex
             _isBigEndian = Connection::IsBE();
             _pid = Connection::GetCurrentPID();
             _regions = Connection::GetRegions();
+            refreshModuleList();
         }
 
         void initCheatFile();
