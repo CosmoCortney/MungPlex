@@ -57,7 +57,11 @@ int main(int argc, char* argv[])
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
+#ifndef NDEBUG
 	bool show_demo_window = true;
+#else
+	bool show_demo_window = false;
+#endif
 	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
