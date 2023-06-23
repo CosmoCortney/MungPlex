@@ -267,22 +267,52 @@ void MungPlex::Cheats::DrawControl()
 void MungPlex::Cheats::cheatRoutine()
 {
 	_cheatError = false;
-	sol::protected_function_result pfr = _lua.safe_script(_textCheatLua, sol::script_pass_on_error);
+	sol::protected_function_result pfr;
 
-	if (!pfr.valid())
+	if (_cheatList)
 	{
-		sol_c_assert(!pfr.valid());
-		sol::error err = pfr;
-		std::cout << err.what() << std::endl;
-		_executeCheats = false;
-		_cheatError = true;
-		return;
+		for (const auto& cheat : _luaCheats)
+		{
+			pfr = _lua.safe_script(cheat.Lua, sol::script_pass_on_error);
+			if (!pfr.valid())
+			{
+				sol_c_assert(!pfr.valid());
+				sol::error err = pfr;
+				std::cout << err.what() << std::endl;
+				_executeCheats = false;
+				_cheatError = true;
+				return;
+			}
+		}
+
+		while (_executeCheats)
+		{
+			for (const auto& cheat : _luaCheats)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _perSecond));
+				_lua.safe_script(cheat.Lua, sol::script_pass_on_error);
+			}
+		}
 	}
-
-	while (_executeCheats)
+	else
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _perSecond));
-		_lua.safe_script(_textCheatLua, sol::script_pass_on_error);
+		pfr = _lua.safe_script(_textCheatLua, sol::script_pass_on_error);
+
+		if (!pfr.valid())
+		{
+			sol_c_assert(!pfr.valid());
+			sol::error err = pfr;
+			std::cout << err.what() << std::endl;
+			_executeCheats = false;
+			_cheatError = true;
+			return;
+		}
+
+		while (_executeCheats)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _perSecond));
+			_lua.safe_script(_textCheatLua, sol::script_pass_on_error);
+		}
 	}
 }
 
