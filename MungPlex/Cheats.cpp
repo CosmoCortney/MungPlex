@@ -163,12 +163,12 @@ void MungPlex::Cheats::DrawCheatInformation()
 		_textCheatDescription;
 		static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 		
-		if(ImGui::InputTextMultiline("Lua Cheat", _textCheatLua, IM_ARRAYSIZE(_textCheatLua), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags))
+		if(ImGui::InputTextMultiline("Lua Cheat", _textCheatLua, IM_ARRAYSIZE(_textCheatLua), ImVec2(1000, ImGui::GetTextLineHeight() * 16), flags))
 		{
 			_unsavedChangesTextCheat = true;
 		}
 		
-		if(ImGui::InputTextMultiline("Description", _textCheatDescription, IM_ARRAYSIZE(_textCheatDescription), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags))
+		if(ImGui::InputTextMultiline("Description", _textCheatDescription, IM_ARRAYSIZE(_textCheatDescription), ImVec2(1000, ImGui::GetTextLineHeight() * 8), flags))
 		{
 			_unsavedChangesTextCheat = true;
 		}
@@ -183,6 +183,8 @@ void MungPlex::Cheats::DrawCheatInformation()
 			_checkBoxIDs.push_back("##cheat_" + std::to_string(_luaCheats.back().ID));
 		}
 
+		ImGui::SameLine();
+
 		static bool disableFlag = false;
 		if (!_luaCheats.size())
 			_disableEditButtons = true;
@@ -195,6 +197,8 @@ void MungPlex::Cheats::DrawCheatInformation()
 				_unsavedChangesTextCheat = false;
 				disableFlag = false;
 			}
+
+			ImGui::SameLine();
 
 			if (ImGui::Button("Delete Entry"))
 			{
@@ -229,37 +233,45 @@ void MungPlex::Cheats::DrawControl()
 		ImGui::PushItemWidth(groupWidth);
 		ImGui::SeparatorText("Cheat Control");
 
-		static char buf[256];
-		
-		if (ImGui::Button(_executeCheats ? "Terminate Cheats" : "Apply Cheats"))
+		ImGui::BeginGroup();
 		{
-			if (_cheatError)
-			{
-				_cheatThread.join();
-				_cheatError = false;
-			}
+			if (ImGui::RadioButton("Cheat List", _cheatList))
+				_cheatList = true;
 
-			if (_executeCheats)
-			{
-				_executeCheats = false;
-				_cheatThread.join();
-			}
-			else
-			{
-				updateConnectionInfo();
-				_processInfo = Xertz::SystemInfo::GetProcessInfo(_pid);
-				_executeCheats = true;
-				_cheatThread = std::thread(&Cheats::cheatRoutine, this);
-			}
+			if (ImGui::RadioButton("Text Cheat", !_cheatList))
+				_cheatList = false;
 		}
+		ImGui::EndGroup();
 
-		ImGui::SliderInt("Interval", &_perSecond, 1, 240);
+		ImGui::SameLine();
+		
+		ImGui::BeginGroup();
+		{
+			if (ImGui::Button(_executeCheats ? "Terminate Cheats" : "Apply Cheats"))
+			{
+				if (_cheatError)
+				{
+					_cheatThread.join();
+					_cheatError = false;
+				}
 
-		if (ImGui::RadioButton("Cheat List", _cheatList))
-			_cheatList = true;
+				if (_executeCheats)
+				{
+					_executeCheats = false;
+					_cheatThread.join();
+				}
+				else
+				{
+					updateConnectionInfo();
+					_processInfo = Xertz::SystemInfo::GetProcessInfo(_pid);
+					_executeCheats = true;
+					_cheatThread = std::thread(&Cheats::cheatRoutine, this);
+				}
+			}
 
-		if (ImGui::RadioButton("Text Cheat", !_cheatList))
-			_cheatList = false;
+			ImGui::SliderInt("Interval", &_perSecond, 1, 240);
+		}
+		ImGui::EndGroup();
 	}
 	ImGui::EndGroup();
 }
