@@ -13,6 +13,7 @@
 #include"Xertz.h"
 #include"Search.h"
 #include"HelperFunctions.h"
+#include"Cheats.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -22,6 +23,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main(int argc, char* argv[])
 {
+	/* sol2 example code, can be removed */
+	sol::state lua;
+	int x = 0;
+	lua.set_function("beep", [&x] { ++x; });
+	lua.script("beep()");
+	assert(x == 1);
+
 	if (!glfwInit())
 		return EXIT_FAILURE;
 
@@ -57,7 +65,8 @@ int main(int argc, char* argv[])
 	ImFontConfig cfg;
 	cfg.SizePixels = 10 * SCALE;
 	static const ImWchar icons_ranges[] = { 0x0000, 0xf3ff, 0 };
-	bool fontLoaded = io.Fonts->AddFontFromFileTTF("F:\\Workspace\\MungPlex\\MungPlex\\resources\\NotoSansJP-Black.ttf", 30, &cfg, io.Fonts->GetGlyphRangesJapanese());
+	// While developing, manually copy the resources folder into the output directory where the EXE resides, otherwise this won't be resolvable
+	bool fontLoaded = io.Fonts->AddFontFromFileTTF("resources\\NotoSansJP-Black.ttf", 30, &cfg, io.Fonts->GetGlyphRangesJapanese());
 
 	const char* version = (const char*)glGetString(GL_VERSION);
 	std::cout << "OpenGL Version: " << version << std::endl;
@@ -77,6 +86,7 @@ int main(int argc, char* argv[])
 		MungPlex::Connection::DrawWindow();
 		MungPlex::ProcessInformation::DrawWindow();
 		MungPlex::Search::DrawWindow();
+		MungPlex::Cheats::DrawWindow();
 
 		ImGui::Render();
 

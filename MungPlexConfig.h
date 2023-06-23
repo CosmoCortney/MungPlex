@@ -1,7 +1,7 @@
 #pragma once
 #define IMGUI_IMPL_WIN32_DISABLE_GAMEPAD 0
-#define MungPlex_VERSION_MAJOR @MungPlex_VERSION_MAJOR@
-#define MungPlex_VERSION_MINOR @MungPlex_VERSION_MINOR@
+#define MungPlex_VERSION_MAJOR 2
+#define MungPlex_VERSION_MINOR 0
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define SELECT_EMULATOR 0
 #define SELECT_NATIVE_APP 1

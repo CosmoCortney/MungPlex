@@ -8,6 +8,9 @@
 [submodule "include/Xertz"]
 	path = include/Xertz
 	url = https://github.com/CosmoCortney/Xertz.git
-[submodule "include/meojson"]
-	path = include/meojson
-	url = https://github.com/MistEO/meojson.git
+[submodule "include/sol2"]
+	path = include/sol2
+	url = https://github.com/ThePhD/sol2.git
+[submodule "include/lua"]
+	path = include/lua
+	url = https://github.com/lua/lua
