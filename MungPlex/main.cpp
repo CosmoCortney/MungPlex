@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include "MungPlexConfig.h"
 #include <stdio.h>
 #include "GLFW/glfw3.h"
@@ -14,6 +14,7 @@
 #include"Search.h"
 #include"HelperFunctions.h"
 #include"Cheats.h"
+#include"Settings.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -86,7 +87,7 @@ int main(int argc, char* argv[])
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);
 
-
+		MungPlex::Settings::DrawWindow();
 		MungPlex::Connection::DrawWindow();
 		MungPlex::ProcessInformation::DrawWindow();
 		MungPlex::Search::DrawWindow();

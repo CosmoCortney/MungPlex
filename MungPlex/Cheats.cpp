@@ -134,7 +134,6 @@ void MungPlex::Cheats::DrawCheatList()
 			}
 		}
 		ImGui::EndChild();
-
 	}
 	ImGui::EndGroup();
 }
