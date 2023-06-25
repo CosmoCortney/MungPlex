@@ -22,6 +22,7 @@
 #include <cstdio>
 #include<string>
 #include<tuple>
+#include"Settings.h"
 
 namespace MungPlex
 {
@@ -36,7 +37,7 @@ namespace MungPlex
     class Search
     {
     private:
-Search()
+        Search()
         {
             _searchValueTypes.push_back(std::pair<std::string, int>("Primitive", PRIMITIVE));
             _searchValueTypes.push_back(std::pair<std::string, int>("Array", ARRAY));
@@ -107,6 +108,11 @@ Search()
             _SignalInputTextRangeEnd.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeEndText, std::ref(_rangeEndValue)));
 
             _selectedIndices.resize(_maxResultsPerPage);
+            _alignmentValue = Settings::GetSearchSettings().DefaultAlignment;
+            _cached = Settings::GetSearchSettings().DefaultCached;
+            _caseSensitive = Settings::GetSearchSettings().DefaultCaseSensitive;
+            _useColorWheel = Settings::GetSearchSettings().DefaultColorWheel;
+            _hex = Settings::GetSearchSettings().DefaultValuesHex;
         }
 
         ~Search() {};
