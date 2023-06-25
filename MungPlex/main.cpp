@@ -8,13 +8,13 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include<string>
+#include"Settings.h"
 #include "Connection.h"
 #include "ProcessInformation.h"
 #include"Xertz.h"
 #include"Search.h"
 #include"HelperFunctions.h"
 #include"Cheats.h"
-#include"Settings.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
