@@ -16,6 +16,29 @@
 
 namespace MungPlex
 {
+    struct GeneralSettings
+    {
+        char DocumentsPath[512];
+        float Scale = 1.2f;
+        std::vector<std::string> Windows;
+        int DefaultWindowSelect = 0;
+    };
+
+    struct SearchSettings
+    {
+        bool DefaultCaseSensitive = true;
+        bool DefaultColorWheel = false;
+        int DefaultAlignment = 4;
+        bool DefaultValuesHex = false;
+        bool DefaultCached = false;
+    };
+
+    static struct CheatsSettings
+    {
+        bool DefaultCheatList = true;
+        int DefaultInterval = 60;
+    };
+
 	class Settings
 	{
     private:
@@ -23,7 +46,7 @@ namespace MungPlex
 
         ~Settings()
         {
-            delete[] _documentsPath;
+            delete[] _generalSettings.DocumentsPath;
         }
 
         Settings(const Settings&) = delete;
@@ -36,23 +59,21 @@ namespace MungPlex
             return Instance;
         }
 
-        nlohmann::json _settingsJSON;
-
-        //general
-        char _documentsPath[512];
-        float _scale = 1.2f;
-
-        //search settings
-
-
-        //cheats settings
+        GeneralSettings _generalSettings;
+        SearchSettings _searchSettings;
+        CheatsSettings _cheatsSettings;
 
 
         void drawGeneralSettings();
         void drawSearchSettings();
         void drawCheatSettings();
+        bool saveSettings();
+        void createDocFolders();
 
-        public:
-            static void DrawWindow();
+    public:
+        static void DrawWindow();
+        static GeneralSettings& GetGeneralSettings();
+        static SearchSettings& GetSearchSettings();
+        static CheatsSettings& GetCheatsSettings();
 	};
 }

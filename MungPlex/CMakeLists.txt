@@ -21,6 +21,8 @@ configure_file(MungPlexConfig.h.in ${CMAKE_BINARY_DIR}/MungPlexConfig.h @ONLY)
 # Add the main executable target
 add_executable (MungPlex
     main.cpp
+    Settings.h
+    Settings.cpp
     Connection.cpp
     Connection.h
     ProcessInformation.cpp
