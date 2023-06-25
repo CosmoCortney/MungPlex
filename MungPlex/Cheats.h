@@ -15,6 +15,7 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
+#include"Settings.h"
 #include"Connection.h"
 #include<thread>
 #include<chrono>
@@ -66,7 +67,6 @@ namespace MungPlex
         char _textCheatLua[1024 * 128];
         char _textCheatDescription[1024 * 16];
         std::wstring _cheatListPath;
-        uint16_t _timesPerSecond = 60;
         sol::state _lua{};
         bool _isBigEndian = false;
         int _pid = 0;

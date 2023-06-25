@@ -63,34 +63,9 @@ MungPlex::Cheats::Cheats()
 
 	_lua.set_exception_handler(&luaExceptionHandler);
 
-	//put this into the settings class later
-	PWSTR path = new wchar_t[256];
-	if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &path)))
-	{
-		std::cout << "Cheats: Documents path couldn't be retrieved.\n" << std::endl;
-	}
-	else
-	{
-		_documentsPath = std::wstring(path);
-		_documentsPath.append(L"\\MungPlex");
-		std::wcout << _documentsPath;
-
-		if (!std::filesystem::is_directory(_documentsPath))
-		{
-			std::filesystem::create_directory(_documentsPath);
-			_documentsPath.append(L"\\Cheats");
-			std::filesystem::create_directory(_documentsPath);
-			_documentsPath.append(L"\\GameCube");
-			std::filesystem::create_directory(_documentsPath);
-		}
-		else
-			_documentsPath.append(L"\\Cheats\\GameCube");
-	}
-
-	CoTaskMemFree(path);
-
-	_currentGameID = std::wstring(L"GFZE01");
-	//SetGameID("GFZE01");
+	_cheatList = Settings::GetCheatsSettings().DefaultCheatList;
+	_perSecond = Settings::GetCheatsSettings().DefaultInterval;
+	_documentsPath = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath);
 	initCheatFile();
 }
 
@@ -334,7 +309,7 @@ void MungPlex::Cheats::SetGameID(const char* ID)
 
 void MungPlex::Cheats::initCheatFile()
 {
-	_currentCheatFile = _documentsPath + L"\\" + _currentGameID + L".json";
+	_currentCheatFile = _documentsPath + L"\\MungPlex\\Cheats\\" + _currentGameID + L".json";
 	if (!std::filesystem::exists(_currentCheatFile))
 	{
 		std::ofstream file(_currentCheatFile, std::ios::binary);
