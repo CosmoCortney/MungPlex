@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include "MungPlexConfig.h"
 #include <stdio.h>
 #include "GLFW/glfw3.h"
@@ -8,6 +8,7 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include<string>
+#include"Settings.h"
 #include "Connection.h"
 #include "ProcessInformation.h"
 #include"Xertz.h"
@@ -86,7 +87,7 @@ int main(int argc, char* argv[])
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);
 
-
+		MungPlex::Settings::DrawWindow();
 		MungPlex::Connection::DrawWindow();
 		MungPlex::ProcessInformation::DrawWindow();
 		MungPlex::Search::DrawWindow();

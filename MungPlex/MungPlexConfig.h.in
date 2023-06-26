@@ -15,6 +15,7 @@
 #define CONNECTED_PROJECT64 "Connected to Project 64"
 #ifndef NDEBUG
 #define SystemInfoJSON "F:\\Workspace\\MungPlex\\MungPlex\\resources\\SystemInformation.json"
+#define SettingsJSON "F:\\Workspace\\MungPlex\\MungPlex\\resources\\Settings.json"
 #else
 #define SystemInfoJSON "resources\\SystemInformations.json"
 #endif
