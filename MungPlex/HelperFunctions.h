@@ -19,6 +19,15 @@
 
 namespace MungPlex
 {
+    static std::wstring GetStringFromID(const std::vector<std::pair<std::wstring, int>>& pairs, const int ID)
+    {
+        auto tmpPair = std::find_if(pairs.begin(), pairs.end(),
+            [&](const auto& pair) { return pair.second == ID; }
+        );
+
+        return (tmpPair != pairs.end()) ? tmpPair->first : L"";
+    }
+
     static bool WriteTextEx(const uint32_t pid, const char* text, const uint64_t address)
     {
         int textLength = strlen(text);
@@ -195,15 +204,15 @@ namespace MungPlex
         items_str.reserve(items.size());
         for (const auto& item : items)
         {
-            if constexpr (std::is_same_v<T, std::string>)                           //std::string
+            if constexpr (std::is_same_v<T, std::string>)
                 items_str.push_back(item.c_str());
-            else if constexpr (std::is_same_v<T, std::pair<std::string, int>>)      //std::pair<std::string, int>
+            else if constexpr (std::is_same_v<T, std::pair<std::string, int>>)
                 items_str.push_back(item.first.c_str());
-            else if constexpr (std::is_same_v<T, std::wstring>)                     //std::wstring>
+            else if constexpr (std::is_same_v<T, std::wstring>)
                 items_str.push_back(std::string(item.begin(), item.end()).c_str());
-            else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>>)     //std::pair<std::wstring, int>
+            else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>> || std::is_same_v<T, EMUPAIR>)
                 items_str.push_back(std::string(item.first.begin(), item.first.end()).c_str());
-            else if constexpr (std::is_same_v < T, MungPlex::SystemRegion>)         //MungPlex::SystemRegion
+            else if constexpr (std::is_same_v < T, MungPlex::SystemRegion>)
             {
                 items_str.push_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
             }

@@ -68,7 +68,7 @@ void MungPlex::Search::DrawValueTypeOptions()
 			ImGui::SliderFloat("% Precision", &_precision, 1.0f, 100.0f, "%0.2f", NULL);
 		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::EndDisabled();
 
-		ImGui::Checkbox("Big Endian", Connection::IsBE());
+		ImGui::Checkbox("Big Endian", &_underlyingBigEndian);
 		ImGui::SameLine();
 
 		if (_disableBecauseNoInt) ImGui::BeginDisabled();
@@ -143,7 +143,7 @@ void MungPlex::Search::DrawRangeOptions()
 	ImGui::BeginGroup();
 	{
 		ImGui::PushItemWidth(groupWidth);
-		_regions = MungPlex::Connection::GetRegions();
+		_regions = ProcessInformation::GetRegions();
 		ImGui::SeparatorText("Range Options");
 		_RegionSelectSignalCombo.Draw("Region", _regions, _currentRegionSelect);
 		int changed;
@@ -174,7 +174,7 @@ void MungPlex::Search::DrawSearchOptions()
 		if (iterationCount < 1) ImGui::BeginDisabled();
 			if (ImGui::Button("Reset"))
 			{
-				static int addressWidth = *Connection::GetAddressWidth();
+				static int addressWidth = ProcessInformation::GetAddressWidth();
 				switch (_currentValueTypeSelect)
 				{
 				case ARRAY:
@@ -409,37 +409,37 @@ void MungPlex::Search::DrawResultsArea()
 			switch (_currentArrayTypeSelect)
 			{
 				case INT8: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<OperativeArray<int8_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint8_t>, uint64_t>();
 					else
 						_signed ? DrawResultsTable<OperativeArray<int8_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint8_t>, uint32_t>();
 				} break;
 				case INT16: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<OperativeArray<int16_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint16_t>, uint64_t>();
 					else
 						_signed ? DrawResultsTable<OperativeArray<int16_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint16_t>, uint32_t>();
 				} break;
 				case INT64: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<OperativeArray<int64_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint64_t>, uint64_t>();
 					else
 						_signed ? DrawResultsTable<OperativeArray<int64_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint64_t>, uint32_t>();
 				} break;
 				case FLOAT: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						DrawResultsTable<OperativeArray<float>, uint64_t>();
 					else
 						DrawResultsTable<OperativeArray<float>, uint32_t>();
 				} break;
 				case DOUBLE: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						DrawResultsTable<OperativeArray<double>, uint64_t>();
 					else
 						DrawResultsTable<OperativeArray<double>, uint32_t>();
 				} break;
 				default: { //OperativeArray<INT32>
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<OperativeArray<int32_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint32_t>, uint64_t>();
 					else
 						_signed ? DrawResultsTable<OperativeArray<int32_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint32_t>, uint32_t>();
@@ -447,13 +447,13 @@ void MungPlex::Search::DrawResultsArea()
 			}break;
 		}
 		case COLOR: {
-			if (*Connection::GetAddressWidth() > 4)
+			if (ProcessInformation::GetAddressWidth() > 4)
 				DrawResultsTable<LitColor, uint64_t>();
 			else
 				DrawResultsTable<LitColor, uint32_t>();
 		} break;
 		case TEXT: {
-			if (*Connection::GetAddressWidth() > 4)
+			if (ProcessInformation::GetAddressWidth() > 4)
 				DrawResultsTable<MorphText, uint64_t>();
 			else
 				DrawResultsTable<MorphText, uint32_t>();
@@ -462,37 +462,37 @@ void MungPlex::Search::DrawResultsArea()
 			switch (_currentPrimitiveTypeSelect)
 			{
 				case INT8: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<int8_t, uint64_t>() : DrawResultsTable<uint8_t, uint64_t>();
 					else
 						_signed ? DrawResultsTable<int8_t, uint32_t>() : DrawResultsTable<uint8_t, uint32_t>();
 				} break;
 				case INT16: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<int16_t, uint64_t>() : DrawResultsTable<uint16_t, uint64_t>();
 					else
 						_signed ? DrawResultsTable<int16_t, uint32_t>() : DrawResultsTable<uint16_t, uint32_t>();
 				} break;
 				case INT64: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<int64_t, uint64_t>() : DrawResultsTable<uint64_t, uint64_t>();
 					else
 						_signed ? DrawResultsTable<int64_t, uint32_t>() : DrawResultsTable<uint64_t, uint32_t>();
 				} break;
 				case FLOAT: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						DrawResultsTable<float, uint64_t>();
 					else
 						DrawResultsTable<float, uint32_t>();
 				} break;
 				case DOUBLE: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						DrawResultsTable<double, uint64_t>();
 					else
 						DrawResultsTable<double, uint32_t>();
 				} break;
 				default: { //INT32
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<int32_t, uint64_t>() : DrawResultsTable<uint32_t, uint64_t>();
 					else
 						_signed ? DrawResultsTable<int32_t, uint32_t>() : DrawResultsTable<uint32_t, uint32_t>();
@@ -528,37 +528,37 @@ void MungPlex::Search::DrawResultsArea()
 			switch (_currentArrayTypeSelect)
 			{
 			case INT8: {
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<uint8_t, uint64_t>();
 				else
 					PokeArray<uint8_t, uint32_t>();
 			} break;
 			case INT16: {
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<uint16_t, uint64_t>();
 				else
 					PokeArray<uint16_t, uint32_t>();
 			} break;
 			case INT64: {
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<uint64_t, uint64_t>();
 				else
 					PokeArray<uint64_t, uint32_t>();
 			} break;
 			case FLOAT: {
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<float, uint64_t>();
 				else
 					PokeArray<float, uint32_t>();
 			} break;
 			case DOUBLE: {
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<double, uint64_t>();
 				else
 					PokeArray<double, uint32_t>();
 			} break;
 			default: { //OperativeArray<INT32>
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<uint32_t, uint64_t>();
 				else
 					PokeArray<uint32_t, uint32_t>();
@@ -566,13 +566,13 @@ void MungPlex::Search::DrawResultsArea()
 			}break;
 		} break;
 		case TEXT: {
-			if (*Connection::GetAddressWidth() > 4)
+			if (ProcessInformation::GetAddressWidth() > 4)
 				PokeText<uint64_t>();
 			else
 				PokeText<uint32_t>();
 		} break;
 		case COLOR: {
-			if (*Connection::GetAddressWidth() > 4)
+			if (ProcessInformation::GetAddressWidth() > 4)
 				PokeColor<uint64_t>();
 			else
 				PokeColor<uint32_t>();
@@ -587,42 +587,42 @@ void MungPlex::Search::DrawResultsArea()
 			{
 			case INT8: {
 				stream >> *(uint8_t*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<uint8_t, uint64_t>();
 				else
 					PokeValue<uint8_t, uint32_t>();
 			} break;
 			case INT16: {
 				stream >> *(uint16_t*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<uint16_t, uint64_t>();
 				else
 					PokeValue<uint16_t, uint32_t>();
 			} break;
 			case INT64: {
 				stream >> *(uint64_t*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<uint64_t, uint64_t>();
 				else
 					PokeValue<uint64_t, uint32_t>();
 			} break;
 			case FLOAT: {
 				stream >> *(float*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<float, uint64_t>();
 				else
 					PokeValue<float, uint32_t>();
 			} break;
 			case DOUBLE: {
 				stream >> *(double*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<double, uint64_t>();
 				else
 					PokeValue<double, uint32_t>();
 			} break;
 			default: {
 				stream >> *(uint32_t*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<uint32_t, uint64_t>();
 				else
 					PokeValue<uint32_t, uint32_t>();

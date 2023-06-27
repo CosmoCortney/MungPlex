@@ -104,9 +104,9 @@ namespace MungPlex
         void DrawControl(); //bottom left
         void updateConnectionInfo()
         {
-            _isBigEndian = Connection::IsBE();
-            _pid = Connection::GetCurrentPID();
-            _regions = Connection::GetRegions();
+            _isBigEndian = ProcessInformation::UnderlyingIsBigEndian();
+            _pid = ProcessInformation::GetPID();
+            _regions = ProcessInformation::GetRegions();
             refreshModuleList();
         }
 

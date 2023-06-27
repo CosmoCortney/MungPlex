@@ -205,6 +205,7 @@ namespace MungPlex
         uint64_t _pokeAddress = 0;
         char _pokeAddressText[17] = { "0" };
         std::tuple<uint64_t, int> _searchStats;
+        bool _underlyingBigEndian = false;
 
         void ResetCurrentPage()
         {
@@ -214,28 +215,28 @@ namespace MungPlex
 
         template <typename dataType> std::tuple<uint64_t, int> SetUpAndIterate(dataType valKnown = 0, dataType valKnownSecondary = 0)
         {
-            uint64_t offset = _rangeStartValue - MungPlex::Connection::GetRegions()[_currentRegionSelect].Base;
-            void* baseAddressEx = MungPlex::Connection::GetRegions()[_currentRegionSelect].BaseLocationProcess;
+            uint64_t offset = _rangeStartValue - ProcessInformation::GetRegions()[_currentRegionSelect].Base;
+            void* baseAddressEx = ProcessInformation::GetRegions()[_currentRegionSelect].BaseLocationProcess;
             uint64_t size = _rangeEndValue - _rangeStartValue + 1;
-            const int addressWidth = *Connection::GetAddressWidth();
+            const int addressWidth = ProcessInformation::GetAddressWidth();
             const bool isWideAddress = addressWidth > 4;
             bool isKnown = _currentComparisionTypeSelect == 1;
 
             if (isWideAddress)
             {
-                Xertz::MemCompare<dataType, uint64_t>::SetUp(Connection::GetCurrentPID(), _dir, _cached, Connection::IsBE(), _alignmentValue);
+                Xertz::MemCompare<dataType, uint64_t>::SetUp(ProcessInformation::GetPID(), _dir, _cached, _underlyingBigEndian, _alignmentValue);
                 return Xertz::MemCompare<dataType, uint64_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary, _iterationIndex+1);
             }
             else
             {
-                Xertz::MemCompare<dataType, uint32_t>::SetUp(Connection::GetCurrentPID(), _dir, _cached, Connection::IsBE(), _alignmentValue);
+                Xertz::MemCompare<dataType, uint32_t>::SetUp(ProcessInformation::GetPID(), _dir, _cached, _underlyingBigEndian, _alignmentValue);
                 return Xertz::MemCompare<dataType, uint32_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary, _iterationIndex +1);
             }
         }
         
         template<typename addressType> bool PokeText()
         {
-            int pid = Connection::GetCurrentPID();
+            int pid = ProcessInformation::GetPID();
             std::string pokeTextp(_pokeValueText);
             MorphText pokeValue(pokeTextp);
             int format = pokeValue.GetPrimaryFormat();
@@ -325,7 +326,7 @@ namespace MungPlex
 
         template<typename addressType> bool PokeColor()
         {
-            int pid = Connection::GetCurrentPID();
+            int pid = ProcessInformation::GetPID();
             std::string colorString(_pokeValueText);
             LitColor pokeValue(colorString);
             int pokeValueWidth = pokeValue.GetSelectedType() == LitColor::RGB888 ? 3 : 4;
@@ -362,7 +363,7 @@ namespace MungPlex
                         {
                             uint32_t val = _pokePrevious ? *(uint32_t*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGBA();
 
-                            if (Connection::IsBE())
+                            if (_underlyingBigEndian)
                                 val = Xertz::SwapBytes<uint32_t>(val);
 
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
@@ -371,7 +372,7 @@ namespace MungPlex
                         {
                             uint16_t val = _pokePrevious ? *(uint16_t*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGB565();
 
-                            if (Connection::IsBE())
+                            if (_underlyingBigEndian)
                                 val = Xertz::SwapBytes<uint16_t>(val);
 
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), sizeof(uint16_t));
@@ -382,7 +383,7 @@ namespace MungPlex
                             {
                                 float val = _pokePrevious ? *(float*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index + item * sizeof(float)) : pokeValue.GetColorValue<float>(item);
 
-                                if (Connection::IsBE())
+                                if (_underlyingBigEndian)
                                     val = Xertz::SwapBytes<float>(val);
 
                                 Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
@@ -406,7 +407,7 @@ namespace MungPlex
                         {
                             uint32_t val = pokeValue.GetRGBA();
 
-                            if (Connection::IsBE())
+                            if (_underlyingBigEndian)
                                 val = Xertz::SwapBytes<uint32_t>(val);
 
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
@@ -415,7 +416,7 @@ namespace MungPlex
                         {
                             uint16_t val = pokeValue.GetRGB565();
 
-                            if (Connection::IsBE())
+                            if (_underlyingBigEndian)
                                 val = Xertz::SwapBytes<uint16_t>(val);
 
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), 2);
@@ -426,7 +427,7 @@ namespace MungPlex
                             {
                                 float val = pokeValue.GetColorValue<float>(item);
 
-                                if (Connection::IsBE())
+                                if (_underlyingBigEndian)
                                     val = Xertz::SwapBytes<float>(val);
 
                                 Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
@@ -442,7 +443,7 @@ namespace MungPlex
         template<typename uType, typename addressType> bool PokeArray()
         {
             uint64_t itemCount = OperativeArray<uType>(std::string(_knownValueText)).ItemCount();
-            int pid = Connection::GetCurrentPID();
+            int pid = ProcessInformation::GetPID();
             std::string arrayString(_pokeValueText);
             OperativeArray<uType> pokeArray(arrayString);
                
@@ -477,7 +478,7 @@ namespace MungPlex
                         pokeArray = OperativeArray<uType>(arr, itemCount);
                     }
                     
-                    if (Connection::IsBE() && (index == 0 || _pokePrevious))
+                    if (_underlyingBigEndian && (index == 0 || _pokePrevious))
                         MungPlex::SwapBytesArray<uType>(pokeArray);
                     
                     address -= _regions[regionIndex].Base;
@@ -493,7 +494,7 @@ namespace MungPlex
             }
             else
             {
-                if (Connection::IsBE())
+                if (_underlyingBigEndian)
                     MungPlex::SwapBytesArray<uType>(pokeArray);
 
                 uint64_t address = _pokeAddress;
@@ -518,7 +519,7 @@ namespace MungPlex
 
         template<typename dataType, typename addressType> bool PokeValue()
         {
-            int pid = Connection::GetCurrentPID();
+            int pid = ProcessInformation::GetPID();
             if (_multiPoke)
             {
                 int regionIndex = -1;
@@ -547,7 +548,7 @@ namespace MungPlex
                     if (_pokePrevious)
                         *(dataType*)_pokeValue = *(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index);
 
-                    if (Connection::IsBE() && (index == 0 || _pokePrevious))
+                    if (_underlyingBigEndian && (index == 0 || _pokePrevious))
                         *(dataType*)_pokeValue = Xertz::SwapBytes<dataType>(*(dataType*)_pokeValue);
 
                     address -= _regions[regionIndex].Base;
@@ -558,7 +559,7 @@ namespace MungPlex
             }
             else
             {
-                if (Connection::IsBE())
+                if (_underlyingBigEndian)
                     *(dataType*)_pokeValue = Xertz::SwapBytes<dataType>(*(dataType*)_pokeValue);
 
                 uint64_t address = _pokeAddress;
@@ -616,7 +617,7 @@ namespace MungPlex
                 static char tempAddress[1024];
                 static char tempValue[1024];
                 static char buf[1024];
-                int addressTextWidth = *Connection::GetAddressWidth() > 4 ? 16 : 8;
+                int addressTextWidth = ProcessInformation::GetAddressWidth() > 4 ? 16 : 8;
                 uint64_t pageIndex = (_currentPageValue-1) * _maxResultsPerPage;
                 uint64_t address = *(results->at(iterationCount - 1)->GetResultOffsets() + pageIndex + row) + _regions[_currentRegionSelect].Base;
                 bool rowClicked = false;
@@ -972,5 +973,10 @@ namespace MungPlex
             std::string hexEndStr = MungPlex::ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size -1, 0).c_str();
             std::strcpy(GetInstance()._rangeEndText, hexEndStr.c_str());
         };
+
+        static bool SetUnderlyingBigEndianFlag(bool isBigEndian)
+        {
+            GetInstance()._underlyingBigEndian = isBigEndian;
+        }
     };
 }

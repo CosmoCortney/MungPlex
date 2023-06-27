@@ -88,8 +88,8 @@ int main(int argc, char* argv[])
 			ImGui::ShowDemoWindow(&show_demo_window);
 
 		MungPlex::Settings::DrawWindow();
-		MungPlex::Connection::DrawWindow();
 		MungPlex::ProcessInformation::DrawWindow();
+		MungPlex::Connection::DrawWindow();
 		MungPlex::Search::DrawWindow();
 		MungPlex::Cheats::DrawWindow();
 
