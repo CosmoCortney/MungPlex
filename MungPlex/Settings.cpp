@@ -197,7 +197,7 @@ bool MungPlex::Settings::saveSettings()
 	return isOpen;
 }
 
-void MungPlex::Settings::createDocFolders()
+void MungPlex::Settings::createDocFolders() const
 {
 	std::string mungPlexDocsPath = std::string(_generalSettings.DocumentsPath) + "\\MungPlex";
 

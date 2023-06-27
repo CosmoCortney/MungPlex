@@ -1,0 +1,20 @@
+﻿{
+  "Settings": {
+    "Cheats": {
+      "DefaultCheatList": true,
+      "DefaultInterval": 60
+    },
+    "General": {
+      "DefaultWindowSelect": 0,
+      "DocumentsPath": "C:\\Users\\s_sch\\Documents",
+      "Scale": 2.4089999198913574
+    },
+    "Search": {
+      "DefaultAlignment": 4,
+      "DefaultCached": false,
+      "DefaultCaseSensitive": true,
+      "DefaultColorWheel": false,
+      "DefaultValuesHex": false
+    }
+  }
+}

@@ -370,7 +370,7 @@ void MungPlex::Cheats::initCheatFile()
 	}
 }
 
-int MungPlex::Cheats::luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description)
+int MungPlex::Cheats::luaExceptionHandler(lua_State* L, const sol::optional<const std::exception&> exception, const sol::string_view description)
 {
 	std::cout << "An exception occurred";
 	if (exception)
@@ -390,7 +390,7 @@ int MungPlex::Cheats::luaExceptionHandler(lua_State* L, sol::optional<const std:
 	return sol::stack::push(L, description);
 }
 
-int MungPlex::Cheats::getRangeIndex(uint64_t address)
+int MungPlex::Cheats::getRangeIndex(const uint64_t address) const
 {
 	int rangeIndex = -1;
 

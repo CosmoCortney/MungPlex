@@ -19,7 +19,7 @@
 
 namespace MungPlex
 {
-    static std::wstring GetStringFromID(const std::vector<std::pair<std::wstring, int>>& pairs, const int ID)
+    static std::wstring GetStringFromID(const std::vector<EMUPAIR>& pairs, const int ID)
     {
         auto tmpPair = std::find_if(pairs.begin(), pairs.end(),
             [&](const auto& pair) { return pair.second == ID; }
@@ -61,7 +61,7 @@ namespace MungPlex
         return true;
     }
 
-    static ImVec4 PackedColorToImVec4(uint8_t* packedColor)
+    static ImVec4 PackedColorToImVec4(const uint8_t* packedColor)
     {
         float r = ((float)*(packedColor + 3)) / 255.0f;
         float g = ((float)*(packedColor + 2)) / 255.0f;
@@ -71,7 +71,7 @@ namespace MungPlex
         return ImVec4(r, g, b, a);
     }
 
-    static void ColorValuesToCString(ImVec4& rgba, int type, char* destination)
+    static void ColorValuesToCString(const ImVec4& rgba, const int type, char* destination)
     {
         std::stringstream cstream;
 
@@ -113,7 +113,7 @@ namespace MungPlex
         }
     }
 
-    static const char* GetStringLiteral(int valueType, bool isSigned, bool hex)
+    static const char* GetStringLiteral(const int valueType, const bool isSigned, const bool hex)
     {
         if (valueType == FLOAT || valueType == DOUBLE)
             return "%f";
@@ -147,7 +147,7 @@ namespace MungPlex
         }
     }
 
-    static void HelpMarker(const char* desc) //� ImGui devs
+    static void HelpMarker(const char* desc) //© ImGui devs
     {
         ImGui::TextDisabled("(?)");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
@@ -198,7 +198,7 @@ namespace MungPlex
         return result.substr(2);
     }
 
-    template<typename T> static void SetUpCombo(const std::string& name, std::vector<T>& items, int& select)
+    template<typename T> static void SetUpCombo(const std::string& name, const std::vector<T>& items, int& select)
     {
         std::vector<std::string> items_str;
         items_str.reserve(items.size());
@@ -240,7 +240,7 @@ namespace MungPlex
 
     public: 
         SignalCombo<T>(){}
-        void Draw(const std::string& name, std::vector<T>& items, int& select)
+        void Draw(const std::string& name, const std::vector<T>& items, int& select)
         {
             if (items.size() > 0)
             {
@@ -272,17 +272,17 @@ namespace MungPlex
             SetUpCombo(name, items, select);
         }
 
-        void ConnectOnIndexChanged(Slot slot)
+        void ConnectOnIndexChanged(const Slot slot)
         {
             _slotsOnIndexChanged.push_back(slot);
         }
 
-        void ConnectOnItemCountChanged(Slot slot)
+        void ConnectOnItemCountChanged(const Slot slot)
         {
             _slotsOnItemCountChanged.push_back(slot);
         }  
 
-        void ConnectOnTextChanged(Slot slot)
+        void ConnectOnTextChanged(const Slot slot)
         {
             _slotsOnTextChanged.push_back(slot);
         }
@@ -299,7 +299,7 @@ namespace MungPlex
 
     public:
         SignalInputText() {}
-        bool Draw(const char* name, char* buf, uint64_t size, ImGuiInputTextFlags flags = 0)
+        bool Draw(const char* name, char* buf, const uint64_t size, const ImGuiInputTextFlags flags = 0)
         {
             bool changedByFlow = false;
             if (std::strcmp(_text, buf) != 0)
@@ -314,7 +314,7 @@ namespace MungPlex
             return ImGui::InputText(name, buf, size, flags) || changedByFlow;
         }
 
-        void ConnectOnTextChanged(Slot slot)
+        void ConnectOnTextChanged(const Slot slot)
         {
             _slotsOnTextChanged.push_back(slot);
         }

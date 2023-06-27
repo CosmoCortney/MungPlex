@@ -113,6 +113,7 @@ namespace MungPlex
             _caseSensitive = Settings::GetSearchSettings().DefaultCaseSensitive;
             _useColorWheel = Settings::GetSearchSettings().DefaultColorWheel;
             _hex = Settings::GetSearchSettings().DefaultValuesHex;
+            _dumpPath = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath) + L"\\MungPlex\\Dump";
         }
 
         ~Search() {};
@@ -175,6 +176,7 @@ namespace MungPlex
         int _currentTextTypeSelect = 0;
         int _currentColorTypeSelect = 0;
         bool _useColorWheel = false;
+        std::wstring _dumpPath = {};
 
         //value options
         char _knownValueText[2048] = { "" };
@@ -187,8 +189,6 @@ namespace MungPlex
         uint64_t _rangeStartValue = 0;
         char _rangeEndText[256] = { "" };
         uint64_t _rangeEndValue = 0;
-
-        std::wstring _dir = L"F:\\test\\";
 
         //results table
         int _currentRegionSelect = 0;
@@ -213,7 +213,7 @@ namespace MungPlex
             strncpy(_currentPageText, "1", 1);
         }
 
-        template <typename dataType> std::tuple<uint64_t, int> SetUpAndIterate(dataType valKnown = 0, dataType valKnownSecondary = 0)
+        template <typename dataType> std::tuple<uint64_t, int> SetUpAndIterate(const dataType valKnown = 0, const dataType valKnownSecondary = 0)
         {
             uint64_t offset = _rangeStartValue - ProcessInformation::GetRegions()[_currentRegionSelect].Base;
             void* baseAddressEx = ProcessInformation::GetRegions()[_currentRegionSelect].BaseLocationProcess;
@@ -224,12 +224,12 @@ namespace MungPlex
 
             if (isWideAddress)
             {
-                Xertz::MemCompare<dataType, uint64_t>::SetUp(ProcessInformation::GetPID(), _dir, _cached, _underlyingBigEndian, _alignmentValue);
+                Xertz::MemCompare<dataType, uint64_t>::SetUp(ProcessInformation::GetPID(), _dumpPath, _cached, _underlyingBigEndian, _alignmentValue);
                 return Xertz::MemCompare<dataType, uint64_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary, _iterationIndex+1);
             }
             else
             {
-                Xertz::MemCompare<dataType, uint32_t>::SetUp(ProcessInformation::GetPID(), _dir, _cached, _underlyingBigEndian, _alignmentValue);
+                Xertz::MemCompare<dataType, uint32_t>::SetUp(ProcessInformation::GetPID(), _dumpPath, _cached, _underlyingBigEndian, _alignmentValue);
                 return Xertz::MemCompare<dataType, uint32_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary, _iterationIndex +1);
             }
         }
@@ -896,7 +896,7 @@ namespace MungPlex
             ImGui::EndTable();
         }
 
-        template<typename T> void DrawArrayValues(int col, auto results, uint64_t itemCount, uint64_t resultIndexWithItemCount, char* buf, char* tempValue, const char* literal)
+        template<typename T> void DrawArrayValues(const int col, const auto results, const uint64_t itemCount, const uint64_t resultIndexWithItemCount, char* buf, char* tempValue, const char* literal)
         {
             int iterationCount = std::get<1>(_searchStats);
             T* value;
@@ -918,7 +918,7 @@ namespace MungPlex
                 std::memcpy(tempValue, buf, 1024);
         }
 
-        template<typename T> void PrintTableArray(char* buf, const char* literal, uint32_t itemCount, T* vals)
+        template<typename T> void PrintTableArray(char* buf, const char* literal, const uint32_t itemCount, const T* vals)
         {
             std::strcpy(buf, "");
             char temp[18];
@@ -974,7 +974,7 @@ namespace MungPlex
             std::strcpy(GetInstance()._rangeEndText, hexEndStr.c_str());
         };
 
-        static bool SetUnderlyingBigEndianFlag(bool isBigEndian)
+        static bool SetUnderlyingBigEndianFlag(const bool isBigEndian)
         {
             GetInstance()._underlyingBigEndian = isBigEndian;
         }

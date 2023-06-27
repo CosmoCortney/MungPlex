@@ -15,7 +15,7 @@ void MungPlex::ProcessInformation::DrawWindow()
 	ImGui::End();
 }
 
-void MungPlex::ProcessInformation::RefreshData(int pid)
+void MungPlex::ProcessInformation::RefreshData(const int pid)
 {
 	GetInstance()._pid = pid;
 	GetInstance()._handle = Xertz::SystemInfo::GetProcessInfo(pid).GetHandle();
@@ -374,7 +374,7 @@ std::vector<MungPlex::SystemRegion>& MungPlex::ProcessInformation::GetRegions()
 	return GetInstance()._systemRegions;
 }
 
-void MungPlex::ProcessInformation::ObtainGameEntities(void* baseLocation)
+void MungPlex::ProcessInformation::ObtainGameEntities(const void* baseLocation)
 {
 	std::string entityValue;
 	entityValue.reserve(2048);
@@ -453,7 +453,7 @@ int32_t MungPlex::ProcessInformation::GetPID()
 	return GetInstance()._pid;
 }
 
-void MungPlex::ProcessInformation::SetX64Flag(bool isX64)
+void MungPlex::ProcessInformation::SetX64Flag(const bool isX64)
 {
 	GetInstance()._isX64 = isX64;
 }
@@ -463,7 +463,7 @@ bool MungPlex::ProcessInformation::IsX64()
 	return GetInstance()._isX64;
 }
 
-void MungPlex::ProcessInformation::SetUnderlyingBigEndianFlag(bool isBigEndian)
+void MungPlex::ProcessInformation::SetUnderlyingBigEndianFlag(const bool isBigEndian)
 {
 	GetInstance()._underlyingIsBigEndian = isBigEndian;
 }

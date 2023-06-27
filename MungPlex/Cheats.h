@@ -93,7 +93,7 @@ namespace MungPlex
 
 
 
-        static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
+        static int luaExceptionHandler(lua_State* L, const sol::optional<const std::exception&> exception, const sol::string_view description);
         void copyCheatToInformationBox(const int index);
         void copyCheatToList(const int index);
         bool saveCheatList();
@@ -111,13 +111,11 @@ namespace MungPlex
         }
 
         void initCheatFile();
-
-        int getRangeIndex(uint64_t address);
-
+        int getRangeIndex(const uint64_t address) const;
         void cheatRoutine();
 
         //legacy function to keep older cheats functioning
-        static double readFromRAM(int type, uint64_t address)
+        static double readFromRAM(const int type, const uint64_t address)
         {
             int64_t readValue = 0;
             double returnValue = 0.0;
@@ -167,42 +165,42 @@ namespace MungPlex
             return returnValue;
         }
 
-        static bool readBool(uint64_t address)
+        static bool readBool(const uint64_t address)
         {
             return readInt8(address) != 0;
         }
 
-        static int8_t readInt8(uint64_t address)
+        static int8_t readInt8(const uint64_t address)
         {
             return GetInstance()._isBigEndian ? readInt64(address) >> 56 : readInt64(address);
         }
 
-        static uint8_t readUInt8(uint64_t address)
+        static uint8_t readUInt8(const uint64_t address)
         {
             return readInt8(address);
         }
 
-        static int16_t readInt16(uint64_t address)
+        static int16_t readInt16(const uint64_t address)
         {
             return GetInstance()._isBigEndian ? readInt64(address) >> 48 : readInt64(address);
         }
 
-        static uint16_t readUInt16(uint64_t address)
+        static uint16_t readUInt16(const uint64_t address)
         {
             return readInt16(address);
         }
 
-        static int32_t readInt32(uint64_t address)
+        static int32_t readInt32(const uint64_t address)
         {
             return GetInstance()._isBigEndian ? readInt64(address) >> 32 : readInt64(address);
         }
 
-        static uint32_t readUInt32(uint64_t address)
+        static uint32_t readUInt32(const uint64_t address)
         {
             return readInt32(address);
         }
 
-        static int64_t readInt64(uint64_t address)
+        static int64_t readInt64(const uint64_t address)
         {
             int64_t readValue = 0;
             int rangeIndex = GetInstance().getRangeIndex(address);
@@ -216,12 +214,12 @@ namespace MungPlex
             return readValue;
         }
 
-        static uint64_t readUInt64(uint64_t address)
+        static uint64_t readUInt64(const uint64_t address)
         {
             return readInt64(address);
         }
 
-        static float readFloat(uint64_t address)
+        static float readFloat(const uint64_t address)
         {
             float readValue = 0.0f;
             int rangeIndex = GetInstance().getRangeIndex(address);
@@ -235,7 +233,7 @@ namespace MungPlex
             return readValue;
         }
 
-        static double readDouble(uint64_t address)
+        static double readDouble(const uint64_t address)
         {
             double readValue = 0.0;
             int rangeIndex = GetInstance().getRangeIndex(address);
@@ -250,7 +248,7 @@ namespace MungPlex
         }
 
         //legacy function to keep older cheats functioning
-        static void writeToRAM(int type, uint64_t address, double value)
+        static void writeToRAM(const int type, const  uint64_t address, double value)
         {
             uint64_t writeValue;
             int rangeIndex = GetInstance().getRangeIndex(address);
@@ -299,7 +297,7 @@ namespace MungPlex
             }
         }
 
-        static void writeBool(uint64_t address, bool value)
+        static void writeBool(const uint64_t address, bool value)
         {
             int rangeIndex = GetInstance().getRangeIndex(address);
 
@@ -310,7 +308,7 @@ namespace MungPlex
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 1);
         }
 
-        static void writeInt8(uint64_t address, int8_t value)
+        static void writeInt8(const uint64_t address, int8_t value)
         {
             int rangeIndex = GetInstance().getRangeIndex(address);
 
@@ -321,7 +319,7 @@ namespace MungPlex
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 1);
         }
 
-        static void writeInt16(uint64_t address, int16_t value)
+        static void writeInt16(const uint64_t address, int16_t value)
         {
             int rangeIndex = GetInstance().getRangeIndex(address);
 
@@ -333,7 +331,7 @@ namespace MungPlex
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 2);
         }
 
-        static void writeInt32(uint64_t address, int32_t value)
+        static void writeInt32(const uint64_t address, int32_t value)
         {
             int rangeIndex = GetInstance().getRangeIndex(address);
 
@@ -345,7 +343,7 @@ namespace MungPlex
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 4);
         }
 
-        static void writeInt64(uint64_t address, int64_t value)
+        static void writeInt64(const uint64_t address, int64_t value)
         {
             int rangeIndex = GetInstance().getRangeIndex(address);
 
@@ -357,7 +355,7 @@ namespace MungPlex
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 8);
         }
 
-        static void writeFloat(uint64_t address, float value)
+        static void writeFloat(const uint64_t address, float value)
         {
             int rangeIndex = GetInstance().getRangeIndex(address);
 
@@ -369,7 +367,7 @@ namespace MungPlex
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 4);
         }
 
-        static void writeDouble(uint64_t address, double value)
+        static void writeDouble(const uint64_t address, double value)
         {
             int rangeIndex = GetInstance().getRangeIndex(address);
 

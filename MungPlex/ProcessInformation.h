@@ -42,8 +42,8 @@ namespace MungPlex
     private:
         ProcessInformation()
         {
-            _emulators.push_back(std::pair<std::wstring, int>(L"Dolphin", Emulators::DOLPHIN));
-            _emulators.push_back(std::pair<std::wstring, int>(L"Project64", Emulators::PROJECT64));
+            _emulators.push_back(EMUPAIR(L"Dolphin", Emulators::DOLPHIN));
+            _emulators.push_back(EMUPAIR(L"Project64", Emulators::PROJECT64));
         }
 
         ~ProcessInformation(){};
@@ -81,7 +81,7 @@ namespace MungPlex
         bool InitProcess(const std::wstring& processName);
         bool InitDolphin();
         bool InitProject64();
-        void ObtainGameEntities(void* baseLocation);
+        void ObtainGameEntities(const void* baseLocation);
 
     public:
         enum ProcessType
@@ -100,11 +100,11 @@ namespace MungPlex
         static void SetProcessType(const int32_t processType);
         static std::vector<EMUPAIR>& GetEmulatorList();
         static int32_t GetProcessType();
-        static void SetPID(int32_t pid);
+        static void SetPID(const int32_t pid);
         static int32_t GetPID();
-        static void SetX64Flag(bool isX64);
+        static void SetX64Flag(const bool isX64);
         static bool IsX64();
-        static void SetUnderlyingBigEndianFlag(bool isBigEndian);
+        static void SetUnderlyingBigEndianFlag(const bool isBigEndian);
         static bool UnderlyingIsBigEndian();
         static HANDLE GetHandle();
         static int32_t GetAddressWidth();

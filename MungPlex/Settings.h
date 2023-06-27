@@ -68,7 +68,7 @@ namespace MungPlex
         void drawSearchSettings();
         void drawCheatSettings();
         bool saveSettings();
-        void createDocFolders();
+        void createDocFolders() const;
 
     public:
         static void DrawWindow();
