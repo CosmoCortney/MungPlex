@@ -260,7 +260,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 {
 	EMUPAIR emulator = GetInstance()._emulators[emulatorIndex];
-	_pid = Xertz::SystemInfo::GetProcessInfo(emulator.first, Xertz::StringDefs::IS_SUBSTRING, Xertz::StringDefs::CASE_INSENSITIVE).GetPID();
+	_pid = Xertz::SystemInfo::GetProcessInfo(emulator.first, true, false).GetPID();
 	bool connected = false;
 
 	if (_pid == -1)
