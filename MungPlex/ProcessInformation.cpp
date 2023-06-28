@@ -307,6 +307,11 @@ bool MungPlex::ProcessInformation::InitProject64()
 	return false;
 }
 
+bool MungPlex::ProcessInformation::InitProcess(const std::wstring& processName) //placeholder
+{
+	return false;
+}
+
 bool MungPlex::ProcessInformation::InitDolphin()
 {
 	_underlyingIsBigEndian = true;

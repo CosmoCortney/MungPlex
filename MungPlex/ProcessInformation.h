@@ -58,19 +58,19 @@ namespace MungPlex
         }
 
         int32_t _processType = 0;
-        int32_t _pid;
-        MODULE_LIST _modules;
-        REGION_LIST _regions;
-        bool _isX64;
-        bool _underlyingIsBigEndian;
+        int32_t _pid = -1;
+        MODULE_LIST _modules{};
+        REGION_LIST _regions{};
+        bool _isX64 = false;
+        bool _underlyingIsBigEndian = false;
         std::string _gameID;
         std::string _processName;
         int32_t _addressWidth = 8;
-        HANDLE _handle;
+        HANDLE _handle = 0;
         std::vector<GameEntity> _gameEntities{};
         std::vector<SystemRegion> _systemRegions{};
-        std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
-        int32_t _currentEmulatorNumber;
+        std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions{};
+        int32_t _currentEmulatorNumber = -1;
         std::vector<EMUPAIR> _emulators{};
 
         void DrawModuleList();
