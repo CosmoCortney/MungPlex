@@ -44,13 +44,7 @@ namespace MungPlex
     private:
         Cheats();
 
-        ~Cheats()
-        {
-            delete[] _textCheatTitle;
-            delete[] _textCheatHacker;
-            delete[] _textCheatLua;
-            delete[] _textCheatDescription;
-        }
+        ~Cheats(){}
 
         Cheats(const Cheats&) = delete;
         Cheats(Cheats&&) = delete;
@@ -90,8 +84,6 @@ namespace MungPlex
         bool _unsavedChangesCheatList = false;
         int _selectedID = -1;
         bool _disableEditButtons = false;
-
-
 
         static int luaExceptionHandler(lua_State* L, const sol::optional<const std::exception&> exception, const sol::string_view description);
         void copyCheatToInformationBox(const int index);

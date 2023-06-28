@@ -43,12 +43,7 @@ namespace MungPlex
 	{
     private:
         Settings();
-
-        ~Settings()
-        {
-            delete[] _generalSettings.DocumentsPath;
-        }
-
+        ~Settings(){}
         Settings(const Settings&) = delete;
         Settings(Settings&&) = delete;
         void operator=(const Settings&) = delete;
@@ -62,7 +57,6 @@ namespace MungPlex
         GeneralSettings _generalSettings;
         SearchSettings _searchSettings;
         CheatsSettings _cheatsSettings;
-
 
         void drawGeneralSettings();
         void drawSearchSettings();
