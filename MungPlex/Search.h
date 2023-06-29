@@ -201,7 +201,7 @@ namespace MungPlex
         void ResetCurrentPage()
         {
             _currentPageValue = 1;
-            strncpy(_currentPageText, "1", 1);
+            strncpy_s(_currentPageText, "1", 1);
         }
 
         template <typename dataType> std::tuple<uint64_t, int> SetUpAndIterate(const dataType valKnown = 0, const dataType valKnownSecondary = 0)
@@ -736,20 +736,20 @@ namespace MungPlex
                                 case MorphText::ASCII:
                                     if (!strLength)
                                         strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetASCII()) + 1;
-                                    sprintf(buf, "%s", ((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
+                                    sprintf_s(buf, "%s", reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength);
                                     std::memcpy(tempValue, buf, 1024);
                                     break;
                                 case MorphText::SHIFTJIS: {
                                     static std::string temputf8 = MorphText::ShiftJis_To_Utf8((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength);
                                     if (!strLength)
                                         strLength = strlen(temputf8.c_str());
-                                    sprintf(buf, "%s", temputf8.c_str());
+                                    sprintf_s(buf, "%s", temputf8.c_str());
                                     std::memcpy(tempValue, buf, 1024);
                                 } break;
                                 case MorphText::UTF8:
                                     if (!strLength)
                                         strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF8().c_str())+1;
-                                    sprintf(buf, "%s", ((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength));
+                                    sprintf_s(buf, "%s", reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength);
                                     std::memcpy(tempValue, buf, 1024);
                                     break;
                                 case MorphText::UTF16LE: case MorphText::UTF16BE: {//todo: fix this - strings won`t be rendered properly
@@ -760,7 +760,7 @@ namespace MungPlex
                                         ? MorphText::Utf16BE_To_Utf8( (wchar_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
                                         : MorphText::Utf16LE_To_Utf8( (wchar_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
 
-                                    sprintf(buf, "%s", temp.c_str());
+                                    sprintf_s(buf, "%s", temp.c_str());
                                     std::memcpy(tempValue, buf, 1024);
                                 } break;
                                 case MorphText::UTF32LE: case MorphText::UTF32BE: {//todo: fix this - strings won`t be rendered properly
@@ -771,14 +771,14 @@ namespace MungPlex
                                         ? MorphText::Utf32BE_To_Utf8( (char32_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
                                         : MorphText::Utf32LE_To_Utf8( (char32_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
 
-                                    sprintf(buf, "%s", temp.c_str());
+                                    sprintf_s(buf, "%s", temp.c_str());
                                     std::memcpy(tempValue, buf, 1024);
                                 } break;
                                 default: { //ISO-8859-X
                                     static std::string temputf8 = MorphText::ISO8859X_To_Utf8((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength, _currentTextTypeSelect);
                                     if (!strLength)
                                         strLength = strlen(temputf8.c_str())+1;
-                                    sprintf(buf, "%s", temputf8.c_str(), strLength);
+                                    sprintf_s(buf, "%s", temputf8.c_str(), strLength);
                                     std::memcpy(tempValue, buf, 1024);
                                 } break;
                                 }
@@ -789,7 +789,7 @@ namespace MungPlex
                     }
                     else
                     {
-                        sprintf(buf, addressTextWidth == 16 ? "%016X" : "%08X", address);
+                        sprintf_s(buf, addressTextWidth == 16 ? "%016X" : "%08X", address);
                         std::memcpy(tempAddress, buf, 17);
                     }
 
@@ -895,7 +895,7 @@ namespace MungPlex
                 value = (T*)results->at(iterationCount - 1)->GetResultPreviousValues() + resultIndexWithItemCount;
             else
             {
-                sprintf(buf, "");
+                sprintf_s(buf, sizeof(buf),"");
                 return;
             }
 
@@ -912,7 +912,7 @@ namespace MungPlex
 
             for (uint32_t i = 0; i < itemCount; ++i)
             {
-                sprintf(temp, literal, vals[i]);
+                sprintf_s(temp, literal, vals[i]);
                 if(_hex)
                     strcat_s(buf, sizeof(buf), "0x");
                 strcat_s(buf, sizeof(buf), temp);
@@ -925,7 +925,7 @@ namespace MungPlex
 
     public:
         static void DrawWindow();
-        static void Refresh();
+
         MungPlex::SignalCombo<MungPlex::SystemRegion> _RegionSelectSignalCombo;
         MungPlex::SignalInputText _SignalInputTextRangeStart;
         MungPlex::SignalInputText _SignalInputTextRangeEnd;
