@@ -285,7 +285,19 @@ void MungPlex::Search::DrawSearchOptions()
 
 		switch (_currentValueTypeSelect)
 		{
-		case PRIMITIVE:
+		case ARRAY:
+			strcpy_s(knownPrimaryValueLabel, "Array Expression");
+			strcpy_s(knownSecondaryValueLabel, "Not applicable");
+			break;
+		case COLOR:
+			strcpy_s(knownPrimaryValueLabel, "Color Expression");
+			strcpy_s(knownSecondaryValueLabel, "Not applicable");
+			break;
+		case TEXT:
+			strcpy_s(knownPrimaryValueLabel, "Text Value");
+			strcpy_s(knownSecondaryValueLabel, "Not applicable");
+			break;
+		default: //PRIMITIVE
 			if (_currentConditionTypeSelect == Xertz::BETWEEN)
 			{
 				strcpy_s(knownPrimaryValueLabel, "Lowest");
@@ -313,19 +325,6 @@ void MungPlex::Search::DrawSearchOptions()
 				strcpy_s(knownPrimaryValueLabel, "Value");
 				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
-			break;
-		case ARRAY:
-			strcpy_s(knownPrimaryValueLabel, "Array Expression");
-			strcpy_s(knownSecondaryValueLabel, "Not applicable");
-			break;
-		case COLOR:
-			strcpy_s(knownPrimaryValueLabel, "Color Expression");
-			strcpy_s(knownSecondaryValueLabel, "Not applicable");
-			break;
-		case TEXT:
-			strcpy_s(knownPrimaryValueLabel, "Text Value");
-			strcpy_s(knownSecondaryValueLabel, "Not applicable");
-			break;
 		}
 
 		if (disablePrimaryValueText) ImGui::BeginDisabled();
@@ -363,6 +362,11 @@ void MungPlex::Search::DrawSearchOptions()
 		case TEXT:
 			conditionTypeItems = &_searchConditionTypesText;
 		break;
+		default: //PRIMITIVE
+			if (_currentPrimitiveTypeSelect < FLOAT)
+				conditionTypeItems = &_searchConditionTypes;
+			else
+				conditionTypeItems = &_searchConditionTypesFloat;
 		}
 
 		if (!_disableBecauseNoText) ImGui::BeginDisabled();
@@ -795,12 +799,11 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			case INT16:
 				_searchStats = SetUpAndIterate<int16_t>(knownVal, knownValSecondary);
 				break;
-			case INT32:
-				_searchStats = SetUpAndIterate<int32_t>(knownVal, knownValSecondary);
-				break;
 			case INT64:
 				_searchStats = SetUpAndIterate<int64_t>(knownVal, knownValSecondary);
 				break;
+			default: //INT32
+				_searchStats = SetUpAndIterate<int32_t>(knownVal, knownValSecondary);
 			}
 		}
 		else
@@ -827,12 +830,11 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			case INT16:
 				_searchStats = SetUpAndIterate<uint16_t>(knownVal, knownValSecondary);
 				break;
-			case INT32:
-				_searchStats = SetUpAndIterate<uint32_t>(knownVal, knownValSecondary);
-				break;
 			case INT64:
 				_searchStats = SetUpAndIterate<uint64_t>(knownVal, knownValSecondary);
 				break;
+			default: //INT32
+				_searchStats = SetUpAndIterate<uint32_t>(knownVal, knownValSecondary);
 			}
 		}
 	}
@@ -882,22 +884,27 @@ void MungPlex::Search::ArrayTypeSearch()
 			OperativeArray<uint64_t> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<uint64_t>>(arrayP, arrayS);
 		}break;
+		default: //INT32
+		{
+			const OperativeArray<uint32_t> arrayP(strArray);
+			const OperativeArray<uint32_t> arrayS(strArraySecondary);
+			_searchStats = SetUpAndIterate<OperativeArray<uint32_t>>(arrayP, arrayS);
+		}
 		}
 	}
 	else if (_currentValueTypeSelect == FLOAT || _currentValueTypeSelect == DOUBLE)
 	{
-		switch (_currentArrayTypeSelect)
+		if(_currentArrayTypeSelect == DOUBLE)
 		{
-		case FLOAT: {
-			OperativeArray<float> arrayP(strArray);
-			OperativeArray<float> arrayS(strArraySecondary);
+			const OperativeArray<float> arrayP(strArray);
+			const OperativeArray<float> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<float>>(arrayP, arrayS);
-		}break;
-		case DOUBLE: {
-			OperativeArray<double> arrayP(strArray);
-			OperativeArray<double> arrayS(strArraySecondary);
+		}
+		else
+		{
+			const OperativeArray<double> arrayP(strArray);
+			const OperativeArray<double> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<double>>(arrayP, arrayS);
-		}break;
 		}
 	}
 }
