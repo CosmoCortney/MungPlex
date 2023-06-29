@@ -21,7 +21,7 @@ namespace MungPlex
 {
     static std::wstring GetStringFromID(const std::vector<EMUPAIR>& pairs, const int ID)
     {
-        auto tmpPair = std::find_if(pairs.begin(), pairs.end(),
+        auto tmpPair = std::ranges::find_if(pairs.begin(), pairs.end(),
             [&](const auto& pair) { return pair.second == ID; }
         );
 
@@ -63,10 +63,10 @@ namespace MungPlex
 
     static ImVec4 PackedColorToImVec4(const uint8_t* packedColor)
     {
-        float r = ((float)*(packedColor + 3)) / 255.0f;
-        float g = ((float)*(packedColor + 2)) / 255.0f;
-        float b = ((float)*(packedColor + 1)) / 255.0f;
-        float a = ((float)*packedColor) / 255.0f;
+        const float r = static_cast<float>(*(packedColor + 3)) / 255.0f;
+        const float g = static_cast<float>(*(packedColor + 2)) / 255.0f;
+        const float b = static_cast<float>(*(packedColor + 1)) / 255.0f;
+        const float a = static_cast<float>(*packedColor) / 255.0f;
 
         return ImVec4(r, g, b, a);
     }
@@ -78,7 +78,7 @@ namespace MungPlex
         switch (type)
         {
         case LitColor::RGBA8888:
-            cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << (int)(rgba.x * 255.0f) << std::setw(2) << (int)(rgba.y * 255.0f) << std::setw(2) << (int)(rgba.z * 255.0f) << std::setw(2) << (int)(rgba.w * 255.0f);
+            cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(rgba.x * 255.0f) << std::setw(2) << static_cast<int>(rgba.y * 255.0f) << std::setw(2) << static_cast<int>(rgba.z * 255.0f) << std::setw(2) << static_cast<int>(rgba.w * 255.0f);
             break;
         case LitColor::RGBF:
             cstream << rgba.x << ", " << rgba.y << ", " << rgba.z;
@@ -91,7 +91,7 @@ namespace MungPlex
             cstream << "#" << std::hex << std::setfill('0') << std::setw(4) << color.GetRGB565();
         }break;
         default: //RGB888
-            cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << (int)(rgba.x * 255.0f) << std::setw(2) << (int)(rgba.y * 255.0f) << std::setw(2) << (int)(rgba.z * 255.0f);
+            cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(rgba.x * 255.0f) << std::setw(2) << static_cast<int>(rgba.y * 255.0f) << std::setw(2) << static_cast<int>(rgba.z * 255.0f);
         }
 
         strcpy_s(destination, sizeof(destination),cstream.str().c_str());
@@ -117,7 +117,8 @@ namespace MungPlex
     {
         if (valueType == FLOAT || valueType == DOUBLE)
             return "%f";
-        else if (hex)
+
+        if (hex)
         {
             switch (valueType)
             {
@@ -131,19 +132,17 @@ namespace MungPlex
                 return "%08X";
             }
         }
-        else
+        
+        switch (valueType)
         {
-            switch (valueType)
-            {
-            case INT8:
-                return isSigned ? "%hhi" : "%hhu";
-            case INT16:
-                return isSigned ? "%hi" : "%hu";
-            case INT64:
-                return isSigned ? "%lli" : "%llu";
-            default:
-                return isSigned ? "%li" : "%lu";
-            }
+        case INT8:
+            return isSigned ? "%hhi" : "%hhu";
+        case INT16:
+            return isSigned ? "%hi" : "%hu";
+        case INT64:
+            return isSigned ? "%lli" : "%llu";
+        default:
+            return isSigned ? "%li" : "%lu";
         }
     }
 
