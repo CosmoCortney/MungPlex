@@ -132,7 +132,7 @@ void MungPlex::Cheats::DrawCheatInformation()
 		{
 			_unsavedChangesTextCheat = true;
 		}
-
+		
 		static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 		
 		if(ImGui::InputTextMultiline("Lua Cheat", _textCheatLua, IM_ARRAYSIZE(_textCheatLua), ImVec2(1000, ImGui::GetTextLineHeight() * 16), flags))
@@ -158,7 +158,7 @@ void MungPlex::Cheats::DrawCheatInformation()
 		ImGui::SameLine();
 
 		static bool disableFlag = false;
-		if (!_luaCheats.size())
+		if (_luaCheats.empty())
 			_disableEditButtons = true;
 
 		if (_disableEditButtons) ImGui::BeginDisabled();
@@ -178,7 +178,7 @@ void MungPlex::Cheats::DrawCheatInformation()
 				saveCheatList();
 				_unsavedChangesTextCheat = false;
 				
-				if (!_luaCheats.size())
+				if (_luaCheats.empty())
 					disableFlag = true;
 			}
 		if (_disableEditButtons) ImGui::EndDisabled();
@@ -324,12 +324,12 @@ void MungPlex::Cheats::initCheatFile()
 	_markedCheats.clear();
 	_checkBoxIDs.clear();
 	std::ifstream inFile;
-	std::string buffer;
 	std::string jsonstr;
 	inFile.open(_currentCheatFile);
 
 	if (inFile)
 	{
+		std::string buffer;
 		while (std::getline(inFile, buffer))
 		{
 			jsonstr.append(buffer).append("\n");
@@ -355,7 +355,7 @@ void MungPlex::Cheats::initCheatFile()
 			_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats[i].ID));
 		}
 
-		if (_markedCheats.size())
+		if (!_markedCheats.empty())
 		{
 			_markedCheats[0] = true;
 			copyCheatToInformationBox(0);
@@ -411,7 +411,7 @@ void MungPlex::Cheats::copyCheatToList(const int index)
 {
 	if (index == -1)
 	{
-		_luaCheats.emplace_back(LuaCheat(_luaCheats.size() ? _luaCheats.back().ID + 1 : 0,
+		_luaCheats.emplace_back(LuaCheat(!_luaCheats.empty() ? _luaCheats.back().ID + 1 : 0,
 			true,
 			_textCheatTitle,
 			_textCheatHacker,
@@ -436,7 +436,7 @@ bool MungPlex::Cheats::saveCheatList() const
 	{
 		nlohmann::json jsonData;
 
-		if (_luaCheats.size())
+		if (!_luaCheats.empty())
 		{
 			for (const auto& cheat : _luaCheats) {
 				nlohmann::json cheatJson;
