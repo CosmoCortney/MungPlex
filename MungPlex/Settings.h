@@ -18,7 +18,7 @@ namespace MungPlex
 {
     struct GeneralSettings
     {
-        char DocumentsPath[512];
+        char DocumentsPath[512] = "";
         float Scale = 1.2f;
         std::vector<std::string> Windows;
         int DefaultWindowSelect = 0;

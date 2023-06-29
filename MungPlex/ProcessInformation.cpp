@@ -320,7 +320,9 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	_systemRegions.erase(_systemRegions.begin() + 2); // |- remove these lines once caches and sram are figured out
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
 
-	unsigned int temp, flagGCN, flagWii;
+	uint32_t temp = 0;
+	uint32_t flagGCN = 0;
+	uint32_t flagWii = 0;
 
 	for (uint64_t i = 0; i < _regions.size(); ++i)
 	{
@@ -423,8 +425,6 @@ void MungPlex::ProcessInformation::ObtainGameEntities(const void* baseLocation)
 
 		_gameEntities[i].Value = entityValue;
 	}
-
-	free(buffer);
 }
 
 bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)

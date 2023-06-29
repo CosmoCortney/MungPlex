@@ -30,7 +30,7 @@ namespace MungPlex
 
     static bool WriteTextEx(const uint32_t pid, const char* text, const uint64_t address)
     {
-        int textLength = strlen(text);
+        uint32_t textLength = strlen(text);
 
         if (text[textLength - 1] == '\n')
             --textLength;
@@ -41,7 +41,7 @@ namespace MungPlex
 
     static bool WriteTextEx(const uint32_t pid, const wchar_t* text, const uint64_t address)
     {
-        int textLength = wcslen(text);
+        uint32_t textLength = wcslen(text);
 
         if (text[textLength - 1] == '\n')
             --textLength;
@@ -52,7 +52,7 @@ namespace MungPlex
 
     static bool WriteTextEx(const uint32_t pid, const char32_t* text, const uint64_t address)
     {
-        int textLength = std::char_traits<char32_t>::length(text);
+        uint32_t textLength = std::char_traits<char32_t>::length(text);
 
         if (text[textLength - 1] == '\n')
             --textLength;
