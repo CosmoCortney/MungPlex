@@ -10,11 +10,11 @@ MungPlex::Settings::Settings()
 
 	std::ifstream inFile;
 	inFile.open(SettingsJSON);
-	std::string buffer;
 	std::string jsonstr;
 
 	if (inFile)
 	{
+		std::string buffer;
 		while (std::getline(inFile, buffer))
 		{
 			jsonstr.append(buffer).append("\n");
@@ -149,7 +149,7 @@ void MungPlex::Settings::drawCheatSettings()
 bool MungPlex::Settings::saveSettings()
 {
 	std::ofstream file(SettingsJSON, std::ios::binary);
-	bool isOpen = file.is_open();
+	const bool isOpen = file.is_open();
 
 	if (isOpen)
 	{
