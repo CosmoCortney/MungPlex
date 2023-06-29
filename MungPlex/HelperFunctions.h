@@ -35,7 +35,7 @@ namespace MungPlex
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM((void*)text, reinterpret_cast<void*>(address), textLength);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(text, reinterpret_cast<void*>(address), textLength);
         return true;
     }
 
@@ -46,7 +46,7 @@ namespace MungPlex
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM((void*)text, reinterpret_cast<void*>(address), textLength*2);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(text, reinterpret_cast<void*>(address), textLength*2);
         return true;
     }
 
@@ -57,7 +57,7 @@ namespace MungPlex
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM((void*)text, reinterpret_cast<void*>(address), textLength * 4);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(text, reinterpret_cast<void*>(address), textLength * 4);
         return true;
     }
 

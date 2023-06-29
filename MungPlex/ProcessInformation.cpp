@@ -362,7 +362,7 @@ bool MungPlex::ProcessInformation::InitDolphin()
 
 	int IDcopy;
 	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, _systemRegions[0].BaseLocationProcess, 4);
-	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&IDcopy, (void*)((char*)_systemRegions[0].BaseLocationProcess + 0x3180), 4);
+	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&IDcopy, ((char*)_systemRegions[0].BaseLocationProcess + 0x3180), 4);
 
 	if (temp == 0 && IDcopy != 0)
 		//ConnectionStatus = CONNECTED_DOLPHIN_WIIWARE;
@@ -394,7 +394,7 @@ void MungPlex::ProcessInformation::ObtainGameEntities(const void* baseLocation)
 		std::string dataType = _gameEntities[i].Datatype;
 		bool hex = _gameEntities[i].Hex;
 
-		void* readLocation = (void*)((char*)baseLocation + _gameEntities[i].Location);
+		void* readLocation = ((char*)baseLocation + _gameEntities[i].Location);
 		Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(buffer, readLocation, size);
 
 		if (dataType.compare("INT") == 0)
