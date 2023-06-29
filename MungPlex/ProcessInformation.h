@@ -74,15 +74,15 @@ namespace MungPlex
         std::vector<EMUPAIR> _emulators{};
         std::wstring _exePath;
 
-        void DrawModuleList();
-        void DrawRegionList();
+        void DrawModuleList() const;
+        void DrawRegionList() const;
         void DrawMiscInformation();
-        void DrawGameInformation();
+        void DrawGameInformation() const;
         bool InitEmulator(const int emulatorIndex);
         bool InitProcess(const std::wstring& processName);
         bool InitDolphin();
         bool InitProject64();
-        void ObtainGameEntities(const void* baseLocation);
+        void ObtainGameEntities(void* baseLocation);
 
     public:
         enum ProcessType

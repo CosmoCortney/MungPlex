@@ -23,7 +23,7 @@ void MungPlex::ProcessInformation::RefreshData(const int pid)
 	GetInstance()._regions = Xertz::SystemInfo::GetProcessInfo(pid).GetRegionList();
 }
 
-void MungPlex::ProcessInformation::DrawModuleList()
+void MungPlex::ProcessInformation::DrawModuleList() const
 {
 	if (!ImGui::CollapsingHeader("Modules"))
 		return;
@@ -72,7 +72,7 @@ void MungPlex::ProcessInformation::DrawModuleList()
 }
 
 
-void MungPlex::ProcessInformation::DrawRegionList()
+void MungPlex::ProcessInformation::DrawRegionList() const
 {
 	if (!ImGui::CollapsingHeader("Regions"))
 		return;
@@ -158,7 +158,7 @@ void MungPlex::ProcessInformation::DrawMiscInformation()
 	strcpy_s(buf, std::to_string(GetInstance()._pid).c_str());
 	ImGui::InputText("Process ID (dec)", buf, IM_ARRAYSIZE(buf));
 
-	std::string strTemp = _isX64 ? "Yes" : "No";
+	const std::string strTemp = _isX64 ? "Yes" : "No";
 	strcpy_s(buf, strTemp.c_str());
 	ImGui::InputText("Is x64", buf, IM_ARRAYSIZE(buf));
 
@@ -166,7 +166,7 @@ void MungPlex::ProcessInformation::DrawMiscInformation()
 }
 
 
-void MungPlex::ProcessInformation::DrawGameInformation()
+void MungPlex::ProcessInformation::DrawGameInformation() const
 {
 	if (!ImGui::CollapsingHeader("Game Information"))
 		return;
@@ -258,7 +258,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 
 bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 {
-	EMUPAIR emulator = GetInstance()._emulators[emulatorIndex];
+	const EMUPAIR emulator = GetInstance()._emulators[emulatorIndex];
 	_pid = Xertz::SystemInfo::GetProcessInfo(emulator.first, true, false).GetPID();
 	bool connected = false;
 
@@ -380,26 +380,25 @@ std::vector<MungPlex::SystemRegion>& MungPlex::ProcessInformation::GetRegions()
 	return GetInstance()._systemRegions;
 }
 
-void MungPlex::ProcessInformation::ObtainGameEntities(const void* baseLocation)
+void MungPlex::ProcessInformation::ObtainGameEntities(void* baseLocation)
 {
 	std::string entityValue;
 	entityValue.reserve(2048);
-	char buffer[2048];
 
 	for (int i = 0; i < _gameEntities.size(); ++i)
 	{
+		static char buffer[2048];
 		std::stringstream stream;
-		uint64_t tempVal;
-		int size = _gameEntities[i].Size;
+		const int size = _gameEntities[i].Size;
 		std::string dataType = _gameEntities[i].Datatype;
-		bool hex = _gameEntities[i].Hex;
+		const bool hex = _gameEntities[i].Hex;
 
-		void* readLocation = ((char*)baseLocation + _gameEntities[i].Location);
+		const void* readLocation = static_cast<char*>(baseLocation) + _gameEntities[i].Location;
 		Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(buffer, readLocation, size);
 
 		if (dataType.compare("INT") == 0)
 		{
-			tempVal = *(uint64_t*)buffer;
+			uint64_t tempVal = *reinterpret_cast<uint64_t*>(buffer);
 			tempVal &= ~(0xFFFFFFFFFFFFFFFF << (8 * size));
 
 			if (hex)
@@ -417,7 +416,7 @@ void MungPlex::ProcessInformation::ObtainGameEntities(const void* baseLocation)
 		{
 			for (int x = 0; x < size; ++x)
 			{
-				stream << std::hex << (((int)*((char*)buffer + x)) & 0xff);
+				stream << std::hex << (static_cast<int>(  *(reinterpret_cast<char*>(buffer) + x)  ) & 0xff);
 			}
 			entityValue.append(stream.str());
 		}
@@ -434,8 +433,8 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	if (!GetInstance().InitEmulator(emulatorIndex))
 		return false;
 	
-	GetInstance()._exePath = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).GetFilePath().c_str();	// refactor these two lines when implementing PC game support
-	GetInstance()._isX64 = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).IsX64();					//-^
+	GetInstance()._exePath = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).GetFilePath(); // refactor these two lines when implementing PC game support
+	GetInstance()._isX64 = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).IsX64();		  //-^
 
 	return true; 
 }
