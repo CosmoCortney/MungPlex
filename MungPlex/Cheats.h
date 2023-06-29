@@ -68,7 +68,6 @@ namespace MungPlex
         int _perSecond = 60;
         bool _executeCheats = false;
         bool _cheatList = false;
-        bool _rememberEnabled = false;
         std::thread _cheatThread;
         PROCESS_INFO _processInfo;
         bool _cheatError = false;

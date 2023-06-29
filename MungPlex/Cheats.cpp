@@ -133,8 +133,6 @@ void MungPlex::Cheats::DrawCheatInformation()
 			_unsavedChangesTextCheat = true;
 		}
 
-		_textCheatLua;
-		_textCheatDescription;
 		static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 		
 		if(ImGui::InputTextMultiline("Lua Cheat", _textCheatLua, IM_ARRAYSIZE(_textCheatLua), ImVec2(1000, ImGui::GetTextLineHeight() * 16), flags))
@@ -392,15 +390,13 @@ int MungPlex::Cheats::luaExceptionHandler(lua_State* L, const sol::optional<cons
 
 int MungPlex::Cheats::getRangeIndex(const uint64_t address) const
 {
-	int rangeIndex = -1;
-
 	for (int i = 0; i < _regions.size(); ++i)
 	{
 		if (address >= _regions[i].Base && address < _regions[i].Base + _regions[i].Size)
 			return i;
 	}
 
-	return rangeIndex;
+	return -1;
 }
 
 void MungPlex::Cheats::copyCheatToInformationBox(const int index)
