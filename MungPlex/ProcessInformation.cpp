@@ -133,6 +133,8 @@ void MungPlex::ProcessInformation::DrawRegionList() const
 			case 7:
 				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetType());
 				break;
+			default:
+				sprintf_s(buf, sizeof(buf), "");
 			}
 
 			if (contents_type == CT_Text)
@@ -244,7 +246,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 			GetInstance()._gameEntities.emplace_back(GameEntity(entity, location, datatype, size, hex));
 		}
 
-		if (!regions.size() || !entities.size())
+		if (regions.empty() || entities.empty())
 			return false;
 	}
 	catch (const nlohmann::json::parse_error& exception)
