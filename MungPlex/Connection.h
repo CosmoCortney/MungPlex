@@ -13,9 +13,7 @@
 #include "Xertz.h"
 #include <Windows.h>
 #include "MungPlexConfig.h"
-#include <sstream>
 #include"ProcessInformation.h"
-#include"HelperFunctions.h"
 
 namespace MungPlex
 {
@@ -42,7 +40,6 @@ namespace MungPlex
         int _selectedEmulatorIndex = 0;
         char _connectionMessage[256];
         void DrawConnectionSelect();
-        void ParseJsonToEntities();
 
     public:
         static void DrawWindow();
