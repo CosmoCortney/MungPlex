@@ -146,8 +146,6 @@ void MungPlex::Search::DrawRangeOptions()
 		_regions = ProcessInformation::GetRegions();
 		ImGui::SeparatorText("Range Options");
 		_RegionSelectSignalCombo.Draw("Region", _regions, _currentRegionSelect);
-		int changed;
-
 		_SignalInputTextRangeStart.Draw("Start at (hex)", _rangeStartText, IM_ARRAYSIZE(_rangeStartText));
 		_SignalInputTextRangeEnd.Draw("End at (hex)", _rangeEndText, IM_ARRAYSIZE(_rangeEndText));
 
@@ -694,10 +692,8 @@ void MungPlex::Search::DrawResultsArea()
 void MungPlex::Search::PickColorFromScreen()
 {
 	POINT point;
-	COLORREF color;
-	HDC hdc;
-
 	std::atomic_bool buttonPressed(false);
+
 	std::thread mouseThread([&buttonPressed]()
 	{
 		while (!buttonPressed)
@@ -713,14 +709,14 @@ void MungPlex::Search::PickColorFromScreen()
 
 	mouseThread.join();
 
-	hdc = GetDC(NULL);
+	HDC hdc = GetDC(NULL);
 	if (hdc == NULL)
 		return;
 
 	if (!GetCursorPos(&point))
 		return;
 
-	color = GetPixel(hdc, point.x, point.y);
+	COLORREF color = GetPixel(hdc, point.x, point.y);
 	if (color == CLR_INVALID)
 		return;
 
@@ -757,9 +753,7 @@ void MungPlex::Search::PerformSearch()
 
 	strcpy_s(x, sizeof(x), std::to_string(iter).c_str());
 	_iterations.emplace_back(x);
-
 	_iterationIndex = --iter;
-
 	_selectedIndices.resize(_maxResultsPerPage);
 	uint64_t resultCount = std::get<0>(_searchStats);
 	_pagesAmountValue = resultCount / _maxResultsPerPage;

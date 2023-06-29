@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <iostream>
 #include <stdio.h>
 #include "GLFW/glfw3.h"
@@ -26,14 +26,6 @@
 
 namespace MungPlex
 {
-    template <typename dataType, typename addressType> struct SearchResult
-    {
-        addressType _address;
-        dataType _currentValue;
-        dataType _previousValue;
-        dataType _difference;
-    };
-
     class Search
     {
     private:
@@ -137,7 +129,6 @@ namespace MungPlex
         void ArrayTypeSearch();
         void TextTypeSearch();
         void ColorTypeSearch();
-        void ResetSearch();
 
         std::vector<std::pair<std::string, int>> _searchValueTypes{};
         std::vector<std::pair<std::string, int>> _searchPrimitiveTypes{};
@@ -239,7 +230,6 @@ namespace MungPlex
             int pid = ProcessInformation::GetPID();
             std::string pokeTextp(_pokeValueText);
             MorphText pokeValue(pokeTextp);
-            int format = pokeValue.GetPrimaryFormat();
 
             if (_multiPoke)
             {
@@ -292,8 +282,8 @@ namespace MungPlex
                 }
                 return true;
             }
-            else
-            {
+
+
                 uint64_t address = _pokeAddress;
 
                 for (int i = 0; i < _regions.size(); ++i)
@@ -320,7 +310,7 @@ namespace MungPlex
                         }
                     }
                 }
-            }
+            
             return false;
         }
 
@@ -392,8 +382,7 @@ namespace MungPlex
                 }
                 return true;
             }
-            else
-            {
+
                 uint64_t address = _pokeAddress;
 
                 for (int i = 0; i < _regions.size(); ++i)
@@ -436,7 +425,7 @@ namespace MungPlex
                         return true;
                     }
                 }
-            }
+            
             return false;
         }
 
@@ -492,8 +481,7 @@ namespace MungPlex
                 }
                 return true;
             }
-            else
-            {
+
                 if (_underlyingBigEndian)
                     MungPlex::SwapBytesArray<uType>(pokeArray);
 
@@ -513,7 +501,7 @@ namespace MungPlex
                         return true;
                     }
                 }
-            }
+            
             return false;
         }
 
@@ -557,8 +545,7 @@ namespace MungPlex
                 }
                 return true;
             }
-            else
-            {
+
                 if (_underlyingBigEndian)
                     *(dataType*)_pokeValue = Xertz::SwapBytes<dataType>(*(dataType*)_pokeValue);
 
@@ -573,7 +560,7 @@ namespace MungPlex
                         return true;
                     }
                 }
-            }
+            
             return false;
         }
 
