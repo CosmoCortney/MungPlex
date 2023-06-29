@@ -42,8 +42,8 @@ namespace MungPlex
     private:
         ProcessInformation()
         {
-            _emulators.emplace_back(EMUPAIR(L"Dolphin", Emulators::DOLPHIN));
-            _emulators.emplace_back(EMUPAIR(L"Project64", Emulators::PROJECT64));
+            _emulators.emplace_back(L"Dolphin", DOLPHIN);
+            _emulators.emplace_back(L"Project64", PROJECT64);
         }
 
         ~ProcessInformation(){};
