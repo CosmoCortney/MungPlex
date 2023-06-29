@@ -383,7 +383,7 @@ void MungPlex::ProcessInformation::ObtainGameEntities(const void* baseLocation)
 {
 	std::string entityValue;
 	entityValue.reserve(2048);
-	void* buffer = malloc(2048);
+	char buffer[2048];
 
 	for (int i = 0; i < _gameEntities.size(); ++i)
 	{
