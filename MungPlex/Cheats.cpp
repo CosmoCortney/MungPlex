@@ -261,7 +261,7 @@ void MungPlex::Cheats::cheatRoutine()
 			if (!pfr.valid())
 			{
 				sol_c_assert(!pfr.valid());
-				sol::error err = pfr;
+				const sol::error err = pfr;
 				std::cout << err.what() << std::endl;
 				_executeCheats = false;
 				_cheatError = true;
@@ -285,7 +285,7 @@ void MungPlex::Cheats::cheatRoutine()
 		if (!pfr.valid())
 		{
 			sol_c_assert(!pfr.valid());
-			sol::error err = pfr;
+			const sol::error err = pfr;
 			std::cout << err.what() << std::endl;
 			_executeCheats = false;
 			_cheatError = true;
@@ -427,10 +427,10 @@ void MungPlex::Cheats::copyCheatToList(const int index)
 	}
 }
 
-bool MungPlex::Cheats::saveCheatList()
+bool MungPlex::Cheats::saveCheatList() const
 {
 	std::ofstream file(_currentCheatFile, std::ios::binary);
-	bool isOpen = file.is_open();
+	const bool isOpen = file.is_open();
 
 	if (isOpen)
 	{
@@ -474,7 +474,7 @@ void MungPlex::Cheats::deleteCheat(const uint16_t index)
 void MungPlex::Cheats::refreshModuleList()
 {
 	lua_State* L = _lua.lua_state();
-	int moduleCount = _processInfo.GetModuleList().size();
+	const int moduleCount = _processInfo.GetModuleList().size();
 	lua_createtable(L, 0, moduleCount);
 
 	for (int i = 0; i < moduleCount; ++i)

@@ -87,7 +87,7 @@ namespace MungPlex
         static int luaExceptionHandler(lua_State* L, const sol::optional<const std::exception&> exception, const sol::string_view description);
         void copyCheatToInformationBox(const int index);
         void copyCheatToList(const int index);
-        bool saveCheatList();
+        bool saveCheatList() const;
         void deleteCheat(const uint16_t index);
         void refreshModuleList();
         void DrawCheatList(); //top-left
@@ -110,18 +110,18 @@ namespace MungPlex
         {
             int64_t readValue = 0;
             double returnValue = 0.0;
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return returnValue = NAN;
 
-            void* readAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
 
             switch (type)
             {
             case INT8:
                 GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 1);
-                returnValue = (double)*(int8_t*)&readValue;
+                returnValue = static_cast<double>(*reinterpret_cast<int8_t*>(&readValue));
                 break;
             case BOOL:
                 GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 1);
@@ -130,27 +130,27 @@ namespace MungPlex
             case INT16:
                 GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 2);
                 if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int16_t>(readValue);
-                returnValue = (double)*(int16_t*)&readValue;
+                returnValue = static_cast<double>(*reinterpret_cast<int16_t*>(&readValue));
                 break;
             case INT32:
                 GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 4);
                 if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int32_t>(readValue);
-                returnValue = (double)*(int32_t*)&readValue;
+            	returnValue = static_cast<double>(*reinterpret_cast<int32_t*>(&readValue));
                 break;
             case INT64:
                 GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
                 if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int64_t>(readValue);
-                returnValue = (double)*(int64_t*)&readValue;
+                returnValue = static_cast<double>(*&readValue);
                 break;
             case FLOAT:
                 GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 4);
                 if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int32_t>(readValue);
-                returnValue = (double)*(float*)&readValue;
+                returnValue = static_cast<double>(*reinterpret_cast<float*>(&readValue));
                 break;
             default://DOUBLE
                 GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
                 if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int64_t>(readValue);
-                returnValue = *(double*)&readValue;
+                returnValue = *reinterpret_cast<double*>(&readValue);
             }
 
             return returnValue;
@@ -194,12 +194,12 @@ namespace MungPlex
         static int64_t readInt64(const uint64_t address)
         {
             int64_t readValue = 0;
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return 0;
 
-            void* readAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
             GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
             if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int64_t>(readValue);
             return readValue;
@@ -213,12 +213,12 @@ namespace MungPlex
         static float readFloat(const uint64_t address)
         {
             float readValue = 0.0f;
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return 0.0f;
 
-            void* readAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
             GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 4);
             if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<float>(readValue);
             return readValue;
@@ -227,12 +227,12 @@ namespace MungPlex
         static double readDouble(const uint64_t address)
         {
             double readValue = 0.0;
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return 0.0;
 
-            void* readAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
             GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
             if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<double>(readValue);
             return readValue;
@@ -242,46 +242,46 @@ namespace MungPlex
         static void writeToRAM(const int type, const  uint64_t address, double value)
         {
             uint64_t writeValue;
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return;
 
-            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
 
             switch (type)
             {
             case BOOL:
-                writeValue = value != 0;
+                writeValue = static_cast<int64_t>(value) != 0;
                 GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 1);
                 return;
             case INT8:
-                writeValue = (int8_t)value;
+                writeValue = static_cast<int8_t>(value);
                 GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 1);
                 return;
             case INT16:
-                writeValue = (int16_t)value;
+                writeValue = static_cast<int16_t>(value);
                 if (GetInstance()._isBigEndian) writeValue = Xertz::SwapBytes<int16_t>(writeValue);
                 GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 2);
                 return;
             case INT32:
-                writeValue = (int32_t)value;
+                writeValue = static_cast<int32_t>(value);
                 if (GetInstance()._isBigEndian) writeValue = Xertz::SwapBytes<int32_t>(writeValue);
                 GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 4);
                 return;
             case INT64:
-                writeValue = (int64_t)value;
+                writeValue = static_cast<int64_t>(value);
                 if (GetInstance()._isBigEndian) writeValue = Xertz::SwapBytes<int64_t>(writeValue);
                 GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 8);
                 return;
             case FLOAT: {
-                float temp = (float)value;
-                writeValue = *(int32_t*)&temp;
+                float temp = static_cast<float>(value);
+                writeValue = *reinterpret_cast<int32_t*>(&temp);
                     if (GetInstance()._isBigEndian) writeValue = Xertz::SwapBytes<int32_t>(writeValue);
                     GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 4);
                 } return;
             case DOUBLE: {
-                writeValue = *(int64_t*)&value;
+                writeValue = *reinterpret_cast<int64_t*>(&value);
                 if (GetInstance()._isBigEndian) writeValue = Xertz::SwapBytes<int64_t>(writeValue);
                 GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 8);
             } return;
@@ -290,82 +290,82 @@ namespace MungPlex
 
         static void writeBool(const uint64_t address, bool value)
         {
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return;
 
-            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 1);
         }
 
         static void writeInt8(const uint64_t address, int8_t value)
         {
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return;
 
-            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 1);
         }
 
         static void writeInt16(const uint64_t address, int16_t value)
         {
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return;
 
-            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
             if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int16_t>(value);
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 2);
         }
 
         static void writeInt32(const uint64_t address, int32_t value)
         {
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return;
 
-            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
             if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int32_t>(value);
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 4);
         }
 
         static void writeInt64(const uint64_t address, int64_t value)
         {
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return;
 
-            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
             if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int64_t>(value);
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 8);
         }
 
         static void writeFloat(const uint64_t address, float value)
         {
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return;
 
-            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
             if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<float>(value);
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 4);
         }
 
         static void writeDouble(const uint64_t address, double value)
         {
-            int rangeIndex = GetInstance().getRangeIndex(address);
+            const int rangeIndex = GetInstance().getRangeIndex(address);
 
             if (rangeIndex == -1)
                 return;
 
-            void* writeAddress = (char*)GetInstance()._regions[rangeIndex].BaseLocationProcess + address - GetInstance()._regions[rangeIndex].Base;
+            void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
             if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<double>(value);
             GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 8);
         }
