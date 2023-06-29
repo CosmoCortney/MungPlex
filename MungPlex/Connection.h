@@ -27,7 +27,7 @@ namespace MungPlex
             strcpy(_connectionMessage, "Not connected...");
         }
 
-        ~Connection() {};
+        ~Connection() {}
         Connection(const Connection&) = delete;
         Connection(Connection&&) = delete;
         void operator=(const Connection&) = delete;
@@ -39,10 +39,10 @@ namespace MungPlex
         }
 
         bool _connected = false;
+        int _selectedEmulatorIndex = 0;
         char _connectionMessage[256];
         void DrawConnectionSelect();
         void ParseJsonToEntities();
-        int _selectedEmulatorIndex = 0;
 
     public:
         static void DrawWindow();

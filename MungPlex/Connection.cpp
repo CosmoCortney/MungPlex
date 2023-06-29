@@ -9,13 +9,19 @@ void MungPlex::Connection::DrawWindow()
 
 void MungPlex::Connection::DrawConnectionSelect()
 {
-	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+	static ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 	if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
 	{
 		std::string emuSelect;
 		if (ImGui::BeginTabItem("Emulator"))
 		{
-			MungPlex::SetUpCombo("Select Emulator", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex);
+
+			ImGui::Dummy(ImVec2(0.0f, 5.0f));
+			ImGui::Text("Emulator:");
+			ImGui::SameLine();
+			MungPlex::SetUpCombo("##EmulatorSelect", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex);
+
+			ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 			if (ImGui::Button("Connect", ImVec2(200, 50)))
 			{
@@ -29,11 +35,14 @@ void MungPlex::Connection::DrawConnectionSelect()
 			}
 			ImGui::EndTabItem();
 		}
+
 		if (ImGui::BeginTabItem("Native Application"))
 		{
+			ImGui::Dummy(ImVec2(0.0f, 5.0f));
 			ImGui::Button("Connect", ImVec2(200, 50));
 			ImGui::EndTabItem();
 		}
+		
 		/*if (ImGui::BeginTabItem("Remote Device"))
 		{
 			ImGui::Text("Select Console.");
@@ -43,6 +52,7 @@ void MungPlex::Connection::DrawConnectionSelect()
 		ImGui::EndTabBar();
 	}
 
+	ImGui::Dummy(ImVec2(0.0f, 5.0f));
 	ImGui::Text(_connectionMessage);
 }
 
