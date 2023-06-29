@@ -3,10 +3,10 @@
 MungPlex::Settings::Settings()
 {
 	bool save = false;
-	_generalSettings.Windows.push_back("Search");
-	_generalSettings.Windows.push_back("Cheats");
-	_generalSettings.Windows.push_back("Process Information");
-	_generalSettings.Windows.push_back("Settings");
+	_generalSettings.Windows.emplace_back("Search");
+	_generalSettings.Windows.emplace_back("Cheats");
+	_generalSettings.Windows.emplace_back("Process Information");
+	_generalSettings.Windows.emplace_back("Settings");
 
 	std::ifstream inFile;
 	inFile.open(SettingsJSON);

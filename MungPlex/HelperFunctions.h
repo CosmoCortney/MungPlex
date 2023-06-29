@@ -205,16 +205,16 @@ namespace MungPlex
         for (const auto& item : items)
         {
             if constexpr (std::is_same_v<T, std::string>)
-                items_str.push_back(item.c_str());
+                items_str.emplace_back(item.c_str());
             else if constexpr (std::is_same_v<T, std::pair<std::string, int>>)
-                items_str.push_back(item.first.c_str());
+                items_str.emplace_back(item.first.c_str());
             else if constexpr (std::is_same_v<T, std::wstring>)
-                items_str.push_back(std::string(item.begin(), item.end()).c_str());
+                items_str.emplace_back(std::string(item.begin(), item.end()).c_str());
             else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>> || std::is_same_v<T, EMUPAIR>)
-                items_str.push_back(std::string(item.first.begin(), item.first.end()).c_str());
+                items_str.emplace_back(std::string(item.first.begin(), item.first.end()).c_str());
             else if constexpr (std::is_same_v < T, MungPlex::SystemRegion>)
             {
-                items_str.push_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
+                items_str.emplace_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
             }
         }
         ImGui::Combo(name.c_str(), &select, [](void* data, int idx, const char** out_text)
@@ -274,17 +274,17 @@ namespace MungPlex
 
         void ConnectOnIndexChanged(const Slot slot)
         {
-            _slotsOnIndexChanged.push_back(slot);
+            _slotsOnIndexChanged.emplace_back(slot);
         }
 
         void ConnectOnItemCountChanged(const Slot slot)
         {
-            _slotsOnItemCountChanged.push_back(slot);
+            _slotsOnItemCountChanged.emplace_back(slot);
         }  
 
         void ConnectOnTextChanged(const Slot slot)
         {
-            _slotsOnTextChanged.push_back(slot);
+            _slotsOnTextChanged.emplace_back(slot);
         }
     };
 
@@ -316,7 +316,7 @@ namespace MungPlex
 
         void ConnectOnTextChanged(const Slot slot)
         {
-            _slotsOnTextChanged.push_back(slot);
+            _slotsOnTextChanged.emplace_back(slot);
         }
     };
 }

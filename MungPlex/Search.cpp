@@ -756,7 +756,7 @@ void MungPlex::Search::PerformSearch()
 		_iterations.erase(_iterations.begin() + iter-1, _iterations.end());
 
 	strcpy_s(x, sizeof(x), std::to_string(iter).c_str());
-	_iterations.push_back(x);
+	_iterations.emplace_back(x);
 
 	_iterationIndex = --iter;
 

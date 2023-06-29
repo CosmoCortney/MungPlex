@@ -231,7 +231,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 			std::string label = regions[i]["Label"].get<std::string>();
 			uint64_t base = std::stoll(regions[i]["Base"].get<std::string>(), 0, 0);
 			uint64_t size = std::stoll(regions[i]["Size"].get<std::string>(), 0, 0);
-			GetInstance()._systemRegions.push_back(SystemRegion(label, base, size));
+			GetInstance()._systemRegions.emplace_back(SystemRegion(label, base, size));
 		}
 
 		for (int i = 0; i < entities.size(); ++i)
@@ -241,7 +241,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 			std::string datatype = entities[i]["Datatype"].get<std::string>();
 			int size = std::stoi(entities[i]["Size"].get<std::string>(), 0, 0);
 			bool hex = entities[i]["Hex"].get<bool>();
-			GetInstance()._gameEntities.push_back(GameEntity(entity, location, datatype, size, hex));
+			GetInstance()._gameEntities.emplace_back(GameEntity(entity, location, datatype, size, hex));
 		}
 
 		if (!regions.size() || !entities.size())

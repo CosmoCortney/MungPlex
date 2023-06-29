@@ -153,8 +153,8 @@ void MungPlex::Cheats::DrawCheatInformation()
 			saveCheatList();
 			_unsavedChangesTextCheat = false;
 			_markedCheats.assign(_markedCheats.size(), false);
-			_markedCheats.push_back(true);
-			_checkBoxIDs.push_back("##cheat_" + std::to_string(_luaCheats.back().ID));
+			_markedCheats.emplace_back(true);
+			_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats.back().ID));
 		}
 
 		ImGui::SameLine();
@@ -352,9 +352,9 @@ void MungPlex::Cheats::initCheatFile()
 			std::string hacker = cheats[i]["Hacker"].get<std::string>();
 			std::string lua = cheats[i]["Lua"].get<std::string>();
 			std::string description = cheats[i]["Description"].get<std::string>();
-			_luaCheats.push_back(LuaCheat(id, checked, title, hacker, lua, description));
-			_markedCheats.push_back(false);
-			_checkBoxIDs.push_back("##cheat_" + std::to_string(_luaCheats[i].ID));
+			_luaCheats.emplace_back(LuaCheat(id, checked, title, hacker, lua, description));
+			_markedCheats.emplace_back(false);
+			_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats[i].ID));
 		}
 
 		if (_markedCheats.size())
@@ -415,7 +415,7 @@ void MungPlex::Cheats::copyCheatToList(const int index)
 {
 	if (index == -1)
 	{
-		_luaCheats.push_back(LuaCheat(_luaCheats.size() ? _luaCheats.back().ID + 1 : 0,
+		_luaCheats.emplace_back(LuaCheat(_luaCheats.size() ? _luaCheats.back().ID + 1 : 0,
 			true,
 			_textCheatTitle,
 			_textCheatHacker,
@@ -451,12 +451,12 @@ bool MungPlex::Cheats::saveCheatList()
 				cheatJson["Lua"] = cheat.Lua;
 				cheatJson["Description"] = cheat.Description;
 
-				jsonData["Cheats"].push_back(cheatJson);
+				jsonData["Cheats"].emplace_back(cheatJson);
 			}
 		}
 		else
 		{
-			jsonData["Cheats"].push_back("");
+			jsonData["Cheats"].emplace_back("");
 		}
 
 		file << "\xEF\xBB\xBF"; //write BOM
