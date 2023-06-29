@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <iostream>
 #include <stdio.h>
 #include "GLFW/glfw3.h"
@@ -227,8 +227,8 @@ namespace MungPlex
         
         template<typename addressType> bool PokeText()
         {
-            int pid = ProcessInformation::GetPID();
-            std::string pokeTextp(_pokeValueText);
+            const int pid = ProcessInformation::GetPID();
+            const std::string pokeTextp(_pokeValueText);
             MorphText pokeValue(pokeTextp);
 
             if (_multiPoke)
@@ -284,42 +284,42 @@ namespace MungPlex
             }
 
 
-                uint64_t address = _pokeAddress;
+            uint64_t address = _pokeAddress;
 
-                for (int i = 0; i < _regions.size(); ++i)
+            for (int i = 0; i < _regions.size(); ++i)
+            {
+                if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
                 {
-                    if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
-                    {
-                        address -= _regions[i].Base;
-                        address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+                    address -= _regions[i].Base;
+                    address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
 
-                        switch (_currentTextTypeSelect)
-                        {
-                        case MorphText::ASCII:
-                            return WriteTextEx(pid, pokeValue.GetASCII(), address);
-                        case MorphText::SHIFTJIS:
-                            return WriteTextEx(pid, pokeValue.GetShiftJis(), address);
-                        case MorphText::UTF8:
-                            return WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
-                        case MorphText::UTF16LE: case MorphText::UTF16BE:
-                            return WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
-                        case MorphText::UTF32LE: case MorphText::UTF32BE:
-                            return WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
-                        default: //ISO-8859-X
-                            return WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
-                        }
+                    switch (_currentTextTypeSelect)
+                    {
+                    case MorphText::ASCII:
+                        return WriteTextEx(pid, pokeValue.GetASCII(), address);
+                    case MorphText::SHIFTJIS:
+                        return WriteTextEx(pid, pokeValue.GetShiftJis(), address);
+                    case MorphText::UTF8:
+                        return WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
+                    case MorphText::UTF16LE: case MorphText::UTF16BE:
+                        return WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
+                    case MorphText::UTF32LE: case MorphText::UTF32BE:
+                        return WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
+                    default: //ISO-8859-X
+                        return WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
                     }
                 }
+            }
             
             return false;
         }
 
         template<typename addressType> bool PokeColor()
         {
-            int pid = ProcessInformation::GetPID();
-            std::string colorString(_pokeValueText);
+            const int pid = ProcessInformation::GetPID();
+            const std::string colorString(_pokeValueText);
             LitColor pokeValue(colorString);
-            int pokeValueWidth = pokeValue.GetSelectedType() == LitColor::RGB888 ? 3 : 4;
+            const int pokeValueWidth = pokeValue.GetSelectedType() == LitColor::RGB888 ? 3 : 4;
 
             if (_multiPoke)
             {
@@ -351,7 +351,7 @@ namespace MungPlex
 
                         if (pokeValue.GetSelectedType() < LitColor::RGBF) //RGB888, RGBA8888
                         {
-                            uint32_t val = _pokePrevious ? *(uint32_t*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGBA();
+                            uint32_t val = _pokePrevious ? *reinterpret_cast<uint32_t*>(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGBA();
 
                             if (_underlyingBigEndian)
                                 val = Xertz::SwapBytes<uint32_t>(val);
@@ -360,7 +360,7 @@ namespace MungPlex
                         }
                         else if (pokeValue.GetSelectedType() == LitColor::RGB565)
                         {
-                            uint16_t val = _pokePrevious ? *(uint16_t*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGB565();
+                            uint16_t val = _pokePrevious ? *reinterpret_cast<uint16_t*>(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index) : pokeValue.GetRGB565();
 
                             if (_underlyingBigEndian)
                                 val = Xertz::SwapBytes<uint16_t>(val);
@@ -371,7 +371,7 @@ namespace MungPlex
                         {
                             for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
                             {
-                                float val = _pokePrevious ? *(float*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index + item * sizeof(float)) : pokeValue.GetColorValue<float>(item);
+                                float val = _pokePrevious ? *reinterpret_cast<float*>(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index + item * sizeof(float)) : pokeValue.GetColorValue<float>(item);
 
                                 if (_underlyingBigEndian)
                                     val = Xertz::SwapBytes<float>(val);
@@ -383,48 +383,48 @@ namespace MungPlex
                 return true;
             }
 
-                uint64_t address = _pokeAddress;
+            uint64_t address = _pokeAddress;
 
-                for (int i = 0; i < _regions.size(); ++i)
+            for (int i = 0; i < _regions.size(); ++i)
+            {
+                if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
                 {
-                    if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
+                    address -= _regions[i].Base;
+                    address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+
+                    if (pokeValue.GetSelectedType() < LitColor::RGBF) //RGB888, RGBA8888
                     {
-                        address -= _regions[i].Base;
-                        address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+                        uint32_t val = pokeValue.GetRGBA();
 
-                        if (pokeValue.GetSelectedType() < LitColor::RGBF) //RGB888, RGBA8888
-                        {
-                            uint32_t val = pokeValue.GetRGBA();
+                        if (_underlyingBigEndian)
+                            val = Xertz::SwapBytes<uint32_t>(val);
 
-                            if (_underlyingBigEndian)
-                                val = Xertz::SwapBytes<uint32_t>(val);
-
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
-                        }
-                        else if (pokeValue.GetSelectedType() == LitColor::RGB565)
-                        {
-                            uint16_t val = pokeValue.GetRGB565();
-
-                            if (_underlyingBigEndian)
-                                val = Xertz::SwapBytes<uint16_t>(val);
-
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), 2);
-                        }
-                        else //RGBF, RGBAF
-                        {
-                            for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
-                            {
-                                float val = pokeValue.GetColorValue<float>(item);
-
-                                if (_underlyingBigEndian)
-                                    val = Xertz::SwapBytes<float>(val);
-
-                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
-                            }
-                        }
-                        return true;
+                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
                     }
+                    else if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                    {
+                        uint16_t val = pokeValue.GetRGB565();
+
+                        if (_underlyingBigEndian)
+                            val = Xertz::SwapBytes<uint16_t>(val);
+
+                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), 2);
+                    }
+                    else //RGBF, RGBAF
+                    {
+                        for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
+                        {
+                            float val = pokeValue.GetColorValue<float>(item);
+
+                            if (_underlyingBigEndian)
+                                val = Xertz::SwapBytes<float>(val);
+
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
+                        }
+                    }
+                    return true;
                 }
+            }
             
             return false;
         }
@@ -432,7 +432,7 @@ namespace MungPlex
         template<typename uType, typename addressType> bool PokeArray()
         {
             uint64_t itemCount = OperativeArray<uType>(std::string(_knownValueText)).ItemCount();
-            int pid = ProcessInformation::GetPID();
+            const int pid = ProcessInformation::GetPID();
             std::string arrayString(_pokeValueText);
             OperativeArray<uType> pokeArray(arrayString);
                
@@ -463,7 +463,7 @@ namespace MungPlex
 
                     if (_pokePrevious)
                     {
-                        uType* arr = (uType*)(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index);
+                        uType* arr = reinterpret_cast<uType*>(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index);
                         pokeArray = OperativeArray<uType>(arr, itemCount);
                     }
                     
@@ -482,32 +482,33 @@ namespace MungPlex
                 return true;
             }
 
-                if (_underlyingBigEndian)
-                    MungPlex::SwapBytesArray<uType>(pokeArray);
+            if (_underlyingBigEndian)
+                MungPlex::SwapBytesArray<uType>(pokeArray);
 
-                uint64_t address = _pokeAddress;
-                for (int i = 0; i < _regions.size(); ++i)
+            uint64_t address = _pokeAddress;
+            for (int i = 0; i < _regions.size(); ++i)
+            {
+                if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
                 {
-                    if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
+                    address -= _regions[i].Base;
+                    address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+                    
+                    for (int i = 0; i < itemCount; ++i)
                     {
-                        address -= _regions[i].Base;
-                        address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
-                        
-                        for (int i = 0; i < itemCount; ++i)
-                        {
-                            if (!pokeArray.IsIgnoredIndex(i))
-                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
-                        }
-                        return true;
+                        if (!pokeArray.IsIgnoredIndex(i))
+                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
                     }
+                    return true;
                 }
+            }
             
             return false;
         }
 
         template<typename dataType, typename addressType> bool PokeValue()
         {
-            int pid = ProcessInformation::GetPID();
+            const int pid = ProcessInformation::GetPID();
+
             if (_multiPoke)
             {
                 int regionIndex = -1;
@@ -534,10 +535,10 @@ namespace MungPlex
                         return false;
 
                     if (_pokePrevious)
-                        *(dataType*)_pokeValue = *(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index);
+                        *reinterpret_cast<dataType*>(_pokeValue) = *(results->at(std::get<1>(_searchStats) - 1)->GetResultPreviousValues() + resultIndex + index);
 
                     if (_underlyingBigEndian && (index == 0 || _pokePrevious))
-                        *(dataType*)_pokeValue = Xertz::SwapBytes<dataType>(*(dataType*)_pokeValue);
+                        *reinterpret_cast<dataType*>(_pokeValue) = Xertz::SwapBytes<dataType>(*reinterpret_cast<dataType*>(_pokeValue));
 
                     address -= _regions[regionIndex].Base;
                     address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
@@ -546,20 +547,21 @@ namespace MungPlex
                 return true;
             }
 
-                if (_underlyingBigEndian)
-                    *(dataType*)_pokeValue = Xertz::SwapBytes<dataType>(*(dataType*)_pokeValue);
+            if (_underlyingBigEndian)
+                *reinterpret_cast<dataType*>(_pokeValue) = Xertz::SwapBytes<dataType>(*reinterpret_cast<dataType*>(_pokeValue));
 
-                uint64_t address = _pokeAddress;
-                for (int i = 0; i < _regions.size(); ++i)
+            uint64_t address = _pokeAddress;
+
+            for (int i = 0; i < _regions.size(); ++i)
+            {
+                if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
                 {
-                    if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
-                    {
-                        address -= _regions[i].Base;
-                        address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
-                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(_pokeValue, reinterpret_cast<void*>(address), sizeof(dataType));
-                        return true;
-                    }
+                    address -= _regions[i].Base;
+                    address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(_pokeValue, reinterpret_cast<void*>(address), sizeof(dataType));
+                    return true;
                 }
+            }
             
             return false;
         }
@@ -573,7 +575,7 @@ namespace MungPlex
                 return;
                     
             auto results = Xertz::MemCompare<dataType, addressType>::GetResults();
-            int iterationCount = std::get<1>(_searchStats);
+            const int iterationCount = std::get<1>(_searchStats);
             if (!_cached && iterationCount > 0)
             {
                 if (iterationCount > 1 && results->at(iterationCount - 2)->HasResults())
@@ -584,7 +586,7 @@ namespace MungPlex
                         return;
             }
                     
-            uint64_t resultCount = std::get<0>(_searchStats);
+            const uint64_t resultCount = std::get<0>(_searchStats);
             ImGui::TableSetupColumn("Address");
             ImGui::TableSetupColumn("Value");
             ImGui::TableSetupColumn("Previous");
@@ -604,9 +606,9 @@ namespace MungPlex
                 static char tempAddress[1024];
                 static char tempValue[1024];
                 static char buf[1024];
-                int addressTextWidth = ProcessInformation::GetAddressWidth() > 4 ? 16 : 8;
+                const int addressTextWidth = ProcessInformation::GetAddressWidth() > 4 ? 16 : 8;
                 uint64_t pageIndex = (_currentPageValue-1) * _maxResultsPerPage;
-                uint64_t address = *(results->at(iterationCount - 1)->GetResultOffsets() + pageIndex + row) + _regions[_currentRegionSelect].Base;
+                const uint64_t address = *(results->at(iterationCount - 1)->GetResultOffsets() + pageIndex + row) + _regions[_currentRegionSelect].Base;
                 bool rowClicked = false;
                 uint64_t resultsIndex = (pageIndex + row);
                 ImGui::TableNextRow(selectableFlags);
@@ -677,17 +679,17 @@ namespace MungPlex
                             {
                                 if (col == 1)
                                 {
-                                    rectColor = *((uint32_t*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex);
+                                    rectColor = *(reinterpret_cast<uint32_t*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex);
 
                                     if (!_pokePrevious)
-                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                        vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
                                 }
                                 else if (col == 2)
                                 {
-                                    rectColor = *((uint32_t*)results->at(iterationCount - 1)->GetResultPreviousValues() + resultsIndex);
+                                    rectColor = *(reinterpret_cast<uint32_t*>(results->at(iterationCount - 1)->GetResultPreviousValues()) + resultsIndex);
 
                                     if (_pokePrevious)
-                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                        vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
                                 }
                                 else
                                     break;
@@ -699,17 +701,17 @@ namespace MungPlex
 
                                 if (col == 1)
                                 {
-                                    rectColor = LitColor(((float*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * colorValueCount), usesAlpha).GetRGBA();
+                                    rectColor = LitColor(reinterpret_cast<float*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * colorValueCount, usesAlpha).GetRGBA();
 
                                     if (!_pokePrevious)
-                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                        vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
                                 }
                                 else if (col == 2)
                                 {
-                                    rectColor = LitColor(((float*)results->at(iterationCount - 1)->GetResultPreviousValues() + resultsIndex * colorValueCount), usesAlpha).GetRGBA();
+                                    rectColor = LitColor(reinterpret_cast<float*>(results->at(iterationCount - 1)->GetResultPreviousValues()) + resultsIndex * colorValueCount, usesAlpha).GetRGBA();
 
                                     if (_pokePrevious)
-                                        vecCol = PackedColorToImVec4((uint8_t*)&rectColor);
+                                        vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
                                 }
                                 else
                                     break;
@@ -740,7 +742,7 @@ namespace MungPlex
                                     std::memcpy(tempValue, buf, 1024);
                                     break;
                                 case MorphText::SHIFTJIS: {
-                                    static std::string temputf8 = MorphText::ShiftJis_To_Utf8((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength);
+                                    static std::string temputf8 = MorphText::ShiftJis_To_Utf8(reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength);
                                     if (!strLength)
                                         strLength = strlen(temputf8.c_str());
                                     sprintf_s(buf, "%s", temputf8.c_str());
@@ -757,8 +759,8 @@ namespace MungPlex
                                         strLength = strlen((char*)Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str()) + 1;
 
                                     static std::string temp = _currentTextTypeSelect == MorphText::UTF16BE
-                                        ? MorphText::Utf16BE_To_Utf8( (wchar_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
-                                        : MorphText::Utf16LE_To_Utf8( (wchar_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
+                                        ? MorphText::Utf16BE_To_Utf8(reinterpret_cast<wchar_t*>(reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength))
+                                        : MorphText::Utf16LE_To_Utf8(reinterpret_cast<wchar_t*>(reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength));
 
                                     sprintf_s(buf, "%s", temp.c_str());
                                     std::memcpy(tempValue, buf, 1024);
@@ -768,14 +770,14 @@ namespace MungPlex
                                         strLength = strlen((char*)Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str()) + 1;
 
                                     static std::string temp = _currentTextTypeSelect == MorphText::UTF32BE
-                                        ? MorphText::Utf32BE_To_Utf8( (char32_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) )
-                                        : MorphText::Utf32LE_To_Utf8( (char32_t*)((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength) );
+                                        ? MorphText::Utf32BE_To_Utf8(reinterpret_cast<char32_t*>(reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength))
+                                        : MorphText::Utf32LE_To_Utf8(reinterpret_cast<char32_t*>(reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength));
 
                                     sprintf_s(buf, "%s", temp.c_str());
                                     std::memcpy(tempValue, buf, 1024);
                                 } break;
                                 default: { //ISO-8859-X
-                                    static std::string temputf8 = MorphText::ISO8859X_To_Utf8((char*)results->at(iterationCount - 1)->GetResultValues() + resultsIndex * strLength, _currentTextTypeSelect);
+                                    static std::string temputf8 = MorphText::ISO8859X_To_Utf8(reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength, _currentTextTypeSelect);
                                     if (!strLength)
                                         strLength = strlen(temputf8.c_str())+1;
                                     sprintf_s(buf, "%s", temputf8.c_str(), strLength);
@@ -885,7 +887,7 @@ namespace MungPlex
 
         template<typename T> void DrawArrayValues(const int col, const auto results, const uint64_t itemCount, const uint64_t resultIndexWithItemCount, char* buf, char* tempValue, const char* literal)
         {
-            int iterationCount = std::get<1>(_searchStats);
+            const int iterationCount = std::get<1>(_searchStats);
             T* value;
             const bool copyTempValue = (col == 1 && !_pokePrevious) || (col == 2 && _pokePrevious);
 
@@ -955,13 +957,13 @@ namespace MungPlex
         {
             std::stringstream stream;
             stream << std::hex << GetInstance()._regions[GetInstance()._currentRegionSelect].Base;
-            std::string hexBegStr = stream.str();
+            const std::string hexBegStr = stream.str();
             strcpy_s(GetInstance()._rangeStartText, hexBegStr.c_str());
-            std::string hexEndStr = MungPlex::ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size -1, 0).c_str();
+            const std::string hexEndStr = MungPlex::ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size -1, 0);
             strcpy_s(GetInstance()._rangeEndText, hexEndStr.c_str());
         };
 
-        static bool SetUnderlyingBigEndianFlag(const bool isBigEndian)
+        static void SetUnderlyingBigEndianFlag(const bool isBigEndian)
         {
             GetInstance()._underlyingBigEndian = isBigEndian;
         }

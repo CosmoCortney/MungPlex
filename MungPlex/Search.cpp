@@ -347,12 +347,6 @@ void MungPlex::Search::DrawSearchOptions()
 
 		switch (_currentValueTypeSelect)
 		{
-		case PRIMITIVE:
-			if (_currentPrimitiveTypeSelect < FLOAT)
-				conditionTypeItems = &_searchConditionTypes;
-			else
-				conditionTypeItems = &_searchConditionTypesFloat;
-		break;
 		case ARRAY:
 			conditionTypeItems = &_searchConditionTypesArray;
 		break;
@@ -641,7 +635,7 @@ void MungPlex::Search::DrawResultsArea()
 	if (!_disableBecauseNoText) ImGui::EndDisabled();
 
 	ImGui::SameLine();
-	HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous value. No matter what's in the \"Value\" text field. If this one is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
+	HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous values - no matter what's in the \"Value\" text field. If this is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
 	ImGui::SameLine();
 	ImGui::Checkbox("Multi-Poke", &_multiPoke);
 
@@ -726,9 +720,9 @@ void MungPlex::Search::PickColorFromScreen()
 
 	ReleaseDC(GetDesktopWindow(), hdc);
 
-	_colorVec.x = (float)GetRValue(color) / (float)255;
-	_colorVec.y = (float)GetGValue(color) / (float)255;
-	_colorVec.z = (float)GetBValue(color) / (float)255;
+	_colorVec.x = static_cast<float>(GetRValue(color)) / 255.0f;
+	_colorVec.y = static_cast<float>(GetGValue(color)) / 255.0f;
+	_colorVec.z = static_cast<float>(GetBValue(color)) / 255.0f;
 	_colorVec.w = 1.0f;
 }
 
@@ -750,7 +744,7 @@ void MungPlex::Search::PerformSearch()
 		break;
 	}
 
-	char* x = new char[4];
+	static char x[4];
 	int iter = std::get<1>(_searchStats);
 	if (iter < _iterations.size())
 		_iterations.erase(_iterations.begin() + iter-1, _iterations.end());
@@ -857,31 +851,26 @@ void MungPlex::Search::ArrayTypeSearch()
 {
 	_currentComparisionTypeSelect = Xertz::KNOWN;
 
-	std::string strArray = std::string(_knownValueText);
-	std::string strArraySecondary = std::string(_secondaryKnownValueText);
+	const std::string strArray = std::string(_knownValueText);
+	const std::string strArraySecondary = std::string(_secondaryKnownValueText);
 
 	if (_currentArrayTypeSelect < FLOAT)
 	{
 		switch (_currentArrayTypeSelect)
 		{
 		case INT8: {
-			OperativeArray<uint8_t> arrayP(strArray);
-			OperativeArray<uint8_t> arrayS(strArraySecondary);
+			const OperativeArray<uint8_t> arrayP(strArray);
+			const OperativeArray<uint8_t> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<uint8_t>>(arrayP, arrayS);
 		}break;
 		case INT16: {
-			OperativeArray<uint16_t> arrayP(strArray);
-			OperativeArray<uint16_t> arrayS(strArraySecondary);
+			const OperativeArray<uint16_t> arrayP(strArray);
+			const OperativeArray<uint16_t> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<uint16_t>>(arrayP, arrayS);
 		}break;
-		case INT32: {
-			OperativeArray<uint32_t> arrayP(strArray);
-			OperativeArray<uint32_t> arrayS(strArraySecondary);
-			_searchStats = SetUpAndIterate<OperativeArray<uint32_t>>(arrayP, arrayS);
-		}break;
 		case INT64: {
-			OperativeArray<uint64_t> arrayP(strArray);
-			OperativeArray<uint64_t> arrayS(strArraySecondary);
+			const OperativeArray<uint64_t> arrayP(strArray);
+			const OperativeArray<uint64_t> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<uint64_t>>(arrayP, arrayS);
 		}break;
 		default: //INT32
@@ -922,9 +911,9 @@ void MungPlex::Search::ColorTypeSearch()
 {
 	_currentComparisionTypeSelect = Xertz::KNOWN;
 	std::string arg(_knownValueText);
-	LitColor colorP(arg);
+	const LitColor colorP(arg);
 	arg = std::string(_secondaryKnownValueText);
-	LitColor colorS(arg);
+	const LitColor colorS(arg);
 
 	_searchStats = SetUpAndIterate<LitColor>(colorP, colorS);
 }
