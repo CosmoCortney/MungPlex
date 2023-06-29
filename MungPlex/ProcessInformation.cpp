@@ -152,14 +152,14 @@ void MungPlex::ProcessInformation::DrawMiscInformation()
 
 	ImGui::BeginGroup();
 
-	strcpy(buf, std::string(_exePath.begin(), _exePath.end()).c_str());
+	strcpy_s(buf, std::string(_exePath.begin(), _exePath.end()).c_str());
 	ImGui::InputText("Path", buf, IM_ARRAYSIZE(buf));
 
-	strcpy(buf, std::to_string(GetInstance()._pid).c_str());
+	strcpy_s(buf, std::to_string(GetInstance()._pid).c_str());
 	ImGui::InputText("Process ID (dec)", buf, IM_ARRAYSIZE(buf));
 
 	std::string strTemp = _isX64 ? "Yes" : "No";
-	strcpy(buf, strTemp.c_str());
+	strcpy_s(buf, strTemp.c_str());
 	ImGui::InputText("Is x64", buf, IM_ARRAYSIZE(buf));
 
 	ImGui::EndGroup();

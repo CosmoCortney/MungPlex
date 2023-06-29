@@ -730,7 +730,7 @@ namespace MungPlex
 
                             ColorValuesToCString(vecCol, _currentColorTypeSelect, buf);
                             std::memcpy(tempValue, buf, 1024);
-                            strcpy(buf, "");
+                            strcpy_s(buf, "");
                             ImDrawList* drawList = ImGui::GetWindowDrawList();
                             ImVec2 rectMin = ImGui::GetCursorScreenPos();
                             ImVec2 rectMax = ImVec2(rectMin.x + 124, rectMin.y + 30);
@@ -920,17 +920,17 @@ namespace MungPlex
 
         template<typename T> void PrintTableArray(char* buf, const char* literal, const uint32_t itemCount, const T* vals)
         {
-            std::strcpy(buf, "");
+            strcpy_s(buf, sizeof(buf),"");
             char temp[18];
 
             for (uint32_t i = 0; i < itemCount; ++i)
             {
                 sprintf(temp, literal, vals[i]);
                 if(_hex)
-                    std::strcat(buf, "0x");
-                std::strcat(buf, temp);
+                    strcat_s(buf, sizeof(buf), "0x");
+                strcat_s(buf, sizeof(buf), temp);
                 if(i < itemCount-1)
-                    std::strcat(buf, ", ");
+                    strcat_s(buf, sizeof(buf), ", ");
             }
 
             std::puts(buf);
@@ -969,9 +969,9 @@ namespace MungPlex
             std::stringstream stream;
             stream << std::hex << GetInstance()._regions[GetInstance()._currentRegionSelect].Base;
             std::string hexBegStr = stream.str();
-            std::strcpy(GetInstance()._rangeStartText, hexBegStr.c_str());
+            strcpy_s(GetInstance()._rangeStartText, hexBegStr.c_str());
             std::string hexEndStr = MungPlex::ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size -1, 0).c_str();
-            std::strcpy(GetInstance()._rangeEndText, hexEndStr.c_str());
+            strcpy_s(GetInstance()._rangeEndText, hexEndStr.c_str());
         };
 
         static bool SetUnderlyingBigEndianFlag(const bool isBigEndian)

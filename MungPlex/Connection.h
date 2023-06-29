@@ -24,7 +24,7 @@ namespace MungPlex
     private:
         Connection()
         {
-            strcpy(_connectionMessage, "Not connected...");
+            strcpy_s(_connectionMessage, "Not connected...");
         }
 
         ~Connection() {}

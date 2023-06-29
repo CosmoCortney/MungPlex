@@ -29,8 +29,8 @@ void MungPlex::Connection::DrawConnectionSelect()
 
 				if (_connected)
 				{
-					strcpy(_connectionMessage, "Connected to emulator: ");
-					strcat(_connectionMessage, MorphText::Utf16LE_To_Utf8(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first).c_str());
+					strcpy_s(_connectionMessage, "Connected to emulator: ");
+					strcat_s(_connectionMessage, MorphText::Utf16LE_To_Utf8(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first).c_str());
 				}
 			}
 			ImGui::EndTabItem();

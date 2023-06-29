@@ -405,10 +405,10 @@ int MungPlex::Cheats::getRangeIndex(const uint64_t address) const
 
 void MungPlex::Cheats::copyCheatToInformationBox(const int index)
 {
-	strcpy(_textCheatTitle, _luaCheats[index].Title.c_str());
-	strcpy(_textCheatHacker, _luaCheats[index].Hacker.c_str());
-	strcpy(_textCheatLua, _luaCheats[index].Lua.c_str());
-	strcpy(_textCheatDescription, _luaCheats[index].Description.c_str());
+	strcpy_s(_textCheatTitle, _luaCheats[index].Title.c_str());
+	strcpy_s(_textCheatHacker, _luaCheats[index].Hacker.c_str());
+	strcpy_s(_textCheatLua, _luaCheats[index].Lua.c_str());
+	strcpy_s(_textCheatDescription, _luaCheats[index].Description.c_str());
 }
 
 void MungPlex::Cheats::copyCheatToList(const int index)

@@ -290,43 +290,43 @@ void MungPlex::Search::DrawSearchOptions()
 		case PRIMITIVE:
 			if (_currentConditionTypeSelect == Xertz::BETWEEN)
 			{
-				strcpy(knownPrimaryValueLabel, "Lowest");
-				strcpy(knownSecondaryValueLabel, "Highest");
+				strcpy_s(knownPrimaryValueLabel, "Lowest");
+				strcpy_s(knownSecondaryValueLabel, "Highest");
 				disableSecondaryValueText = false;
 			}
 			else if (_currentConditionTypeSelect == Xertz::NOT_BETWEEN)
 			{
-				strcpy(knownPrimaryValueLabel, "Below");
-				strcpy(knownSecondaryValueLabel, "Above");
+				strcpy_s(knownPrimaryValueLabel, "Below");
+				strcpy_s(knownSecondaryValueLabel, "Above");
 				disableSecondaryValueText = false;
 			}
 			else if (_currentConditionTypeSelect == Xertz::INCREASED_BY)
 			{
-				strcpy(knownPrimaryValueLabel, "Increased by");
-				strcpy(knownSecondaryValueLabel, "Not applicable");
+				strcpy_s(knownPrimaryValueLabel, "Increased by");
+				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
 			else if (_currentConditionTypeSelect == Xertz::DECREASED_BY)
 			{
-				strcpy(knownPrimaryValueLabel, "Decreased by");
-				strcpy(knownSecondaryValueLabel, "Not applicable");
+				strcpy_s(knownPrimaryValueLabel, "Decreased by");
+				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
 			else
 			{
-				strcpy(knownPrimaryValueLabel, "Value");
-				strcpy(knownSecondaryValueLabel, "Not applicable");
+				strcpy_s(knownPrimaryValueLabel, "Value");
+				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
 			break;
 		case ARRAY:
-			strcpy(knownPrimaryValueLabel, "Array Expression");
-			strcpy(knownSecondaryValueLabel, "Not applicable");
+			strcpy_s(knownPrimaryValueLabel, "Array Expression");
+			strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			break;
 		case COLOR:
-			strcpy(knownPrimaryValueLabel, "Color Expression");
-			strcpy(knownSecondaryValueLabel, "Not applicable");
+			strcpy_s(knownPrimaryValueLabel, "Color Expression");
+			strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			break;
 		case TEXT:
-			strcpy(knownPrimaryValueLabel, "Text Value");
-			strcpy(knownSecondaryValueLabel, "Not applicable");
+			strcpy_s(knownPrimaryValueLabel, "Text Value");
+			strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			break;
 		}
 
@@ -755,7 +755,7 @@ void MungPlex::Search::PerformSearch()
 	if (iter < _iterations.size())
 		_iterations.erase(_iterations.begin() + iter-1, _iterations.end());
 
-	strcpy(x, std::to_string(iter).c_str());
+	strcpy_s(x, sizeof(x), std::to_string(iter).c_str());
 	_iterations.push_back(x);
 
 	_iterationIndex = --iter;

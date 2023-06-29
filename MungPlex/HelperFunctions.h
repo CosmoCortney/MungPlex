@@ -94,7 +94,7 @@ namespace MungPlex
             cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << (int)(rgba.x * 255.0f) << std::setw(2) << (int)(rgba.y * 255.0f) << std::setw(2) << (int)(rgba.z * 255.0f);
         }
 
-        strcpy(destination, cstream.str().c_str());
+        strcpy_s(destination, sizeof(destination),cstream.str().c_str());
     }
 
     template<typename uType> static void SwapBytesArray(OperativeArray<uType>& arr)
@@ -307,7 +307,7 @@ namespace MungPlex
                 for (const auto& slot : _slotsOnTextChanged)
                     slot();
 
-                std::strcpy(_text, buf);
+                strcpy_s(_text, buf);
                 changedByFlow = true;
             }
 

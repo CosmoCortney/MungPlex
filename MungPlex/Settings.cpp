@@ -28,7 +28,7 @@ MungPlex::Settings::Settings()
 		auto& settings = doc["Settings"];
 
 		//set general settings
-		strcpy(_generalSettings.DocumentsPath, settings["General"]["DocumentsPath"].get<std::string>().c_str());
+		strcpy_s(_generalSettings.DocumentsPath, settings["General"]["DocumentsPath"].get<std::string>().c_str());
 		_generalSettings.Scale = settings["General"]["Scale"].get<float>();
 		_generalSettings.DefaultWindowSelect = settings["General"]["DefaultWindowSelect"].get<int>();
 		
@@ -36,7 +36,7 @@ MungPlex::Settings::Settings()
 		{
 			PWSTR tmp = new wchar_t[512];
 			SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &tmp);
-			strcpy(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(tmp).c_str());
+			strcpy_s(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(tmp).c_str());
 			CoTaskMemFree(tmp);
 			createDocFolders();
 			save = true;
@@ -164,7 +164,7 @@ bool MungPlex::Settings::saveSettings()
 
 			if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &path)))
 			{
-				strcpy(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(path).c_str());
+				strcpy_s(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(path).c_str());
 			}
 
 			CoTaskMemFree(path);
