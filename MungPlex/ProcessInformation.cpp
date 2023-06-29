@@ -152,14 +152,13 @@ void MungPlex::ProcessInformation::DrawMiscInformation()
 
 	ImGui::BeginGroup();
 
-	std::wstring wstrTemp = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).GetFilePath().c_str();
-	strcpy(buf, std::string(wstrTemp.begin(), wstrTemp.end()).c_str());
+	strcpy(buf, std::string(_exePath.begin(), _exePath.end()).c_str());
 	ImGui::InputText("Path", buf, IM_ARRAYSIZE(buf));
 
 	strcpy(buf, std::to_string(GetInstance()._pid).c_str());
 	ImGui::InputText("Process ID (dec)", buf, IM_ARRAYSIZE(buf));
 
-	std::string strTemp = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).IsX64() ? "Yes" : "No";
+	std::string strTemp = _isX64 ? "Yes" : "No";
 	strcpy(buf, strTemp.c_str());
 	ImGui::InputText("Is x64", buf, IM_ARRAYSIZE(buf));
 
@@ -435,6 +434,9 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	if (!GetInstance().InitEmulator(emulatorIndex))
 		return false;
 	
+	GetInstance()._exePath = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).GetFilePath().c_str();	// refactor these two lines when implementing PC game support
+	GetInstance()._isX64 = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).IsX64();					//-^
+
 	return true; 
 }
 

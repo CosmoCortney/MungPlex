@@ -72,6 +72,7 @@ namespace MungPlex
         std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions{};
         int32_t _currentEmulatorNumber = -1;
         std::vector<EMUPAIR> _emulators{};
+        std::wstring _exePath;
 
         void DrawModuleList();
         void DrawRegionList();
