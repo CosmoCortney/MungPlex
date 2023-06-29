@@ -24,7 +24,7 @@ namespace MungPlex
     private:
         Connection()
         {
-
+            strcpy(_connectionMessage, "Not connected...");
         }
 
         ~Connection() {};
@@ -39,6 +39,7 @@ namespace MungPlex
         }
 
         bool _connected = false;
+        char _connectionMessage[256];
         void DrawConnectionSelect();
         void ParseJsonToEntities();
         int _selectedEmulatorIndex = 0;

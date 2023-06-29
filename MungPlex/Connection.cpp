@@ -20,6 +20,12 @@ void MungPlex::Connection::DrawConnectionSelect()
 			if (ImGui::Button("Connect", ImVec2(200, 50)))
 			{
 				_connected = ProcessInformation::ConnectToEmulator(_selectedEmulatorIndex);
+
+				if (_connected)
+				{
+					strcpy(_connectionMessage, "Connected to emulator: ");
+					strcat(_connectionMessage, MorphText::Utf16LE_To_Utf8(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first).c_str());
+				}
 			}
 			ImGui::EndTabItem();
 		}
@@ -36,6 +42,8 @@ void MungPlex::Connection::DrawConnectionSelect()
 		}*/
 		ImGui::EndTabBar();
 	}
+
+	ImGui::Text(_connectionMessage);
 }
 
 bool MungPlex::Connection::IsConnected()
