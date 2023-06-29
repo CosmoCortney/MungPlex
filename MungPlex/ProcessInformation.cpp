@@ -110,28 +110,28 @@ void MungPlex::ProcessInformation::DrawRegionList()
 			switch(column)
 			{
 			case 0:
-				sprintf(buf, "%llX", GetInstance()._regions[row].GetBaseAddress<uint64_t>());
+				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetBaseAddress<uint64_t>());
 				break;
 			case 1:
-				sprintf(buf, "%llX", GetInstance()._regions[row].GetAllocationBase<uint64_t>());
+				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetAllocationBase<uint64_t>());
 				break;
 			case 2:
-				sprintf(buf, "%u", GetInstance()._regions[row].GetAllocationProtect());
+				sprintf_s(buf, "%u", GetInstance()._regions[row].GetAllocationProtect());
 				break;
 			case 3:
-				sprintf(buf, "%u", GetInstance()._regions[row].GetPartitionId());
+				sprintf_s(buf, "%u", GetInstance()._regions[row].GetPartitionId());
 				break;
 			case 4:
-				sprintf(buf, "%llX", GetInstance()._regions[row].GetProtect());
+				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetProtect());
 				break;
 			case 5:
-				sprintf(buf, "%llX", GetInstance()._regions[row].GetRegionSize());
+				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetRegionSize());
 				break;
 			case 6:
-				sprintf(buf, "%llX", GetInstance()._regions[row].GetState());
+				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetState());
 				break;
 			case 7:
-				sprintf(buf, "%llX", GetInstance()._regions[row].GetType());
+				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetType());
 				break;
 			}
 
@@ -187,11 +187,11 @@ void MungPlex::ProcessInformation::DrawGameInformation()
 				char buf[256];
 				if (column == 0)
 				{
-					sprintf(buf, _gameEntities[row].Entity.c_str());
+					sprintf_s(buf, _gameEntities[row].Entity.c_str());
 				}
 				else
 				{
-					sprintf(buf, _gameEntities[row].Value.c_str());
+					sprintf_s(buf, _gameEntities[row].Value.c_str());
 				}
 
 				ImGui::TextUnformatted(buf);
