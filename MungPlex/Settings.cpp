@@ -3,18 +3,18 @@
 MungPlex::Settings::Settings()
 {
 	bool save = false;
-	_generalSettings.Windows.push_back("Search");
-	_generalSettings.Windows.push_back("Cheats");
-	_generalSettings.Windows.push_back("Process Information");
-	_generalSettings.Windows.push_back("Settings");
+	_generalSettings.Windows.emplace_back("Search");
+	_generalSettings.Windows.emplace_back("Cheats");
+	_generalSettings.Windows.emplace_back("Process Information");
+	_generalSettings.Windows.emplace_back("Settings");
 
 	std::ifstream inFile;
 	inFile.open(SettingsJSON);
-	std::string buffer;
 	std::string jsonstr;
 
 	if (inFile)
 	{
+		std::string buffer;
 		while (std::getline(inFile, buffer))
 		{
 			jsonstr.append(buffer).append("\n");
@@ -28,7 +28,7 @@ MungPlex::Settings::Settings()
 		auto& settings = doc["Settings"];
 
 		//set general settings
-		strcpy(_generalSettings.DocumentsPath, settings["General"]["DocumentsPath"].get<std::string>().c_str());
+		strcpy_s(_generalSettings.DocumentsPath, settings["General"]["DocumentsPath"].get<std::string>().c_str());
 		_generalSettings.Scale = settings["General"]["Scale"].get<float>();
 		_generalSettings.DefaultWindowSelect = settings["General"]["DefaultWindowSelect"].get<int>();
 		
@@ -36,7 +36,7 @@ MungPlex::Settings::Settings()
 		{
 			PWSTR tmp = new wchar_t[512];
 			SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &tmp);
-			strcpy(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(tmp).c_str());
+			strcpy_s(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(tmp).c_str());
 			CoTaskMemFree(tmp);
 			createDocFolders();
 			save = true;
@@ -149,7 +149,7 @@ void MungPlex::Settings::drawCheatSettings()
 bool MungPlex::Settings::saveSettings()
 {
 	std::ofstream file(SettingsJSON, std::ios::binary);
-	bool isOpen = file.is_open();
+	const bool isOpen = file.is_open();
 
 	if (isOpen)
 	{
@@ -164,7 +164,7 @@ bool MungPlex::Settings::saveSettings()
 
 			if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &path)))
 			{
-				strcpy(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(path).c_str());
+				strcpy_s(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(path).c_str());
 			}
 
 			CoTaskMemFree(path);
@@ -197,7 +197,7 @@ bool MungPlex::Settings::saveSettings()
 	return isOpen;
 }
 
-void MungPlex::Settings::createDocFolders()
+void MungPlex::Settings::createDocFolders() const
 {
 	std::string mungPlexDocsPath = std::string(_generalSettings.DocumentsPath) + "\\MungPlex";
 

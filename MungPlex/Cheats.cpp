@@ -132,9 +132,7 @@ void MungPlex::Cheats::DrawCheatInformation()
 		{
 			_unsavedChangesTextCheat = true;
 		}
-
-		_textCheatLua;
-		_textCheatDescription;
+		
 		static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 		
 		if(ImGui::InputTextMultiline("Lua Cheat", _textCheatLua, IM_ARRAYSIZE(_textCheatLua), ImVec2(1000, ImGui::GetTextLineHeight() * 16), flags))
@@ -153,14 +151,14 @@ void MungPlex::Cheats::DrawCheatInformation()
 			saveCheatList();
 			_unsavedChangesTextCheat = false;
 			_markedCheats.assign(_markedCheats.size(), false);
-			_markedCheats.push_back(true);
-			_checkBoxIDs.push_back("##cheat_" + std::to_string(_luaCheats.back().ID));
+			_markedCheats.emplace_back(true);
+			_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats.back().ID));
 		}
 
 		ImGui::SameLine();
 
 		static bool disableFlag = false;
-		if (!_luaCheats.size())
+		if (_luaCheats.empty())
 			_disableEditButtons = true;
 
 		if (_disableEditButtons) ImGui::BeginDisabled();
@@ -180,7 +178,7 @@ void MungPlex::Cheats::DrawCheatInformation()
 				saveCheatList();
 				_unsavedChangesTextCheat = false;
 				
-				if (!_luaCheats.size())
+				if (_luaCheats.empty())
 					disableFlag = true;
 			}
 		if (_disableEditButtons) ImGui::EndDisabled();
@@ -263,7 +261,7 @@ void MungPlex::Cheats::cheatRoutine()
 			if (!pfr.valid())
 			{
 				sol_c_assert(!pfr.valid());
-				sol::error err = pfr;
+				const sol::error err = pfr;
 				std::cout << err.what() << std::endl;
 				_executeCheats = false;
 				_cheatError = true;
@@ -287,7 +285,7 @@ void MungPlex::Cheats::cheatRoutine()
 		if (!pfr.valid())
 		{
 			sol_c_assert(!pfr.valid());
-			sol::error err = pfr;
+			const sol::error err = pfr;
 			std::cout << err.what() << std::endl;
 			_executeCheats = false;
 			_cheatError = true;
@@ -326,12 +324,12 @@ void MungPlex::Cheats::initCheatFile()
 	_markedCheats.clear();
 	_checkBoxIDs.clear();
 	std::ifstream inFile;
-	std::string buffer;
 	std::string jsonstr;
 	inFile.open(_currentCheatFile);
 
 	if (inFile)
 	{
+		std::string buffer;
 		while (std::getline(inFile, buffer))
 		{
 			jsonstr.append(buffer).append("\n");
@@ -352,12 +350,12 @@ void MungPlex::Cheats::initCheatFile()
 			std::string hacker = cheats[i]["Hacker"].get<std::string>();
 			std::string lua = cheats[i]["Lua"].get<std::string>();
 			std::string description = cheats[i]["Description"].get<std::string>();
-			_luaCheats.push_back(LuaCheat(id, checked, title, hacker, lua, description));
-			_markedCheats.push_back(false);
-			_checkBoxIDs.push_back("##cheat_" + std::to_string(_luaCheats[i].ID));
+			_luaCheats.emplace_back(LuaCheat(id, checked, title, hacker, lua, description));
+			_markedCheats.emplace_back(false);
+			_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats[i].ID));
 		}
 
-		if (_markedCheats.size())
+		if (!_markedCheats.empty())
 		{
 			_markedCheats[0] = true;
 			copyCheatToInformationBox(0);
@@ -370,7 +368,7 @@ void MungPlex::Cheats::initCheatFile()
 	}
 }
 
-int MungPlex::Cheats::luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description)
+int MungPlex::Cheats::luaExceptionHandler(lua_State* L, const sol::optional<const std::exception&> exception, const sol::string_view description)
 {
 	std::cout << "An exception occurred";
 	if (exception)
@@ -390,32 +388,30 @@ int MungPlex::Cheats::luaExceptionHandler(lua_State* L, sol::optional<const std:
 	return sol::stack::push(L, description);
 }
 
-int MungPlex::Cheats::getRangeIndex(uint64_t address)
+int MungPlex::Cheats::getRangeIndex(const uint64_t address) const
 {
-	int rangeIndex = -1;
-
 	for (int i = 0; i < _regions.size(); ++i)
 	{
 		if (address >= _regions[i].Base && address < _regions[i].Base + _regions[i].Size)
 			return i;
 	}
 
-	return rangeIndex;
+	return -1;
 }
 
 void MungPlex::Cheats::copyCheatToInformationBox(const int index)
 {
-	strcpy(_textCheatTitle, _luaCheats[index].Title.c_str());
-	strcpy(_textCheatHacker, _luaCheats[index].Hacker.c_str());
-	strcpy(_textCheatLua, _luaCheats[index].Lua.c_str());
-	strcpy(_textCheatDescription, _luaCheats[index].Description.c_str());
+	strcpy_s(_textCheatTitle, _luaCheats[index].Title.c_str());
+	strcpy_s(_textCheatHacker, _luaCheats[index].Hacker.c_str());
+	strcpy_s(_textCheatLua, _luaCheats[index].Lua.c_str());
+	strcpy_s(_textCheatDescription, _luaCheats[index].Description.c_str());
 }
 
 void MungPlex::Cheats::copyCheatToList(const int index)
 {
 	if (index == -1)
 	{
-		_luaCheats.push_back(LuaCheat(_luaCheats.size() ? _luaCheats.back().ID + 1 : 0,
+		_luaCheats.emplace_back(LuaCheat(!_luaCheats.empty() ? _luaCheats.back().ID + 1 : 0,
 			true,
 			_textCheatTitle,
 			_textCheatHacker,
@@ -431,16 +427,16 @@ void MungPlex::Cheats::copyCheatToList(const int index)
 	}
 }
 
-bool MungPlex::Cheats::saveCheatList()
+bool MungPlex::Cheats::saveCheatList() const
 {
 	std::ofstream file(_currentCheatFile, std::ios::binary);
-	bool isOpen = file.is_open();
+	const bool isOpen = file.is_open();
 
 	if (isOpen)
 	{
 		nlohmann::json jsonData;
 
-		if (_luaCheats.size())
+		if (!_luaCheats.empty())
 		{
 			for (const auto& cheat : _luaCheats) {
 				nlohmann::json cheatJson;
@@ -451,12 +447,12 @@ bool MungPlex::Cheats::saveCheatList()
 				cheatJson["Lua"] = cheat.Lua;
 				cheatJson["Description"] = cheat.Description;
 
-				jsonData["Cheats"].push_back(cheatJson);
+				jsonData["Cheats"].emplace_back(cheatJson);
 			}
 		}
 		else
 		{
-			jsonData["Cheats"].push_back("");
+			jsonData["Cheats"].emplace_back("");
 		}
 
 		file << "\xEF\xBB\xBF"; //write BOM
@@ -478,7 +474,7 @@ void MungPlex::Cheats::deleteCheat(const uint16_t index)
 void MungPlex::Cheats::refreshModuleList()
 {
 	lua_State* L = _lua.lua_state();
-	int moduleCount = _processInfo.GetModuleList().size();
+	const int moduleCount = _processInfo.GetModuleList().size();
 	lua_createtable(L, 0, moduleCount);
 
 	for (int i = 0; i < moduleCount; ++i)

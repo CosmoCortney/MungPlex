@@ -19,57 +19,66 @@
 
 namespace MungPlex
 {
+    static std::wstring GetStringFromID(const std::vector<EMUPAIR>& pairs, const int ID)
+    {
+        auto tmpPair = std::ranges::find_if(pairs.begin(), pairs.end(),
+            [&](const auto& pair) { return pair.second == ID; }
+        );
+
+        return (tmpPair != pairs.end()) ? tmpPair->first : L"";
+    }
+
     static bool WriteTextEx(const uint32_t pid, const char* text, const uint64_t address)
     {
-        int textLength = strlen(text);
+        uint32_t textLength = strlen(text);
 
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM((void*)text, reinterpret_cast<void*>(address), textLength);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(text, reinterpret_cast<void*>(address), textLength);
         return true;
     }
 
     static bool WriteTextEx(const uint32_t pid, const wchar_t* text, const uint64_t address)
     {
-        int textLength = wcslen(text);
+        uint32_t textLength = wcslen(text);
 
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM((void*)text, reinterpret_cast<void*>(address), textLength*2);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(text, reinterpret_cast<void*>(address), textLength*2);
         return true;
     }
 
     static bool WriteTextEx(const uint32_t pid, const char32_t* text, const uint64_t address)
     {
-        int textLength = std::char_traits<char32_t>::length(text);
+        uint32_t textLength = std::char_traits<char32_t>::length(text);
 
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM((void*)text, reinterpret_cast<void*>(address), textLength * 4);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(text, reinterpret_cast<void*>(address), textLength * 4);
         return true;
     }
 
-    static ImVec4 PackedColorToImVec4(uint8_t* packedColor)
+    static ImVec4 PackedColorToImVec4(const uint8_t* packedColor)
     {
-        float r = ((float)*(packedColor + 3)) / 255.0f;
-        float g = ((float)*(packedColor + 2)) / 255.0f;
-        float b = ((float)*(packedColor + 1)) / 255.0f;
-        float a = ((float)*packedColor) / 255.0f;
+        const float r = static_cast<float>(*(packedColor + 3)) / 255.0f;
+        const float g = static_cast<float>(*(packedColor + 2)) / 255.0f;
+        const float b = static_cast<float>(*(packedColor + 1)) / 255.0f;
+        const float a = static_cast<float>(*packedColor) / 255.0f;
 
         return ImVec4(r, g, b, a);
     }
 
-    static void ColorValuesToCString(ImVec4& rgba, int type, char* destination)
+    static void ColorValuesToCString(const ImVec4& rgba, const int type, char* destination)
     {
         std::stringstream cstream;
 
         switch (type)
         {
         case LitColor::RGBA8888:
-            cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << (int)(rgba.x * 255.0f) << std::setw(2) << (int)(rgba.y * 255.0f) << std::setw(2) << (int)(rgba.z * 255.0f) << std::setw(2) << (int)(rgba.w * 255.0f);
+            cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(rgba.x * 255.0f) << std::setw(2) << static_cast<int>(rgba.y * 255.0f) << std::setw(2) << static_cast<int>(rgba.z * 255.0f) << std::setw(2) << static_cast<int>(rgba.w * 255.0f);
             break;
         case LitColor::RGBF:
             cstream << rgba.x << ", " << rgba.y << ", " << rgba.z;
@@ -82,10 +91,10 @@ namespace MungPlex
             cstream << "#" << std::hex << std::setfill('0') << std::setw(4) << color.GetRGB565();
         }break;
         default: //RGB888
-            cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << (int)(rgba.x * 255.0f) << std::setw(2) << (int)(rgba.y * 255.0f) << std::setw(2) << (int)(rgba.z * 255.0f);
+            cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(rgba.x * 255.0f) << std::setw(2) << static_cast<int>(rgba.y * 255.0f) << std::setw(2) << static_cast<int>(rgba.z * 255.0f);
         }
 
-        strcpy(destination, cstream.str().c_str());
+        strcpy_s(destination, sizeof(destination),cstream.str().c_str());
     }
 
     template<typename uType> static void SwapBytesArray(OperativeArray<uType>& arr)
@@ -104,11 +113,12 @@ namespace MungPlex
         }
     }
 
-    static const char* GetStringLiteral(int valueType, bool isSigned, bool hex)
+    static const char* GetStringLiteral(const int valueType, const bool isSigned, const bool hex)
     {
         if (valueType == FLOAT || valueType == DOUBLE)
             return "%f";
-        else if (hex)
+
+        if (hex)
         {
             switch (valueType)
             {
@@ -122,23 +132,21 @@ namespace MungPlex
                 return "%08X";
             }
         }
-        else
+        
+        switch (valueType)
         {
-            switch (valueType)
-            {
-            case INT8:
-                return isSigned ? "%hhi" : "%hhu";
-            case INT16:
-                return isSigned ? "%hi" : "%hu";
-            case INT64:
-                return isSigned ? "%lli" : "%llu";
-            default:
-                return isSigned ? "%li" : "%lu";
-            }
+        case INT8:
+            return isSigned ? "%hhi" : "%hhu";
+        case INT16:
+            return isSigned ? "%hi" : "%hu";
+        case INT64:
+            return isSigned ? "%lli" : "%llu";
+        default:
+            return isSigned ? "%li" : "%lu";
         }
     }
 
-    static void HelpMarker(const char* desc) //� ImGui devs
+    static void HelpMarker(const char* desc) //© ImGui devs
     {
         ImGui::TextDisabled("(?)");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
@@ -189,23 +197,23 @@ namespace MungPlex
         return result.substr(2);
     }
 
-    template<typename T> static void SetUpCombo(const std::string& name, std::vector<T>& items, int& select)
+    template<typename T> static void SetUpCombo(const std::string& name, const std::vector<T>& items, int& select)
     {
         std::vector<std::string> items_str;
         items_str.reserve(items.size());
         for (const auto& item : items)
         {
-            if constexpr (std::is_same_v<T, std::string>)                           //std::string
-                items_str.push_back(item.c_str());
-            else if constexpr (std::is_same_v<T, std::pair<std::string, int>>)      //std::pair<std::string, int>
-                items_str.push_back(item.first.c_str());
-            else if constexpr (std::is_same_v<T, std::wstring>)                     //std::wstring>
-                items_str.push_back(std::string(item.begin(), item.end()).c_str());
-            else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>>)     //std::pair<std::wstring, int>
-                items_str.push_back(std::string(item.first.begin(), item.first.end()).c_str());
-            else if constexpr (std::is_same_v < T, MungPlex::SystemRegion>)         //MungPlex::SystemRegion
+            if constexpr (std::is_same_v<T, std::string>)
+                items_str.emplace_back(item.c_str());
+            else if constexpr (std::is_same_v<T, std::pair<std::string, int>>)
+                items_str.emplace_back(item.first.c_str());
+            else if constexpr (std::is_same_v<T, std::wstring>)
+                items_str.emplace_back(std::string(item.begin(), item.end()).c_str());
+            else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>> || std::is_same_v<T, EMUPAIR>)
+                items_str.emplace_back(std::string(item.first.begin(), item.first.end()).c_str());
+            else if constexpr (std::is_same_v < T, MungPlex::SystemRegion>)
             {
-                items_str.push_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
+                items_str.emplace_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
             }
         }
         ImGui::Combo(name.c_str(), &select, [](void* data, int idx, const char** out_text)
@@ -231,7 +239,7 @@ namespace MungPlex
 
     public: 
         SignalCombo<T>(){}
-        void Draw(const std::string& name, std::vector<T>& items, int& select)
+        void Draw(const std::string& name, const std::vector<T>& items, int& select)
         {
             if (items.size() > 0)
             {
@@ -263,19 +271,19 @@ namespace MungPlex
             SetUpCombo(name, items, select);
         }
 
-        void ConnectOnIndexChanged(Slot slot)
+        void ConnectOnIndexChanged(const Slot slot)
         {
-            _slotsOnIndexChanged.push_back(slot);
+            _slotsOnIndexChanged.emplace_back(slot);
         }
 
-        void ConnectOnItemCountChanged(Slot slot)
+        void ConnectOnItemCountChanged(const Slot slot)
         {
-            _slotsOnItemCountChanged.push_back(slot);
+            _slotsOnItemCountChanged.emplace_back(slot);
         }  
 
-        void ConnectOnTextChanged(Slot slot)
+        void ConnectOnTextChanged(const Slot slot)
         {
-            _slotsOnTextChanged.push_back(slot);
+            _slotsOnTextChanged.emplace_back(slot);
         }
     };
 
@@ -290,7 +298,7 @@ namespace MungPlex
 
     public:
         SignalInputText() {}
-        bool Draw(const char* name, char* buf, uint64_t size, ImGuiInputTextFlags flags = 0)
+        bool Draw(const char* name, char* buf, const uint64_t size, const ImGuiInputTextFlags flags = 0)
         {
             bool changedByFlow = false;
             if (std::strcmp(_text, buf) != 0)
@@ -298,16 +306,16 @@ namespace MungPlex
                 for (const auto& slot : _slotsOnTextChanged)
                     slot();
 
-                std::strcpy(_text, buf);
+                strcpy_s(_text, buf);
                 changedByFlow = true;
             }
 
             return ImGui::InputText(name, buf, size, flags) || changedByFlow;
         }
 
-        void ConnectOnTextChanged(Slot slot)
+        void ConnectOnTextChanged(const Slot slot)
         {
-            _slotsOnTextChanged.push_back(slot);
+            _slotsOnTextChanged.emplace_back(slot);
         }
     };
 }

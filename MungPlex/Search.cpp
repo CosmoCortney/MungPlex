@@ -68,7 +68,7 @@ void MungPlex::Search::DrawValueTypeOptions()
 			ImGui::SliderFloat("% Precision", &_precision, 1.0f, 100.0f, "%0.2f", NULL);
 		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::EndDisabled();
 
-		ImGui::Checkbox("Big Endian", Connection::IsBE());
+		ImGui::Checkbox("Big Endian", &_underlyingBigEndian);
 		ImGui::SameLine();
 
 		if (_disableBecauseNoInt) ImGui::BeginDisabled();
@@ -143,11 +143,9 @@ void MungPlex::Search::DrawRangeOptions()
 	ImGui::BeginGroup();
 	{
 		ImGui::PushItemWidth(groupWidth);
-		_regions = MungPlex::Connection::GetRegions();
+		_regions = ProcessInformation::GetRegions();
 		ImGui::SeparatorText("Range Options");
 		_RegionSelectSignalCombo.Draw("Region", _regions, _currentRegionSelect);
-		int changed;
-
 		_SignalInputTextRangeStart.Draw("Start at (hex)", _rangeStartText, IM_ARRAYSIZE(_rangeStartText));
 		_SignalInputTextRangeEnd.Draw("End at (hex)", _rangeEndText, IM_ARRAYSIZE(_rangeEndText));
 
@@ -174,7 +172,7 @@ void MungPlex::Search::DrawSearchOptions()
 		if (iterationCount < 1) ImGui::BeginDisabled();
 			if (ImGui::Button("Reset"))
 			{
-				static int addressWidth = *Connection::GetAddressWidth();
+				static int addressWidth = ProcessInformation::GetAddressWidth();
 				switch (_currentValueTypeSelect)
 				{
 				case ARRAY:
@@ -287,47 +285,46 @@ void MungPlex::Search::DrawSearchOptions()
 
 		switch (_currentValueTypeSelect)
 		{
-		case PRIMITIVE:
+		case ARRAY:
+			strcpy_s(knownPrimaryValueLabel, "Array Expression");
+			strcpy_s(knownSecondaryValueLabel, "Not applicable");
+			break;
+		case COLOR:
+			strcpy_s(knownPrimaryValueLabel, "Color Expression");
+			strcpy_s(knownSecondaryValueLabel, "Not applicable");
+			break;
+		case TEXT:
+			strcpy_s(knownPrimaryValueLabel, "Text Value");
+			strcpy_s(knownSecondaryValueLabel, "Not applicable");
+			break;
+		default: //PRIMITIVE
 			if (_currentConditionTypeSelect == Xertz::BETWEEN)
 			{
-				strcpy(knownPrimaryValueLabel, "Lowest");
-				strcpy(knownSecondaryValueLabel, "Highest");
+				strcpy_s(knownPrimaryValueLabel, "Lowest");
+				strcpy_s(knownSecondaryValueLabel, "Highest");
 				disableSecondaryValueText = false;
 			}
 			else if (_currentConditionTypeSelect == Xertz::NOT_BETWEEN)
 			{
-				strcpy(knownPrimaryValueLabel, "Below");
-				strcpy(knownSecondaryValueLabel, "Above");
+				strcpy_s(knownPrimaryValueLabel, "Below");
+				strcpy_s(knownSecondaryValueLabel, "Above");
 				disableSecondaryValueText = false;
 			}
 			else if (_currentConditionTypeSelect == Xertz::INCREASED_BY)
 			{
-				strcpy(knownPrimaryValueLabel, "Increased by");
-				strcpy(knownSecondaryValueLabel, "Not applicable");
+				strcpy_s(knownPrimaryValueLabel, "Increased by");
+				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
 			else if (_currentConditionTypeSelect == Xertz::DECREASED_BY)
 			{
-				strcpy(knownPrimaryValueLabel, "Decreased by");
-				strcpy(knownSecondaryValueLabel, "Not applicable");
+				strcpy_s(knownPrimaryValueLabel, "Decreased by");
+				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
 			else
 			{
-				strcpy(knownPrimaryValueLabel, "Value");
-				strcpy(knownSecondaryValueLabel, "Not applicable");
+				strcpy_s(knownPrimaryValueLabel, "Value");
+				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
-			break;
-		case ARRAY:
-			strcpy(knownPrimaryValueLabel, "Array Expression");
-			strcpy(knownSecondaryValueLabel, "Not applicable");
-			break;
-		case COLOR:
-			strcpy(knownPrimaryValueLabel, "Color Expression");
-			strcpy(knownSecondaryValueLabel, "Not applicable");
-			break;
-		case TEXT:
-			strcpy(knownPrimaryValueLabel, "Text Value");
-			strcpy(knownSecondaryValueLabel, "Not applicable");
-			break;
 		}
 
 		if (disablePrimaryValueText) ImGui::BeginDisabled();
@@ -350,12 +347,6 @@ void MungPlex::Search::DrawSearchOptions()
 
 		switch (_currentValueTypeSelect)
 		{
-		case PRIMITIVE:
-			if (_currentPrimitiveTypeSelect < FLOAT)
-				conditionTypeItems = &_searchConditionTypes;
-			else
-				conditionTypeItems = &_searchConditionTypesFloat;
-		break;
 		case ARRAY:
 			conditionTypeItems = &_searchConditionTypesArray;
 		break;
@@ -365,6 +356,11 @@ void MungPlex::Search::DrawSearchOptions()
 		case TEXT:
 			conditionTypeItems = &_searchConditionTypesText;
 		break;
+		default: //PRIMITIVE
+			if (_currentPrimitiveTypeSelect < FLOAT)
+				conditionTypeItems = &_searchConditionTypes;
+			else
+				conditionTypeItems = &_searchConditionTypesFloat;
 		}
 
 		if (!_disableBecauseNoText) ImGui::BeginDisabled();
@@ -409,37 +405,37 @@ void MungPlex::Search::DrawResultsArea()
 			switch (_currentArrayTypeSelect)
 			{
 				case INT8: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<OperativeArray<int8_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint8_t>, uint64_t>();
 					else
 						_signed ? DrawResultsTable<OperativeArray<int8_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint8_t>, uint32_t>();
 				} break;
 				case INT16: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<OperativeArray<int16_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint16_t>, uint64_t>();
 					else
 						_signed ? DrawResultsTable<OperativeArray<int16_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint16_t>, uint32_t>();
 				} break;
 				case INT64: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<OperativeArray<int64_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint64_t>, uint64_t>();
 					else
 						_signed ? DrawResultsTable<OperativeArray<int64_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint64_t>, uint32_t>();
 				} break;
 				case FLOAT: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						DrawResultsTable<OperativeArray<float>, uint64_t>();
 					else
 						DrawResultsTable<OperativeArray<float>, uint32_t>();
 				} break;
 				case DOUBLE: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						DrawResultsTable<OperativeArray<double>, uint64_t>();
 					else
 						DrawResultsTable<OperativeArray<double>, uint32_t>();
 				} break;
 				default: { //OperativeArray<INT32>
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<OperativeArray<int32_t>, uint64_t>() : DrawResultsTable<OperativeArray<uint32_t>, uint64_t>();
 					else
 						_signed ? DrawResultsTable<OperativeArray<int32_t>, uint32_t>() : DrawResultsTable<OperativeArray<uint32_t>, uint32_t>();
@@ -447,13 +443,13 @@ void MungPlex::Search::DrawResultsArea()
 			}break;
 		}
 		case COLOR: {
-			if (*Connection::GetAddressWidth() > 4)
+			if (ProcessInformation::GetAddressWidth() > 4)
 				DrawResultsTable<LitColor, uint64_t>();
 			else
 				DrawResultsTable<LitColor, uint32_t>();
 		} break;
 		case TEXT: {
-			if (*Connection::GetAddressWidth() > 4)
+			if (ProcessInformation::GetAddressWidth() > 4)
 				DrawResultsTable<MorphText, uint64_t>();
 			else
 				DrawResultsTable<MorphText, uint32_t>();
@@ -462,37 +458,37 @@ void MungPlex::Search::DrawResultsArea()
 			switch (_currentPrimitiveTypeSelect)
 			{
 				case INT8: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<int8_t, uint64_t>() : DrawResultsTable<uint8_t, uint64_t>();
 					else
 						_signed ? DrawResultsTable<int8_t, uint32_t>() : DrawResultsTable<uint8_t, uint32_t>();
 				} break;
 				case INT16: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<int16_t, uint64_t>() : DrawResultsTable<uint16_t, uint64_t>();
 					else
 						_signed ? DrawResultsTable<int16_t, uint32_t>() : DrawResultsTable<uint16_t, uint32_t>();
 				} break;
 				case INT64: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<int64_t, uint64_t>() : DrawResultsTable<uint64_t, uint64_t>();
 					else
 						_signed ? DrawResultsTable<int64_t, uint32_t>() : DrawResultsTable<uint64_t, uint32_t>();
 				} break;
 				case FLOAT: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						DrawResultsTable<float, uint64_t>();
 					else
 						DrawResultsTable<float, uint32_t>();
 				} break;
 				case DOUBLE: {
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						DrawResultsTable<double, uint64_t>();
 					else
 						DrawResultsTable<double, uint32_t>();
 				} break;
 				default: { //INT32
-					if (*Connection::GetAddressWidth() > 4)
+					if (ProcessInformation::GetAddressWidth() > 4)
 						_signed ? DrawResultsTable<int32_t, uint64_t>() : DrawResultsTable<uint32_t, uint64_t>();
 					else
 						_signed ? DrawResultsTable<int32_t, uint32_t>() : DrawResultsTable<uint32_t, uint32_t>();
@@ -528,37 +524,37 @@ void MungPlex::Search::DrawResultsArea()
 			switch (_currentArrayTypeSelect)
 			{
 			case INT8: {
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<uint8_t, uint64_t>();
 				else
 					PokeArray<uint8_t, uint32_t>();
 			} break;
 			case INT16: {
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<uint16_t, uint64_t>();
 				else
 					PokeArray<uint16_t, uint32_t>();
 			} break;
 			case INT64: {
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<uint64_t, uint64_t>();
 				else
 					PokeArray<uint64_t, uint32_t>();
 			} break;
 			case FLOAT: {
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<float, uint64_t>();
 				else
 					PokeArray<float, uint32_t>();
 			} break;
 			case DOUBLE: {
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<double, uint64_t>();
 				else
 					PokeArray<double, uint32_t>();
 			} break;
 			default: { //OperativeArray<INT32>
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeArray<uint32_t, uint64_t>();
 				else
 					PokeArray<uint32_t, uint32_t>();
@@ -566,13 +562,13 @@ void MungPlex::Search::DrawResultsArea()
 			}break;
 		} break;
 		case TEXT: {
-			if (*Connection::GetAddressWidth() > 4)
+			if (ProcessInformation::GetAddressWidth() > 4)
 				PokeText<uint64_t>();
 			else
 				PokeText<uint32_t>();
 		} break;
 		case COLOR: {
-			if (*Connection::GetAddressWidth() > 4)
+			if (ProcessInformation::GetAddressWidth() > 4)
 				PokeColor<uint64_t>();
 			else
 				PokeColor<uint32_t>();
@@ -587,42 +583,42 @@ void MungPlex::Search::DrawResultsArea()
 			{
 			case INT8: {
 				stream >> *(uint8_t*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<uint8_t, uint64_t>();
 				else
 					PokeValue<uint8_t, uint32_t>();
 			} break;
 			case INT16: {
 				stream >> *(uint16_t*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<uint16_t, uint64_t>();
 				else
 					PokeValue<uint16_t, uint32_t>();
 			} break;
 			case INT64: {
 				stream >> *(uint64_t*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<uint64_t, uint64_t>();
 				else
 					PokeValue<uint64_t, uint32_t>();
 			} break;
 			case FLOAT: {
 				stream >> *(float*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<float, uint64_t>();
 				else
 					PokeValue<float, uint32_t>();
 			} break;
 			case DOUBLE: {
 				stream >> *(double*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<double, uint64_t>();
 				else
 					PokeValue<double, uint32_t>();
 			} break;
 			default: {
 				stream >> *(uint32_t*)_pokeValue;
-				if (*Connection::GetAddressWidth() > 4)
+				if (ProcessInformation::GetAddressWidth() > 4)
 					PokeValue<uint32_t, uint64_t>();
 				else
 					PokeValue<uint32_t, uint32_t>();
@@ -639,7 +635,7 @@ void MungPlex::Search::DrawResultsArea()
 	if (!_disableBecauseNoText) ImGui::EndDisabled();
 
 	ImGui::SameLine();
-	HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous value. No matter what's in the \"Value\" text field. If this one is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
+	HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous values - no matter what's in the \"Value\" text field. If this is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
 	ImGui::SameLine();
 	ImGui::Checkbox("Multi-Poke", &_multiPoke);
 
@@ -694,10 +690,8 @@ void MungPlex::Search::DrawResultsArea()
 void MungPlex::Search::PickColorFromScreen()
 {
 	POINT point;
-	COLORREF color;
-	HDC hdc;
-
 	std::atomic_bool buttonPressed(false);
+
 	std::thread mouseThread([&buttonPressed]()
 	{
 		while (!buttonPressed)
@@ -713,22 +707,22 @@ void MungPlex::Search::PickColorFromScreen()
 
 	mouseThread.join();
 
-	hdc = GetDC(NULL);
+	HDC hdc = GetDC(NULL);
 	if (hdc == NULL)
 		return;
 
 	if (!GetCursorPos(&point))
 		return;
 
-	color = GetPixel(hdc, point.x, point.y);
+	COLORREF color = GetPixel(hdc, point.x, point.y);
 	if (color == CLR_INVALID)
 		return;
 
 	ReleaseDC(GetDesktopWindow(), hdc);
 
-	_colorVec.x = (float)GetRValue(color) / (float)255;
-	_colorVec.y = (float)GetGValue(color) / (float)255;
-	_colorVec.z = (float)GetBValue(color) / (float)255;
+	_colorVec.x = static_cast<float>(GetRValue(color)) / 255.0f;
+	_colorVec.y = static_cast<float>(GetGValue(color)) / 255.0f;
+	_colorVec.z = static_cast<float>(GetBValue(color)) / 255.0f;
 	_colorVec.w = 1.0f;
 }
 
@@ -750,16 +744,14 @@ void MungPlex::Search::PerformSearch()
 		break;
 	}
 
-	char* x = new char[4];
+	static char x[4];
 	int iter = std::get<1>(_searchStats);
 	if (iter < _iterations.size())
 		_iterations.erase(_iterations.begin() + iter-1, _iterations.end());
 
-	strcpy(x, std::to_string(iter).c_str());
-	_iterations.push_back(x);
-
+	strcpy_s(x, sizeof(x), std::to_string(iter).c_str());
+	_iterations.emplace_back(x);
 	_iterationIndex = --iter;
-
 	_selectedIndices.resize(_maxResultsPerPage);
 	uint64_t resultCount = std::get<0>(_searchStats);
 	_pagesAmountValue = resultCount / _maxResultsPerPage;
@@ -801,12 +793,11 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			case INT16:
 				_searchStats = SetUpAndIterate<int16_t>(knownVal, knownValSecondary);
 				break;
-			case INT32:
-				_searchStats = SetUpAndIterate<int32_t>(knownVal, knownValSecondary);
-				break;
 			case INT64:
 				_searchStats = SetUpAndIterate<int64_t>(knownVal, knownValSecondary);
 				break;
+			default: //INT32
+				_searchStats = SetUpAndIterate<int32_t>(knownVal, knownValSecondary);
 			}
 		}
 		else
@@ -833,12 +824,11 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			case INT16:
 				_searchStats = SetUpAndIterate<uint16_t>(knownVal, knownValSecondary);
 				break;
-			case INT32:
-				_searchStats = SetUpAndIterate<uint32_t>(knownVal, knownValSecondary);
-				break;
 			case INT64:
 				_searchStats = SetUpAndIterate<uint64_t>(knownVal, knownValSecondary);
 				break;
+			default: //INT32
+				_searchStats = SetUpAndIterate<uint32_t>(knownVal, knownValSecondary);
 			}
 		}
 	}
@@ -861,49 +851,49 @@ void MungPlex::Search::ArrayTypeSearch()
 {
 	_currentComparisionTypeSelect = Xertz::KNOWN;
 
-	std::string strArray = std::string(_knownValueText);
-	std::string strArraySecondary = std::string(_secondaryKnownValueText);
+	const std::string strArray = std::string(_knownValueText);
+	const std::string strArraySecondary = std::string(_secondaryKnownValueText);
 
 	if (_currentArrayTypeSelect < FLOAT)
 	{
 		switch (_currentArrayTypeSelect)
 		{
 		case INT8: {
-			OperativeArray<uint8_t> arrayP(strArray);
-			OperativeArray<uint8_t> arrayS(strArraySecondary);
+			const OperativeArray<uint8_t> arrayP(strArray);
+			const OperativeArray<uint8_t> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<uint8_t>>(arrayP, arrayS);
 		}break;
 		case INT16: {
-			OperativeArray<uint16_t> arrayP(strArray);
-			OperativeArray<uint16_t> arrayS(strArraySecondary);
+			const OperativeArray<uint16_t> arrayP(strArray);
+			const OperativeArray<uint16_t> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<uint16_t>>(arrayP, arrayS);
 		}break;
-		case INT32: {
-			OperativeArray<uint32_t> arrayP(strArray);
-			OperativeArray<uint32_t> arrayS(strArraySecondary);
-			_searchStats = SetUpAndIterate<OperativeArray<uint32_t>>(arrayP, arrayS);
-		}break;
 		case INT64: {
-			OperativeArray<uint64_t> arrayP(strArray);
-			OperativeArray<uint64_t> arrayS(strArraySecondary);
+			const OperativeArray<uint64_t> arrayP(strArray);
+			const OperativeArray<uint64_t> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<uint64_t>>(arrayP, arrayS);
 		}break;
+		default: //INT32
+		{
+			const OperativeArray<uint32_t> arrayP(strArray);
+			const OperativeArray<uint32_t> arrayS(strArraySecondary);
+			_searchStats = SetUpAndIterate<OperativeArray<uint32_t>>(arrayP, arrayS);
+		}
 		}
 	}
 	else if (_currentValueTypeSelect == FLOAT || _currentValueTypeSelect == DOUBLE)
 	{
-		switch (_currentArrayTypeSelect)
+		if(_currentArrayTypeSelect == DOUBLE)
 		{
-		case FLOAT: {
-			OperativeArray<float> arrayP(strArray);
-			OperativeArray<float> arrayS(strArraySecondary);
+			const OperativeArray<float> arrayP(strArray);
+			const OperativeArray<float> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<float>>(arrayP, arrayS);
-		}break;
-		case DOUBLE: {
-			OperativeArray<double> arrayP(strArray);
-			OperativeArray<double> arrayS(strArraySecondary);
+		}
+		else
+		{
+			const OperativeArray<double> arrayP(strArray);
+			const OperativeArray<double> arrayS(strArraySecondary);
 			_searchStats = SetUpAndIterate<OperativeArray<double>>(arrayP, arrayS);
-		}break;
 		}
 	}
 }
@@ -921,9 +911,9 @@ void MungPlex::Search::ColorTypeSearch()
 {
 	_currentComparisionTypeSelect = Xertz::KNOWN;
 	std::string arg(_knownValueText);
-	LitColor colorP(arg);
+	const LitColor colorP(arg);
 	arg = std::string(_secondaryKnownValueText);
-	LitColor colorS(arg);
+	const LitColor colorS(arg);
 
 	_searchStats = SetUpAndIterate<LitColor>(colorP, colorS);
 }

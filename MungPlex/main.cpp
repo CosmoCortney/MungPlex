@@ -24,13 +24,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main(int argc, char* argv[])
 {
-	/* sol2 example code, can be removed */
-	sol::state lua;
-	int x = 0;
-	lua.set_function("beep", [&x] { ++x; });
-	lua.script("beep()");
-	assert(x == 1);
-
 	if (!glfwInit())
 		return EXIT_FAILURE;
 
@@ -88,8 +81,8 @@ int main(int argc, char* argv[])
 			ImGui::ShowDemoWindow(&show_demo_window);
 
 		MungPlex::Settings::DrawWindow();
-		MungPlex::Connection::DrawWindow();
 		MungPlex::ProcessInformation::DrawWindow();
+		MungPlex::Connection::DrawWindow();
 		MungPlex::Search::DrawWindow();
 		MungPlex::Cheats::DrawWindow();
 

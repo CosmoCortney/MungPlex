@@ -18,7 +18,7 @@ namespace MungPlex
 {
     struct GeneralSettings
     {
-        char DocumentsPath[512];
+        char DocumentsPath[512] = "";
         float Scale = 1.2f;
         std::vector<std::string> Windows;
         int DefaultWindowSelect = 0;
@@ -43,12 +43,7 @@ namespace MungPlex
 	{
     private:
         Settings();
-
-        ~Settings()
-        {
-            delete[] _generalSettings.DocumentsPath;
-        }
-
+        ~Settings(){}
         Settings(const Settings&) = delete;
         Settings(Settings&&) = delete;
         void operator=(const Settings&) = delete;
@@ -63,12 +58,11 @@ namespace MungPlex
         SearchSettings _searchSettings;
         CheatsSettings _cheatsSettings;
 
-
         void drawGeneralSettings();
         void drawSearchSettings();
         void drawCheatSettings();
         bool saveSettings();
-        void createDocFolders();
+        void createDocFolders() const;
 
     public:
         static void DrawWindow();
