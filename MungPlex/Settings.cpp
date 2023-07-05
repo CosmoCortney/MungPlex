@@ -9,26 +9,11 @@ MungPlex::Settings::Settings()
 	_generalSettings.Windows.emplace_back("Process Information");
 	_generalSettings.Windows.emplace_back("Settings");
 
-	std::string jsonstr;
-
-	{
-		std::ifstream inFile;
-		inFile.open(SettingsJSON);
-
-		if (inFile)
-		{
-			std::string buffer;
-			while (std::getline(inFile, buffer))
-			{
-				jsonstr.append(buffer).append("\n");
-			}
-		}
-	}
-
 	try
 	{
-		bool save = false;
-		auto doc = nlohmann::json::parse(jsonstr);
+		auto save = false;
+		std::ifstream file_reader(SettingsJSON);
+		auto doc = nlohmann::json::parse(file_reader);
 		auto& settings = doc["Settings"];
 
 		//set general settings
