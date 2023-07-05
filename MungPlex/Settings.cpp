@@ -4,28 +4,30 @@
 
 MungPlex::Settings::Settings()
 {
-	bool save = false;
 	_generalSettings.Windows.emplace_back("Search");
 	_generalSettings.Windows.emplace_back("Cheats");
 	_generalSettings.Windows.emplace_back("Process Information");
 	_generalSettings.Windows.emplace_back("Settings");
 
-	std::ifstream inFile;
-	inFile.open(SettingsJSON);
 	std::string jsonstr;
 
-	if (inFile)
 	{
-		std::string buffer;
-		while (std::getline(inFile, buffer))
+		std::ifstream inFile;
+		inFile.open(SettingsJSON);
+
+		if (inFile)
 		{
-			jsonstr.append(buffer).append("\n");
+			std::string buffer;
+			while (std::getline(inFile, buffer))
+			{
+				jsonstr.append(buffer).append("\n");
+			}
 		}
 	}
-	inFile.close();
 
 	try
 	{
+		bool save = false;
 		auto doc = nlohmann::json::parse(jsonstr);
 		auto& settings = doc["Settings"];
 
