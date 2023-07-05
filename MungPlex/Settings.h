@@ -1,18 +1,8 @@
 #pragma once
-#include<iostream>
-#include <stdio.h>
-#include "GLFW/glfw3.h"
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include "examples/libs/emscripten/emscripten_mainloop_stub.h"
-#include"Connection.h"
-#include<Windows.h>
-#include <shlobj.h>
+
+#include "Connection.h"
 #include <filesystem>
-#include<string>
-#include"nlohmann/json.hpp"
+#include <string>
 
 namespace MungPlex
 {
@@ -33,7 +23,7 @@ namespace MungPlex
         bool DefaultCached = false;
     };
 
-    static struct CheatsSettings
+    struct CheatsSettings
     {
         bool DefaultCheatList = true;
         int DefaultInterval = 60;
@@ -41,7 +31,6 @@ namespace MungPlex
 
 	class Settings
 	{
-    private:
         Settings();
         ~Settings(){}
         Settings(const Settings&) = delete;

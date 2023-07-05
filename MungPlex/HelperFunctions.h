@@ -1,4 +1,5 @@
 #pragma once
+
 #include<iostream>
 #include<string>
 #include<stdio.h>
@@ -8,10 +9,6 @@
 #include <functional>
 #include "GLFW/glfw3.h"
 #include "imgui.h"
-#include "imgui_internal.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include"Connection.h"
 #include<any>
 #include<cstdint>
@@ -211,7 +208,7 @@ namespace MungPlex
                 items_str.emplace_back(std::string(item.begin(), item.end()).c_str());
             else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>> || std::is_same_v<T, EMUPAIR>)
                 items_str.emplace_back(std::string(item.first.begin(), item.first.end()).c_str());
-            else if constexpr (std::is_same_v < T, MungPlex::SystemRegion>)
+            else if constexpr (std::is_same_v < T, SystemRegion>)
             {
                 items_str.emplace_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
             }

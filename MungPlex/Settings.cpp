@@ -1,5 +1,7 @@
 #include"Settings.h"
 
+#include <shlobj_core.h>
+
 MungPlex::Settings::Settings()
 {
 	bool save = false;
@@ -34,8 +36,8 @@ MungPlex::Settings::Settings()
 		
 		if (!std::filesystem::is_directory(_generalSettings.DocumentsPath))
 		{
-			PWSTR tmp = new wchar_t[512];
-			SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &tmp);
+			auto tmp = new wchar_t[512];
+			SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &tmp);
 			strcpy_s(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(tmp).c_str());
 			CoTaskMemFree(tmp);
 			createDocFolders();
@@ -91,7 +93,7 @@ void MungPlex::Settings::DrawWindow()
 
 void MungPlex::Settings::drawGeneralSettings()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / _generalSettings.Scale;
+	const float groupWidth = ImGui::GetContentRegionAvail().x / _generalSettings.Scale;
 	ImGui::PushItemWidth(groupWidth);
 	ImGui::SeparatorText("General Settings");
 	ImGui::BeginChild("child", ImVec2(groupWidth, groupWidth), true);
@@ -100,7 +102,7 @@ void MungPlex::Settings::drawGeneralSettings()
 
 	ImGui::SliderFloat("UI Scale", &_generalSettings.Scale, 1.0f, 3.0f);
 
-	MungPlex::SetUpCombo("Default Foreground Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect);
+	SetUpCombo("Default Foreground Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect);
 
 	ImGui::EndChild();
 
@@ -108,7 +110,7 @@ void MungPlex::Settings::drawGeneralSettings()
 
 void MungPlex::Settings::drawSearchSettings()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / _generalSettings.Scale;
+	const float groupWidth = ImGui::GetContentRegionAvail().x / _generalSettings.Scale;
 	ImGui::BeginChild("child", ImVec2(groupWidth, groupWidth), true);
 	ImGui::SeparatorText("Search Settings");
 	ImGui::LabelText("label1", "Default Selected Data Type");
@@ -159,7 +161,7 @@ bool MungPlex::Settings::saveSettings()
 		jsonChunk["DocumentsPath"] = _generalSettings.DocumentsPath;
 		if (!std::filesystem::is_directory(_generalSettings.DocumentsPath))
 		{
-			PWSTR path = new wchar_t[256];
+			auto path = new wchar_t[256];
 			wcscpy(path, MorphText::Utf8_To_Utf16LE(_generalSettings.DocumentsPath).c_str());
 
 			if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &path)))

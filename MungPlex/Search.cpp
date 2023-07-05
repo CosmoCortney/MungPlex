@@ -5,13 +5,13 @@ void MungPlex::Search::DrawWindow()
 {
 	ImGui::Begin("Search");
 
-	if (!MungPlex::Connection::IsConnected()) ImGui::BeginDisabled();
+	if (!Connection::IsConnected()) ImGui::BeginDisabled();
 
 		GetInstance().DrawValueTypeOptions();
 
 		ImGui::SameLine();
 
-		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ChildBg, ImVec4(0.0f, 5.0f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0f, 5.0f, 0.0f, 1.0f));
 		ImGui::BeginGroup();
 		{
 			GetInstance().DrawRangeOptions();
@@ -22,7 +22,7 @@ void MungPlex::Search::DrawWindow()
 	
 		GetInstance().DrawResultsArea();
 
-	if (!MungPlex::Connection::IsConnected()) ImGui::EndDisabled();
+	if (!Connection::IsConnected()) ImGui::EndDisabled();
 
 	ImGui::End();
 }
@@ -37,7 +37,7 @@ void MungPlex::Search::DrawValueTypeOptions()
 		ImGui::SeparatorText("Value Type Options");
 
 		ImGui::BeginGroup();
-		MungPlex::SetUpCombo("Value Type", _searchValueTypes, _currentValueTypeSelect);
+		SetUpCombo("Value Type", _searchValueTypes, _currentValueTypeSelect);
 
 		_disableBecauseNoPrimitive = _currentValueTypeSelect != PRIMITIVE; 
 		_disableBecauseNoArray = _currentValueTypeSelect != ARRAY;
@@ -49,19 +49,19 @@ void MungPlex::Search::DrawValueTypeOptions()
 			|| !_disableBecauseNoText;
 
 		if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Primitive Type", _searchPrimitiveTypes, _currentPrimitiveTypeSelect);
+		SetUpCombo("Primitive Type", _searchPrimitiveTypes, _currentPrimitiveTypeSelect);
 		if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
 
 		if (_disableBecauseNoArray) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Array Type", _searchArrayTypes, _currentArrayTypeSelect); //use primitived types here once Arrays support floats
+		SetUpCombo("Array Type", _searchArrayTypes, _currentArrayTypeSelect); //use primitived types here once Arrays support floats
 		if (_disableBecauseNoArray) ImGui::EndDisabled();
 
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Text Type", _searchTextTypes, _currentTextTypeSelect);
+		SetUpCombo("Text Type", _searchTextTypes, _currentTextTypeSelect);
 		if (_disableBecauseNoText) ImGui::EndDisabled();
 
 		if (_disableBecauseNoColor) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Color Type", _searchColorTypes, _currentColorTypeSelect);
+		SetUpCombo("Color Type", _searchColorTypes, _currentColorTypeSelect);
 		if (_disableBecauseNoColor) ImGui::EndDisabled();
 		
 		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::BeginDisabled();
@@ -123,10 +123,10 @@ void MungPlex::Search::DrawValueTypeOptions()
 				colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
 			}
 
-			ImGui::ColorPicker4("##ColorPicker", (float*)&_colorVec, colorPickerFlags);
+			ImGui::ColorPicker4("##ColorPicker", reinterpret_cast<float*>(&_colorVec), colorPickerFlags);
 
 			if(!_disableBecauseNoColor)
-				MungPlex::ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText);
+				ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText);
 
 		if (_disableBecauseNoColor)
 			ImGui::EndDisabled();
@@ -138,7 +138,7 @@ void MungPlex::Search::DrawValueTypeOptions()
 
 void MungPlex::Search::DrawRangeOptions()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
+	const float groupWidth = ImGui::GetContentRegionAvail().x / scale;
 
 	ImGui::BeginGroup();
 	{
@@ -156,7 +156,7 @@ void MungPlex::Search::DrawRangeOptions()
 
 void MungPlex::Search::DrawSearchOptions()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
+	const float groupWidth = ImGui::GetContentRegionAvail().x / scale;
 
 	ImGui::BeginGroup();
 	{
@@ -340,7 +340,7 @@ void MungPlex::Search::DrawSearchOptions()
 		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < Xertz::BETWEEN || _currentConditionTypeSelect > Xertz::NOT_BETWEEN))) ImGui::EndDisabled();
 
 		if(!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Comparision Type", _searchComparasionType, _currentComparisionTypeSelect);
+		SetUpCombo("Comparision Type", _searchComparasionType, _currentComparisionTypeSelect);
 		if (!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::EndDisabled();
 
 		std::vector<std::pair<std::string, int>>* conditionTypeItems;
@@ -364,7 +364,7 @@ void MungPlex::Search::DrawSearchOptions()
 		}
 
 		if (!_disableBecauseNoText) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Condition Type", *conditionTypeItems, _currentConditionTypeSelect);
+		SetUpCombo("Condition Type", *conditionTypeItems, _currentConditionTypeSelect);
 		if (!_disableBecauseNoText) ImGui::EndDisabled();
 
 		if (ImGui::InputText("Alignment", _alignmentText, IM_ARRAYSIZE(_alignmentText)))

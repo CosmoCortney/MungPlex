@@ -141,7 +141,7 @@ namespace MungPlex
         std::vector<std::pair<std::string, int>> _searchConditionTypesColor{};
         std::vector<std::pair<std::string, int>> _searchConditionTypesText{};
         std::vector<std::pair<std::string, int>> _searchComparasionType{};
-        std::vector<MungPlex::SystemRegion> _regions{};
+        std::vector<SystemRegion> _regions{};
         int _currentComparisionTypeSelect = 0;
         int _currentConditionTypeSelect = 0;
         std::vector<Xertz::MemDump> _memDumps{};
@@ -928,9 +928,9 @@ namespace MungPlex
     public:
         static void DrawWindow();
 
-        MungPlex::SignalCombo<MungPlex::SystemRegion> _RegionSelectSignalCombo;
-        MungPlex::SignalInputText _SignalInputTextRangeStart;
-        MungPlex::SignalInputText _SignalInputTextRangeEnd;
+        SignalCombo<SystemRegion> _RegionSelectSignalCombo;
+        SignalInputText _SignalInputTextRangeStart;
+        SignalInputText _SignalInputTextRangeEnd;
 
         std::function<void(const char*, uint64_t&)> Slot_RangeTextChanged = [](const char* in, uint64_t& out)
         {
@@ -959,7 +959,7 @@ namespace MungPlex
             stream << std::hex << GetInstance()._regions[GetInstance()._currentRegionSelect].Base;
             const std::string hexBegStr = stream.str();
             strcpy_s(GetInstance()._rangeStartText, hexBegStr.c_str());
-            const std::string hexEndStr = MungPlex::ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size -1, 0);
+            const std::string hexEndStr = ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size -1, 0);
             strcpy_s(GetInstance()._rangeEndText, hexEndStr.c_str());
         };
 

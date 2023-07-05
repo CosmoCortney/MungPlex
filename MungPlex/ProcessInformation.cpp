@@ -32,7 +32,6 @@ void MungPlex::ProcessInformation::DrawModuleList() const
 	static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY;
 	static bool display_headers = true;
 	static int contents_type = CT_Text;
-	std::wstring currentModule;
 
 	if (!ImGui::BeginTable("Modules", 2, flags))
 		return;
@@ -41,15 +40,13 @@ void MungPlex::ProcessInformation::DrawModuleList() const
 	ImGui::TableSetupColumn("Base Address");
 	ImGui::TableHeadersRow();
 
-	currentModule.reserve(256);
-
-	for (int row = 0; row < GetInstance()._modules.size(); ++row)
+	for (const auto& [currentModule, moduleAddress] : GetInstance()._modules)
 	{
 		ImGui::TableNextRow();
 		for (int column = 0; column < 2; ++column)
 		{
-			currentModule = GetInstance()._modules[row].first;
 			ImGui::TableSetColumnIndex(column);
+			// TODO No C buffers usage, replace it with a std::string/std::stringstream usage
 			char buf[256];
 
 			if (column == 0)
@@ -58,7 +55,7 @@ void MungPlex::ProcessInformation::DrawModuleList() const
 			}
 			else
 			{
-				sprintf(buf, "%llX", GetInstance()._modules[row].second);
+				sprintf(buf, "%llX", moduleAddress);
 			}
 
 			if (contents_type == CT_Text)
@@ -96,42 +93,42 @@ void MungPlex::ProcessInformation::DrawRegionList() const
 	ImGui::TableSetupColumn("Type");
 	ImGui::TableHeadersRow();
 
-	currentModule.reserve(256);
-
-	for (int row = 0; row < GetInstance()._regions.size(); ++row)
+	for (auto& region : GetInstance()._regions)
 	{
 		ImGui::TableNextRow();
 		for (int column = 0; column < 8; ++column)
 		{
 			std::stringstream stream;
 			ImGui::TableSetColumnIndex(column);
+
+			// TODO No C buffers in C++ code, use std::string and std::stringstream etc.
 			char buf[256];
 
 			switch(column)
 			{
 			case 0:
-				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetBaseAddress<uint64_t>());
+				sprintf_s(buf, "%llX", region.GetBaseAddress<uint64_t>());
 				break;
 			case 1:
-				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetAllocationBase<uint64_t>());
+				sprintf_s(buf, "%llX", region.GetAllocationBase<uint64_t>());
 				break;
 			case 2:
-				sprintf_s(buf, "%u", GetInstance()._regions[row].GetAllocationProtect());
+				sprintf_s(buf, "%u", region.GetAllocationProtect());
 				break;
 			case 3:
-				sprintf_s(buf, "%u", GetInstance()._regions[row].GetPartitionId());
+				sprintf_s(buf, "%u", region.GetPartitionId());
 				break;
 			case 4:
-				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetProtect());
+				sprintf_s(buf, "%llX", region.GetProtect());
 				break;
 			case 5:
-				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetRegionSize());
+				sprintf_s(buf, "%llX", region.GetRegionSize());
 				break;
 			case 6:
-				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetState());
+				sprintf_s(buf, "%llX", region.GetState());
 				break;
 			case 7:
-				sprintf_s(buf, "%llX", GetInstance()._regions[row].GetType());
+				sprintf_s(buf, "%llX", region.GetType());
 				break;
 			default:
 				sprintf_s(buf, sizeof(buf), "");
@@ -149,6 +146,7 @@ void MungPlex::ProcessInformation::DrawRegionList() const
 
 void MungPlex::ProcessInformation::DrawMiscInformation()
 {
+	// TODO No C buffers in C++ code, use std::string and std::stringstream etc.
 	char buf[2048];
 	ImGui::Text("Misc. Information");
 
@@ -176,11 +174,11 @@ void MungPlex::ProcessInformation::DrawGameInformation() const
 	//ImGui::SeparatorText("Game Information");
 
 	static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
-	static bool display_headers = false;
 
 	if (ImGui::BeginTable("Game Info", 2, flags))
 	{
-		for (int row = 0; row < _gameEntities.size(); row++)
+		for (const auto& [Entity, Location, Datatype,
+			Size, Hex, Value] : _gameEntities)
 		{
 			ImGui::TableNextRow();
 			for (int column = 0; column < 2; column++)
@@ -189,11 +187,11 @@ void MungPlex::ProcessInformation::DrawGameInformation() const
 				char buf[256];
 				if (column == 0)
 				{
-					sprintf_s(buf, _gameEntities[row].Entity.c_str());
+					sprintf_s(buf, Entity.c_str());
 				}
 				else
 				{
-					sprintf_s(buf, _gameEntities[row].Value.c_str());
+					sprintf_s(buf, Value.c_str());
 				}
 
 				ImGui::TextUnformatted(buf);
@@ -228,21 +226,21 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 		auto& regions = doc["Emulators"][emuNameBasic]["Regions"];
 		auto& entities = doc["Emulators"][emuNameBasic]["Entities"];
 
-		for (int i = 0; i < regions.size(); ++i)
+		for (auto& region : regions)
 		{
-			std::string label = regions[i]["Label"].get<std::string>();
-			uint64_t base = std::stoll(regions[i]["Base"].get<std::string>(), 0, 0);
-			uint64_t size = std::stoll(regions[i]["Size"].get<std::string>(), 0, 0);
+			std::string label = region["Label"].get<std::string>();
+			uint64_t base = std::stoll(region["Base"].get<std::string>(), 0, 0);
+			uint64_t size = std::stoll(region["Size"].get<std::string>(), 0, 0);
 			GetInstance()._systemRegions.emplace_back(SystemRegion(label, base, size));
 		}
 
-		for (int i = 0; i < entities.size(); ++i)
+		for (auto& gameEntity : entities)
 		{
-			std::string entity = entities[i]["Entity"].get<std::string>();
-			int location = std::stoi(entities[i]["Location"].get<std::string>(), 0, 0);
-			std::string datatype = entities[i]["Datatype"].get<std::string>();
-			int size = std::stoi(entities[i]["Size"].get<std::string>(), 0, 0);
-			bool hex = entities[i]["Hex"].get<bool>();
+			std::string entity = gameEntity["Entity"].get<std::string>();
+			int location = std::stoi(gameEntity["Location"].get<std::string>(), 0, 0);
+			std::string datatype = gameEntity["Datatype"].get<std::string>();
+			int size = std::stoi(gameEntity["Size"].get<std::string>(), 0, 0);
+			bool hex = gameEntity["Hex"].get<bool>();
 			GetInstance()._gameEntities.emplace_back(GameEntity(entity, location, datatype, size, hex));
 		}
 
@@ -288,19 +286,19 @@ bool MungPlex::ProcessInformation::InitProject64()
 	_underlyingIsBigEndian = false;
 	_addressWidth = 4;
 
-	for (uint64_t i = 0; i < _regions.size(); ++i)
+	for (const auto& region : _regions)
 	{
-		uint64_t rSize = _regions[i].GetRegionSize();
+		const uint64_t rSize = region.GetRegionSize();
 
-		if ((rSize == 0x400000) || (rSize == 0x800000))
+		if (rSize == 0x400000 || rSize == 0x800000)
 		{
 			uint32_t temp;
 
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, _regions[i].GetBaseAddress<char*>() + 8, 4);
+			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, region.GetBaseAddress<char*>() + 8, 4);
 
 			if (temp == 0x03400008)
 			{
-				_systemRegions[0].BaseLocationProcess = _regions[i].GetBaseAddress<void*>();
+				_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
 				return true;
 			}
 		}
@@ -364,12 +362,12 @@ bool MungPlex::ProcessInformation::InitDolphin()
 
 	int IDcopy;
 	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, _systemRegions[0].BaseLocationProcess, 4);
-	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&IDcopy, ((char*)_systemRegions[0].BaseLocationProcess + 0x3180), 4);
+	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
 
 	if (temp == 0 && IDcopy != 0)
 		//ConnectionStatus = CONNECTED_DOLPHIN_WIIWARE;
 		return true;
-	else if (IDcopy == temp)
+	if (IDcopy == temp)
 		//ConnectionStatus = CONNECTED_DOLPHIN_WII;
 		return true;
 
@@ -387,18 +385,18 @@ void MungPlex::ProcessInformation::ObtainGameEntities(void* baseLocation)
 	std::string entityValue;
 	entityValue.reserve(2048);
 
-	for (int i = 0; i < _gameEntities.size(); ++i)
+	for (auto& [Entity, Location, Datatype,
+		Size, Hex, Value] : _gameEntities)
 	{
 		static char buffer[2048];
 		std::stringstream stream;
-		const int size = _gameEntities[i].Size;
-		std::string dataType = _gameEntities[i].Datatype;
-		const bool hex = _gameEntities[i].Hex;
+		const int size = Size;
+		const bool hex = Hex;
 
-		const void* readLocation = static_cast<char*>(baseLocation) + _gameEntities[i].Location;
+		const void* readLocation = static_cast<char*>(baseLocation) + Location;
 		Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(buffer, readLocation, size);
 
-		if (dataType.compare("INT") == 0)
+		if (Datatype.compare("INT") == 0)
 		{
 			uint64_t tempVal = *reinterpret_cast<uint64_t*>(buffer);
 			tempVal &= ~(0xFFFFFFFFFFFFFFFF << (8 * size));
@@ -410,11 +408,11 @@ void MungPlex::ProcessInformation::ObtainGameEntities(void* baseLocation)
 
 			entityValue = stream.str();
 		}
-		else if (dataType.compare("TEXT") == 0)
+		else if (Datatype.compare("TEXT") == 0)
 		{
-			entityValue = std::string((char*)buffer, size);
+			entityValue = std::string(buffer, size);
 		}
-		else if (dataType.compare("BIN") == 0)
+		else if (Datatype.compare("BIN") == 0)
 		{
 			for (int x = 0; x < size; ++x)
 			{
@@ -423,7 +421,7 @@ void MungPlex::ProcessInformation::ObtainGameEntities(void* baseLocation)
 			entityValue.append(stream.str());
 		}
 
-		_gameEntities[i].Value = entityValue;
+		Value = entityValue;
 	}
 }
 

@@ -1,21 +1,14 @@
 #pragma once
+
+// TODO No defines like this, define a "proper" class
 #define EMUPAIR std::pair<const std::wstring, const int>
-#include <iostream>
+
 #include <stdio.h>
-#include "GLFW/glfw3.h"
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include<string>
 #include "Xertz.h"
 #include <Windows.h>
-#include "MungPlexConfig.h"
-#include "Connection.h"
 #include"HelperFunctions.h"
 #include <nlohmann/json.hpp>
-
 
 namespace MungPlex
 {
@@ -39,7 +32,6 @@ namespace MungPlex
 
     class ProcessInformation
     {
-    private:
         ProcessInformation()
         {
             _emulators.emplace_back(L"Dolphin", DOLPHIN);
@@ -78,7 +70,7 @@ namespace MungPlex
         void DrawRegionList() const;
         void DrawMiscInformation();
         void DrawGameInformation() const;
-        bool InitEmulator(const int emulatorIndex);
+        bool InitEmulator(int emulatorIndex);
         bool InitProcess(const std::wstring& processName);
         bool InitDolphin();
         bool InitProject64();
@@ -96,20 +88,20 @@ namespace MungPlex
         };
 
         static void DrawWindow();
-        static void RefreshData(const int32_t PID);
-        static bool ConnectToEmulator(const int EmulatorIndex);
-        static void SetProcessType(const int32_t processType);
+        static void RefreshData(int32_t PID);
+        static bool ConnectToEmulator(int EmulatorIndex);
+        static void SetProcessType(int32_t processType);
         static std::vector<EMUPAIR>& GetEmulatorList();
         static int32_t GetProcessType();
-        static void SetPID(const int32_t pid);
+        static void SetPID(int32_t pid);
         static int32_t GetPID();
-        static void SetX64Flag(const bool isX64);
+        static void SetX64Flag(bool isX64);
         static bool IsX64();
-        static void SetUnderlyingBigEndianFlag(const bool isBigEndian);
+        static void SetUnderlyingBigEndianFlag(bool isBigEndian);
         static bool UnderlyingIsBigEndian();
         static HANDLE GetHandle();
         static int32_t GetAddressWidth();
-        static bool LoadSystemInformationJSON(const int emulatorIndex);
+        static bool LoadSystemInformationJSON(int emulatorIndex);
         static std::vector<SystemRegion>& GetRegions();
     };
 }
