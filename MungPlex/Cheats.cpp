@@ -1,4 +1,7 @@
-#include"Cheats.h"
+#include "Cheats.h"
+
+#include "Settings.h"
+
 static float scale = 2.0f;
 
 MungPlex::Cheats::Cheats()
@@ -46,7 +49,7 @@ MungPlex::Cheats::Cheats()
 	lua_State* L = _lua.lua_state();
 	for (int i = 0; i < 32; ++i)
 	{
-		std::string nr = ((i < 10) ? std::to_string(0).append(std::to_string(i)) : std::to_string(i));
+		std::string nr = i < 10 ? std::to_string(0).append(std::to_string(i)) : std::to_string(i);
 		std::string name = std::string("INTREG").append(nr);
 		
 		lua_pushinteger(L, 0);
@@ -69,6 +72,219 @@ MungPlex::Cheats::Cheats()
 	initCheatFile();
 }
 
+bool MungPlex::Cheats::readBool(const uint64_t address)
+{
+	return readInt8(address) != 0;
+}
+
+int8_t MungPlex::Cheats::readInt8(const uint64_t address)
+{
+	return GetInstance()._isBigEndian ? readInt64(address) >> 56 : readInt64(address);
+}
+
+uint8_t MungPlex::Cheats::readUInt8(const uint64_t address)
+{
+	return readInt8(address);
+}
+
+int16_t MungPlex::Cheats::readInt16(const uint64_t address)
+{
+	return GetInstance()._isBigEndian ? readInt64(address) >> 48 : readInt64(address);
+}
+
+uint16_t MungPlex::Cheats::readUInt16(const uint64_t address)
+{
+	return readInt16(address);
+}
+
+int32_t MungPlex::Cheats::readInt32(const uint64_t address)
+{
+	return GetInstance()._isBigEndian ? readInt64(address) >> 32 : readInt64(address);
+}
+
+uint32_t MungPlex::Cheats::readUInt32(const uint64_t address)
+{
+	return readInt32(address);
+}
+
+int64_t MungPlex::Cheats::readInt64(const uint64_t address)
+{
+	int64_t readValue = 0;
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return 0;
+
+	const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
+	if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int64_t>(readValue);
+	return readValue;
+}
+
+uint64_t MungPlex::Cheats::readUInt64(const uint64_t address)
+{
+	return readInt64(address);
+}
+
+float MungPlex::Cheats::readFloat(const uint64_t address)
+{
+	float readValue = 0.0f;
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return 0.0f;
+
+	const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 4);
+	if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<float>(readValue);
+	return readValue;
+}
+
+double MungPlex::Cheats::readDouble(const uint64_t address)
+{
+	double readValue = 0.0;
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return 0.0;
+
+	const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
+	if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<double>(readValue);
+	return readValue;
+}
+
+void MungPlex::Cheats::writeToRAM(const int type, const uint64_t address, double value)
+{
+	uint64_t writeValue;
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return;
+
+	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+
+	switch (type)
+	{
+	case BOOL:
+		writeValue = static_cast<int64_t>(value) != 0;
+		GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 1);
+		return;
+	case INT8:
+		writeValue = static_cast<int8_t>(value);
+		GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 1);
+		return;
+	case INT16:
+		writeValue = static_cast<int16_t>(value);
+		if (GetInstance()._isBigEndian) writeValue = Xertz::SwapBytes<int16_t>(writeValue);
+		GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 2);
+		return;
+	case INT32:
+		writeValue = static_cast<int32_t>(value);
+		if (GetInstance()._isBigEndian) writeValue = Xertz::SwapBytes<int32_t>(writeValue);
+		GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 4);
+		return;
+	case INT64:
+		writeValue = static_cast<int64_t>(value);
+		if (GetInstance()._isBigEndian) writeValue = Xertz::SwapBytes<int64_t>(writeValue);
+		GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 8);
+		return;
+	case FLOAT: {
+		auto temp = static_cast<float>(value);
+		writeValue = *reinterpret_cast<int32_t*>(&temp);
+		if (GetInstance()._isBigEndian) writeValue = Xertz::SwapBytes<int32_t>(writeValue);
+		GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 4);
+	} return;
+	case DOUBLE: {
+		writeValue = *reinterpret_cast<int64_t*>(&value);
+		if (GetInstance()._isBigEndian) writeValue = Xertz::SwapBytes<int64_t>(writeValue);
+		GetInstance()._processInfo.WriteExRAM(&writeValue, writeAddress, 8);
+	}
+	}
+}
+
+void MungPlex::Cheats::writeBool(const uint64_t address, const bool value)
+{
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return;
+
+	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 1);
+}
+
+void MungPlex::Cheats::writeInt8(const uint64_t address, int8_t value)
+{
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return;
+
+	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 1);
+}
+
+void MungPlex::Cheats::writeInt16(const uint64_t address, int16_t value)
+{
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return;
+
+	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int16_t>(value);
+	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 2);
+}
+
+void MungPlex::Cheats::writeInt32(const uint64_t address, int32_t value)
+{
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return;
+
+	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int32_t>(value);
+	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 4);
+}
+
+void MungPlex::Cheats::writeInt64(const uint64_t address, int64_t value)
+{
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return;
+
+	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int64_t>(value);
+	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 8);
+}
+
+void MungPlex::Cheats::writeFloat(const uint64_t address, float value)
+{
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return;
+
+	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<float>(value);
+	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 4);
+}
+
+void MungPlex::Cheats::writeDouble(const uint64_t address, double value)
+{
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return;
+
+	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<double>(value);
+	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 8);
+}
+
 void MungPlex::Cheats::DrawWindow()
 {
 	ImGui::Begin("Cheats");
@@ -81,7 +297,7 @@ void MungPlex::Cheats::DrawWindow()
 
 void MungPlex::Cheats::DrawCheatList()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
+	const float groupWidth = ImGui::GetContentRegionAvail().x / scale;
 	ImGui::BeginGroup();
 	{
 		ImGui::PushItemWidth(groupWidth);
@@ -115,7 +331,7 @@ void MungPlex::Cheats::DrawCheatList()
 
 void MungPlex::Cheats::DrawCheatInformation()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
+	const float groupWidth = ImGui::GetContentRegionAvail().x / scale;
 
 	ImGui::BeginGroup();
 	{
@@ -198,7 +414,7 @@ void MungPlex::Cheats::DrawCheatInformation()
 
 void MungPlex::Cheats::DrawControl()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
+	const float groupWidth = ImGui::GetContentRegionAvail().x / scale;
 
 	ImGui::BeginGroup();
 	{
@@ -300,6 +516,56 @@ void MungPlex::Cheats::cheatRoutine()
 	}
 }
 
+double MungPlex::Cheats::readFromRAM(const int type, const uint64_t address)
+{
+	int64_t readValue = 0;
+	double returnValue;
+	const int rangeIndex = GetInstance().getRangeIndex(address);
+
+	if (rangeIndex == -1)
+		return returnValue = NAN;
+
+	const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+
+	switch (type)
+	{
+	case INT8:
+		GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 1);
+		returnValue = static_cast<double>(*reinterpret_cast<int8_t*>(&readValue));
+		break;
+	case BOOL:
+		GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 1);
+		returnValue = readValue != 0;
+		break;
+	case INT16:
+		GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 2);
+		if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int16_t>(readValue);
+		returnValue = static_cast<double>(*reinterpret_cast<int16_t*>(&readValue));
+		break;
+	case INT32:
+		GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 4);
+		if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int32_t>(readValue);
+		returnValue = static_cast<double>(*reinterpret_cast<int32_t*>(&readValue));
+		break;
+	case INT64:
+		GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
+		if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int64_t>(readValue);
+		returnValue = static_cast<double>(readValue);
+		break;
+	case FLOAT:
+		GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 4);
+		if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int32_t>(readValue);
+		returnValue = static_cast<double>(*reinterpret_cast<float*>(&readValue));
+		break;
+	default://DOUBLE
+		GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
+		if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int64_t>(readValue);
+		returnValue = *reinterpret_cast<double*>(&readValue);
+	}
+
+	return returnValue;
+}
+
 void MungPlex::Cheats::SetGameID(const char* ID)
 {
 	GetInstance()._currentGameID = MorphText::Utf8_To_Utf16LE(ID);
@@ -316,40 +582,41 @@ void MungPlex::Cheats::initCheatFile()
 		{
 			file << "\xEF\xBB\xBF"; //write BOM
 			file << _placeholderCheatFile;
-			file.close();
 		}
 	}
 	
 	_luaCheats.clear();
 	_markedCheats.clear();
 	_checkBoxIDs.clear();
-	std::ifstream inFile;
 	std::string jsonstr;
-	inFile.open(_currentCheatFile);
 
-	if (inFile)
 	{
-		std::string buffer;
-		while (std::getline(inFile, buffer))
+		std::ifstream inFile;
+		inFile.open(_currentCheatFile);
+
+		if (inFile)
 		{
-			jsonstr.append(buffer).append("\n");
+			std::string buffer;
+			while (std::getline(inFile, buffer))
+			{
+				jsonstr.append(buffer).append("\n");
+			}
 		}
 	}
-	inFile.close();
 	
 	try
 	{
 		auto doc = nlohmann::json::parse(jsonstr);
 		auto& cheats = doc["Cheats"];
 
-		for (int i = 0; i < cheats.size(); ++i)
+		for (size_t i = 0; i < cheats.size(); ++i)
 		{
-			int id = cheats[i]["ID"].get<int>();
-			bool checked = cheats[i]["Checked"].get<bool>();
-			std::string title = cheats[i]["Title"].get<std::string>();
-			std::string hacker = cheats[i]["Hacker"].get<std::string>();
-			std::string lua = cheats[i]["Lua"].get<std::string>();
-			std::string description = cheats[i]["Description"].get<std::string>();
+			auto id = cheats[i]["ID"].get<int>();
+			auto checked = cheats[i]["Checked"].get<bool>();
+			auto title = cheats[i]["Title"].get<std::string>();
+			auto hacker = cheats[i]["Hacker"].get<std::string>();
+			auto lua = cheats[i]["Lua"].get<std::string>();
+			auto description = cheats[i]["Description"].get<std::string>();
 			_luaCheats.emplace_back(LuaCheat(id, checked, title, hacker, lua, description));
 			_markedCheats.emplace_back(false);
 			_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats[i].ID));
@@ -364,7 +631,6 @@ void MungPlex::Cheats::initCheatFile()
 	catch (const nlohmann::json::parse_error& exception)
 	{
 		std::cerr << "Failed parsing Lua Cheat: " << exception.what() << std::endl;
-		return;
 	}
 }
 
@@ -390,7 +656,7 @@ int MungPlex::Cheats::luaExceptionHandler(lua_State* L, const sol::optional<cons
 
 int MungPlex::Cheats::getRangeIndex(const uint64_t address) const
 {
-	for (int i = 0; i < _regions.size(); ++i)
+	for (size_t i = 0; i < _regions.size(); ++i)
 	{
 		if (address >= _regions[i].Base && address < _regions[i].Base + _regions[i].Size)
 			return i;
@@ -438,14 +704,15 @@ bool MungPlex::Cheats::saveCheatList() const
 
 		if (!_luaCheats.empty())
 		{
-			for (const auto& cheat : _luaCheats) {
+			for (const auto& [ID, Checked, Title,
+				Hacker, Lua, Description] : _luaCheats) {
 				nlohmann::json cheatJson;
-				cheatJson["ID"] = cheat.ID;
-				cheatJson["Checked"] = cheat.Checked;
-				cheatJson["Title"] = cheat.Title;
-				cheatJson["Hacker"] = cheat.Hacker;
-				cheatJson["Lua"] = cheat.Lua;
-				cheatJson["Description"] = cheat.Description;
+				cheatJson["ID"] = ID;
+				cheatJson["Checked"] = Checked;
+				cheatJson["Title"] = Title;
+				cheatJson["Hacker"] = Hacker;
+				cheatJson["Lua"] = Lua;
+				cheatJson["Description"] = Description;
 
 				jsonData["Cheats"].emplace_back(cheatJson);
 			}
@@ -457,7 +724,6 @@ bool MungPlex::Cheats::saveCheatList() const
 
 		file << "\xEF\xBB\xBF"; //write BOM
 		file << jsonData.dump(4);
-		file.close();
 	}
 
 	return isOpen;

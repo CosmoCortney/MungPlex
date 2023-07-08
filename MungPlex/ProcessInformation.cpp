@@ -206,18 +206,19 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 	std::wstring emulator = GetInstance()._emulators[emulatorIndex].first;
 	GetInstance()._gameEntities.clear();
 	GetInstance()._systemRegions.clear();
-	std::ifstream inFile;
 	std::string buffer;
 	std::string jsonstr;
-	inFile.open(SystemInfoJSON);
 
-	if (inFile)
-		while (std::getline(inFile, buffer))
-			jsonstr.append(buffer).append("\n");
-	else
-		return false;
+	{
+		std::ifstream inFile;
+		inFile.open(SystemInfoJSON);
 
-	inFile.close();
+		if (inFile)
+			while (std::getline(inFile, buffer))
+				jsonstr.append(buffer).append("\n");
+		else
+			return false;
+	}
 
 	try
 	{
@@ -228,7 +229,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 
 		for (auto& region : regions)
 		{
-			std::string label = region["Label"].get<std::string>();
+			auto label = region["Label"].get<std::string>();
 			uint64_t base = std::stoll(region["Base"].get<std::string>(), 0, 0);
 			uint64_t size = std::stoll(region["Size"].get<std::string>(), 0, 0);
 			GetInstance()._systemRegions.emplace_back(SystemRegion(label, base, size));
@@ -236,9 +237,9 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 
 		for (auto& gameEntity : entities)
 		{
-			std::string entity = gameEntity["Entity"].get<std::string>();
+			auto entity = gameEntity["Entity"].get<std::string>();
 			int location = std::stoi(gameEntity["Location"].get<std::string>(), 0, 0);
-			std::string datatype = gameEntity["Datatype"].get<std::string>();
+			auto datatype = gameEntity["Datatype"].get<std::string>();
 			int size = std::stoi(gameEntity["Size"].get<std::string>(), 0, 0);
 			bool hex = gameEntity["Hex"].get<bool>();
 			GetInstance()._gameEntities.emplace_back(GameEntity(entity, location, datatype, size, hex));

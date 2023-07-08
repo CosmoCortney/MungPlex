@@ -118,7 +118,7 @@ void MungPlex::Settings::drawSearchSettings()
 
 void MungPlex::Settings::drawCheatSettings()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / _generalSettings.Scale;
+	const float groupWidth = ImGui::GetContentRegionAvail().x / _generalSettings.Scale;
 	ImGui::BeginChild("child", ImVec2(groupWidth, groupWidth), true);
 	ImGui::SeparatorText("Cheats Settings");
 
@@ -180,7 +180,6 @@ bool MungPlex::Settings::saveSettings()
 
 		file << "\xEF\xBB\xBF"; //write BOM
 		file << jsonData.dump(2);
-		file.close();
 	}
 
 	return isOpen;
