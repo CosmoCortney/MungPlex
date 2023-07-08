@@ -30,7 +30,6 @@ void MungPlex::ProcessInformation::DrawModuleList() const
 
 	enum ContentsType { CT_Text, CT_FillButton };
 	static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY;
-	static bool display_headers = true;
 	static int contents_type = CT_Text;
 
 	if (!ImGui::BeginTable("Modules", 2, flags))
@@ -76,7 +75,6 @@ void MungPlex::ProcessInformation::DrawRegionList() const
 
 	enum ContentsType { CT_Text, CT_FillButton };
 	static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY;
-	static bool display_headers = true;
 	static int contents_type = CT_Text;
 	std::wstring currentModule;
 	
@@ -324,17 +322,17 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	uint32_t flagGCN = 0;
 	uint32_t flagWii = 0;
 
-	for (uint64_t i = 0; i < _regions.size(); ++i)
+	for (const auto& _region : _regions)
 	{
-		if (_regions[i].GetRegionSize() == 0x2000000)
+		if (_region.GetRegionSize() == 0x2000000)
 		{
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, reinterpret_cast<void*>(_regions[i].GetBaseAddress<uint64_t>() + 0x28), 4);
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&flagGCN, reinterpret_cast<void*>(_regions[i].GetBaseAddress<uint64_t>() + 0x18), 4);
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&flagWii, reinterpret_cast<void*>(_regions[i].GetBaseAddress<uint64_t>() + 0x1C), 4);
+			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x28), 4);
+			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&flagGCN, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x18), 4);
+			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&flagWii, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x1C), 4);
 
 			if (temp == 0x8001)
 			{
-				_systemRegions[0].BaseLocationProcess = _regions[i].GetBaseAddress<void*>();
+				_systemRegions[0].BaseLocationProcess = _region.GetBaseAddress<void*>();
 				break;
 			}
 		}
@@ -346,16 +344,16 @@ bool MungPlex::ProcessInformation::InitDolphin()
 		return true;
 	}
 
-	for (uint64_t i = 0; i < _regions.size(); ++i)
+	for (const auto& _region : _regions)
 	{
-		if (_regions[i].GetRegionSize() == 0x4000000)
+		if (_region.GetRegionSize() == 0x4000000)
 		{
 			unsigned char temp;
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, reinterpret_cast<void*>(_regions[i].GetBaseAddress<uint64_t>() + 1), 1);
+			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 1), 1);
 
 			if (temp == 0x9f)
 			{
-				_systemRegions[1].BaseLocationProcess = _regions[i].GetBaseAddress<void*>();
+				_systemRegions[1].BaseLocationProcess = _region.GetBaseAddress<void*>();
 				break;
 			}
 		}
