@@ -1,19 +1,14 @@
 #include <iostream>
 #include "MungPlexConfig.h"
-#include <stdio.h>
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-#include "examples/libs/emscripten/emscripten_mainloop_stub.h"
-#include<string>
 #include"Settings.h"
 #include "Connection.h"
 #include "ProcessInformation.h"
-#include"Xertz.h"
 #include"Search.h"
-#include"HelperFunctions.h"
 #include"Cheats.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -22,20 +17,22 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-int main(int argc, char* argv[])
+int main()
 {
 	if (!glfwInit())
+	{
 		return EXIT_FAILURE;
+	}
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	auto& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	ImGui::StyleColorsDark();
 
-	GLFWwindow* window = glfwCreateWindow(720, 480, "MungPlex", NULL, NULL);
+	const auto window = glfwCreateWindow(720, 480, "MungPlex", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
 
@@ -57,16 +54,16 @@ int main(int argc, char* argv[])
 	bool show_demo_window = false;
 #endif
 	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	constexpr auto clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	float SCALE = 2.0f;
+	constexpr float scale = 2.0f;
 	ImFontConfig cfg;
-	cfg.SizePixels = 10 * SCALE;
+	cfg.SizePixels = 10 * scale;
 	static const ImWchar icons_ranges[] = { 0x0000, 0xf3ff, 0 };
 	// While developing, manually copy the resources folder into the output directory where the EXE resides, otherwise this won't be resolvable
 	bool fontLoaded = io.Fonts->AddFontFromFileTTF("resources\\NotoSansJP-Black.ttf", 30, &cfg, io.Fonts->GetGlyphRangesJapanese());
 
-	const char* version = (const char*)glGetString(GL_VERSION);
+	const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 	std::cout << "OpenGL Version: " << version << std::endl;
 
 	while (!glfwWindowShouldClose(window))
@@ -106,5 +103,5 @@ int main(int argc, char* argv[])
 		glfwSwapBuffers(window);
 	}
 	
-	return 0;
+	return EXIT_SUCCESS;
 }
