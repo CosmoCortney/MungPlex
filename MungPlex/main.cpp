@@ -14,7 +14,9 @@
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
 }
 
 int main()
@@ -63,7 +65,7 @@ int main()
 	// While developing, manually copy the resources folder into the output directory where the EXE resides, otherwise this won't be resolvable
 	bool fontLoaded = io.Fonts->AddFontFromFileTTF("resources\\NotoSansJP-Black.ttf", 30, &cfg, io.Fonts->GetGlyphRangesJapanese());
 
-	const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+	const auto version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 	std::cout << "OpenGL Version: " << version << std::endl;
 
 	while (!glfwWindowShouldClose(window))
@@ -75,7 +77,9 @@ int main()
 		ImGui::NewFrame();
 
 		if (show_demo_window)
+		{
 			ImGui::ShowDemoWindow(&show_demo_window);
+		}
 
 		MungPlex::Settings::DrawWindow();
 		MungPlex::ProcessInformation::DrawWindow();
@@ -94,7 +98,7 @@ int main()
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			const auto backup_current_context = glfwGetCurrentContext();
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backup_current_context);
