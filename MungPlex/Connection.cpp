@@ -21,7 +21,7 @@ void MungPlex::Connection::DrawConnectionSelect()
 
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-			if (ImGui::Button("Connect", ImVec2(200, 50)))
+			if (ImGui::Button("Connect"))
 			{
 				_connected = ProcessInformation::ConnectToEmulator(_selectedEmulatorIndex);
 
