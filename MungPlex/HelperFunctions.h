@@ -94,7 +94,7 @@ namespace MungPlex
             cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(rgba.x * 255.0f) << std::setw(2) << static_cast<int>(rgba.y * 255.0f) << std::setw(2) << static_cast<int>(rgba.z * 255.0f);
         }
 
-        strcpy_s(destination, sizeof(destination),cstream.str().c_str());
+        strcpy_s(destination, 128,cstream.str().c_str());
     }
 
     template<typename uType> static void SwapBytesArray(OperativeArray<uType>& arr)
