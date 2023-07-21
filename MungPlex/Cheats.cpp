@@ -81,13 +81,12 @@ void MungPlex::Cheats::DrawWindow()
 
 void MungPlex::Cheats::DrawCheatList()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.8f};
 	ImGui::BeginGroup();
 	{
-		ImGui::PushItemWidth(groupWidth);
 		ImGui::SeparatorText("Cheat List");
 
-		ImGui::BeginChild("child", ImVec2(500, 500), true);
+		ImGui::BeginChild("child_CheatList", childXY, true);
 		{
 			for (int i = 0; i < _luaCheats.size(); ++i)
 			{
@@ -115,32 +114,30 @@ void MungPlex::Cheats::DrawCheatList()
 
 void MungPlex::Cheats::DrawCheatInformation()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / scale;
-
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.8f };
+	
 	ImGui::BeginGroup();
 	{
-		ImGui::PushItemWidth(groupWidth);
 		ImGui::SeparatorText("Cheat Information");
-
 		
-		if (ImGui::InputText("Title", _textCheatTitle, IM_ARRAYSIZE(_textCheatTitle)))
+		if (SetUpInputText("Title:", _textCheatTitle, IM_ARRAYSIZE(_textCheatTitle), 1.0f, 0.15f))
 		{
 			_unsavedChangesTextCheat = true;
 		}
 
-		if(ImGui::InputText("Hacker(s)", _textCheatHacker, IM_ARRAYSIZE(_textCheatHacker)))
+		if(SetUpInputText("Hacker(s):", _textCheatHacker, IM_ARRAYSIZE(_textCheatHacker), 1.0f, 0.15f))
 		{
 			_unsavedChangesTextCheat = true;
 		}
 		
 		static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 		
-		if(ImGui::InputTextMultiline("Lua Cheat", _textCheatLua, IM_ARRAYSIZE(_textCheatLua), ImVec2(1000, ImGui::GetTextLineHeight() * 16), flags))
+		if(SetUpInputTextMultiline("Lua Cheat:", _textCheatLua, IM_ARRAYSIZE(_textCheatLua), 1.0f, 0.55f, flags))
 		{
 			_unsavedChangesTextCheat = true;
 		}
 		
-		if(ImGui::InputTextMultiline("Description", _textCheatDescription, IM_ARRAYSIZE(_textCheatDescription), ImVec2(1000, ImGui::GetTextLineHeight() * 8), flags))
+		if(SetUpInputTextMultiline("Description:", _textCheatDescription, IM_ARRAYSIZE(_textCheatDescription), 1.0f, 0.35f, flags))
 		{
 			_unsavedChangesTextCheat = true;
 		}
@@ -219,6 +216,8 @@ void MungPlex::Cheats::DrawControl()
 		
 		ImGui::BeginGroup();
 		{
+			SetUpSliderInt("Interval:", &_perSecond, 1, 240, "%d", 0.5f, 0.15f);
+
 			if (ImGui::Button(_executeCheats ? "Terminate Cheats" : "Apply Cheats"))
 			{
 				if (_cheatError)
@@ -240,8 +239,6 @@ void MungPlex::Cheats::DrawControl()
 					_cheatThread = std::thread(&Cheats::cheatRoutine, this);
 				}
 			}
-
-			ImGui::SliderInt("Interval", &_perSecond, 1, 240);
 		}
 		ImGui::EndGroup();
 	}
