@@ -17,9 +17,7 @@ void MungPlex::Connection::DrawConnectionSelect()
 		{
 
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
-			ImGui::Text("Emulator:");
-			ImGui::SameLine();
-			MungPlex::SetUpCombo("##EmulatorSelect", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex);
+			SetUpCombo("Emulator:", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex, 0.75f, 0.4f);
 
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
