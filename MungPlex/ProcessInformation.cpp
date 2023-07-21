@@ -321,6 +321,7 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	uint32_t temp = 0;
 	uint32_t flagGCN = 0;
 	uint32_t flagWii = 0;
+	char tempID[7] = "";
 
 	for (const auto& _region : _regions)
 	{
@@ -337,6 +338,9 @@ bool MungPlex::ProcessInformation::InitDolphin()
 			}
 		}
 	}
+
+	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID, _systemRegions[0].BaseLocationProcess, 6);
+	_gameID = tempID;
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{
@@ -364,10 +368,13 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
 
 	if (temp == 0 && IDcopy != 0)
-		//ConnectionStatus = CONNECTED_DOLPHIN_WIIWARE;
+	{
+		memcpy_s(tempID, 7, &IDcopy, 4);
+		_gameID = tempID;
 		return true;
+	}
+
 	if (IDcopy == temp)
-		//ConnectionStatus = CONNECTED_DOLPHIN_WII;
 		return true;
 
 	return false;
