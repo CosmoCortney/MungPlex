@@ -16,6 +16,7 @@
 #include<any>
 #include<cstdint>
 #include"OperativeArray.h"
+#include"Settings.h"
 
 namespace MungPlex
 {
@@ -93,7 +94,7 @@ namespace MungPlex
         default: //RGB888
             cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(rgba.x * 255.0f) << std::setw(2) << static_cast<int>(rgba.y * 255.0f) << std::setw(2) << static_cast<int>(rgba.z * 255.0f);
         }
-
+        
         strcpy_s(destination, 128,cstream.str().c_str());
     }
 
@@ -159,6 +160,7 @@ namespace MungPlex
         }
     }
     struct SystemRegion; //forward declaration for compiler
+    struct ColorScheme; //forward declaration for compiler
     static int s_globalWindowFlag = 0;
 	
     static void SetWindowToForeground(HWND hWnd)// todo: make this work ):

@@ -15,8 +15,9 @@
 #include"Search.h"
 #include"HelperFunctions.h"
 #include"Cheats.h"
+#include"Settings.h"
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+void key_callback(GLFWwindow* window, const int key, const int scancode, const int action, const int mode) //keep unused parameters since that signature is required for glfwSetKeyCallback
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
@@ -45,7 +46,54 @@ int main(int argc, char* argv[])
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
 		style.WindowRounding = 0.0f;
-		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		const int styleID = MungPlex::Settings::GetGeneralSettings().Style;
+
+		if (styleID)
+		{
+			MungPlex::ColorScheme colors = MungPlex::Settings::GetColorScheme(styleID);
+			style.Colors[ImGuiCol_WindowBg] = colors.Background;
+			style.Colors[ImGuiCol_Text] = colors.Text;
+			style.Colors[ImGuiCol_TextDisabled] = colors.TextDisabled;
+			style.Colors[ImGuiCol_ChildBg] = colors.ChildBG;
+			//style.Colors[ImGuiCol_PopupBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_FrameBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_TitleBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_CheckMark] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			style.Colors[ImGuiCol_Button] = colors.Button;
+			//style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_Header] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_Separator] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_Tab] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_TabHovered] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_TabActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_DockingPreview] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			//style.Colors[ImGuiCol_PlotLines] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+		}
+
+		
+
+		
 	}
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -56,18 +104,18 @@ int main(int argc, char* argv[])
 #else
 	bool show_demo_window = false;
 #endif
-	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	float SCALE = 2.0f;
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	
 	ImFontConfig cfg;
-	cfg.SizePixels = 10 * SCALE;
 	static const ImWchar icons_ranges[] = { 0x0000, 0xf3ff, 0 };
 	// While developing, manually copy the resources folder into the output directory where the EXE resides, otherwise this won't be resolvable
-	bool fontLoaded = io.Fonts->AddFontFromFileTTF("resources\\NotoSansJP-Black.ttf", 30, &cfg, io.Fonts->GetGlyphRangesJapanese());
+	bool fontLoaded = io.Fonts->AddFontFromFileTTF("resources\\NotoSansJP-Black.ttf", MungPlex::Settings::GetGeneralSettings().Scale * 18.0f, &cfg, io.Fonts->GetGlyphRangesJapanese());
 
 	const char* version = (const char*)glGetString(GL_VERSION);
 	std::cout << "OpenGL Version: " << version << std::endl;
+	
+	style.ScaleAllSizes(MungPlex::Settings::GetGeneralSettings().Scale);
 
 	while (!glfwWindowShouldClose(window))
 	{

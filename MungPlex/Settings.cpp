@@ -131,10 +131,7 @@ void MungPlex::Settings::drawGeneralSettings()
 		SetUpCombo("Default Foreground Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect, 1.0f, 0.2f);
 		SetUpCombo("Color Scheme:", _styles, _generalSettings.Style, 1.0f, 0.2f);
 
-		/*static ImGuiColorEditFlags colorFlags = ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_NoOptions;
-		ImGui::PushItemWidth(childYX.x * 0.2f);
-		ImGui::ColorPicker3("Background Color", reinterpret_cast<float*>(&_generalSettings.BackgroundColor), colorFlags);
-		ImGui::PopItemWidth();*/
+		
 	}
 	ImGui::EndChild();
 }
