@@ -33,12 +33,9 @@ void MungPlex::Search::DrawWindow()
 
 void MungPlex::Search::DrawValueTypeOptions()
 {
-	float width = ImGui::GetContentRegionAvail().x / scale;
-	float height = ImGui::GetContentRegionAvail().y / scale / 2.6f;
-	//ImGui::PushStyleColor(ImGuiCol_ChildBg, Settings::GetGeneralSettings().BackgroundColor);
-
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.19f };
 	char buf[256] = { "" };
-	ImGui::BeginChild("child_valueOptions", ImVec2(width, height), true);
+	ImGui::BeginChild("child_valueOptions", childXY, true);
 	{
 		ImGui::SeparatorText("Value Type Options");
 
@@ -86,16 +83,13 @@ void MungPlex::Search::DrawValueTypeOptions()
 		ImGui::EndGroup();
 	}
 	ImGui::EndChild();
-	//ImGui::PopStyleColor();
 }
 
 void MungPlex::Search::DrawRangeOptions()
 {
-	float width = ImGui::GetContentRegionAvail().x / 2.0f;
-	float height = ImGui::GetContentRegionAvail().y / scale/2.9f;
-	//ImGui::PushStyleColor(ImGuiCol_ChildBg, Settings::GetGeneralSettings().BackgroundColor);
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.175f };
 
-	ImGui::BeginChild("child_rangeOptions", ImVec2(width, height), true);
+	ImGui::BeginChild("child_rangeOptions", childXY, true);
 	{
 		_regions = ProcessInformation::GetRegions();
 		ImGui::SeparatorText("Range Options");
@@ -104,17 +98,14 @@ void MungPlex::Search::DrawRangeOptions()
 		_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText, IM_ARRAYSIZE(_rangeEndText), 0.75f, 0.3f);
 	}
 	ImGui::EndChild();
-
-	//ImGui::PopStyleColor();
 }
 
 void MungPlex::Search::DrawSearchOptions()
 {
-	float width = ImGui::GetContentRegionAvail().x;
-	float height = ImGui::GetContentRegionAvail().y / scale/1.5f;
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.334f };
 	//ImGui::PushStyleColor(ImGuiCol_ChildBg, Settings::GetGeneralSettings().BackgroundColor);
 
-	ImGui::BeginChild("child_searchOptions", ImVec2(width, height), true);
+	ImGui::BeginChild("child_searchOptions", childXY, true);
 	{
 		//ImGui::PushItemWidth(groupWidth);
 		ImGui::SeparatorText("Search Options");
@@ -364,9 +355,7 @@ void MungPlex::Search::DrawSearchOptions()
 		{
 			if (_disableBecauseNoColor)
 				ImGui::BeginDisabled();
-
-			const float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) / 1.5f;
-			ImGui::SetNextItemWidth(w);
+			
 			int colorPickerFlags = ImGuiColorEditFlags_NoOptions;
 			colorPickerFlags |= _useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar;
 
@@ -385,7 +374,7 @@ void MungPlex::Search::DrawSearchOptions()
 				colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
 			}
 
-			ImGui::PushItemWidth(300);
+			ImGui::PushItemWidth(childXY.x * 0.275f);
 			ImGui::ColorPicker4("##ColorPicker", (float*)&_colorVec, colorPickerFlags);
 			ImGui::PopItemWidth();
 
@@ -414,13 +403,10 @@ void MungPlex::Search::DrawSearchOptions()
 
 void MungPlex::Search::DrawResultsArea()
 {
-	float width = ImGui::GetContentRegionAvail().x;
-	float height = ImGui::GetContentRegionAvail().y;
-	//ImGui::PushStyleColor(ImGuiCol_ChildBg, Settings::GetGeneralSettings().BackgroundColor);
-
-	ImGui::BeginChild("child_searchResults", ImVec2(width, height), true);
-
+	const ImVec2 childXY = ImGui::GetContentRegionAvail();
+	ImGui::BeginChild("child_searchResults", childXY, true);
 	ImGui::SeparatorText("Results Panel");
+
 	switch (_currentValueTypeSelect)
 	{
 		case ARRAY:
@@ -519,16 +505,12 @@ void MungPlex::Search::DrawResultsArea()
 			}
 		}
 	}
-
-	ImGui::PushItemWidth(width/5);
+	
 	SetUpLableText("Results", std::to_string(std::get<0>(_searchStats)).c_str(), 32, 0.25f, 0.25f);
 	
-
 	ImGui::BeginGroup();
 	{
-		ImGui::PushItemWidth(width);
 		SetUpInputText("Address:", _pokeAddressText, IM_ARRAYSIZE(_pokeAddressText), 0.25f, 0.25f);
-		ImGui::PushItemWidth(width);
 		SetUpInputText("Poke Value:", _pokeValueText, IM_ARRAYSIZE(_pokeValueText), 0.25f, 0.25f);
 	}
 	ImGui::EndGroup();
@@ -701,24 +683,6 @@ void MungPlex::Search::DrawResultsArea()
 			}
 			}
 		}
-
-	
-
-	ImGui::BeginGroup();//page control
-	{	
-		ImGui::BeginGroup();
-		{
-
-		}
-		ImGui::EndGroup();
-	
-		ImGui::SameLine();
-
-		ImGui::BeginGroup();
-			
-	}	ImGui::EndGroup();
-	ImGui::EndGroup();
-	//ImGui::PopStyleColor();
 	ImGui::EndChild();
 }
 

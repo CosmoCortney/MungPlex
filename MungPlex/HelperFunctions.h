@@ -72,6 +72,11 @@ namespace MungPlex
         return ImVec4(r, g, b, a);
     }
 
+    static ImU32 ImVec4ToPackedColor(const ImVec4& colorVec)
+    {
+	    return IM_COL32(int(colorVec.x * 255), int(colorVec.y * 255), int(colorVec.z * 255), int(colorVec.w * 255));
+    }
+
     static void ColorValuesToCString(const ImVec4& rgba, const int type, char* destination)
     {
         std::stringstream cstream;
