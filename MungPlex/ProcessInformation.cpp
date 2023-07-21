@@ -373,6 +373,10 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	return false;
 }
 
+std::string& MungPlex::ProcessInformation::GetGameID()
+{
+	return GetInstance()._gameID;
+}
 
 std::vector<MungPlex::SystemRegion>& MungPlex::ProcessInformation::GetRegions()
 {

@@ -87,6 +87,7 @@ namespace MungPlex
             PROJECT64, DOLPHIN
         };
 
+        static std::string& GetGameID();
         static void DrawWindow();
         static void RefreshData(int32_t PID);
         static bool ConnectToEmulator(int EmulatorIndex);
