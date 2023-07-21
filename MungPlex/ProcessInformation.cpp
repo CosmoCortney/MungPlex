@@ -146,19 +146,19 @@ void MungPlex::ProcessInformation::DrawMiscInformation()
 {
 	// TODO No C buffers in C++ code, use std::string and std::stringstream etc.
 	char buf[2048];
-	ImGui::Text("Misc. Information");
+	ImGui::SeparatorText("Misc. Information");
 
 	ImGui::BeginGroup();
 
 	strcpy_s(buf, std::string(_exePath.begin(), _exePath.end()).c_str());
-	ImGui::InputText("Path", buf, IM_ARRAYSIZE(buf));
+	SetUpLableText("Path:", buf, IM_ARRAYSIZE(buf), 1.0f, 0.1f);
 
 	strcpy_s(buf, std::to_string(GetInstance()._pid).c_str());
-	ImGui::InputText("Process ID (dec)", buf, IM_ARRAYSIZE(buf));
+	SetUpLableText("Process ID (dec):", buf, IM_ARRAYSIZE(buf), 1.0f, 0.1f);
 
 	const std::string strTemp = _isX64 ? "Yes" : "No";
 	strcpy_s(buf, strTemp.c_str());
-	ImGui::InputText("Is x64", buf, IM_ARRAYSIZE(buf));
+	SetUpLableText("Is x64:", buf, IM_ARRAYSIZE(buf), 1.0f, 0.1f);
 
 	ImGui::EndGroup();
 }

@@ -5,9 +5,10 @@
       "DefaultInterval": 60
     },
     "General": {
+      "ColorScheme": 1,
       "DefaultWindowSelect": 0,
       "DocumentsPath": "C:\\Users\\s_sch\\Documents",
-      "Scale": 2.4089999198913574
+      "Scale": 1.2406680583953857
     },
     "Search": {
       "DefaultAlignment": 4,

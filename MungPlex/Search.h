@@ -571,7 +571,7 @@ namespace MungPlex
             static ImGuiSelectableFlags selectableFlags = ImGuiSelectableFlags_SpanAllColumns;
             static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
-            if (!ImGui::BeginTable("Results", 4, flags, ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 16.0f)))
+            if (!ImGui::BeginTable("Results", 4, flags, ImVec2(0.0f, ImGui::GetContentRegionAvail().y * 0.75f)))
                 return;
                     
             auto results = Xertz::MemCompare<dataType, addressType>::GetResults();
@@ -800,7 +800,7 @@ namespace MungPlex
                         ImGui::Selectable(buf, true, selectableFlags);
                         for (int i = 0; i < 4; ++i)
                         {
-                            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImU32(0xFFFF0080));
+                            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImVec4ToPackedColor(ImGui::GetStyle().Colors[ImGuiCol_Header]));
                             ImGui::TableSetColumnIndex(i);
                         }
                     }
