@@ -6,15 +6,50 @@ MungPlex::Settings::Settings()
 	_styles.push_back(std::make_pair("Dark", []() -> ColorScheme
 	{
 		ColorScheme dark;
+		constexpr ImVec4 topNormal = { 0.40f, 0.2f, 0.8f, 1.0f };
+		constexpr ImVec4 topHovered = { 0.5f, 0.25f, 0.85f, 1.0f };
+		constexpr ImVec4 topActive = { 0.6f, 0.3f, 0.9f, 1.0f };
+		constexpr ImVec4 midNormal = { 0.2f, 0.17f, 0.35f, 1.0f };
+		constexpr ImVec4 midHovered = { 0.25f, 0.19f, 0.4f, 1.0f };
+		constexpr ImVec4 midActive = { 0.3f, 0.2f, 0.45f, 1.0f };
+
 		dark.Background = { 0.1f, 0.1f, 0.1f, 1.0f };
 		dark.Text = { 1.0f, 1.0f, 1.0f, 1.0f };
 		dark.TextDisabled = { 0.5f, 0.5f, 0.5f, 1.0f };
-		dark.ChildBG = { 0.125f, 0.125f, 0.125f, 1.0f };
-
-
-
-		dark.Button = { 0.5f, 0.0f, 1.0f, 1.0f };
-
+		dark.ChildBG = { 0.12f, 0.12f, 0.12f, 1.0f };
+		dark.PopUpBG = { 0.15f, 0.15f, 0.15f, 1.0f };
+		dark.FrameBG = midNormal;
+		dark.FrameBGHovered = midHovered;
+		dark.FrameBGActive = midActive;
+		dark.TitleBG = topNormal;
+		dark.TitleBGActive = topActive;
+		dark.TitleBGCollapsed = midNormal;
+		dark.ScrollbarBg = midNormal;
+		dark.ScrollbarGrab = topNormal;
+		dark.ScrollbarGrabHovered = topHovered;
+		dark.ScrollbarGrabActive = topActive;
+		dark.CheckMark = { 0.8f, 0.8f, 0.8f, 1.0f };
+		dark.SliderGrab = topNormal;
+		dark.SliderGrabActive = topActive;
+		dark.Button = dark.TitleBG;
+		dark.ButtonHovered = topHovered;
+		dark.ButtonActive = topActive;
+		dark.Header = topNormal;
+		dark.HeaderHovered = topHovered;
+		dark.HeaderActive = topActive;
+		dark.Separator = { 0.3f, 0.3f, 0.3f, 1.0f };
+		dark.SeparatorHovered = { 0.4f, 0.4f, 0.4f, 1.0f };
+		dark.SeparatorActive = { 0.5f, 0.5f, 0.5f, 1.0f };
+		dark.ResizeGrip = topNormal;
+		dark.ResizeGripHovered = topHovered;
+		dark.ResizeGripActive = topActive;
+		dark.Tab = { 0.15f, 0.15f, 0.3f, 1.0f };
+		dark.TabHovered = { 0.25f, 0.25f, 0.4f, 1.0f };
+		dark.TabActive = { 0.35f, 0.35f, 0.5f, 1.0f };
+		dark.TabUnfocused = dark.Tab;
+		dark.TabUnfocusedActive = dark.TabActive;
+		dark.DockingPreview = topNormal;
+		dark.DockingEmptyBG = midNormal;
 		return dark;
 	}()));
 
