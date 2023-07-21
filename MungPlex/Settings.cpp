@@ -2,6 +2,30 @@
 
 MungPlex::Settings::Settings()
 {
+	_styles.emplace_back("ImGui Default", ColorScheme());
+	_styles.push_back(std::make_pair("Dark", []() -> ColorScheme
+	{
+		ColorScheme dark;
+		dark.Background = { 0.1f, 0.1f, 0.1f, 1.0f };
+		dark.Text = { 1.0f, 1.0f, 1.0f, 1.0f };
+		dark.TextDisabled = { 0.5f, 0.5f, 0.5f, 1.0f };
+		dark.ChildBG = { 0.125f, 0.125f, 0.125f, 1.0f };
+
+
+
+		dark.Button = { 0.5f, 0.0f, 1.0f, 1.0f };
+
+		return dark;
+	}()));
+
+	//_styles.emplace_back("Bright", BRIGHT);
+	//_styles.emplace_back("Candy", CANDY);
+	//_styles.emplace_back("Pastell", IMGUIDEFAULT);
+
+
+
+
+
 	bool save = false;
 	_generalSettings.Windows.emplace_back("Search");
 	_generalSettings.Windows.emplace_back("Cheats");
@@ -31,7 +55,8 @@ MungPlex::Settings::Settings()
 		strcpy_s(_generalSettings.DocumentsPath, settings["General"]["DocumentsPath"].get<std::string>().c_str());
 		_generalSettings.Scale = settings["General"]["Scale"].get<float>();
 		_generalSettings.DefaultWindowSelect = settings["General"]["DefaultWindowSelect"].get<int>();
-		
+		_generalSettings.Style = settings["General"]["ColorScheme"].get<int>();
+
 		if (!std::filesystem::is_directory(_generalSettings.DocumentsPath))
 		{
 			PWSTR tmp = new wchar_t[512];
@@ -71,6 +96,11 @@ MungPlex::Settings::Settings()
 	}
 }
 
+MungPlex::ColorScheme& MungPlex::Settings::GetColorScheme(const int id)
+{
+	return GetInstance()._styles[id].second;
+}
+
 void MungPlex::Settings::DrawWindow()
 {
 	ImGui::Begin("Settings");
@@ -78,6 +108,7 @@ void MungPlex::Settings::DrawWindow()
 	GetInstance().drawGeneralSettings();
 	GetInstance().drawSearchSettings();
 	GetInstance().drawCheatSettings();
+	ImGui::Separator();
 
 	if (ImGui::Button("Save"))
 	{
@@ -91,58 +122,61 @@ void MungPlex::Settings::DrawWindow()
 
 void MungPlex::Settings::drawGeneralSettings()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / _generalSettings.Scale;
-	ImGui::PushItemWidth(groupWidth);
-	ImGui::SeparatorText("General Settings");
-	ImGui::BeginChild("child", ImVec2(groupWidth, groupWidth), true);
+	const ImVec2 childYX(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f);
+	ImGui::BeginChild("child", childYX);
+	{
+		ImGui::SeparatorText("General Settings");
+		SetUpInputText("Documents Path:", _generalSettings.DocumentsPath, 512, 1.0f, 0.2f);
+		SetUpSliderFloat("UI Scale:", &_generalSettings.Scale, 0.65f, 2.0f, "%3f", 1.0f, 0.2f);
+		SetUpCombo("Default Foreground Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect, 1.0f, 0.2f);
+		SetUpCombo("Color Scheme:", _styles, _generalSettings.Style, 1.0f, 0.2f);
 
-	ImGui::InputText("Documents Path", _generalSettings.DocumentsPath, 512);
-
-	ImGui::SliderFloat("UI Scale", &_generalSettings.Scale, 1.0f, 3.0f);
-
-	MungPlex::SetUpCombo("Default Foreground Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect);
-
+		/*static ImGuiColorEditFlags colorFlags = ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_NoOptions;
+		ImGui::PushItemWidth(childYX.x * 0.2f);
+		ImGui::ColorPicker3("Background Color", reinterpret_cast<float*>(&_generalSettings.BackgroundColor), colorFlags);
+		ImGui::PopItemWidth();*/
+	}
 	ImGui::EndChild();
-
 }
 
 void MungPlex::Settings::drawSearchSettings()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / _generalSettings.Scale;
-	ImGui::BeginChild("child", ImVec2(groupWidth, groupWidth), true);
-	ImGui::SeparatorText("Search Settings");
-	ImGui::LabelText("label1", "Default Selected Data Type");
-	ImGui::Checkbox("Case Senstive by default", &_searchSettings.DefaultCaseSensitive);
-	ImGui::Checkbox("Color Wheel by default", &_searchSettings.DefaultColorWheel);
-
-	if(ImGui::InputInt("Default Alignment", &_searchSettings.DefaultAlignment))
+	const ImVec2 childYX(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f);
+	ImGui::BeginChild("child_SearchSettings", childYX);
 	{
-		if (_searchSettings.DefaultAlignment < 1)
-			_searchSettings.DefaultAlignment = 1;
+		ImGui::SeparatorText("Search Settings");
+		ImGui::Checkbox("Case Senstive by default", &_searchSettings.DefaultCaseSensitive);
+		ImGui::Checkbox("Color Wheel by default", &_searchSettings.DefaultColorWheel);
+
+		if (SetUpInputInt("Default Alignment:", &_searchSettings.DefaultAlignment, 1, 1, 1.0f, 0.2f))
+		{
+			if (_searchSettings.DefaultAlignment < 1)
+				_searchSettings.DefaultAlignment = 1;
+		}
+
+		ImGui::Checkbox("Values are hex by default", &_searchSettings.DefaultValuesHex);
+		ImGui::Checkbox("Cached Searches by default", &_searchSettings.DefaultCached);
 	}
-
-	ImGui::Checkbox("Values are hex by default", &_searchSettings.DefaultValuesHex);
-	ImGui::Checkbox("Cached Searches by default", &_searchSettings.DefaultCached);
-
 	ImGui::EndChild();
 }
 
 void MungPlex::Settings::drawCheatSettings()
 {
-	float groupWidth = ImGui::GetContentRegionAvail().x / _generalSettings.Scale;
-	ImGui::BeginChild("child", ImVec2(groupWidth, groupWidth), true);
-	ImGui::SeparatorText("Cheats Settings");
-
-	ImGui::Checkbox("Cheat List by default", &_cheatsSettings.DefaultCheatList);
-
-	if (ImGui::InputInt("Default Cheat interval", &_cheatsSettings.DefaultInterval, 1, 10))
+	const ImVec2 childYX(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.6f);
+	ImGui::BeginChild("child_CheatSettings", childYX);
 	{
-		if (_cheatsSettings.DefaultInterval < 1)
-			_cheatsSettings.DefaultInterval = 1;
-		else if (_cheatsSettings.DefaultInterval > 240)
-			_cheatsSettings.DefaultInterval = 240;
-	}
+		ImGui::SeparatorText("Cheats Settings");
 
+		ImGui::Checkbox("Cheat List by default", &_cheatsSettings.DefaultCheatList);
+
+		if (SetUpInputInt("Default Cheat interval", &_cheatsSettings.DefaultInterval, 1, 10, 1.0f, 0.2f))
+		{
+			if (_cheatsSettings.DefaultInterval < 1)
+				_cheatsSettings.DefaultInterval = 1;
+			else if (_cheatsSettings.DefaultInterval > 240)
+				_cheatsSettings.DefaultInterval = 240;
+		}
+	}
 	ImGui::EndChild();
 }
 
@@ -174,6 +208,7 @@ bool MungPlex::Settings::saveSettings()
 
 		jsonChunk["Scale"] = _generalSettings.Scale;
 		jsonChunk["DefaultWindowSelect"] = _generalSettings.DefaultWindowSelect;
+		jsonChunk["ColorScheme"] = _generalSettings.Style;
 		jsonData["Settings"]["General"] = jsonChunk;
 		jsonChunk.clear();
 
