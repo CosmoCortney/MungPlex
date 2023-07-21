@@ -197,7 +197,17 @@ namespace MungPlex
         return result.substr(2);
     }
 
-    template<typename T> static void SetUpCombo(const std::string& name, const std::vector<T>& items, int& select)
+    static void PrepareWidgetLabel(const std::string& name, const float paneWidth, const float labelPortion)
+    {
+        const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;
+        const float curserPos = ImGui::GetCursorPos().x;
+        ImGui::Text(name.c_str());
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(curserPos + absoluteWidth * labelPortion);
+        ImGui::PushItemWidth(absoluteWidth * (1.0f - labelPortion));
+    }
+
+    template<typename T> static void SetUpCombo(const std::string& name, const std::vector<T>& items, int& select, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
     {
         std::vector<std::string> items_str;
         items_str.reserve(items.size());
@@ -205,23 +215,76 @@ namespace MungPlex
         {
             if constexpr (std::is_same_v<T, std::string>)
                 items_str.emplace_back(item.c_str());
+            else if constexpr (std::is_same_v<T, const char*>)
+                items_str.emplace_back(item);
             else if constexpr (std::is_same_v<T, std::pair<std::string, int>>)
+                items_str.emplace_back(item.first.c_str());
+            else if constexpr (std::is_same_v<T, std::pair<std::string, ColorScheme>>)
                 items_str.emplace_back(item.first.c_str());
             else if constexpr (std::is_same_v<T, std::wstring>)
                 items_str.emplace_back(std::string(item.begin(), item.end()).c_str());
             else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>> || std::is_same_v<T, EMUPAIR>)
                 items_str.emplace_back(std::string(item.first.begin(), item.first.end()).c_str());
-            else if constexpr (std::is_same_v < T, MungPlex::SystemRegion>)
+            else if constexpr (std::is_same_v<T, MungPlex::SystemRegion>)
             {
                 items_str.emplace_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
             }
         }
-        ImGui::Combo(name.c_str(), &select, [](void* data, int idx, const char** out_text)
+
+		PrepareWidgetLabel(name, paneWidth, labelPortion);
+        ImGui::Combo(("##" + name).c_str(), &select, [](void* data, int idx, const char** out_text)
                                             {
                                                 auto& items = *static_cast<std::vector<std::string>*>(data);
                                                 *out_text = items[idx].c_str();
                                                 return true;
                                             }, static_cast<void*>(&items_str), items.size());
+        ImGui::PopItemWidth();
+    }
+
+    static void SetUpSliderFloat(const std::string& name, float* val, const float min, const float max, const char* format = "%3f", const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+    {
+        PrepareWidgetLabel(name, paneWidth, labelPortion);
+        ImGui::SliderFloat(("##" + name).c_str(), val, min, max, format, NULL);
+        ImGui::PopItemWidth();
+    }
+
+    static void SetUpSliderInt(const std::string& name, int* val, const int min, const int max, const char* format = "%d", const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+    {
+        PrepareWidgetLabel(name, paneWidth, labelPortion);
+        ImGui::SliderInt(("##" + name).c_str(), val, min, max, format, NULL);
+        ImGui::PopItemWidth();
+    }
+
+    static bool SetUpInputText(const std::string& name, char* text, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+    {
+        PrepareWidgetLabel(name, paneWidth, labelPortion);
+        const bool edited = ImGui::InputText(("##" + name).c_str(), text, bufSize);
+        ImGui::PopItemWidth();
+        return edited;
+    }
+
+    static bool SetUpInputInt(const std::string& name, int* val, const int step = 1, const int stepFast = 100, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+    {
+        PrepareWidgetLabel(name, paneWidth, labelPortion);
+        const bool edited = ImGui::InputInt(("##" + name).c_str(), val, step, stepFast);
+        ImGui::PopItemWidth();
+        return edited;
+    }
+
+    static bool SetUpInputTextMultiline(const std::string& name, char* text, const size_t bufSize, const float paneWidth = 0.25f, const float paneHeight = 0.25f, const ImGuiInputTextFlags flags = 0)
+    {
+        const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;
+        const float absoluteHeight = ImGui::GetContentRegionAvail().y * paneHeight;
+        ImGui::Text(name.c_str());
+        const bool edited = ImGui::InputTextMultiline(("##" + name).c_str(), text, bufSize, ImVec2(absoluteWidth, absoluteHeight), flags);
+        return edited;
+    }
+
+    static void SetUpLableText(const std::string& name, const char* text, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+    {
+        PrepareWidgetLabel(name, paneWidth, labelPortion);
+        ImGui::Text(text, bufSize);
+        ImGui::PopItemWidth();
     }
 
     template<typename T> class SignalCombo //yes I know this is against the purpose of ImGui. But it makes my life easier here. Please don't call the code cops
@@ -239,7 +302,7 @@ namespace MungPlex
 
     public: 
         SignalCombo<T>(){}
-        void Draw(const std::string& name, const std::vector<T>& items, int& select)
+        void Draw(const std::string& name, const std::vector<T>& items, int& select, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
         {
             if (items.size() > 0)
             {
@@ -268,7 +331,7 @@ namespace MungPlex
                 }
 
             }
-            SetUpCombo(name, items, select);
+            SetUpCombo(name, items, select, paneWidth, labelPortion);
         }
 
         void ConnectOnIndexChanged(const Slot slot)
@@ -298,7 +361,7 @@ namespace MungPlex
 
     public:
         SignalInputText() {}
-        bool Draw(const char* name, char* buf, const uint64_t size, const ImGuiInputTextFlags flags = 0)
+        bool Draw(const char* name, char* buf, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
         {
             bool changedByFlow = false;
             if (std::strcmp(_text, buf) != 0)
@@ -310,7 +373,7 @@ namespace MungPlex
                 changedByFlow = true;
             }
 
-            return ImGui::InputText(name, buf, size, flags) || changedByFlow;
+            return SetUpInputText(name, buf, bufSize, paneWidth, labelPortion) || changedByFlow;
         }
 
         void ConnectOnTextChanged(const Slot slot)
