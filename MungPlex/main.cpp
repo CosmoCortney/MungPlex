@@ -10,7 +10,6 @@
 #include "ProcessInformation.h"
 #include"Search.h"
 #include"Cheats.h"
-#include"Settings.h"
 
 void key_callback(GLFWwindow* window, const int key, const int scancode, const int action, const int mode) //keep unused parameters since that signature is required for glfwSetKeyCallback
 {

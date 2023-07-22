@@ -1,29 +1,28 @@
 #include"Search.h"
+#include <Windows.h>
+#include"Settings.h"
 
-static float scale = 2.0f;
 void MungPlex::Search::DrawWindow()
 {
 	ImGui::Begin("Search");
 
-	if (!Connection::IsConnected()) ImGui::BeginDisabled();
+	if (!Connection::IsConnected())
+		ImGui::BeginDisabled();
 
 	ImGui::BeginGroup();
+	{
 		GetInstance().DrawValueTypeOptions();
 		GetInstance().DrawRangeOptions();
+	}
 	ImGui::EndGroup();
-		ImGui::SameLine();
 
-		//ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ChildBg, ImVec4(0.0f, 5.0f, 0.0f, 1.0f));
-		//ImGui::BeginGroup();
-		{
-			//GetInstance().DrawRangeOptions();
-			GetInstance().DrawSearchOptions();
-		}
-		//ImGui::EndGroup();
+	ImGui::SameLine();
 	
-		GetInstance().DrawResultsArea();
+	GetInstance().DrawSearchOptions();
+	GetInstance().DrawResultsArea();
 
-	if (!Connection::IsConnected()) ImGui::EndDisabled();
+	if (!Connection::IsConnected())
+		ImGui::EndDisabled();
 
 	ImGui::End();
 }
