@@ -27,6 +27,7 @@ add_executable (MungPlex
     Connection.h
     ProcessInformation.cpp
     ProcessInformation.h
+    Search.h
     Search.cpp
     HelperFunctions.h
     Cheats.h

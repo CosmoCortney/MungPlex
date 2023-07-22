@@ -1,4 +1,5 @@
 #include "ProcessInformation.h"
+#include <Windows.h>
 
 void MungPlex::ProcessInformation::DrawWindow()
 {
@@ -276,6 +277,7 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 		break;
 	}
 
+	Search::SetUnderlyingBigEndianFlag(_underlyingIsBigEndian);
 	Cheats::SetPlatform(_platform.c_str());
 	Cheats::SetGameID(_gameID.c_str());
 	Cheats::InitCheatFile();

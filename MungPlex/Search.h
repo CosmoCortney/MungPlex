@@ -9,7 +9,6 @@
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include<string>
 #include "Xertz.h"
-#include <Windows.h>
 #include "MungPlexConfig.h"
 #include "Connection.h"
 #include"HelperFunctions.h"
@@ -23,6 +22,7 @@
 #include<string>
 #include<tuple>
 #include"Settings.h"
+#include"ProcessInformation.h"
 
 namespace MungPlex
 {
