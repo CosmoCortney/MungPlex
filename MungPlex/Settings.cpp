@@ -262,34 +262,9 @@ void MungPlex::Settings::createDocFolders() const
 		std::filesystem::create_directory(mungPlexDocsPath);
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Search");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\NES");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\SNES");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\N64");
+		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Nintendo 64");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\GameCube");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Wii");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Wii U");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Switch");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\GameBoy");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\GameBoy Color");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\GameBoy Advance");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\DS");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\3DS");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Master System");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Genesis");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Saturn");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Dreamcast");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Game Gear");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\PS1");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\PS2");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\PS3");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\PS4");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\PS5");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\PSP");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\PS Vita");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\XBOX");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\XBOX 360");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\XBOX One");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\XBOX Series");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\PC");
 	}
 }

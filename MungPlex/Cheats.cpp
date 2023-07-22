@@ -69,7 +69,7 @@ MungPlex::Cheats::Cheats()
 	_cheatList = Settings::GetCheatsSettings().DefaultCheatList;
 	_perSecond = Settings::GetCheatsSettings().DefaultInterval;
 	_documentsPath = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath);
-	initCheatFile();
+	//initCheatFile();
 }
 
 bool MungPlex::Cheats::readBool(const uint64_t address)
@@ -568,28 +568,37 @@ void MungPlex::Cheats::SetGameID(const char* ID)
 	GetInstance()._currentGameID = MorphText::Utf8_To_Utf16LE(ID);
 }
 
-void MungPlex::Cheats::initCheatFile()
+void MungPlex::Cheats::SetPlatform(const char* platform)
 {
-	_currentCheatFile = _documentsPath + L"\\MungPlex\\Cheats\\" + _currentGameID + L".json";
-	if (!std::filesystem::exists(_currentCheatFile))
+	GetInstance()._currentPlatform = MorphText::Utf8_To_Utf16LE(platform);
+}
+
+void MungPlex::Cheats::InitCheatFile()
+{
+	GetInstance()._currentCheatFile = GetInstance()._documentsPath + L"\\MungPlex\\Cheats\\" + GetInstance()._currentPlatform + L"\\" + GetInstance()._currentGameID + L".json";
+	if (!std::filesystem::exists(GetInstance()._currentCheatFile))
 	{
-		std::ofstream file(_currentCheatFile, std::ios::binary);
+		std::ofstream file(GetInstance()._currentCheatFile, std::ios::binary);
 
 		if (file.is_open())
 		{
 			file << "\xEF\xBB\xBF"; //write BOM
-			file << _placeholderCheatFile;
+			file << GetInstance()._placeholderCheatFile;
 		}
 	}
 	
-	_luaCheats.clear();
-	_markedCheats.clear();
-	_checkBoxIDs.clear();
-	std::string jsonstr;
+	GetInstance()._luaCheats.clear();
+	GetInstance()._markedCheats.clear();
+	GetInstance()._checkBoxIDs.clear();
+	memset(GetInstance()._textCheatTitle, 0, strlen(GetInstance()._textCheatTitle));
+	memset(GetInstance()._textCheatHacker, 0, strlen(GetInstance()._textCheatHacker));
+	memset(GetInstance()._textCheatLua, 0, strlen(GetInstance()._textCheatLua));
+	memset(GetInstance()._textCheatDescription, 0, strlen(GetInstance()._textCheatDescription));
 
+	std::string jsonstr;
 	{
 		std::ifstream inFile;
-		inFile.open(_currentCheatFile);
+		inFile.open(GetInstance()._currentCheatFile);
 
 		if (inFile)
 		{
@@ -614,15 +623,15 @@ void MungPlex::Cheats::initCheatFile()
 			auto hacker = cheats[i]["Hacker"].get<std::string>();
 			auto lua = cheats[i]["Lua"].get<std::string>();
 			auto description = cheats[i]["Description"].get<std::string>();
-			_luaCheats.emplace_back(LuaCheat(id, checked, title, hacker, lua, description));
-			_markedCheats.emplace_back(false);
-			_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats[i].ID));
+			GetInstance()._luaCheats.emplace_back(LuaCheat(id, checked, title, hacker, lua, description));
+			GetInstance()._markedCheats.emplace_back(false);
+			GetInstance()._checkBoxIDs.emplace_back("##cheat_" + std::to_string(GetInstance()._luaCheats[i].ID));
 		}
 
-		if (!_markedCheats.empty())
+		if (!GetInstance()._markedCheats.empty())
 		{
-			_markedCheats[0] = true;
-			copyCheatToInformationBox(0);
+			GetInstance()._markedCheats[0] = true;
+			GetInstance().copyCheatToInformationBox(0);
 		}
 	}
 	catch (const nlohmann::json::parse_error& exception)
@@ -746,4 +755,12 @@ void MungPlex::Cheats::refreshModuleList()
 		lua_setfield(L, -2, MorphText::Utf16LE_To_Utf8(_processInfo.GetModuleList()[i].first).c_str());
 	}
 	lua_setglobal(L, "Modules");
+}
+
+void MungPlex::Cheats::updateConnectionInfo()
+{
+	_isBigEndian = ProcessInformation::UnderlyingIsBigEndian();
+	_pid = ProcessInformation::GetPID();
+	_regions = ProcessInformation::GetRegions();
+	refreshModuleList();
 }

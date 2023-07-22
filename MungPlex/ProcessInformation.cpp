@@ -275,7 +275,10 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 		connected = InitProject64();
 		break;
 	}
-	
+
+	Cheats::SetPlatform(_platform.c_str());
+	Cheats::SetGameID(_gameID.c_str());
+	Cheats::InitCheatFile();
 	ObtainGameEntities(_systemRegions[0].BaseLocationProcess);
 	return connected;
 }
@@ -298,6 +301,7 @@ bool MungPlex::ProcessInformation::InitProject64()
 			if (temp == 0x03400008)
 			{
 				_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+				_platform = "Nintendo 64";
 				return true;
 			}
 		}
@@ -344,6 +348,7 @@ bool MungPlex::ProcessInformation::InitDolphin()
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{
+		_platform = "GameCube";
 		_systemRegions.erase(_systemRegions.begin() + 1);
 		return true;
 	}
@@ -366,6 +371,7 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	int IDcopy;
 	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, _systemRegions[0].BaseLocationProcess, 4);
 	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
+	_platform = "Wii";
 
 	if (temp == 0 && IDcopy != 0)
 	{

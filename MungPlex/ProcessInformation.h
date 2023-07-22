@@ -9,6 +9,7 @@
 #include <Windows.h>
 #include"HelperFunctions.h"
 #include <nlohmann/json.hpp>
+#include"Cheats.h"
 
 namespace MungPlex
 {
@@ -56,6 +57,7 @@ namespace MungPlex
         bool _isX64 = false;
         bool _underlyingIsBigEndian = false;
         std::string _gameID;
+        std::string _platform;
         std::string _processName;
         int32_t _addressWidth = 8;
         HANDLE _handle = 0;

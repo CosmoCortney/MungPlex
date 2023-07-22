@@ -56,6 +56,7 @@ namespace MungPlex
         bool _cheatError = false;
         std::wstring _documentsPath;
         std::wstring _currentGameID;
+        std::wstring _currentPlatform;
         std::wstring _currentCheatFile;
         std::string _currentCheatListFile;
         std::string _placeholderCheatFile = "{\"Cheats\":[]}";
@@ -76,15 +77,9 @@ namespace MungPlex
         void DrawCheatList(); //top-left
         void DrawCheatInformation(); //top-right
         void DrawControl(); //bottom left
-        void updateConnectionInfo()
-        {
-            _isBigEndian = ProcessInformation::UnderlyingIsBigEndian();
-            _pid = ProcessInformation::GetPID();
-            _regions = ProcessInformation::GetRegions();
-            refreshModuleList();
-        }
+        void updateConnectionInfo();
 
-        void initCheatFile();
+        
         int getRangeIndex(uint64_t address) const;
         void cheatRoutine();
 
@@ -133,5 +128,7 @@ namespace MungPlex
     public:
         static void DrawWindow();
         static void SetGameID(const char* ID);
+        static void SetPlatform(const char* platform);
+        static void InitCheatFile();
 	};
 }
