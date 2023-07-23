@@ -245,7 +245,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 			GetInstance()._gameEntities.emplace_back(GameEntity(entity, location, datatype, size, hex));
 		}
 
-		if (regions.empty() || entities.empty())
+		if (regions.empty())
 			return false;
 	}
 	catch (const nlohmann::json::parse_error& exception)
