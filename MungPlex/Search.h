@@ -22,7 +22,6 @@
 #include<string>
 #include<tuple>
 #include"Settings.h"
-#include"ProcessInformation.h"
 
 namespace MungPlex
 {

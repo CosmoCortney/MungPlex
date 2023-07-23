@@ -1,6 +1,5 @@
 #include"Search.h"
 #include <Windows.h>
-#include"Settings.h"
 
 void MungPlex::Search::DrawWindow()
 {
