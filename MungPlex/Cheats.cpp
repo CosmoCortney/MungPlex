@@ -1,6 +1,7 @@
 #include "Cheats.h"
-
 #include "Settings.h"
+#include <Windows.h>
+#include <string>
 
 static float scale = 2.0f;
 

@@ -1,6 +1,7 @@
 #include "ProcessInformation.h"
 #include <Windows.h>
 #include"Search.h"
+#include"Cheats.h"
 
 void MungPlex::ProcessInformation::DrawWindow()
 {

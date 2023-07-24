@@ -5,11 +5,10 @@
 #include <cassert>
 #include "lua.h"
 #include "GLFW/glfw3.h"
-#include "Connection.h"
 #include <thread>
 #include <future>
-#include <Windows.h>
-#include <string>
+#include "Connection.h"
+#include "ProcessInformation.h"
 
 namespace MungPlex
 {
