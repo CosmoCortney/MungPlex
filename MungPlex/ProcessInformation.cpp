@@ -326,6 +326,7 @@ bool MungPlex::ProcessInformation::InitProject64()
 
 			if (temp == 0x0000000F80371240)
 			{
+				region.SetProtect(Xertz::SystemInfo::GetProcessInfo(_pid).GetHandle(),PAGE_EXECUTE_READWRITE);
 				_systemRegions[1].BaseLocationProcess = region.GetBaseAddress<void*>();
 				_systemRegions[1].Size = rSize;
 				found = true;
