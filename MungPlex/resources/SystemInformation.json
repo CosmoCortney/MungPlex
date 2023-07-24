@@ -594,9 +594,14 @@
     "Project64": {
       "Regions": [
         {
-          "Label": "Mem 1",
+          "Label": "RDRAM",
           "Base": "0x80000000",
-          "Size":  "0x800000"
+          "Size": "0x800000"
+        },
+        {
+          "Label": "Cartridge ROM",
+          "Base": "0xB0000000",
+          "Size": "0x00"
         }
       ],
       "Entities": [

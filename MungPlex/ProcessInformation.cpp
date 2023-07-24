@@ -290,6 +290,7 @@ bool MungPlex::ProcessInformation::InitProject64()
 {
 	_underlyingIsBigEndian = false;
 	_addressWidth = 4;
+	bool found = false;
 
 	for (const auto& region : _regions)
 	{
@@ -304,12 +305,43 @@ bool MungPlex::ProcessInformation::InitProject64()
 			if (temp == 0x03400008)
 			{
 				_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
-				_platform = "Nintendo 64";
-				return true;
+				found = true;
+				break;
 			}
 		}
 	}
-	return false;
+
+	if (!found)
+		return false;
+
+	for (const auto& region : _regions)
+	{
+		const uint64_t rSize = region.GetRegionSize();
+
+		if (rSize >= 0x400000)
+		{
+			uint64_t temp;
+
+			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, region.GetBaseAddress<char*>(), 8);
+
+			if (temp == 0x0000000F80371240)
+			{
+				_systemRegions[1].BaseLocationProcess = region.GetBaseAddress<void*>();
+				_systemRegions[1].Size = rSize;
+				found = true;
+				_platform = "Nintendo 64";
+				char tempID[5] = "";
+				Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID, region.GetBaseAddress<char*>() + 0x38, 1);
+				Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID + 1, region.GetBaseAddress<char*>() + 0x3F, 1);
+				Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID + 2, region.GetBaseAddress<char*>() + 0x3E, 1);
+				Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID + 3, region.GetBaseAddress<char*>() + 0x3D, 1);
+				_gameID = std::string(tempID);
+				break;
+			}
+		}
+	}
+	
+	return found;
 }
 
 bool MungPlex::ProcessInformation::InitProcess(const std::wstring& processName) //placeholder
