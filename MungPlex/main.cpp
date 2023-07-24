@@ -10,6 +10,7 @@
 #include "ProcessInformation.h"
 #include"Search.h"
 #include"Cheats.h"
+#include"Log.h"
 
 void key_callback(GLFWwindow* window, const int key, const int scancode, const int action, const int mode) //keep unused parameters since that signature is required for glfwSetKeyCallback
 {
@@ -113,6 +114,7 @@ int main()
 	std::cout << "OpenGL Version: " << version << std::endl;
 	
 	style.ScaleAllSizes(MungPlex::Settings::GetGeneralSettings().Scale);
+	MungPlex::Log::LogInformation("Started MungPlex");
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -132,6 +134,7 @@ int main()
 		MungPlex::Connection::DrawWindow();
 		MungPlex::Search::DrawWindow();
 		MungPlex::Cheats::DrawWindow();
+		MungPlex::Log::DrawWindow();
 
 		ImGui::Render();
 

@@ -29,6 +29,8 @@ add_executable (MungPlex
     ProcessInformation.h
     Search.h
     Search.cpp
+    Log.h
+    Log.cpp
     HelperFunctions.h
     Cheats.h
     Cheats.cpp
@@ -46,7 +48,7 @@ add_executable (MungPlex
     ../include/Xertz/ProcessInfo.cpp
     ../include/Xertz/SystemInfo.cpp
     #$<TARGET_OBJECTS:MainLibrary>  # Link with the MainLibrary target
-)
+ "Log.h" "Log.cpp")
 
 # Link against lua
 target_link_libraries(MungPlex ${LUA_LIBRARIES})
