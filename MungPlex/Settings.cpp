@@ -1,5 +1,5 @@
 #include"Settings.h"
-
+#include "Log.h"
 #include <shlobj_core.h>
 
 MungPlex::Settings::Settings()
@@ -116,7 +116,7 @@ MungPlex::Settings::Settings()
 	}
 	catch (const nlohmann::json::parse_error& exception)
 	{
-		std::cerr << "Failed parsing settings file: " << exception.what() << std::endl;
+		Log::LogInformation((std::string("Failed parsing settings file: ") + exception.what()).c_str());
 		return;
 	}
 }
@@ -248,8 +248,10 @@ bool MungPlex::Settings::saveSettings()
 
 		file << "\xEF\xBB\xBF"; //write BOM
 		file << jsonData.dump(2);
+		Log::LogInformation("Settings saved");
 	}
-
+	
+	Log::LogInformation("Unable to save settings");
 	return isOpen;
 }
 

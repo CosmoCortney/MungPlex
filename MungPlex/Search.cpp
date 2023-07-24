@@ -724,7 +724,7 @@ void MungPlex::Search::PerformSearch()
 {
 	switch (_currentValueTypeSelect)
 	{
-	case ARRAY: 
+	case ARRAY:
 		ArrayTypeSearch();
 		break;
 	case TEXT:
@@ -760,68 +760,106 @@ void MungPlex::Search::PerformSearch()
 
 void MungPlex::Search::PrimitiveTypeSearch()
 {
+	std::string logMsg("Perform Search for ");
 	std::stringstream stream1, stream2;
+
 	if (_currentPrimitiveTypeSelect < FLOAT)
 	{
 		if (_signed)
 		{
+			logMsg.append("signed ");
 			int64_t knownVal, knownValSecondary;
+
+			if (_currentComparisionTypeSelect == Xertz::KNOWN)
+				logMsg.append("known value of ");
+			else
+				logMsg.append("unknown value ");
+
 			if (GetInstance()._hex)
 			{
 				stream1 << std::hex << std::string(_knownValueText);
 				stream2 << std::hex << std::string(_secondaryKnownValueText);
+
+				if (_currentComparisionTypeSelect == Xertz::KNOWN)
+					logMsg.append(stream1.str());
 			}
 			else
 			{
 				stream1 << std::string(_knownValueText);
 				stream2 << std::string(_secondaryKnownValueText);
+
+				if (_currentComparisionTypeSelect == Xertz::KNOWN)
+					logMsg.append(stream1.str());
 			}
+
 			stream1 >> knownVal;
 			stream2 >> knownValSecondary;
 
 			switch (_currentPrimitiveTypeSelect)
 			{
 			case INT8:
+				logMsg.append("(int 8)");
 				_searchStats = SetUpAndIterate<int8_t>(knownVal, knownValSecondary);
 				break;
 			case INT16:
+				logMsg.append("(int 16)");
 				_searchStats = SetUpAndIterate<int16_t>(knownVal, knownValSecondary);
 				break;
 			case INT64:
+				logMsg.append("(int 64)");
 				_searchStats = SetUpAndIterate<int64_t>(knownVal, knownValSecondary);
 				break;
 			default: //INT32
+				logMsg.append("(int 32)");
 				_searchStats = SetUpAndIterate<int32_t>(knownVal, knownValSecondary);
 			}
 		}
 		else
 		{
+			logMsg.append("unsigned ");
 			uint64_t knownVal, knownValSecondary;
+
+			if (_currentComparisionTypeSelect == Xertz::KNOWN)
+				logMsg.append("known value of ");
+			else
+				logMsg.append("unknown value ");
+
 			if (GetInstance()._hex)
 			{
 				stream1 << std::hex << std::string(_knownValueText);
 				stream2 << std::hex << std::string(_secondaryKnownValueText);
+
+				if (_currentComparisionTypeSelect == Xertz::KNOWN)
+					logMsg.append(stream1.str());
 			}
 			else
 			{
 				stream1 << std::string(_knownValueText);
 				stream2 << std::string(_secondaryKnownValueText);
+
+				if (_currentComparisionTypeSelect == Xertz::KNOWN)
+					logMsg.append(stream1.str());
 			}
+
 			stream1 >> knownVal;
 			stream2 >> knownValSecondary;
 
 			switch (_currentPrimitiveTypeSelect)
 			{
 			case INT8:
+				logMsg.append("(int 8)");
 				_searchStats = SetUpAndIterate<uint8_t>(knownVal, knownValSecondary);
 				break;
 			case INT16:
+				logMsg.append("(int 16)");
 				_searchStats = SetUpAndIterate<uint16_t>(knownVal, knownValSecondary);
 				break;
 			case INT64:
+				logMsg.append("(int 64)");
 				_searchStats = SetUpAndIterate<uint64_t>(knownVal, knownValSecondary);
 				break;
 			default: //INT32
+				logMsg.append("(int 32)");
 				_searchStats = SetUpAndIterate<uint32_t>(knownVal, knownValSecondary);
 			}
 		}
@@ -834,15 +872,32 @@ void MungPlex::Search::PrimitiveTypeSearch()
 		stream1 >> knownVal;
 		stream2 >> knownValSecondary;
 
-		if (_currentPrimitiveTypeSelect == FLOAT)
-			_searchStats = SetUpAndIterate<float>(knownVal, knownValSecondary);
+		if (_currentComparisionTypeSelect == Xertz::KNOWN)
+		{
+			logMsg.append("known value of ");
+			std::string(_knownValueText);
+		}
 		else
+			logMsg.append("unknown value ");
+
+		if (_currentPrimitiveTypeSelect == FLOAT)
+		{
+			logMsg.append("(float)");
+			_searchStats = SetUpAndIterate<float>(knownVal, knownValSecondary);
+		}
+		else
+		{
+			logMsg.append("(double)");
 			_searchStats = SetUpAndIterate<double>(knownVal, knownValSecondary);
+		}
 	}
+
+	Log::LogInformation(logMsg.c_str());
 }
 
 void MungPlex::Search::ArrayTypeSearch()
 {
+	Log::LogInformation((std::string("Perform Search for array of type ") + _searchArrayTypes[_currentArrayTypeSelect].first).c_str());
 	_currentComparisionTypeSelect = Xertz::KNOWN;
 
 	const std::string strArray = std::string(_knownValueText);
@@ -894,6 +949,7 @@ void MungPlex::Search::ArrayTypeSearch()
 
 void MungPlex::Search::TextTypeSearch()
 {
+	Log::LogInformation((std::string("Perform Search for text of type ") + _searchTextTypes[_currentTextTypeSelect].first).c_str());
 	_currentComparisionTypeSelect = Xertz::KNOWN;
 	MorphText searchText = MorphText(std::string(_knownValueText));
 	searchText.SetMaxLength(256);
@@ -903,11 +959,11 @@ void MungPlex::Search::TextTypeSearch()
 
 void MungPlex::Search::ColorTypeSearch()
 {
+	Log::LogInformation((std::string("Perform Search for color of type ") + _searchColorTypes[_currentColorTypeSelect].first).c_str());
 	_currentComparisionTypeSelect = Xertz::KNOWN;
 	std::string arg(_knownValueText);
 	const LitColor colorP(arg);
 	arg = std::string(_secondaryKnownValueText);
 	const LitColor colorS(arg);
-
 	_searchStats = SetUpAndIterate<LitColor>(colorP, colorS);
 }

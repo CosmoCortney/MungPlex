@@ -22,6 +22,7 @@
 #include<string>
 #include<tuple>
 #include"Settings.h"
+#include"Log.h"
 
 namespace MungPlex
 {
@@ -279,6 +280,8 @@ namespace MungPlex
                         WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
                     }
                 }
+
+                Log::LogInformation((std::string("Multi-poked ") + _searchTextTypes[_currentTextTypeSelect].first + " text values").c_str());
                 return true;
             }
 
@@ -291,22 +294,26 @@ namespace MungPlex
                 {
                     address -= _regions[i].Base;
                     address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
+                    bool success;
 
                     switch (_currentTextTypeSelect)
                     {
                     case MorphText::ASCII:
-                        return WriteTextEx(pid, pokeValue.GetASCII(), address);
+                        success = WriteTextEx(pid, pokeValue.GetASCII(), address);
                     case MorphText::SHIFTJIS:
-                        return WriteTextEx(pid, pokeValue.GetShiftJis(), address);
+                        success = WriteTextEx(pid, pokeValue.GetShiftJis(), address);
                     case MorphText::UTF8:
-                        return WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
+                        success = WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
                     case MorphText::UTF16LE: case MorphText::UTF16BE:
-                        return WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
+                        success = WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
                     case MorphText::UTF32LE: case MorphText::UTF32BE:
-                        return WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
+                        success = WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
                     default: //ISO-8859-X
-                        return WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
+                        success = WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
                     }
+
+                    Log::LogInformation((std::string("Poked ") + _searchTextTypes[_currentTextTypeSelect].first + " text value").c_str());
+                    return success;
                 }
             }
             
@@ -379,6 +386,8 @@ namespace MungPlex
                             }
                         }
                 }
+
+                Log::LogInformation((std::string("Multi-poked ") + _searchColorTypes[_currentColorTypeSelect].first + " color values").c_str());
                 return true;
             }
 
@@ -421,6 +430,8 @@ namespace MungPlex
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
                         }
                     }
+
+                    Log::LogInformation((std::string("Poked ") + _searchColorTypes[_currentColorTypeSelect].first + " color value").c_str());
                     return true;
                 }
             }
@@ -478,6 +489,8 @@ namespace MungPlex
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
                     }
                 }
+
+                Log::LogInformation((std::string("Multi-poked ") + _searchArrayTypes[_currentArrayTypeSelect].first + " array values").c_str());
                 return true;
             }
 
@@ -497,6 +510,8 @@ namespace MungPlex
                         if (!pokeArray.IsIgnoredIndex(i))
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
                     }
+
+                    Log::LogInformation((std::string("Poked ") + _searchArrayTypes[_currentArrayTypeSelect].first + " array value").c_str());
                     return true;
                 }
             }
@@ -543,6 +558,8 @@ namespace MungPlex
                     address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
                     Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(_pokeValue, reinterpret_cast<void*>(address), sizeof(dataType));
                 }
+
+                Log::LogInformation((std::string("Multi-poked ") + _searchPrimitiveTypes[_currentPrimitiveTypeSelect].first + " values").c_str());
                 return true;
             }
 
@@ -558,7 +575,8 @@ namespace MungPlex
                     address -= _regions[i].Base;
                     address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
                     Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(_pokeValue, reinterpret_cast<void*>(address), sizeof(dataType));
-                    return true;
+                    Log::LogInformation((std::string("Poked ") + _searchPrimitiveTypes[_currentPrimitiveTypeSelect].first + " value").c_str());
+                	return true;
                 }
             }
             

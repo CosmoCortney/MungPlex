@@ -2,6 +2,7 @@
 #include "Settings.h"
 #include <Windows.h>
 #include <string>
+#include "Log.h"
 
 static float scale = 2.0f;
 
@@ -367,6 +368,7 @@ void MungPlex::Cheats::DrawCheatInformation()
 			_markedCheats.assign(_markedCheats.size(), false);
 			_markedCheats.emplace_back(true);
 			_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats.back().ID));
+			Log::LogInformation("Added Cheat to list");
 		}
 
 		ImGui::SameLine();
@@ -382,6 +384,7 @@ void MungPlex::Cheats::DrawCheatInformation()
 				saveCheatList();
 				_unsavedChangesTextCheat = false;
 				disableFlag = false;
+				Log::LogInformation((std::string("Updated Cheat ") + std::to_string(_selectedID)).c_str());
 			}
 
 			ImGui::SameLine();
@@ -394,6 +397,8 @@ void MungPlex::Cheats::DrawCheatInformation()
 				
 				if (_luaCheats.empty())
 					disableFlag = true;
+
+				Log::LogInformation((std::string("Deleted Cheat at ") + std::to_string(_selectedID)).c_str());
 			}
 		if (_disableEditButtons) ImGui::EndDisabled();
 
@@ -447,6 +452,7 @@ void MungPlex::Cheats::DrawControl()
 				{
 					_executeCheats = false;
 					_cheatThread.join();
+					Log::LogInformation("Cheat(s) terminated");
 				}
 				else
 				{
@@ -469,6 +475,7 @@ void MungPlex::Cheats::cheatRoutine()
 
 	if (_cheatList)
 	{
+		Log::LogInformation("Executing Cheat List");
 		for (const auto& cheat : _luaCheats)
 		{
 			pfr = _lua.safe_script(cheat.Lua, sol::script_pass_on_error);
@@ -476,7 +483,7 @@ void MungPlex::Cheats::cheatRoutine()
 			{
 				sol_c_assert(!pfr.valid());
 				const sol::error err = pfr;
-				std::cout << err.what() << std::endl;
+				Log::LogInformation(err.what());
 				_executeCheats = false;
 				_cheatError = true;
 				return;
@@ -494,13 +501,14 @@ void MungPlex::Cheats::cheatRoutine()
 	}
 	else
 	{
+		Log::LogInformation("Executing Text Cheat");
 		pfr = _lua.safe_script(_textCheatLua, sol::script_pass_on_error);
 
 		if (!pfr.valid())
 		{
 			sol_c_assert(!pfr.valid());
 			const sol::error err = pfr;
-			std::cout << err.what() << std::endl;
+			Log::LogInformation(err.what());
 			_executeCheats = false;
 			_cheatError = true;
 			return;

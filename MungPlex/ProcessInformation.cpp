@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include"Search.h"
 #include"Cheats.h"
+#include "Log.h"
 
 void MungPlex::ProcessInformation::DrawWindow()
 {
@@ -24,6 +25,7 @@ void MungPlex::ProcessInformation::RefreshData(const int pid)
 	GetInstance()._handle = Xertz::SystemInfo::GetProcessInfo(pid).GetHandle();
 	GetInstance()._modules = Xertz::SystemInfo::GetProcessInfo(pid).GetModuleList();
 	GetInstance()._regions = Xertz::SystemInfo::GetProcessInfo(pid).GetRegionList();
+	Log::LogInformation("Refreshed Process Information");
 }
 
 void MungPlex::ProcessInformation::DrawModuleList() const
@@ -289,6 +291,7 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 
 bool MungPlex::ProcessInformation::InitProject64()
 {
+	_processName = "Project64";
 	_underlyingIsBigEndian = false;
 	_addressWidth = 4;
 	bool found = false;
@@ -353,6 +356,7 @@ bool MungPlex::ProcessInformation::InitProcess(const std::wstring& processName) 
 
 bool MungPlex::ProcessInformation::InitDolphin()
 {
+	_processName = "Dolphin";
 	_underlyingIsBigEndian = true;
 	_addressWidth = 4;
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
@@ -488,6 +492,12 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	
 	GetInstance()._exePath = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).GetFilePath(); // refactor these two lines when implementing PC game support
 	GetInstance()._isX64 = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).IsX64();		  //-^
+
+	std::string msg("Connected to ");
+	msg.append(GetInstance()._processName + " (");
+	msg.append(GetInstance()._platform + ") - Game ID: ");
+	msg.append(GetInstance()._gameID);
+	Log::LogInformation(msg.c_str());
 
 	return true; 
 }
