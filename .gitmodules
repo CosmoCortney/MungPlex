@@ -14,3 +14,6 @@
 [submodule "include/lua"]
 	path = include/lua
 	url = https://github.com/lua/lua
+[submodule "include/ImGuiFileDialog"]
+	path = include/ImGuiFileDialog
+	url = https://github.com/aiekick/ImGuiFileDialog.git
