@@ -51,7 +51,7 @@ MungPlex::PointerSearch::PointerSearch()
     _minOffset = new char[17];
     strcpy_s(_minOffset, 17, "0");
     _maxOffset = new char[17];
-    strcpy_s(_maxOffset, 17, "0");
+    strcpy_s(_maxOffset, 17, "1000");
     _resultsPath = new char[512];
     strcpy_s(_resultsPath, 512, std::string(Settings::GetGeneralSettings().DocumentsPath).append("\\MungPlex\\PointerSearch\\results.txt").c_str());
     _results = new char[4];
@@ -139,6 +139,7 @@ void MungPlex::PointerSearch::drawSettings()
 
         if (ImGui::Button("Clear List"))
         {
+            Log::LogInformation("Pointer list cleared");
             _memDumps.clear();
         }
 
@@ -146,9 +147,9 @@ void MungPlex::PointerSearch::drawSettings()
 
         if (ImGui::Button("Scan"))
         {
+            Log::LogInformation("Pointer scan started");
             generateArgument();
             performScan();
-            //loadResults();
         }
     }
     ImGui::EndChild();
@@ -308,6 +309,7 @@ void MungPlex::PointerSearch::waitAndLoadResults(PROCESS_INFORMATION pi)
         stillActive = exitCode == STILL_ACTIVE;
     }
 
+    Log::LogInformation("Finished Pointer Scan");
     loadResults();
 }
 
@@ -421,5 +423,6 @@ bool MungPlex::PointerSearch::loadResults()
     int strLength = buffer.str().size();
     _results = new char[++strLength];
     strcpy_s(_results, strLength, buffer.str().c_str());
+    Log::LogInformation("Pointer Scan results loaded");
     return static_cast<bool>(strLength);
 }
