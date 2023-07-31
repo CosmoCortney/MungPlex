@@ -87,6 +87,13 @@ namespace MungPlex
             PROJECT64, DOLPHIN
         };
 
+        enum Systems
+        {
+	        NES, SNES, N64, GAMECUBE, TRIFORCE, WII, WIIU, SWITCH, GB, GBC, GBA, NDS, N3DS, PS1, PS2, PS3,
+            PS4, PS5, PSP, PSV, SMS, GENESIS, S32X, SMCD, SATURN, DREAMCAST, GG, XBOX, XBOX360, XBOXONE,
+            XBOXSERIES, X86, X64
+        };
+
         static std::string& GetGameID();
         static void DrawWindow();
         static void RefreshData(int32_t PID);

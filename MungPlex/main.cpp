@@ -11,6 +11,7 @@
 #include"Search.h"
 #include"Cheats.h"
 #include"Log.h"
+#include "PointerSearch.h"
 
 void key_callback(GLFWwindow* window, const int key, const int scancode, const int action, const int mode) //keep unused parameters since that signature is required for glfwSetKeyCallback
 {
@@ -135,6 +136,7 @@ int main()
 		MungPlex::Search::DrawWindow();
 		MungPlex::Cheats::DrawWindow();
 		MungPlex::Log::DrawWindow();
+		MungPlex::PointerSearch::DrawWindow();
 
 		ImGui::Render();
 

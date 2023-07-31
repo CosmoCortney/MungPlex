@@ -201,17 +201,23 @@ namespace MungPlex
         return result.substr(2);
     }
 
-    static void PrepareWidgetLabel(const std::string& name, const float paneWidth, const float labelPortion)
+    static void PrepareWidgetLabel(const std::string& name, const float paneWidth, const float labelPortion, bool printLabel)
     {
-        const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;
+    	const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;
         const float curserPos = ImGui::GetCursorPos().x;
-        ImGui::Text(name.c_str());
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(curserPos + absoluteWidth * labelPortion);
-        ImGui::PushItemWidth(absoluteWidth * (1.0f - labelPortion));
+
+        if(printLabel)
+        {
+            ImGui::Text(name.c_str());
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(curserPos + absoluteWidth * labelPortion);
+            ImGui::PushItemWidth(absoluteWidth * (1.0f - labelPortion));
+        }
+        else
+			ImGui::PushItemWidth(absoluteWidth);
     }
 
-    template<typename T> static void SetUpCombo(const std::string& name, const std::vector<T>& items, int& select, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+    template<typename T> static bool SetUpCombo(const std::string& name, const std::vector<T>& items, int& select, const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true)
     {
         std::vector<std::string> items_str;
         items_str.reserve(items.size());
@@ -229,53 +235,56 @@ namespace MungPlex
                 items_str.emplace_back(std::string(item.begin(), item.end()).c_str());
             else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>> || std::is_same_v<T, EMUPAIR>)
                 items_str.emplace_back(std::string(item.first.begin(), item.first.end()).c_str());
+            else if constexpr (std::is_same_v<T, std::tuple<std::string, int, bool>>)
+                items_str.emplace_back(std::get<std::string>(item).c_str());
             else if constexpr (std::is_same_v < T, SystemRegion>)
             {
                 items_str.emplace_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
             }
         }
 
-		PrepareWidgetLabel(name, paneWidth, labelPortion);
-        ImGui::Combo(("##" + name).c_str(), &select, [](void* data, int idx, const char** out_text)
+		PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel);
+        const bool indexChanged = ImGui::Combo(("##" + name).c_str(), &select, [](void* data, int idx, const char** out_text)
                                             {
                                                 auto& items = *static_cast<std::vector<std::string>*>(data);
                                                 *out_text = items[idx].c_str();
                                                 return true;
                                             }, static_cast<void*>(&items_str), items.size());
         ImGui::PopItemWidth();
+        return indexChanged;
     }
 
-    static void SetUpSliderFloat(const std::string& name, float* val, const float min, const float max, const char* format = "%3f", const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+    static void SetUpSliderFloat(const std::string& name, float* val, const float min, const float max, const char* format = "%3f", const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true)
     {
-        PrepareWidgetLabel(name, paneWidth, labelPortion);
+        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel);
         ImGui::SliderFloat(("##" + name).c_str(), val, min, max, format, NULL);
         ImGui::PopItemWidth();
     }
 
-    static void SetUpSliderInt(const std::string& name, int* val, const int min, const int max, const char* format = "%d", const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+    static void SetUpSliderInt(const std::string& name, int* val, const int min, const int max, const char* format = "%d", const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true)
     {
-        PrepareWidgetLabel(name, paneWidth, labelPortion);
+        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel);
         ImGui::SliderInt(("##" + name).c_str(), val, min, max, format, NULL);
         ImGui::PopItemWidth();
     }
 
-    static bool SetUpInputText(const std::string& name, char* text, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+    static bool SetUpInputText(const std::string& name, char* text, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true)
     {
-        PrepareWidgetLabel(name, paneWidth, labelPortion);
+        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel);
         const bool edited = ImGui::InputText(("##" + name).c_str(), text, bufSize);
         ImGui::PopItemWidth();
         return edited;
     }
 
-    static bool SetUpInputInt(const std::string& name, int* val, const int step = 1, const int stepFast = 100, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+    static bool SetUpInputInt(const std::string& name, int* val, const int step = 1, const int stepFast = 100, const float paneWidth = 0.25f, const float labelPortion = 0.4f, const ImGuiInputTextFlags flags = 0, bool printLabel = true)
     {
-        PrepareWidgetLabel(name, paneWidth, labelPortion);
-        const bool edited = ImGui::InputInt(("##" + name).c_str(), val, step, stepFast);
+        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel);
+        const bool edited = ImGui::InputInt(("##" + name).c_str(), val, step, stepFast, flags);
         ImGui::PopItemWidth();
         return edited;
     }
 
-    static bool SetUpInputTextMultiline(const std::string& name, char* text, const size_t bufSize, const float paneWidth = 0.25f, const float paneHeight = 0.25f, const ImGuiInputTextFlags flags = 0)
+    static bool SetUpInputTextMultiline(const std::string& name, char* text, const size_t bufSize, const float paneWidth = 0.25f, const float paneHeight = 0.25f, const ImGuiInputTextFlags flags = 0, bool printLabel = true)
     {
         const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;
         const float absoluteHeight = ImGui::GetContentRegionAvail().y * paneHeight;
@@ -286,7 +295,7 @@ namespace MungPlex
 
     static void SetUpLableText(const std::string& name, const char* text, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
     {
-        PrepareWidgetLabel(name, paneWidth, labelPortion);
+        PrepareWidgetLabel(name, paneWidth, labelPortion, true);
         ImGui::Text(text, bufSize);
         ImGui::PopItemWidth();
     }

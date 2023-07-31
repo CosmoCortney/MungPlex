@@ -3,6 +3,7 @@
 #include"Search.h"
 #include"Cheats.h"
 #include "Log.h"
+#include"PointerSearch.h"
 
 void MungPlex::ProcessInformation::DrawWindow()
 {
@@ -341,6 +342,7 @@ bool MungPlex::ProcessInformation::InitProject64()
 				Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID + 2, region.GetBaseAddress<char*>() + 0x3E, 1);
 				Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID + 3, region.GetBaseAddress<char*>() + 0x3D, 1);
 				_gameID = std::string(tempID);
+				PointerSearch::SelectPreset(N64);
 				break;
 			}
 		}
@@ -390,6 +392,7 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{
 		_platform = "GameCube";
+		PointerSearch::SelectPreset(GAMECUBE);
 		_systemRegions.erase(_systemRegions.begin() + 1);
 		return true;
 	}
@@ -413,6 +416,7 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, _systemRegions[0].BaseLocationProcess, 4);
 	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
 	_platform = "Wii";
+	PointerSearch::SelectPreset(WII);
 
 	if (temp == 0 && IDcopy != 0)
 	{
