@@ -31,6 +31,8 @@ add_executable (MungPlex
     Search.cpp
     Log.h
     Log.cpp
+    PointerSearch.h
+    PointerSearch.cpp
     HelperFunctions.h
     Cheats.h
     Cheats.cpp
@@ -47,8 +49,9 @@ add_executable (MungPlex
     ../include/Xertz/MemoryRegion.cpp
     ../include/Xertz/ProcessInfo.cpp
     ../include/Xertz/SystemInfo.cpp
-    #$<TARGET_OBJECTS:MainLibrary>  # Link with the MainLibrary target
- "Log.h" "Log.cpp")
+    ../include/ImGuiFileDialog/ImGuiFileDialog.h
+    ../include/ImGuiFileDialog/ImGuiFileDialog.cpp
+)
 
 # Link against lua
 target_link_libraries(MungPlex ${LUA_LIBRARIES})
