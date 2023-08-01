@@ -162,7 +162,7 @@ void MungPlex::PointerSearch::drawList()
 
     ImGui::BeginChild("child_MemDumpList", childXY, true);
     {
-        const float width = ImGui::GetContentRegionAvail().x;
+        const float width = childXY.x;
         static std::vector<std::string> typeSelect = { "Memory Dump", "Pointer Map"};
         /*ImGui::Text("Dump File");
 
@@ -184,66 +184,70 @@ void MungPlex::PointerSearch::drawList()
         ImGui::Text("Correspondence");*/
 
         static std::string label("dumpfile");
+        static ImGuiSelectableFlags selectableFlags = ImGuiSelectableFlags_SpanAllColumns;
+        static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
-        if (!ImGui::BeginTable("Memory Dumps", 5))
-            return;
-
-        ImGui::TableSetupColumn("Dump File");
-        ImGui::TableSetupColumn("Starting Address");
-        ImGui::TableSetupColumn("Target Address");
-        ImGui::TableSetupColumn("File Type");
-        ImGui::TableSetupColumn("Correspondence");
-        //ImGui::TableSetColumnWidth(0, ImGui::GetContentRegionAvail().x * 0.5f);
-        ImGui::TableHeadersRow();
-
-        for (int row = 0; row < _memDumps.size(); ++row)
+        if (ImGui::BeginTable("Memory Dumps", 5, flags, childXY))
         {
-            ImGui::TableNextRow();
 
-            for (int col = 0; col < 5; ++col)
+            ImGui::TableSetupColumn("Dump File");
+            ImGui::TableSetupColumn("Starting Address");
+            ImGui::TableSetupColumn("Target Address");
+            ImGui::TableSetupColumn("File Type");
+            ImGui::TableSetupColumn("Correspondence");
+            //ImGui::TableSetColumnWidth(0, ImGui::GetContentRegionAvail().x * 0.5f);
+            ImGui::TableHeadersRow();
+            
+            for (int row = 0; row < _memDumps.size(); ++row)
             {
-                ImGui::TableSetColumnIndex(col);
+                ImGui::TableNextRow();
 
-                switch(col)
+                for (int col = 0; col < 5; ++col)
                 {
-                case 0:
-                    if (SetUpInputText((label + std::to_string(row)).c_str(), _memDumps[row].first, 512, 1.0f, 0.0f, false))
+                    ImGui::TableSetColumnIndex(col);
+
+                    switch(col)
                     {
+                    case 0:
+                        if (SetUpInputText((label + std::to_string(row)).c_str(), _memDumps[row].first, 512, 1.0f, 0.0f, false))
+                        {
+                        }
+                        break;
+                    case 1:
+                        if (SetUpInputText((label + "s" + std::to_string(row)).c_str(), _bufStartingAddress[row], 17, 1.0f, 0.0f, false))
+                        {
+                            std::stringstream stream;
+                            stream << std::hex << std::string(_bufStartingAddress[row]);
+                            stream >> _memDumps[row].second[0];
+                        }
+                        break;
+                    case 2:
+                        if (SetUpInputText((label + "t" + std::to_string(row)).c_str(), _bufTargetAddress[row], 17, 1.0f, 0.0f, false))
+                        {
+                            std::stringstream stream;
+                            stream << std::hex << std::string(_bufTargetAddress[row]);
+                            stream >> _memDumps[row].second[1];
+                        }
+                        break;
+                    case 3: {
+                        int select = _memDumps[row].second[2];
+                        SetUpCombo((label + "type" + std::to_string(row)).c_str(), typeSelect, select, 1.0f, 0.0f, false);
+                        _memDumps[row].second[2] = select;
+                    }break;
+                    case 4:
+                        if (SetUpInputInt((label + "correspondence" + std::to_string(row)).c_str(), reinterpret_cast<int*>(&_memDumps[row].second[3]), 1, 1, 1.0f, 0.0f, 0, false))
+                        {
+                            if (static_cast<int>(_memDumps[row].second[3]) < 0)
+                                _memDumps[row].second[3] = 0;
+                        }
+                        break;
                     }
-                    break;
-                case 1:
-                    if (SetUpInputText((label + "s" + std::to_string(row)).c_str(), _bufStartingAddress[row], 17, 1.0f, 0.0f, false))
-                    {
-                        std::stringstream stream;
-                        stream << std::hex << std::string(_bufStartingAddress[row]);
-                        stream >> _memDumps[row].second[0];
-                    }
-                    break;
-                case 2:
-                    if (SetUpInputText((label + "t" + std::to_string(row)).c_str(), _bufTargetAddress[row], 17, 1.0f, 0.0f, false))
-                    {
-                        std::stringstream stream;
-                        stream << std::hex << std::string(_bufTargetAddress[row]);
-                        stream >> _memDumps[row].second[1];
-                    }
-                    break;
-                case 3: {
-                    int select = _memDumps[row].second[2];
-                    SetUpCombo((label + "type" + std::to_string(row)).c_str(), typeSelect, select, 1.0f, 0.0f, false);
-                    _memDumps[row].second[2] = select;
-                }break;
-                case 4:
-                    if (SetUpInputInt((label + "correspondence" + std::to_string(row)).c_str(), reinterpret_cast<int*>(&_memDumps[row].second[3]), 1, 1, 1.0f, 0.0f, 0, false))
-                    {
-                        if (static_cast<int>(_memDumps[row].second[3]) < 0)
-                            _memDumps[row].second[3] = 0;
-                    }
-                    break;
                 }
             }
-        }
-
+            
         ImGui::EndTable();
+
+        }
     }
     ImGui::EndChild();
 }
