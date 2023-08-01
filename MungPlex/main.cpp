@@ -88,6 +88,7 @@ int main()
 			style.Colors[ImGuiCol_TabUnfocusedActive] = colors.TabUnfocusedActive;
 			style.Colors[ImGuiCol_DockingPreview] = colors.DockingPreview;
 			style.Colors[ImGuiCol_DockingEmptyBg] = colors.DockingEmptyBG;
+			style.Colors[ImGuiCol_TableHeaderBg] = colors.TableHeaderBg;
 		}
 
 		
