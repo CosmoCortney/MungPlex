@@ -14,9 +14,12 @@
 #include <Windows.h>
 #include "MungPlexConfig.h"
 #include"ProcessInformation.h"
+#include"MemoryViewer.h"
 
 namespace MungPlex
 {
+    class MemoryViewer;
+
     class Connection
     {
     private:
@@ -37,9 +40,12 @@ namespace MungPlex
         }
 
         bool _connected = false;
+        uint32_t _memViewerCount = 0;
         int _selectedEmulatorIndex = 0;
         char _connectionMessage[256];
+        std::vector<MemoryViewer> _memoryViewers;
         void DrawConnectionSelect();
+        void drawAdditionalFeatureSelect();
 
     public:
         static void DrawWindow();

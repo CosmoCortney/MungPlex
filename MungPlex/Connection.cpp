@@ -52,6 +52,26 @@ void MungPlex::Connection::DrawConnectionSelect()
 
 	ImGui::Dummy(ImVec2(0.0f, 5.0f));
 	ImGui::Text(_connectionMessage);
+	drawAdditionalFeatureSelect();
+}
+
+void MungPlex::Connection::drawAdditionalFeatureSelect()
+{
+	if (ImGui::Button("Open Memory Viewer"))
+	{
+		_memoryViewers.emplace_back(++_memViewerCount);
+	}
+
+	for (int i = 0; i < _memoryViewers.size(); ++i)
+	{
+		if (!_memoryViewers[i].IsOpen())
+			_memoryViewers.erase(_memoryViewers.begin() + i);
+	}
+
+	for (int i = 0; i < _memoryViewers.size(); ++i)
+	{
+		_memoryViewers[i].DrawWindow();
+	}
 }
 
 bool MungPlex::Connection::IsConnected()
