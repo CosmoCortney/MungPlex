@@ -90,10 +90,6 @@ int main()
 			style.Colors[ImGuiCol_DockingEmptyBg] = colors.DockingEmptyBG;
 			style.Colors[ImGuiCol_TableHeaderBg] = colors.TableHeaderBg;
 		}
-
-		
-
-		
 	}
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
