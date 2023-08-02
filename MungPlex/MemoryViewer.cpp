@@ -5,8 +5,13 @@ MungPlex::MemoryViewer::MemoryViewer(const uint32_t id)
 	SetIndex(id);
     _isOpen = true;
     strcpy_s(_bufAddress, 17, "0");
-    _hexView = new char[32*16+1];
-    memset(_hexView, '0', 32 * 16 + 1);
+    _hexView = new char[_readSize+1];
+    memset(_hexView, '\0', _readSize);
+
+    _dummy = new char[256];
+    memset(_dummy, '?', 256);
+
+    setUpByRegionSelect(0);
 }
 
 void MungPlex::MemoryViewer::SetIndex(const uint32_t id)
@@ -23,13 +28,10 @@ void MungPlex::MemoryViewer::DrawWindow()
 
     ImGui::Begin(_windowTitle.c_str(), &_isOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
     {
+        ImGui::SetWindowSize(ImVec2(1280.0f, 720.0f));
         drawControlPanel();
         ImGui::SameLine();
         drawHexEditor();
-
-        
-
-
     }
 	ImGui::End();
 }
@@ -46,13 +48,24 @@ void MungPlex::MemoryViewer::drawControlPanel()
 
     ImGui::BeginChild("child_MemoryViewerControlPanel", childXY);
     {
-        SetUpCombo("Region:", ProcessInformation::GetRegions(), _regionSelect, 1.0f, 0.4f);
+        if (SetUpCombo("Region:", ProcessInformation::GetRegions(), _regionSelect, 1.0f, 0.4f))
+        {
+            setUpByRegionSelect(_regionSelect);
+        }
 
         if (SetUpInputText("Jump to Address:", _bufAddress, 17, 1.0f, 0.4f))
         {
-            std::stringstream stream;
-            stream << std::hex << _bufAddress;
-            stream >> _viewAddress;
+            processBufferAddress();
+        }
+
+        if (SetUpInputInt("Read Size:", reinterpret_cast<int*>(&_readSize), 0x10, 0x100, 1.0f, 0.4f))
+        {
+            if (_readSize < 0x10)
+                _readSize = 0x10;
+
+            delete[] _hexView;
+            _hexView = new char[_readSize+1];
+            memset(_hexView, '\0', _readSize);
         }
     }
     ImGui::EndChild();
@@ -60,8 +73,40 @@ void MungPlex::MemoryViewer::drawControlPanel()
 
 void MungPlex::MemoryViewer::drawHexEditor()
 {
-    //_memEdit.DrawContents(_hexView, 32 * 16 + 1, _viewAddress);
-    _memEdit.DrawContents(_hexView, 32 * 16 + 1,
-        reinterpret_cast<size_t>(ProcessInformation::GetRegions()[0].BaseLocationProcess),
-        ProcessInformation::GetHandle());
+    ImGui::BeginChild("child_hexeditor");
+    {
+        if(_validAddress)
+            _memEdit.DrawContents(_hexView, _readSize, _viewAddress, _handle, _readAddressEx);
+        else
+            _memEdit.DrawContents(_dummy, 256, 0, 0, 0);
+    }
+    ImGui::EndChild();
+}
+
+void MungPlex::MemoryViewer::setUpByRegionSelect(const int index)
+{
+    std::stringstream stream;
+    stream << std::hex << ProcessInformation::GetRegions()[index].Base;
+    strcpy_s(_bufAddress, 17, stream.str().c_str());
+    processBufferAddress();
+}
+
+void MungPlex::MemoryViewer::processBufferAddress()
+{
+    std::stringstream stream;
+    stream << std::hex << _bufAddress;
+    stream >> _viewAddress;
+
+    for (SystemRegion region : ProcessInformation::GetRegions())
+    {
+        if (_viewAddress >= region.Base && _viewAddress < (region.Base + region.Size))
+        {
+            _readAddressEx = (void*)((char*)region.BaseLocationProcess + (_viewAddress - region.Base));
+            _handle = ProcessInformation::GetHandle();
+            _validAddress = true;
+            return;
+        }
+    }
+
+    _validAddress = false;
 }

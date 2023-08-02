@@ -30,7 +30,12 @@ namespace MungPlex
         char* _hexView = nullptr;
         MemoryEditor _memEdit;
         uint64_t _viewAddress = 0;
-
+        uint32_t _readSize = 256;
+        uint64_t _displayAddress = 0;
+        void* _readAddressEx = nullptr;
+        char* _dummy = nullptr;
+        HANDLE _handle;
+        bool _validAddress = false;
 
         void drawControlPanel();
         void drawHexEditor();
@@ -40,10 +45,14 @@ namespace MungPlex
         ~MemoryViewer()
         {
             delete[] _hexView;
+            delete[] _bufAddress;
+            delete[] _dummy;
         }
 
         void DrawWindow();
         void SetIndex(const uint32_t id);
         bool IsOpen();
+        void setUpByRegionSelect(const int index);
+        void processBufferAddress();
     };
 }

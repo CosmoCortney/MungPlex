@@ -57,10 +57,12 @@ void MungPlex::Connection::DrawConnectionSelect()
 
 void MungPlex::Connection::drawAdditionalFeatureSelect()
 {
-	if (ImGui::Button("Open Memory Viewer"))
+	if (!_connected) ImGui::BeginDisabled();
 	{
-		_memoryViewers.emplace_back(++_memViewerCount);
+		if (ImGui::Button("Open Memory Viewer"))
+			_memoryViewers.emplace_back(++_memViewerCount);
 	}
+	if (!_connected) ImGui::EndDisabled();
 
 	for (int i = 0; i < _memoryViewers.size(); ++i)
 	{
