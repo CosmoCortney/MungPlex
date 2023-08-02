@@ -53,6 +53,7 @@ add_executable (MungPlex
     ../include/Xertz/SystemInfo.cpp
     ../include/ImGuiFileDialog/ImGuiFileDialog.h
     ../include/ImGuiFileDialog/ImGuiFileDialog.cpp
+    ../include/ImGui_MemoryEditor/imgui_memory_editor/imgui_memory_editor.h
 )
 
 # Link against lua

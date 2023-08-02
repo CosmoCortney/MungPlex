@@ -20,4 +20,5 @@ target_include_directories(MungPlex PRIVATE
     "include/Xertz/LitColor/LitColor"
     "include/Xertz/MorphText/MorphText"
     "include/ImGuiFileDialog"
+    "include/ImGui_MEmoryEditor/imgui_memory_editor"
 )

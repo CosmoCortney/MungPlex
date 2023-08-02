@@ -14,6 +14,7 @@
 #include <Windows.h>
 #include "MungPlexConfig.h"
 #include"ProcessInformation.h"
+#include"imgui_memory_editor.h"
 
 namespace MungPlex
 {
