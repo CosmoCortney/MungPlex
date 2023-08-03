@@ -197,12 +197,11 @@ void MungPlex::Settings::drawGeneralSettings()
 	ImGui::BeginChild("child", childYX);
 	{
 		ImGui::SeparatorText("General Settings");
-		SetUpInputText("Documents Path:", _generalSettings.DocumentsPath, 512, 1.0f, 0.2f);
-		SetUpSliderFloat("UI Scale:", &_generalSettings.Scale, 0.65f, 2.0f, "%3f", 1.0f, 0.2f);
-		SetUpCombo("Default Foreground Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect, 1.0f, 0.2f);
-		SetUpCombo("Color Scheme:", _styles, _generalSettings.Style, 1.0f, 0.2f);
-
 		
+		SetUpInputText("Documents Path:", _generalSettings.DocumentsPath, 512, 1.0f, 0.2f, true, "Where you want MungPlex to save data. An SSD is recommended for fast memory dump streeaming. Changes take after after restarting.");
+		SetUpSliderFloat("UI Scale:", &_generalSettings.Scale, 0.65f, 2.0f, "%3f", 1.0f, 0.2f, true, "If the UI looks off you can change the scale. Changes take after after restarting.");
+		SetUpCombo("Default Active Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect, 1.0f, 0.2f, true, "Window to be active on startup (Search, Cheats, ...). Changes take after after restarting.");
+		SetUpCombo("Color Theme:", _styles, _generalSettings.Style, 1.0f, 0.2f, true, "Select UI Color Theme. Changes take after after restarting.");
 	}
 	ImGui::EndChild();
 }
@@ -224,6 +223,8 @@ void MungPlex::Settings::drawSearchSettings()
 
 		ImGui::Checkbox("Values are hex by default", &_searchSettings.DefaultValuesHex);
 		ImGui::Checkbox("Cached Searches by default", &_searchSettings.DefaultCached);
+		ImGui::SameLine();
+		HelpMarker("Whether search results shall be kept in RAM (uses more RAM, but faster) or saved to local starage (uses less RAM but slower).");
 	}
 	ImGui::EndChild();
 }
