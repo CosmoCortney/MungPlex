@@ -290,10 +290,14 @@ void MungPlex::Cheats::writeDouble(const uint64_t address, double value)
 void MungPlex::Cheats::DrawWindow()
 {
 	ImGui::Begin("Cheats");
-	GetInstance().DrawCheatList();
-	ImGui::SameLine();
-	GetInstance().DrawCheatInformation(); 
-	GetInstance().DrawControl();
+	if (!Connection::IsConnected()) ImGui::BeginDisabled();
+	{
+		GetInstance().DrawCheatList();
+		ImGui::SameLine();
+		GetInstance().DrawCheatInformation();
+		GetInstance().DrawControl();
+	}
+	if (!Connection::IsConnected()) ImGui::EndDisabled();
 	ImGui::End();
 }
 
