@@ -501,7 +501,7 @@ void MungPlex::Search::DrawResultsArea()
 		}
 	}
 	
-	SetUpLableText("Results", std::to_string(std::get<0>(_searchStats)).c_str(), 32, 0.25f, 0.25f);
+	SetUpLableText("Results:", std::to_string(std::get<0>(_searchStats)).c_str(), 32, 0.25f, 0.25f);
 	
 	ImGui::BeginGroup();
 	{
@@ -523,7 +523,7 @@ void MungPlex::Search::DrawResultsArea()
 		}
 
 		ImGui::SameLine();
-		SetUpLableText("Of", _pagesAmountText, IM_ARRAYSIZE(_pagesAmountText), 8.0f);
+		SetUpLableText("Of", _pagesAmountText, IM_ARRAYSIZE(_pagesAmountText), 0.2f, 0.15f);
 
 		std::stringstream stream;
 		if (ImGui::Button("Page Up"))
