@@ -4,7 +4,8 @@ MungPlex::MemoryViewer::MemoryViewer(const uint32_t id)
 {
 	SetIndex(id);
     _isOpen = true;
-    strcpy_s(_bufAddress, 17, "0");
+    _bufAddress = new char[17];
+    strcpy_s(_bufAddress, 16, "0");
     _hexView = new char[_readSize+1];
     memset(_hexView, '\0', _readSize);
 

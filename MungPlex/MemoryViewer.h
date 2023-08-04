@@ -25,7 +25,7 @@ namespace MungPlex
         std::string _windowTitle;
         bool _isOpen = false;
         int _regionSelect = 0;
-        char _bufAddress[17];
+        char* _bufAddress = nullptr;
         uint64_t _address;
         char* _hexView = nullptr;
         MemoryEditor _memEdit;
