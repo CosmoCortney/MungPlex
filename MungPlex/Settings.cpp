@@ -106,12 +106,10 @@ MungPlex::Settings::Settings()
 	//_styles.emplace_back("Pastell", IMGUIDEFAULT);
 
 
-
-
-
 	bool save = false;
 	_generalSettings.Windows.emplace_back("Search");
 	_generalSettings.Windows.emplace_back("Cheats");
+	_generalSettings.Windows.emplace_back("Pointer Search");
 	_generalSettings.Windows.emplace_back("Process Information");
 	_generalSettings.Windows.emplace_back("Settings");
 

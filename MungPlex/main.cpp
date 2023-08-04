@@ -135,6 +135,13 @@ int main()
 		MungPlex::Log::DrawWindow();
 		MungPlex::PointerSearch::DrawWindow();
 
+		static bool setWindowFocused = true;
+		if (setWindowFocused)
+		{
+			ImGui::SetWindowFocus(MungPlex::Settings::GetGeneralSettings().Windows[MungPlex::Settings::GetGeneralSettings().DefaultWindowSelect].c_str());
+			setWindowFocused = false;
+		}
+
 		ImGui::Render();
 
 		int display_w, display_h;
