@@ -82,15 +82,15 @@ void MungPlex::PointerSearch::drawSettings()
             SelectPreset(_presetSelect);
         }
 
-        ImGui::Checkbox("Big Endian", &_isBigEndian);
+        ImGui::Checkbox("Big Endian", &_isBigEndian); ImGui::SameLine(); HelpMarker("Whether the memory dumps to be scanned are big endian or not.");
         ImGui::SameLine();
-        ImGui::Checkbox("Print Visited Addresses", &_printVisitedAddresses);
+        ImGui::Checkbox("Print Visited Addresses", &_printVisitedAddresses); ImGui::SameLine(); HelpMarker("Additionally print visited addresses.");
         ImGui::SameLine();
-        ImGui::Checkbox("Print Module Names", &_printModuleNames);
-        SetUpInputText("Minimum Offset:", _minOffset, 17, 1.0f, 0.3f);
-    	SetUpInputText("Maximum Offset:", _maxOffset, 17, 1.0f, 0.3f);
+        ImGui::Checkbox("Print Module Names", &_printModuleNames); ImGui::SameLine(); HelpMarker("Whether to print file/module name instead of initial address.");
+        SetUpInputText("Minimum Offset:", _minOffset, 17, 1.0f, 0.3f, true, "Smallest offset value to be considered. Negative values allowed. A lower value may increase results count but also the scan time.");
+    	SetUpInputText("Maximum Offset:", _maxOffset, 17, 1.0f, 0.3f, true, "Biggest offset value to be considered. A bigger value may increase results count but also increase scan time.");
 
-        if (SetUpInputInt("Min. Pointer Depth:", &_minPointerDepth, 1, 1, 1.0f, 0.3f))
+        if (SetUpInputInt("Min. Pointer Depth:", &_minPointerDepth, 1, 1, 1.0f, 0.3f, 0, true, "Minimum pointer depth level. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value is usually always 1."))
         {
             if (_minPointerDepth < 1)
                 _minPointerDepth = 1;
@@ -99,7 +99,7 @@ void MungPlex::PointerSearch::drawSettings()
                 _minPointerDepth = _maxPointerDepth;
         }
 
-        if (SetUpInputInt("Max. Pointer Depth:", &_maxPointerDepth, 1, 1, 1.0f, 0.3f))
+        if (SetUpInputInt("Max. Pointer Depth:", &_maxPointerDepth, 1, 1, 1.0f, 0.3f, 0, true, "Maximum pointer depth level. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value can be the same as \"Minimum Pointer Depth\" if you don't want any extra depth. A higher value will increase the results count but also scan time."))
         {
             if (_maxPointerDepth > 4)
                 _maxPointerDepth = 4;
@@ -109,12 +109,12 @@ void MungPlex::PointerSearch::drawSettings()
         }
 
         static std::vector<std::string> addressWidthSelect = { "1 Byte", "2 Bytes", "4 Bytes", "8 Bytes" };
-        if (SetUpCombo("Address Width:", addressWidthSelect, _addressWidthIndex, 1.0f, 0.3f))
+        if (SetUpCombo("Address Width:", addressWidthSelect, _addressWidthIndex, 1.0f, 0.3f, true, "Address width of the dump's system."))
             _addressWidth = 1 << _addressWidthIndex;
 
-        SetUpInputText("Results File:", _resultsPath, 512, 1.0f, 0.3f);
+        SetUpInputText("Results File:", _resultsPath, 512, 1.0f, 0.3f, true, "Where to save the results file.");
         SetUpSliderFloat("Max. Memory Utilization Fraction:", &_maxMemUtilizationFraction, 0.1f, 0.95f, "%2f", 1.0f, 0.5f);
-        SetUpInputInt("Max. Pointer Count:", &_maxPointerCount, 100, 1000, 1.0f, 0.3f);
+        SetUpInputInt("Max. Pointer Count:", &_maxPointerCount, 100, 1000, 1.0f, 0.3f, 0, true, "Maximum amount of pointers to be generated. Smaller values may decrease scan time and but also the likeability to find working pointer paths.");
 
         if (ImGui::Button("Add File"))
             ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Add File", ".bin,.raw,.dmp", GetInstance()._defaultPath.c_str());
@@ -162,7 +162,7 @@ void MungPlex::PointerSearch::drawList()
 
     ImGui::BeginChild("child_MemDumpList", childXY, true);
     {
-        const float width = childXY.x;
+        //const float width = childXY.x;
         static std::vector<std::string> typeSelect = { "Memory Dump", "Pointer Map"};
         /*ImGui::Text("Dump File");
 
@@ -187,7 +187,7 @@ void MungPlex::PointerSearch::drawList()
         static ImGuiSelectableFlags selectableFlags = ImGuiSelectableFlags_SpanAllColumns;
         static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
-        if (ImGui::BeginTable("Memory Dumps", 5, flags, childXY))
+        if (ImGui::BeginTable("Memory Dumps", 5, flags, ImGui::GetContentRegionAvail()))
         {
 
             ImGui::TableSetupColumn("Dump File");
