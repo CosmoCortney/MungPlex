@@ -630,7 +630,6 @@ namespace MungPlex
                 uint64_t resultsIndex = (pageIndex + row);
                 ImGui::TableNextRow(selectableFlags);
 
-                ImGui::TableNextRow();
                 for (int col = 0; col < 4; ++col)
                 {
                     ImGui::TableSetColumnIndex(col);
