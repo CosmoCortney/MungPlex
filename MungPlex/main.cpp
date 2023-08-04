@@ -94,17 +94,19 @@ int main()
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-	ImFontConfig cfg;
-	static const ImWchar icons_ranges[] = { 0x0000, 0xf3ff, 0 };
 
 #ifndef NDEBUG
 	bool show_demo_window = true;
-	bool fontLoaded = io.Fonts->AddFontFromFileTTF("F:\\Workspace\\MungPlex\\MungPlex\\resources\\NotoSansJP-Black.ttf", MungPlex::Settings::GetGeneralSettings().Scale * 20.0f, &cfg, io.Fonts->GetGlyphRangesJapanese());
 #else
 	bool show_demo_window = false;
-	bool fontLoaded = io.Fonts->AddFontFromFileTTF("resources\\NotoSansJP-Black.ttf", MungPlex::Settings::GetGeneralSettings().Scale * 20.0f, &cfg, io.Fonts->GetGlyphRangesJapanese());
 #endif
+
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	
+	ImFontConfig cfg;
+	static const ImWchar icons_ranges[] = { 0x0000, 0xf3ff, 0 };
+	// While developing, manually copy the resources folder into the output directory where the EXE resides, otherwise this won't be resolvable
+	bool fontLoaded = io.Fonts->AddFontFromFileTTF("resources\\NotoSansJP-Black.ttf", MungPlex::Settings::GetGeneralSettings().Scale * 20.0f, &cfg, io.Fonts->GetGlyphRangesJapanese());
 
 	const auto version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 	std::cout << "OpenGL Version: " << version << std::endl;
