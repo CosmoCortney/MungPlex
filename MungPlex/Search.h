@@ -105,7 +105,7 @@ namespace MungPlex
             _caseSensitive = Settings::GetSearchSettings().DefaultCaseSensitive;
             _useColorWheel = Settings::GetSearchSettings().DefaultColorWheel;
             _hex = Settings::GetSearchSettings().DefaultValuesHex;
-            _dumpPath = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath) + L"\\MungPlex\\Dump";
+            _dumpPath = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath) + L"\\MungPlex\\Search\\";
         }
 
         ~Search() {};
