@@ -68,8 +68,10 @@ namespace MungPlex
         bool _printModuleNames = false;
         float _maxMemUtilizationFraction = 0.9f;
         int _maxPointerCount = 100000;
-        std::vector<std::tuple< std::string, int,  bool>> _systemPresets{};
+        std::vector<std::tuple< std::string, int, bool>> _systemPresets{};
         int _presetSelect = 0;
+        int _selectedInputType = 0;
+        const std::vector<std::string> _inputTypeSelect = { "Memory Dump", "Pointer Map" };
 
     public:
         static void DrawWindow();
