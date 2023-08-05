@@ -120,13 +120,13 @@ void MungPlex::PointerSearch::drawSettings()
         SetUpCombo("Input Filetype:", _inputTypeSelect, _selectedInputType, 1.0f, 0.3f);
 
         if (ImGui::Button("Add File"))
-            ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Add File", ".bin,.raw,.dmp.pointermap", GetInstance()._defaultPath.c_str());
+            ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Add File", ".bin,.raw,.dmp,.pointermap", GetInstance()._defaultPath.c_str());
 
         if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
         {
             if (ImGuiFileDialog::Instance()->IsOk())
             {
-                std::string filePathName = std::string("\"") + filePathName.append(ImGuiFileDialog::Instance()->GetFilePathName() + "\"");
+                std::string filePathName = std::string("\"") + ImGuiFileDialog::Instance()->GetFilePathName() + "\"";
                 _memDumps.emplace_back(new char[512], std::array<uint64_t, 4>());
                 strcpy_s(GetInstance()._memDumps.back().first, 512, filePathName.c_str());
                 _bufStartingAddress.emplace_back(new char[17]);
@@ -424,7 +424,7 @@ void MungPlex::PointerSearch::generateArgument()
     if(_printVisitedAddresses)
 		_arg.append("--print-visited-addresses ");
 
-    //std::cout << _arg << "\n";
+    std::cout << _arg << "\n";
 }
 
 void MungPlex::PointerSearch::SelectPreset(const int presetIndex)
