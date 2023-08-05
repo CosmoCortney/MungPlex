@@ -391,14 +391,15 @@ void MungPlex::PointerSearch::generateArgument()
                 separator = false;
             }
         }
+
+        if (_selectedInputType)
+            break;
     }
     
     if (_selectedInputType)
     {
         _arg.append(readPointermapsFilePaths);
         _arg.append(targetPointermaps);
-        _arg.append("--pointer-map-compression-levels 1 ");
-        _arg.append("--compress-pointer-maps ");
     }
     else
     {
