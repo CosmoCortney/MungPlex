@@ -25,15 +25,15 @@ namespace MungPlex
         std::string _windowTitle;
         bool _isOpen = false;
         int _regionSelect = 0;
-        char* _bufAddress = nullptr;
+        std::string _bufAddress;
         uint64_t _address;
-        char* _hexView = nullptr;
+        std::string _hexView;
         MemoryEditor _memEdit;
         uint64_t _viewAddress = 0;
         uint32_t _readSize = 256;
         uint64_t _displayAddress = 0;
         void* _readAddressEx = nullptr;
-        char* _dummy = nullptr;
+        std::string _dummy;
         HANDLE _handle;
         bool _validAddress = false;
 
@@ -42,13 +42,6 @@ namespace MungPlex
 
     public:
         MemoryViewer(const uint32_t id);
-        ~MemoryViewer()
-        {
-            delete[] _hexView;
-            delete[] _bufAddress;
-            delete[] _dummy;
-        }
-
         void DrawWindow();
         void SetIndex(const uint32_t id);
         bool IsOpen();

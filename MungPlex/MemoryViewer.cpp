@@ -4,15 +4,9 @@ MungPlex::MemoryViewer::MemoryViewer(const uint32_t id)
 {
 	SetIndex(id);
     _isOpen = true;
-    _bufAddress = new char[17];
-    strcpy_s(_bufAddress, 16, "0");
-    _bufAddress[16] = '\0';
-    _hexView = new char[_readSize+1];
-    memset(_hexView, '\0', _readSize);
-
-    _dummy = new char[256];
-    memset(_dummy, '?', 256);
-
+    _bufAddress = std::string("00000000\0", 17);
+    _hexView = std::string("", _readSize);
+    _dummy = std::string("Invalid Memory Region");
     setUpByRegionSelect(0);
 }
 
@@ -55,7 +49,7 @@ void MungPlex::MemoryViewer::drawControlPanel()
             setUpByRegionSelect(_regionSelect);
         }
 
-        if (SetUpInputText("Jump to Address:", _bufAddress, 17, 1.0f, 0.4f))
+        if (SetUpInputText("Jump to Address:", _bufAddress.data(), 17, 1.0f, 0.4f))
         {
             processBufferAddress();
         }
@@ -65,9 +59,7 @@ void MungPlex::MemoryViewer::drawControlPanel()
             if (_readSize < 0x10)
                 _readSize = 0x10;
 
-            delete[] _hexView;
-            _hexView = new char[_readSize+1];
-            memset(_hexView, '\0', _readSize);
+            _hexView = std::string(_hexView.data(), _readSize);
         }
     }
     ImGui::EndChild();
@@ -78,9 +70,9 @@ void MungPlex::MemoryViewer::drawHexEditor()
     ImGui::BeginChild("child_hexeditor");
     {
         if(_validAddress)
-            _memEdit.DrawContents(_hexView, _readSize, _viewAddress, _handle, _readAddressEx);
+            _memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, _handle, _readAddressEx);
         else
-            _memEdit.DrawContents(_dummy, 256, 0, 0, 0);
+            _memEdit.DrawContents(_dummy.data(), _dummy.size(), 0, 0, 0);
     }
     ImGui::EndChild();
 }
@@ -89,14 +81,14 @@ void MungPlex::MemoryViewer::setUpByRegionSelect(const int index)
 {
     std::stringstream stream;
     stream << std::hex << ProcessInformation::GetRegions()[index].Base;
-    strcpy_s(_bufAddress, 17, stream.str().c_str());
+    stream >> _bufAddress;
     processBufferAddress();
 }
 
 void MungPlex::MemoryViewer::processBufferAddress()
 {
     std::stringstream stream;
-    stream << std::hex << _bufAddress;
+    stream << std::hex << _bufAddress.data();
     stream >> _viewAddress;
 
     for (SystemRegion region : ProcessInformation::GetRegions())
