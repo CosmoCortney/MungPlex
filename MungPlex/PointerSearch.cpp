@@ -123,7 +123,7 @@ void MungPlex::PointerSearch::drawSettings()
         {
             if (ImGuiFileDialog::Instance()->IsOk())
             {
-                std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+                std::string filePathName = std::string("\"") + filePathName.append(ImGuiFileDialog::Instance()->GetFilePathName() + "\"");
                 _memDumps.emplace_back(new char[512], std::array<uint64_t, 4>());
                 strcpy_s(GetInstance()._memDumps.back().first, 512, filePathName.c_str());
                 _bufStartingAddress.emplace_back(new char[17]);
