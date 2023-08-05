@@ -25,6 +25,7 @@ namespace MungPlex
     private:
         Connection()
         {
+            _memoryViewers.reserve(16);
             strcpy_s(_connectionMessage, "Not connected...");
         }
 
