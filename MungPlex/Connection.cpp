@@ -2,7 +2,7 @@
 
 void MungPlex::Connection::DrawWindow()
 {
-	ImGui::Begin("Connection");
+	ImGui::Begin("Connection", &GetInstance()._isOpen, ImGuiWindowFlags_NoCollapse);
 	GetInstance().DrawConnectionSelect();
 	ImGui::End();
 }
@@ -79,4 +79,9 @@ void MungPlex::Connection::drawAdditionalFeatureSelect()
 bool MungPlex::Connection::IsConnected()
 {
 	return GetInstance()._connected;
+}
+
+bool MungPlex::Connection::IsOpen()
+{
+	return GetInstance()._isOpen;
 }

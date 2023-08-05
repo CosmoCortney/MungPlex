@@ -40,6 +40,7 @@ namespace MungPlex
         }
 
         bool _connected = false;
+        bool _isOpen = true;
         uint32_t _memViewerCount = 0;
         int _selectedEmulatorIndex = 0;
         char _connectionMessage[256];
@@ -50,5 +51,6 @@ namespace MungPlex
     public:
         static void DrawWindow();
         static bool IsConnected();
+        static bool IsOpen();
     };
 }

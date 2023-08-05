@@ -133,6 +133,9 @@ int main()
 		MungPlex::Log::DrawWindow();
 		MungPlex::PointerSearch::DrawWindow();
 
+		if (!MungPlex::Connection::IsOpen())
+			break;
+
 		static bool setWindowFocused = true;
 		if (setWindowFocused)
 		{
