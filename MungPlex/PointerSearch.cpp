@@ -190,7 +190,7 @@ void MungPlex::PointerSearch::drawList()
         static ImGuiSelectableFlags selectableFlags = ImGuiSelectableFlags_SpanAllColumns;
         static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
-        if (ImGui::BeginTable("Memory Dumps", 5, flags, ImGui::GetContentRegionAvail()))
+        if (ImGui::BeginTable("Memory Dumps", 4, flags, ImGui::GetContentRegionAvail()))
         {
 
             ImGui::TableSetupColumn("Dump File");
