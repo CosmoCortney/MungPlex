@@ -45,9 +45,9 @@ add_executable (MungPlex
     ../include/imgui/imgui_widgets.cpp
     ../include/imgui/backends/imgui_impl_opengl3.cpp
     ../include/imgui/backends/imgui_impl_glfw.cpp
-    ../include/Xertz/MemDump.cpp
+    ../include/MemoryCompare/MemDump.cpp
     ../include/Xertz/Xertz.h
-    ../include/Xertz/MemCompareResult.h
+    ../include/MemoryCompare/MemCompareResult.h
     ../include/Xertz/MemoryRegion.cpp
     ../include/Xertz/ProcessInfo.cpp
     ../include/Xertz/SystemInfo.cpp
