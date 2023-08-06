@@ -17,9 +17,9 @@ target_include_directories(MungPlex PRIVATE
     "include/glad"
     "include/Xertz"
     "include/MemoryCompare"
-    "include/MemoryCompare/OperativeArray/OperativeArray"
-    "include/MemoryCompare/LitColor/LitColor"
-    "include/MemoryCompare/MorphText/MorphText"
+    "include/MemoryCompare/include/OperativeArray/OperativeArray"
+    "include/MemoryCompare/include/LitColor/LitColor"
+    "include/MemoryCompare/include/MorphText/MorphText"
     "include/ImGuiFileDialog"
     "include/ImGui_MemoryEditor/imgui_memory_editor"
 )

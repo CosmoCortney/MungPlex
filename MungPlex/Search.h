@@ -73,25 +73,25 @@ namespace MungPlex
             _searchColorTypes.emplace_back("RGBAF (4 Floats)", LitColor::RGBAF);
             _searchColorTypes.emplace_back("RGB 565 (2 Bytes)", LitColor::RGB565);
 
-            _searchConditionTypes.emplace_back("Equal (==)", Xertz::EQUAL);
+            _searchConditionTypes.emplace_back("Equal (==)", MemoryCompare::EQUAL);
             _searchConditionTypesText = _searchConditionTypes;
-            _searchConditionTypes.emplace_back("Unequal (!=)", Xertz::UNEQUAL);
+            _searchConditionTypes.emplace_back("Unequal (!=)", MemoryCompare::UNEQUAL);
             _searchConditionTypesArray = _searchConditionTypes;
-            _searchConditionTypes.emplace_back("Greater (>)", Xertz::GREATER);
-            _searchConditionTypes.emplace_back("Greater or Equal (>=)", Xertz::GREATER_EQUAL);
-            _searchConditionTypes.emplace_back("Lower (<)", Xertz::LOWER);
-            _searchConditionTypes.emplace_back("Lower or Equal (<=)", Xertz::LOWER_EQUAL);
+            _searchConditionTypes.emplace_back("Greater (>)", MemoryCompare::GREATER);
+            _searchConditionTypes.emplace_back("Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL);
+            _searchConditionTypes.emplace_back("Lower (<)", MemoryCompare::LOWER);
+            _searchConditionTypes.emplace_back("Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL);
             _searchConditionTypesColor = _searchConditionTypes;
-            _searchConditionTypes.emplace_back("Increased by", Xertz::INCREASED_BY);
-            _searchConditionTypes.emplace_back("Decreased by", Xertz::DECREASED_BY);
-            _searchConditionTypes.emplace_back("Value Between", Xertz::BETWEEN);
-            _searchConditionTypes.emplace_back("Value Not Between", Xertz::NOT_BETWEEN);
+            _searchConditionTypes.emplace_back("Increased by", MemoryCompare::INCREASED_BY);
+            _searchConditionTypes.emplace_back("Decreased by", MemoryCompare::DECREASED_BY);
+            _searchConditionTypes.emplace_back("Value Between", MemoryCompare::BETWEEN);
+            _searchConditionTypes.emplace_back("Value Not Between", MemoryCompare::NOT_BETWEEN);
             _searchConditionTypesFloat = _searchConditionTypes;
-            _searchConditionTypes.emplace_back("AND (has all true bits)", Xertz::AND);
-            _searchConditionTypes.emplace_back("OR (has at least 1 true bit)", Xertz::OR);
+            _searchConditionTypes.emplace_back("AND (has all true bits)", MemoryCompare::AND);
+            _searchConditionTypes.emplace_back("OR (has at least 1 true bit)", MemoryCompare::OR);
 
-            _searchComparasionType.emplace_back("Unknown/Initial", Xertz::UNKNOWN);
-            _searchComparasionType.emplace_back("Known Value", Xertz::KNOWN);
+            _searchComparasionType.emplace_back("Unknown/Initial", MemoryCompare::UNKNOWN);
+            _searchComparasionType.emplace_back("Known Value", MemoryCompare::KNOWN);
 
             _RegionSelectSignalCombo.ConnectOnIndexChanged(Slot_IndexChanged);
             _RegionSelectSignalCombo.ConnectOnItemCountChanged(Slot_ItemCountChanged);
@@ -144,7 +144,7 @@ namespace MungPlex
         std::vector<SystemRegion> _regions{};
         int _currentComparisionTypeSelect = 0;
         int _currentConditionTypeSelect = 0;
-        std::vector<Xertz::MemDump> _memDumps{};
+        std::vector<MemoryCompare::MemDump> _memDumps{};
         ImVec4 _colorVec;
 
         //search settings
@@ -215,13 +215,13 @@ namespace MungPlex
 
             if (isWideAddress)
             {
-                Xertz::MemCompare<dataType, uint64_t>::SetUp(ProcessInformation::GetPID(), _dumpPath, _cached, _underlyingBigEndian, _alignmentValue);
-                return Xertz::MemCompare<dataType, uint64_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary, _iterationIndex+1);
+                MemoryCompare::MemCompare<dataType, uint64_t>::SetUp(ProcessInformation::GetPID(), _dumpPath, _cached, _underlyingBigEndian, _alignmentValue);
+                return MemoryCompare::MemCompare<dataType, uint64_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary, _iterationIndex+1);
             }
             else
             {
-                Xertz::MemCompare<dataType, uint32_t>::SetUp(ProcessInformation::GetPID(), _dumpPath, _cached, _underlyingBigEndian, _alignmentValue);
-                return Xertz::MemCompare<dataType, uint32_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary, _iterationIndex +1);
+                MemoryCompare::MemCompare<dataType, uint32_t>::SetUp(ProcessInformation::GetPID(), _dumpPath, _cached, _underlyingBigEndian, _alignmentValue);
+                return MemoryCompare::MemCompare<dataType, uint32_t>::Iterate(baseAddressEx, size, _currentConditionTypeSelect, isKnown, _precision/100.0f, valKnown, valKnownSecondary, _iterationIndex +1);
             }
         }
         
@@ -233,7 +233,7 @@ namespace MungPlex
 
             if (_multiPoke)
             {
-                auto results = Xertz::MemCompare<MorphText, addressType>::GetResults();
+                auto results = MemoryCompare::MemCompare<MorphText, addressType>::GetResults();
                 uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
@@ -329,7 +329,7 @@ namespace MungPlex
 
             if (_multiPoke)
             {
-                auto results = Xertz::MemCompare<LitColor, addressType>::GetResults();
+                auto results = MemoryCompare::MemCompare<LitColor, addressType>::GetResults();
                 uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
@@ -449,7 +449,7 @@ namespace MungPlex
             if (_multiPoke)
             {
                 int regionIndex = -1;
-                auto results = Xertz::MemCompare<OperativeArray<uType>, addressType>::GetResults();
+                auto results = MemoryCompare::MemCompare<OperativeArray<uType>, addressType>::GetResults();
                 uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
@@ -526,7 +526,7 @@ namespace MungPlex
             if (_multiPoke)
             {
                 int regionIndex = -1;
-                auto results = Xertz::MemCompare<dataType, addressType>::GetResults();
+                auto results = MemoryCompare::MemCompare<dataType, addressType>::GetResults();
                 uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
@@ -591,7 +591,7 @@ namespace MungPlex
             if (!ImGui::BeginTable("Results", 4, flags, ImVec2(0.0f, ImGui::GetContentRegionAvail().y * 0.75f)))
                 return;
                     
-            auto results = Xertz::MemCompare<dataType, addressType>::GetResults();
+            auto results = MemoryCompare::MemCompare<dataType, addressType>::GetResults();
             const int iterationCount = std::get<1>(_searchStats);
             if (!_cached && iterationCount > 0)
             {
@@ -659,9 +659,9 @@ namespace MungPlex
                                 break;
                             }
                         }
-                        else if constexpr(Xertz::is_instantiation_of<dataType, OperativeArray>::value)
+                        else if constexpr(MemoryCompare::is_instantiation_of<dataType, OperativeArray>::value)
                         {
-                            uint64_t itemCount = Xertz::MemCompare<dataType, addressType>::GetValueItemCount();
+                            uint64_t itemCount = MemoryCompare::MemCompare<dataType, addressType>::GetValueItemCount();
                             uint64_t resultIndexWithItemCount = resultsIndex * itemCount;
 
                             switch (_currentArrayTypeSelect)
@@ -753,7 +753,7 @@ namespace MungPlex
                                 {
                                 case MorphText::ASCII:
                                     if (!strLength)
-                                        strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetASCII()) + 1;
+                                        strLength = strlen(MemoryCompare::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetASCII()) + 1;
                                     sprintf_s(buf, "%s", reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength);
                                     std::memcpy(tempValue, buf, 1024);
                                     break;
@@ -766,13 +766,13 @@ namespace MungPlex
                                 } break;
                                 case MorphText::UTF8:
                                     if (!strLength)
-                                        strLength = strlen(Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF8().c_str())+1;
+                                        strLength = strlen(MemoryCompare::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF8().c_str())+1;
                                     sprintf_s(buf, "%s", reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength);
                                     std::memcpy(tempValue, buf, 1024);
                                     break;
                                 case MorphText::UTF16LE: case MorphText::UTF16BE: {//todo: fix this - strings won`t be rendered properly
                                     if (!strLength)
-                                        strLength = strlen((char*)Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str()) + 1;
+                                        strLength = strlen((char*)MemoryCompare::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str()) + 1;
 
                                     static std::string temp = _currentTextTypeSelect == MorphText::UTF16BE
                                         ? MorphText::Utf16BE_To_Utf8(reinterpret_cast<wchar_t*>(reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength))
@@ -783,7 +783,7 @@ namespace MungPlex
                                 } break;
                                 case MorphText::UTF32LE: case MorphText::UTF32BE: {//todo: fix this - strings won`t be rendered properly
                                     if (!strLength)
-                                        strLength = strlen((char*)Xertz::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str()) + 1;
+                                        strLength = strlen((char*)MemoryCompare::MemCompare<dataType, addressType>::GetPrimaryKnownValue().GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str()) + 1;
 
                                     static std::string temp = _currentTextTypeSelect == MorphText::UTF32BE
                                         ? MorphText::Utf32BE_To_Utf8(reinterpret_cast<char32_t*>(reinterpret_cast<char*>(results->at(iterationCount - 1)->GetResultValues()) + resultsIndex * strLength))

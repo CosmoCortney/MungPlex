@@ -125,24 +125,24 @@ void MungPlex::Search::DrawSearchOptions()
 			strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			break;
 		default: //PRIMITIVE
-			if (_currentConditionTypeSelect == Xertz::BETWEEN)
+			if (_currentConditionTypeSelect == MemoryCompare::BETWEEN)
 			{
 				strcpy_s(knownPrimaryValueLabel, "Lowest");
 				strcpy_s(knownSecondaryValueLabel, "Highest");
 				disableSecondaryValueText = false;
 			}
-			else if (_currentConditionTypeSelect == Xertz::NOT_BETWEEN)
+			else if (_currentConditionTypeSelect == MemoryCompare::NOT_BETWEEN)
 			{
 				strcpy_s(knownPrimaryValueLabel, "Below");
 				strcpy_s(knownSecondaryValueLabel, "Above");
 				disableSecondaryValueText = false;
 			}
-			else if (_currentConditionTypeSelect == Xertz::INCREASED_BY)
+			else if (_currentConditionTypeSelect == MemoryCompare::INCREASED_BY)
 			{
 				strcpy_s(knownPrimaryValueLabel, "Increased by");
 				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
-			else if (_currentConditionTypeSelect == Xertz::DECREASED_BY)
+			else if (_currentConditionTypeSelect == MemoryCompare::DECREASED_BY)
 			{
 				strcpy_s(knownPrimaryValueLabel, "Decreased by");
 				strcpy_s(knownSecondaryValueLabel, "Not applicable");
@@ -204,11 +204,11 @@ void MungPlex::Search::DrawSearchOptions()
 		}
 		if (disablePrimaryValueText) ImGui::EndDisabled();
 
-		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < Xertz::BETWEEN || _currentConditionTypeSelect > Xertz::NOT_BETWEEN))) ImGui::BeginDisabled();
+		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < MemoryCompare::BETWEEN || _currentConditionTypeSelect > MemoryCompare::NOT_BETWEEN))) ImGui::BeginDisabled();
 		if (SetUpInputText(knownSecondaryValueLabel, _secondaryKnownValueText, IM_ARRAYSIZE(_secondaryKnownValueText), 0.5f, 0.4f))
 		{
 		}
-		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < Xertz::BETWEEN || _currentConditionTypeSelect > Xertz::NOT_BETWEEN))) ImGui::EndDisabled();
+		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < MemoryCompare::BETWEEN || _currentConditionTypeSelect > MemoryCompare::NOT_BETWEEN))) ImGui::EndDisabled();
 
 		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::BeginDisabled();
 		SetUpSliderFloat("Precision (%%):", &_precision, 1.0f, 100.0f, "%0.2f", 0.5f, 0.4f);
@@ -246,92 +246,92 @@ void MungPlex::Search::DrawSearchOptions()
 				{
 				case INT8: {
 					if (addressWidth > 4)
-						_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int8_t>, uint64_t>::Reset() : Xertz::MemCompare<OperativeArray<uint8_t>, uint64_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<OperativeArray<int8_t>, uint64_t>::Reset() : MemoryCompare::MemCompare<OperativeArray<uint8_t>, uint64_t>::Reset();
 					else
-						_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int8_t>, uint32_t>::Reset() : Xertz::MemCompare<OperativeArray<uint8_t>, uint32_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<OperativeArray<int8_t>, uint32_t>::Reset() : MemoryCompare::MemCompare<OperativeArray<uint8_t>, uint32_t>::Reset();
 				} break;
 				case INT16: {
 					if (addressWidth > 4)
-						_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int16_t>, uint64_t>::Reset() : Xertz::MemCompare<OperativeArray<uint16_t>, uint64_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<OperativeArray<int16_t>, uint64_t>::Reset() : MemoryCompare::MemCompare<OperativeArray<uint16_t>, uint64_t>::Reset();
 					else
-						_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int16_t>, uint32_t>::Reset() : Xertz::MemCompare<OperativeArray<uint16_t>, uint32_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<OperativeArray<int16_t>, uint32_t>::Reset() : MemoryCompare::MemCompare<OperativeArray<uint16_t>, uint32_t>::Reset();
 				} break;
 				case INT64: {
 					if (addressWidth > 4)
-						_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int64_t>, uint64_t>::Reset() : Xertz::MemCompare<OperativeArray<uint64_t>, uint64_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<OperativeArray<int64_t>, uint64_t>::Reset() : MemoryCompare::MemCompare<OperativeArray<uint64_t>, uint64_t>::Reset();
 					else
-						_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int64_t>, uint32_t>::Reset() : Xertz::MemCompare<OperativeArray<uint64_t>, uint32_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<OperativeArray<int64_t>, uint32_t>::Reset() : MemoryCompare::MemCompare<OperativeArray<uint64_t>, uint32_t>::Reset();
 				} break;
 				case FLOAT: {
 					if (addressWidth > 4)
-						_searchStats = Xertz::MemCompare<OperativeArray<float>, uint64_t>::Reset();
+						_searchStats = MemoryCompare::MemCompare<OperativeArray<float>, uint64_t>::Reset();
 					else
-						_searchStats = Xertz::MemCompare<OperativeArray<float>, uint32_t>::Reset();
+						_searchStats = MemoryCompare::MemCompare<OperativeArray<float>, uint32_t>::Reset();
 				} break;
 				case DOUBLE: {
 					if (addressWidth > 4)
-						_searchStats = Xertz::MemCompare<OperativeArray<double>, uint64_t>::Reset();
+						_searchStats = MemoryCompare::MemCompare<OperativeArray<double>, uint64_t>::Reset();
 					else
-						_searchStats = Xertz::MemCompare<OperativeArray<double>, uint32_t>::Reset();
+						_searchStats = MemoryCompare::MemCompare<OperativeArray<double>, uint32_t>::Reset();
 				} break;
 				default: { //OperativeArray<INT32>
 					if (addressWidth > 4)
-						_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int32_t>, uint64_t>::Reset() : Xertz::MemCompare<OperativeArray<uint32_t>, uint64_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<OperativeArray<int32_t>, uint64_t>::Reset() : MemoryCompare::MemCompare<OperativeArray<uint32_t>, uint64_t>::Reset();
 					else
-						_searchStats = _signed ? Xertz::MemCompare<OperativeArray<int32_t>, uint32_t>::Reset() : Xertz::MemCompare<OperativeArray<uint32_t>, uint32_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<OperativeArray<int32_t>, uint32_t>::Reset() : MemoryCompare::MemCompare<OperativeArray<uint32_t>, uint32_t>::Reset();
 				}
 				}
 			} break;
 			case COLOR: {
 				if (addressWidth > 4)
-					_searchStats = Xertz::MemCompare<LitColor, uint64_t>::Reset();
+					_searchStats = MemoryCompare::MemCompare<LitColor, uint64_t>::Reset();
 				else
-					_searchStats = Xertz::MemCompare<LitColor, uint32_t>::Reset();
+					_searchStats = MemoryCompare::MemCompare<LitColor, uint32_t>::Reset();
 			} break;
 			case TEXT: {
 				if (addressWidth > 4)
-					_searchStats = Xertz::MemCompare<MorphText, uint64_t>::Reset();
+					_searchStats = MemoryCompare::MemCompare<MorphText, uint64_t>::Reset();
 				else
-					_searchStats = Xertz::MemCompare<MorphText, uint32_t>::Reset();
+					_searchStats = MemoryCompare::MemCompare<MorphText, uint32_t>::Reset();
 			} break;
 			default: {//PRIMITIVE
 				switch (_currentPrimitiveTypeSelect)
 				{
 				case INT8: {
 					if (addressWidth > 4)
-						_searchStats = _signed ? Xertz::MemCompare<int8_t, uint64_t>::Reset() : Xertz::MemCompare<uint8_t, uint64_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<int8_t, uint64_t>::Reset() : MemoryCompare::MemCompare<uint8_t, uint64_t>::Reset();
 					else
-						_searchStats = _signed ? Xertz::MemCompare<int8_t, uint32_t>::Reset() : Xertz::MemCompare<uint8_t, uint32_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<int8_t, uint32_t>::Reset() : MemoryCompare::MemCompare<uint8_t, uint32_t>::Reset();
 				} break;
 				case INT16: {
 					if (addressWidth > 4)
-						_searchStats = _signed ? Xertz::MemCompare<int16_t, uint64_t>::Reset() : Xertz::MemCompare<uint16_t, uint64_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<int16_t, uint64_t>::Reset() : MemoryCompare::MemCompare<uint16_t, uint64_t>::Reset();
 					else
-						_searchStats = _signed ? Xertz::MemCompare<int16_t, uint32_t>::Reset() : Xertz::MemCompare<uint16_t, uint32_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<int16_t, uint32_t>::Reset() : MemoryCompare::MemCompare<uint16_t, uint32_t>::Reset();
 				} break;
 				case INT64: {
 					if (addressWidth > 4)
-						_searchStats = _signed ? Xertz::MemCompare<int64_t, uint64_t>::Reset() : Xertz::MemCompare<uint64_t, uint64_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<int64_t, uint64_t>::Reset() : MemoryCompare::MemCompare<uint64_t, uint64_t>::Reset();
 					else
-						_searchStats = _signed ? Xertz::MemCompare<int64_t, uint32_t>::Reset() : Xertz::MemCompare<uint64_t, uint32_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<int64_t, uint32_t>::Reset() : MemoryCompare::MemCompare<uint64_t, uint32_t>::Reset();
 				} break;
 				case FLOAT: {
 					if (addressWidth > 4)
-						_searchStats = Xertz::MemCompare<float, uint64_t>::Reset();
+						_searchStats = MemoryCompare::MemCompare<float, uint64_t>::Reset();
 					else
-						_searchStats = Xertz::MemCompare<float, uint32_t>::Reset();
+						_searchStats = MemoryCompare::MemCompare<float, uint32_t>::Reset();
 				} break;
 				case DOUBLE: {
 					if (addressWidth > 4)
-						_searchStats = Xertz::MemCompare<double, uint64_t>::Reset();
+						_searchStats = MemoryCompare::MemCompare<double, uint64_t>::Reset();
 					else
-						_searchStats = Xertz::MemCompare<double, uint32_t>::Reset();
+						_searchStats = MemoryCompare::MemCompare<double, uint32_t>::Reset();
 				} break;
 				default: { //INT32
 					if (addressWidth > 4)
-						_searchStats = _signed ? Xertz::MemCompare<int32_t, uint64_t>::Reset() : Xertz::MemCompare<uint32_t, uint64_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<int32_t, uint64_t>::Reset() : MemoryCompare::MemCompare<uint32_t, uint64_t>::Reset();
 					else
-						_searchStats = _signed ? Xertz::MemCompare<int32_t, uint32_t>::Reset() : Xertz::MemCompare<uint32_t, uint32_t>::Reset();
+						_searchStats = _signed ? MemoryCompare::MemCompare<int32_t, uint32_t>::Reset() : MemoryCompare::MemCompare<uint32_t, uint32_t>::Reset();
 				} break;
 				}
 			}
@@ -770,7 +770,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			logMsg.append("signed ");
 			int64_t knownVal, knownValSecondary;
 
-			if (_currentComparisionTypeSelect == Xertz::KNOWN)
+			if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
 				logMsg.append("known value of ");
 			else
 				logMsg.append("unknown value ");
@@ -780,7 +780,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 				stream1 << std::hex << std::string(_knownValueText);
 				stream2 << std::hex << std::string(_secondaryKnownValueText);
 
-				if (_currentComparisionTypeSelect == Xertz::KNOWN)
+				if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
 					logMsg.append(stream1.str());
 			}
 			else
@@ -788,7 +788,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 				stream1 << std::string(_knownValueText);
 				stream2 << std::string(_secondaryKnownValueText);
 
-				if (_currentComparisionTypeSelect == Xertz::KNOWN)
+				if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
 					logMsg.append(stream1.str());
 			}
 
@@ -819,7 +819,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 			logMsg.append("unsigned ");
 			uint64_t knownVal, knownValSecondary;
 
-			if (_currentComparisionTypeSelect == Xertz::KNOWN)
+			if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
 				logMsg.append("known value of ");
 			else
 				logMsg.append("unknown value ");
@@ -829,7 +829,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 				stream1 << std::hex << std::string(_knownValueText);
 				stream2 << std::hex << std::string(_secondaryKnownValueText);
 
-				if (_currentComparisionTypeSelect == Xertz::KNOWN)
+				if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
 					logMsg.append(stream1.str());
 			}
 			else
@@ -837,7 +837,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 				stream1 << std::string(_knownValueText);
 				stream2 << std::string(_secondaryKnownValueText);
 
-				if (_currentComparisionTypeSelect == Xertz::KNOWN)
+				if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
 					logMsg.append(stream1.str());
 			}
 
@@ -872,7 +872,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 		stream1 >> knownVal;
 		stream2 >> knownValSecondary;
 
-		if (_currentComparisionTypeSelect == Xertz::KNOWN)
+		if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
 		{
 			logMsg.append("known value of ");
 			std::string(_knownValueText);
@@ -898,7 +898,7 @@ void MungPlex::Search::PrimitiveTypeSearch()
 void MungPlex::Search::ArrayTypeSearch()
 {
 	Log::LogInformation((std::string("Perform Search for array of type ") + _searchArrayTypes[_currentArrayTypeSelect].first).c_str());
-	_currentComparisionTypeSelect = Xertz::KNOWN;
+	_currentComparisionTypeSelect = MemoryCompare::KNOWN;
 
 	const std::string strArray = std::string(_knownValueText);
 	const std::string strArraySecondary = std::string(_secondaryKnownValueText);
@@ -950,7 +950,7 @@ void MungPlex::Search::ArrayTypeSearch()
 void MungPlex::Search::TextTypeSearch()
 {
 	Log::LogInformation((std::string("Perform Search for text of type ") + _searchTextTypes[_currentTextTypeSelect].first).c_str());
-	_currentComparisionTypeSelect = Xertz::KNOWN;
+	_currentComparisionTypeSelect = MemoryCompare::KNOWN;
 	MorphText searchText = MorphText(std::string(_knownValueText));
 	searchText.SetMaxLength(256);
 	searchText.SetPrimaryFormat(_currentTextTypeSelect);
@@ -960,7 +960,7 @@ void MungPlex::Search::TextTypeSearch()
 void MungPlex::Search::ColorTypeSearch()
 {
 	Log::LogInformation((std::string("Perform Search for color of type ") + _searchColorTypes[_currentColorTypeSelect].first).c_str());
-	_currentComparisionTypeSelect = Xertz::KNOWN;
+	_currentComparisionTypeSelect = MemoryCompare::KNOWN;
 	std::string arg(_knownValueText);
 	const LitColor colorP(arg);
 	arg = std::string(_secondaryKnownValueText);
