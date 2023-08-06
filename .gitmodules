@@ -20,3 +20,6 @@
 [submodule "include/ImGui_MemoryEditor"]
 	path = include/ImGui_MemoryEditor
 	url = https://github.com/CosmoCortney/imgui_club-MemoryViewer-ForeignProcesses.git
+[submodule "include/MemoryCompare"]
+	path = include/MemoryCompare
+	url = https://github.com/CosmoCortney/MemoryCompare.git
