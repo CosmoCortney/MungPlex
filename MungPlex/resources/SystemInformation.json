@@ -1,595 +1,595 @@
 {
   "Emulators": {
     "Dolphin": {
-        "Regions": [
-            {
-                "Label": "Mem 1",
-                "Base": "0x80000000",
-                "Size": "0x1800000"
-            },
-            {
-                "Label": "Mem 2",
-                "Base": "0x90000000",
-                "Size": "0x4000000"
-            },
-            {
-                "Label": "SDRAM",
-                "Base": "0",
-                "Size": "0x800000"
-            },
-            {
-                "Label": "L1 Cache",
-                "Base": "0",
-                "Size": "0x10000"
-            },
-            {
-                "Label": "L2 Cache",
-                "Base": "0xE0000000",
-                "Size": "0x40000"
-            }
-        ],
-        "Entities": [
-            {
-                "Entity": "Game ID",
-                "Location": "0",
-                "Datatype": "TEXT",
-                "Size": "3",
-                "Hex": false
-            },
-            {
-                "Entity": "Region ID",
-                "Location": "3",
-                "Datatype": "TEXT",
-                "Size": "1",
-                "Hex": false
-            },
-            {
-                "Entity": "Publisher ID",
-                "Location": "4",
-                "Datatype": "TEXT",
-                "Size": "2",
-                "Hex": false
-            },
-            {
-                "Entity": "Disc Number",
-                "Location": "6",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": false
-            },
-            {
-                "Entity": "Disc Version",
-                "Location": "7",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": false
-            },
-            {
-                "Entity": "Streaming Flag",
-                "Location": "8",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": false
-            },
-            {
-                "Entity": "Disc Streaming Buffer Size",
-                "Location": "9",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": false
-            },
-            {
-                "Entity": "Wii Layout",
-                "Location": "0x18",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "GameCube Layout",
-                "Location": "0x1C",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Nintendo Standard Boot Code",
-                "Location": "0x20",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Version",
-                "Location": "0x24",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Mem 1 Size",
-                "Location": "0x28",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Production Board Model",
-                "Location": "0x2C",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Arena Low",
-                "Location": "0x30",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Arena High",
-                "Location": "0x34",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Start of FST",
-                "Location": "0x38",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Maximum FST Size",
-                "Location": "0x3C",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Beginning of the DB global struct",
-                "Location": "0x40",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "DB marked exception mask",
-                "Location": "0x44",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "DB exception destination",
-                "Location": "0x48",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "DB return address",
-                "Location": "0x4C",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "OSDBIntegrator Debugger Hook",
-                "Location": "0x60",
-                "Datatype": "BIN",
-                "Size": "24",
-                "Hex": true
-            },
-            {
-                "Entity": "Current OSContext instance",
-                "Location": "0xC0",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "User interrupt mask",
-                "Location": "0xC4",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Revolution OS interrupt mask",
-                "Location": "0xC8",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Current video mode",
-                "Location": "0xCC",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Current OSContext instance",
-                "Location": "0xD4",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "OSContext for FPRs",
-                "Location": "0xD8",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Earliest OSThread pointer",
-                "Location": "0xDC",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Latest OSThread pointer",
-                "Location": "0xE0",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Current OSThread pointer",
-                "Location": "0xE4",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Dev Debugger Monitor Address",
-                "Location": "0xEC",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Simulated Memory Size",
-                "Location": "0xF0",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "bi2.bin data pointer",
-                "Location": "0xF4",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Bus Speed",
-                "Location": "0xF8",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": false
-            },
-            {
-                "Entity": "CPU Speed",
-                "Location": "0xFC",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": false
-            },
-            {
-                "Entity": "__OSInterrupt table",
-                "Location": "0x3040",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "First REL pointer",
-                "Location": "0x30C8",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Last REL pointer",
-                "Location": "0x30CC",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "REL name pointer",
-                "Location": "0x30D0",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "System Time",
-                "Location": "0x30D8",
-                "Datatype": "INT",
-                "Size": "8",
-                "Hex": false
-            },
-            {
-                "Entity": "__OSPADButton state of port 4",
-                "Location": "0x30E4",
-                "Datatype": "INT",
-                "Size": "2",
-                "Hex": true
-            },
-            {
-                "Entity": "DVD Device Code Address",
-                "Location": "0x30E6",
-                "Datatype": "INT",
-                "Size": "2",
-                "Hex": true
-            },
-            {
-                "Entity": "Debug-related info",
-                "Location": "0x30E8",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "DOL Execute Parameters",
-                "Location": "0x30F0",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Physical MEM1 size",
-                "Location": "0x3100",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Simulated MEM1 size",
-                "Location": "0x3104",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "MEM1 Arena Start",
-                "Location": "0x310C",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "MEM1 Arena End",
-                "Location": "0x3110",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Physical MEM2 size",
-                "Location": "0x3118",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Simulated MEM2 size",
-                "Location": "0x311C",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "End of MEM2",
-                "Location": "0x3120",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Usable MEM2 Start",
-                "Location": "0x3124",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Usable MEM2 End",
-                "Location": "0x3128",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "IOS IPC Buffer Start",
-                "Location": "0x3130",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "IOS IPC Buffer End",
-                "Location": "0x3134",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Hollywood Version",
-                "Location": "0x3138",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "IOS version number",
-                "Location": "0x3140",
-                "Datatype": "INT",
-                "Size": "2",
-                "Hex": false
-            },
-            {
-                "Entity": "IOS version major",
-                "Location": "0x3142",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": false
-            },
-            {
-                "Entity": "IOS version minor",
-                "Location": "0x3143",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": false
-            },
-            {
-                "Entity": "IOS Build Date",
-                "Location": "0x3144",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "IOS Reserved Heap Start",
-                "Location": "0x3148",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "IOS Reserved Heap End",
-                "Location": "0x314C",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "GDDR Vendor Code",
-                "Location": "0x3158",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "boot_ppc",
-                "Location": "0x315C",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": true
-            },
-            {
-                "Entity": "Enable legacy DI",
-                "Location": "0x315D",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": true
-            },
-            {
-                "Entity": "Devkit boot program version major",
-                "Location": "0x315E",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": true
-            },
-            {
-                "Entity": "Devkit boot program version minor",
-                "Location": "0x315F",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Init semaphore",
-                "Location": "0x3160",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "GC (MIOS) mode flag",
-                "Location": "0x3164",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Channel Game ID, Disc Game ID copy",
-                "Location": "0x3180",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Application type",
-                "Location": "0x3184",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": true
-            },
-            {
-                "Entity": "Application type 2",
-                "Location": "0x3186",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": true
-            },
-            {
-                "Entity": "Minimum IOS version major",
-                "Location": "0x3188",
-                "Datatype": "INT",
-                "Size": "2",
-                "Hex": false
-            },
-            {
-                "Entity": "Minimum IOS version minor",
-                "Location": "0x318C",
-                "Datatype": "INT",
-                "Size": "2",
-                "Hex": false
-            },
-            {
-                "Entity": "Title Booted from NAND (Launch Code)",
-                "Location": "0x318C",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Title Booted from NAND (Return Code)",
-                "Location": "0x3190",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Data partition pointer/type",
-                "Location": "0x3194",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Partition offset",
-                "Location": "0x3198",
-                "Datatype": "INT",
-                "Size": "4",
-                "Hex": true
-            },
-            {
-                "Entity": "Dual/single layer disc flag",
-                "Location": "0x319C",
-                "Datatype": "INT",
-                "Size": "1",
-                "Hex": true
-            }
-        ]
+      "Regions": [
+        {
+          "Label": "Mem 1",
+          "Base": "0x80000000",
+          "Size": "0x1800000"
+        },
+        {
+          "Label": "Mem 2",
+          "Base": "0x90000000",
+          "Size": "0x4000000"
+        },
+        {
+          "Label": "SDRAM",
+          "Base": "0",
+          "Size": "0x800000"
+        },
+        {
+          "Label": "L1 Cache",
+          "Base": "0",
+          "Size": "0x10000"
+        },
+        {
+          "Label": "L2 Cache",
+          "Base": "0xE0000000",
+          "Size": "0x40000"
+        }
+      ],
+      "Entities": [
+        {
+          "Entity": "Game ID",
+          "Location": "0",
+          "Datatype": "TEXT",
+          "Size": "3",
+          "Hex": false
+        },
+        {
+          "Entity": "Region ID",
+          "Location": "3",
+          "Datatype": "TEXT",
+          "Size": "1",
+          "Hex": false
+        },
+        {
+          "Entity": "Publisher ID",
+          "Location": "4",
+          "Datatype": "TEXT",
+          "Size": "2",
+          "Hex": false
+        },
+        {
+          "Entity": "Disc Number",
+          "Location": "6",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": false
+        },
+        {
+          "Entity": "Disc Version",
+          "Location": "7",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": false
+        },
+        {
+          "Entity": "Streaming Flag",
+          "Location": "8",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": false
+        },
+        {
+          "Entity": "Disc Streaming Buffer Size",
+          "Location": "9",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": false
+        },
+        {
+          "Entity": "Wii Layout",
+          "Location": "0x18",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "GameCube Layout",
+          "Location": "0x1C",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Nintendo Standard Boot Code",
+          "Location": "0x20",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Version",
+          "Location": "0x24",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Mem 1 Size",
+          "Location": "0x28",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Production Board Model",
+          "Location": "0x2C",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Arena Low",
+          "Location": "0x30",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Arena High",
+          "Location": "0x34",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Start of FST",
+          "Location": "0x38",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Maximum FST Size",
+          "Location": "0x3C",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Beginning of the DB global struct",
+          "Location": "0x40",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "DB marked exception mask",
+          "Location": "0x44",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "DB exception destination",
+          "Location": "0x48",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "DB return address",
+          "Location": "0x4C",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "OSDBIntegrator Debugger Hook",
+          "Location": "0x60",
+          "Datatype": "BIN",
+          "Size": "24",
+          "Hex": true
+        },
+        {
+          "Entity": "Current OSContext instance",
+          "Location": "0xC0",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "User interrupt mask",
+          "Location": "0xC4",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Revolution OS interrupt mask",
+          "Location": "0xC8",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Current video mode",
+          "Location": "0xCC",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Current OSContext instance",
+          "Location": "0xD4",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "OSContext for FPRs",
+          "Location": "0xD8",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Earliest OSThread pointer",
+          "Location": "0xDC",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Latest OSThread pointer",
+          "Location": "0xE0",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Current OSThread pointer",
+          "Location": "0xE4",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Dev Debugger Monitor Address",
+          "Location": "0xEC",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Simulated Memory Size",
+          "Location": "0xF0",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "bi2.bin data pointer",
+          "Location": "0xF4",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Bus Speed",
+          "Location": "0xF8",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": false
+        },
+        {
+          "Entity": "CPU Speed",
+          "Location": "0xFC",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": false
+        },
+        {
+          "Entity": "__OSInterrupt table",
+          "Location": "0x3040",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "First REL pointer",
+          "Location": "0x30C8",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Last REL pointer",
+          "Location": "0x30CC",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "REL name pointer",
+          "Location": "0x30D0",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "System Time",
+          "Location": "0x30D8",
+          "Datatype": "INT",
+          "Size": "8",
+          "Hex": false
+        },
+        {
+          "Entity": "__OSPADButton state of port 4",
+          "Location": "0x30E4",
+          "Datatype": "INT",
+          "Size": "2",
+          "Hex": true
+        },
+        {
+          "Entity": "DVD Device Code Address",
+          "Location": "0x30E6",
+          "Datatype": "INT",
+          "Size": "2",
+          "Hex": true
+        },
+        {
+          "Entity": "Debug-related info",
+          "Location": "0x30E8",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "DOL Execute Parameters",
+          "Location": "0x30F0",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Physical MEM1 size",
+          "Location": "0x3100",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Simulated MEM1 size",
+          "Location": "0x3104",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "MEM1 Arena Start",
+          "Location": "0x310C",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "MEM1 Arena End",
+          "Location": "0x3110",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Physical MEM2 size",
+          "Location": "0x3118",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Simulated MEM2 size",
+          "Location": "0x311C",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "End of MEM2",
+          "Location": "0x3120",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Usable MEM2 Start",
+          "Location": "0x3124",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Usable MEM2 End",
+          "Location": "0x3128",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "IOS IPC Buffer Start",
+          "Location": "0x3130",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "IOS IPC Buffer End",
+          "Location": "0x3134",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Hollywood Version",
+          "Location": "0x3138",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "IOS version number",
+          "Location": "0x3140",
+          "Datatype": "INT",
+          "Size": "2",
+          "Hex": false
+        },
+        {
+          "Entity": "IOS version major",
+          "Location": "0x3142",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": false
+        },
+        {
+          "Entity": "IOS version minor",
+          "Location": "0x3143",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": false
+        },
+        {
+          "Entity": "IOS Build Date",
+          "Location": "0x3144",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "IOS Reserved Heap Start",
+          "Location": "0x3148",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "IOS Reserved Heap End",
+          "Location": "0x314C",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "GDDR Vendor Code",
+          "Location": "0x3158",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "boot_ppc",
+          "Location": "0x315C",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": true
+        },
+        {
+          "Entity": "Enable legacy DI",
+          "Location": "0x315D",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": true
+        },
+        {
+          "Entity": "Devkit boot program version major",
+          "Location": "0x315E",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": true
+        },
+        {
+          "Entity": "Devkit boot program version minor",
+          "Location": "0x315F",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Init semaphore",
+          "Location": "0x3160",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "GC (MIOS) mode flag",
+          "Location": "0x3164",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Channel Game ID, Disc Game ID copy",
+          "Location": "0x3180",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Application type",
+          "Location": "0x3184",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": true
+        },
+        {
+          "Entity": "Application type 2",
+          "Location": "0x3186",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": true
+        },
+        {
+          "Entity": "Minimum IOS version major",
+          "Location": "0x3188",
+          "Datatype": "INT",
+          "Size": "2",
+          "Hex": false
+        },
+        {
+          "Entity": "Minimum IOS version minor",
+          "Location": "0x318C",
+          "Datatype": "INT",
+          "Size": "2",
+          "Hex": false
+        },
+        {
+          "Entity": "Title Booted from NAND (Launch Code)",
+          "Location": "0x318C",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Title Booted from NAND (Return Code)",
+          "Location": "0x3190",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Data partition pointer/type",
+          "Location": "0x3194",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Partition offset",
+          "Location": "0x3198",
+          "Datatype": "INT",
+          "Size": "4",
+          "Hex": true
+        },
+        {
+          "Entity": "Dual/single layer disc flag",
+          "Location": "0x319C",
+          "Datatype": "INT",
+          "Size": "1",
+          "Hex": true
+        }
+      ]
     },
     "Project64": {
       "Regions": [
@@ -602,6 +602,23 @@
           "Label": "Cartridge ROM",
           "Base": "0xB0000000",
           "Size": "0x00"
+        }
+      ],
+      "Entities": [
+
+      ]
+    },
+    "Cemu": {
+      "Regions": [
+        {
+          "Label": "App",
+          "Base": "0x02000000",
+          "Size": "0x0E000000"
+        },
+        {
+          "Label": "MEM2",
+          "Base": "0x10000000",
+          "Size": "0x40000000"
         }
       ],
       "Entities": [

@@ -280,6 +280,9 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 	case PROJECT64:
 		connected = InitProject64();
 		break;
+	case CEMU:
+		connected = InitCemu();
+		break;
 	}
 
 	Search::SetUnderlyingBigEndianFlag(_underlyingIsBigEndian);
@@ -427,6 +430,52 @@ bool MungPlex::ProcessInformation::InitDolphin()
 
 	if (IDcopy == temp)
 		return true;
+
+	return false;
+}
+
+bool MungPlex::ProcessInformation::InitCemu()
+{
+	_processName = "Cemu";
+	_platform = "Wii U";
+	_underlyingIsBigEndian = true;
+	_addressWidth = 4;
+
+	for (const auto& region : _regions)
+	{
+		if (region.GetRegionSize() == 0x4E000000)
+		{
+			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+			_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(region.GetBaseAddress<char*>() + 0x0E000000);
+			//return true;
+		}
+
+		if (region.GetRegionSize() == 0x1E000)
+		{
+			const int bufSize = 0x6000;
+			char buf[bufSize];
+			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&buf, region.GetBaseAddress<void*>(), bufSize);
+
+			//get title type id, title id and version
+			for (int offset = 0; offset < bufSize; offset += 4)
+			{
+				if (*reinterpret_cast<int*>(buf + offset) == 0x746F6F52)
+				{
+					for (int i = 0x9C; i <= 0xA4; i += 4)
+					{
+						int tempID = *reinterpret_cast<int*>(buf + offset + i);
+						tempID = Xertz::SwapBytes<int>(tempID);
+						_gameID.append(ToHexString(tempID, 8, false));
+
+						if(i <= 0xA0)
+							_gameID.append("-");
+					}
+
+					return true;
+				}
+			}
+		}
+	}
 
 	return false;
 }
