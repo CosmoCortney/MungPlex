@@ -440,6 +440,7 @@ bool MungPlex::ProcessInformation::InitCemu()
 	_platform = "Wii U";
 	_underlyingIsBigEndian = true;
 	_addressWidth = 4;
+	PointerSearch::SelectPreset(WIIU);
 
 	for (const auto& region : _regions)
 	{
