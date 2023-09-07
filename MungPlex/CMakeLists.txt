@@ -45,13 +45,20 @@ add_executable (MungPlex
     ../include/imgui/imgui_widgets.cpp
     ../include/imgui/backends/imgui_impl_opengl3.cpp
     ../include/imgui/backends/imgui_impl_glfw.cpp
+    ../include/MemoryCompare/MemCompareOperations.h
     ../include/MemoryCompare/MemCompareResult.h
+    ../include/MemoryCompare/MemCompareResult.cpp
+    ../include/MemoryCompare/MemCompare.h
+    ../include/MemoryCompare/MemCompare.cpp
+    ../include/MemoryCompare/MemDump.h
     ../include/MemoryCompare/MemDump.cpp
     ../include/MemoryCompare/include/LitColor/LitColor/LitColor.h
     ../include/MemoryCompare/include/MorphText/MorphText/MorphText.h
     ../include/MemoryCompare/include/OperativeArray/OperativeArray/OperativeArray.h
     ../include/Xertz/Xertz.h
+    ../include/Xertz/MemoryRegion.h
     ../include/Xertz/MemoryRegion.cpp
+    ../include/Xertz/ProcessInfo.h
     ../include/Xertz/ProcessInfo.cpp
     ../include/Xertz/SystemInfo.h
     ../include/Xertz/SystemInfo.cpp

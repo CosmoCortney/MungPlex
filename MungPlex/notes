@@ -1,0 +1,123 @@
+	template <typename dataType, typename addressType> struct MemCompareParams
+	{
+		dataType PrimaryKnownValue;
+		dataType SecondaryKnownValue;
+		uint8_t SuperiorDatatype;
+		uint8_t UnderlyingDataType;
+		bool Signed = false;
+		float Precision = 1.0f;
+		std::vector<std::tuple<uint8_t*, addressType, uint64_t>> MemDumps; //DumpLocation, BaseAddress, DumpSize
+	};
+
+	enum Endianness
+	{
+		LITTLE_ENDIAN,
+		BIG_ENDIAN,
+		BE_IN_LE_WORDS
+	};
+
+	template<typename T> static inline T SwapBytes(const T val)
+	{
+		T temp = 0;
+		char buf;
+
+		for (int i = 0; i < sizeof(val); ++i)
+		{
+			buf = *((char*)(&val) + i);
+			*(reinterpret_cast<char*>(&temp) + sizeof(val) - (1 + i)) = buf;
+		}
+		return temp;
+	}
+
+
+		std::vector<std::vector<addressType>> _currentResultAddresses{};
+		std::vector<std::vector<dataType>> _currentValueResults{};
+		std::vector<std::vector<dataType>> _previousValueResults{};
+		MemCompareParams<dataType, addressType>* _currentParams = nullptr;
+		uint8_t _endianness = LITTLE_ENDIAN;
+
+
+
+
+		void InitialUnknownPrimitive()
+		{
+			_currentResultAddresses.resize(_currentParams->MemDumps.size());
+			_currentValueResults.resize(_currentParams->MemDumps.size());
+
+			for (currentRegion = 0; currentRegion < _currentParams->MemDumps.size(); ++currentRegion)
+			{
+				const addressType copyBaseAddress = std::get<addressType>(_currentParams->MemDumps[currentRegion]);
+
+				for (uint64_t offsetDump = 0; offsetDump < _dumpSize; offsetDump += _alignment)
+				{
+					_currentResultAddresses[currentRegion].push_back(offsetDump | copyBaseAddress);
+					_currentValueResults[currentRegion].push_back(_byteReader(*reinterpret_cast<dataType*>(_currentParams->MemDumps[currentRegion] + offsetDump));
+					++_resultCount;
+				}
+			}
+		}
+
+
+
+
+	static std::pair<uint64_t, uint16_t> IterateNew(MemCompareParams* params, const uint16_t condition, const bool isKnownValue, uint16_t counterIteration)
+		{
+			GetInstance()._currentParams = params;
+			GetInstance()._condition = condition;
+
+			if (counterIteration > GetInstance()._iterationCount || counterIteration < 1)
+				counterIteration = GetInstance()._iterationCount;
+
+			//if (GetInstance()._iterationCount > 0)
+			///	GetInstance()._results.at(counterIteration - 1)->LoadResults(false);
+
+			//if (counterIteration < GetInstance()._iterationCount)
+			//	GetInstance()._results.erase(GetInstance()._results.begin() + counterIteration, GetInstance()._results.end());
+
+			GetInstance()._iterationCount = counterIteration;
+			GetInstance()._counterIteration = counterIteration;
+
+			if constexpr (!std::is_same_v<dataType, MorphText>)
+				GetInstance().SetUpComparasionOperator();
+
+			//GetInstance().ReserveResultsSpace();
+
+
+			//else //float, integral
+			{
+				_byteReader.reader = _swapBytes ? DataAccess<dataType>::readReversed : DataAccess<dataType>::read;
+
+				if (GetInstance()._iterationCount == 0)
+				{
+
+					if (isKnownValue)
+						GetInstance().InitialKnownPrimitive();
+					else
+						GetInstance().InitialUnknownPrimitive();
+				}
+				else
+				{
+					if (isKnownValue)
+						GetInstance().SuccessiveKnownPrimitive();
+					else
+						GetInstance().SuccessiveUnknownPrimitive();
+				}
+			}
+
+			//if (GetInstance()._iterationCount > 0)
+			//	GetInstance()._results.at(counterIteration - 1)->FreeData(false);
+			
+			//GetInstance().SetAndSaveResults();
+			//GetInstance()._iterationCount = ++counterIteration;
+			return std::pair<uint64_t, uint16_t>(GetInstance()._resultCount, GetInstance()._iterationCount);
+		}
+
+
+
+	static void SetUpNew(std::wstring& dir, bool cached, uint16_t endianness, uint32_t alignment)
+		{
+			GetInstance()._dumpDir = dir;
+			GetInstance()._cached = cached;
+			GetInstance()._alignment = alignment;
+			GetInstance()._endianness = endianness;
+		}

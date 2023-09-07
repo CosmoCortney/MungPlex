@@ -1,5 +1,4 @@
 #pragma once
-
 #include<iostream>
 #include<string>
 #include<stdio.h>
@@ -12,8 +11,10 @@
 #include"Connection.h"
 #include<any>
 #include<cstdint>
-#include"OperativeArray.h"
 #include"Settings.h"
+#include"LitColor.h"
+#include"MorphText.h"
+#include"OperativeArray.h"
 
 namespace MungPlex
 {
@@ -119,7 +120,7 @@ namespace MungPlex
     static const char* GetStringLiteral(const int valueType, const bool isSigned, const bool hex)
     {
         if (valueType == FLOAT || valueType == DOUBLE)
-            return "%f";
+            return "%.4f";
 
         if (hex)
         {

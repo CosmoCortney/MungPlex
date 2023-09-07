@@ -440,6 +440,7 @@ bool MungPlex::ProcessInformation::InitCemu()
 	_platform = "Wii U";
 	_underlyingIsBigEndian = true;
 	_addressWidth = 4;
+	bool titleIDFound = false;
 	PointerSearch::SelectPreset(WIIU);
 
 	for (const auto& region : _regions)
@@ -451,7 +452,7 @@ bool MungPlex::ProcessInformation::InitCemu()
 			//return true;
 		}
 
-		if (region.GetRegionSize() == 0x1E000)
+		if (region.GetRegionSize() == 0x1E000 && !titleIDFound)
 		{
 			const int bufSize = 0x6000;
 			char buf[bufSize];
@@ -462,6 +463,7 @@ bool MungPlex::ProcessInformation::InitCemu()
 			{
 				if (*reinterpret_cast<int*>(buf + offset) == 0x746F6F52)
 				{
+					titleIDFound = true;
 					for (int i = 0x9C; i <= 0xA4; i += 4)
 					{
 						int tempID = *reinterpret_cast<int*>(buf + offset + i);
@@ -471,14 +473,12 @@ bool MungPlex::ProcessInformation::InitCemu()
 						if(i <= 0xA0)
 							_gameID.append("-");
 					}
-
-					return true;
 				}
 			}
 		}
 	}
 
-	return false;
+	return titleIDFound;
 }
 
 std::string& MungPlex::ProcessInformation::GetGameID()
