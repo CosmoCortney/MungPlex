@@ -169,6 +169,27 @@ void MungPlex::Search::DrawRangeOptions()
 		_regions = ProcessInformation::GetRegions();
 		ImGui::SeparatorText("Range Options");
 		_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.75f, 0.3f);
+		ImGui::SameLine();
+		if(ImGui::Checkbox("Cross-Region", &_crossRegion))
+		{
+			std::string hexStartStr;
+			std::string hexEndStr;
+
+			if (_crossRegion)
+			{
+				hexStartStr = ToHexString(_regions.front().Base, 0);
+				hexEndStr = ToHexString(_regions.back().Base + _regions.back().Size - 1, 0);
+			}
+			else
+			{
+				hexStartStr = ToHexString(_regions[_currentRegionSelect].Base, 0);
+				hexEndStr = ToHexString(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1, 0);
+			}
+
+			strcpy_s(_rangeStartText, hexStartStr.c_str());
+			strcpy_s(_rangeEndText, hexEndStr.c_str());
+		}
+
 		_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText, IM_ARRAYSIZE(_rangeStartText), 0.75f, 0.3f);
 		_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText, IM_ARRAYSIZE(_rangeEndText), 0.75f, 0.3f);
 	}
@@ -1265,12 +1286,13 @@ void MungPlex::Search::emplaceDumpRegion(const uint16_t index)
 
 		if (_rangeStartValue > _regions[index].Base)
 		{
+			currentRegionSize -= _rangeStartValue - currentBaseAddress;
 			currentBaseAddress = _rangeStartValue;
 			currentBaseLocation += currentBaseAddress - _regions[index].Base;
 		}
 
 		if (_rangeEndValue < _regions[index].Base + _regions[index].Size - 1)
-			currentRegionSize = _rangeStartValue - currentBaseAddress;
+			currentRegionSize = _rangeEndValue - currentBaseAddress;
 	}
 	else // single region
 	{
