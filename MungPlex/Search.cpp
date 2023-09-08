@@ -1350,9 +1350,11 @@ void MungPlex::Search::SetUpAndIterate()
 	{
 		char* buf = new char[dumpRegion.Size];
 		Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).ReadExRAM(buf, dumpRegion.BaseLocationProcess, dumpRegion.Size);
+		{
 		MemoryCompare::MemDump dump(buf, dumpRegion.Base, dumpRegion.Size);
 		delete[] buf;
 		MemoryCompare::MemCompare::ProcessNextRange(&dump);
+		}
 	}
 }
 
