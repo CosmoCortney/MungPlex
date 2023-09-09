@@ -4,6 +4,7 @@ MungPlex::MemoryViewer::MemoryViewer(const uint32_t id)
 {
 	SetIndex(id);
     _isOpen = true;
+    _rereorder = ProcessInformation::GetRereorderFlag();
     _bufAddress = std::string("00000000\0", 17);
     _hexView = std::string("", _readSize);
     _dummy = std::string("Invalid Memory Region");
@@ -70,7 +71,7 @@ void MungPlex::MemoryViewer::drawHexEditor()
     ImGui::BeginChild("child_hexeditor");
     {
         if(_validAddress)
-            _memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, _handle, _readAddressEx);
+            _memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, _handle, _readAddressEx, _rereorder);
         else
             _memEdit.DrawContents(_dummy.data(), _dummy.size(), 0, 0, 0);
     }

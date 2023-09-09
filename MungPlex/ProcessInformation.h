@@ -55,6 +55,7 @@ namespace MungPlex
         REGION_LIST _regions{};
         bool _isX64 = false;
         bool _underlyingIsBigEndian = false;
+        bool _rereorderRegion = false;
         std::string _gameID;
         std::string _platform;
         std::string _processName;
@@ -111,6 +112,7 @@ namespace MungPlex
         static bool UnderlyingIsBigEndian();
         static HANDLE GetHandle();
         static int32_t GetAddressWidth();
+        static bool GetRereorderFlag();
         static bool LoadSystemInformationJSON(int emulatorIndex);
         static std::vector<SystemRegion>& GetRegions();
     };

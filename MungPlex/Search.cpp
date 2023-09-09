@@ -166,32 +166,46 @@ void MungPlex::Search::DrawRangeOptions()
 
 	ImGui::BeginChild("child_rangeOptions", childXY, true);
 	{
-		_regions = ProcessInformation::GetRegions();
 		ImGui::SeparatorText("Range Options");
-		_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.75f, 0.3f);
-		ImGui::SameLine();
-		if(ImGui::Checkbox("Cross-Region", &_crossRegion))
+
+		ImGui::BeginGroup();
 		{
-			std::string hexStartStr;
-			std::string hexEndStr;
-
-			if (_crossRegion)
-			{
-				hexStartStr = ToHexString(_regions.front().Base, 0);
-				hexEndStr = ToHexString(_regions.back().Base + _regions.back().Size - 1, 0);
-			}
-			else
-			{
-				hexStartStr = ToHexString(_regions[_currentRegionSelect].Base, 0);
-				hexEndStr = ToHexString(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1, 0);
-			}
-
-			strcpy_s(_rangeStartText, hexStartStr.c_str());
-			strcpy_s(_rangeEndText, hexEndStr.c_str());
+			_regions = ProcessInformation::GetRegions();
+			_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.75f, 0.3f);
+			_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText, IM_ARRAYSIZE(_rangeStartText), 0.75f, 0.3f);
+			_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText, IM_ARRAYSIZE(_rangeEndText), 0.75f, 0.3f);
 		}
+		ImGui::EndGroup();
 
-		_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText, IM_ARRAYSIZE(_rangeStartText), 0.75f, 0.3f);
-		_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText, IM_ARRAYSIZE(_rangeEndText), 0.75f, 0.3f);
+		ImGui::SameLine();
+
+		ImGui::BeginGroup();
+		{
+			if (ImGui::Checkbox("Cross-Region", &_crossRegion))
+			{
+				std::string hexStartStr;
+				std::string hexEndStr;
+
+				if (_crossRegion)
+				{
+					hexStartStr = ToHexString(_regions.front().Base, 0);
+					hexEndStr = ToHexString(_regions.back().Base + _regions.back().Size - 1, 0);
+				}
+				else
+				{
+					hexStartStr = ToHexString(_regions[_currentRegionSelect].Base, 0);
+					hexEndStr = ToHexString(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1, 0);
+				}
+
+				strcpy_s(_rangeStartText, hexStartStr.c_str());
+				strcpy_s(_rangeEndText, hexEndStr.c_str());
+			}
+
+			ImGui::Checkbox("Re-reorder Region", &_rereorderRegion);
+			ImGui::SameLine();
+			HelpMarker("Some emulators like Project64 reorder the emulatoed RAM in 4 byte chunks of the opposite endianness which requires re-reordering before scanning. The best option is auto-select for you but it might be helpful do set it manually if you encounter a reordered region or fraction of it on another platform.");
+		}
+		ImGui::EndGroup();
 	}
 	ImGui::EndChild();
 }
@@ -1351,9 +1365,12 @@ void MungPlex::Search::SetUpAndIterate()
 		char* buf = new char[dumpRegion.Size];
 		Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).ReadExRAM(buf, dumpRegion.BaseLocationProcess, dumpRegion.Size);
 		{
-		MemoryCompare::MemDump dump(buf, dumpRegion.Base, dumpRegion.Size);
-		delete[] buf;
-		MemoryCompare::MemCompare::ProcessNextRange(&dump);
+			if (_rereorderRegion)
+				Rereorder4BytesReorderedMemory(buf, dumpRegion.Size);
+
+			MemoryCompare::MemDump dump(buf, dumpRegion.Base, dumpRegion.Size);
+			delete[] buf;
+			MemoryCompare::MemCompare::ProcessNextRange(&dump);
 		}
 	}
 }
@@ -1361,4 +1378,9 @@ void MungPlex::Search::SetUpAndIterate()
 void MungPlex::Search::SetUnderlyingBigEndianFlag(const bool isBigEndian)
 {
 	GetInstance()._underlyingBigEndian = isBigEndian;
+}
+
+void MungPlex::Search::SetRereorderRegion(const bool rereorder)
+{
+	GetInstance()._rereorderRegion = rereorder;
 }

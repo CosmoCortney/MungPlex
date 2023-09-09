@@ -4,6 +4,7 @@
 #include<stdio.h>
 #include<sstream>
 #include <Windows.h>
+#pragma once
 #include <vector>
 #include <functional>
 #include "GLFW/glfw3.h"
@@ -14,10 +15,51 @@
 #include"Settings.h"
 #include"LitColor.h"
 #include"MorphText.h"
+#include <stdlib.h>
 #include"OperativeArray.h"
 
 namespace MungPlex
 {
+    template<typename addressType> static addressType TranslatePtrTo4BytesReorderingPtr(addressType ptr)
+    {
+        uint64_t tempPtr;
+        
+        if constexpr (std::is_same_v<uint64_t, addressType>)
+            tempPtr = ptr;
+        else
+            tempPtr = reinterpret_cast<uint64_t>(ptr);
+
+        switch (tempPtr & 0xF)
+        {
+        case 1: case 5: case 9: case 0xD:
+            ++tempPtr;
+            break;
+        case 2: case 6: case 0xA: case 0xE:
+            --tempPtr;
+            break;
+        case 3: case 7: case 0xB: case 0xF:
+            tempPtr -= 3;
+            break;
+        default: //0, 4, 8, C
+            tempPtr += 3;
+        }
+
+        if constexpr (std::is_same_v<uint64_t, addressType>)
+            return tempPtr;
+        else
+            return reinterpret_cast<addressType>(tempPtr);
+    }
+
+    static void Rereorder4BytesReorderedMemory(void* ptr, const uint64_t size)
+    {
+        uint32_t* swapPtr = reinterpret_cast<uint32_t*>(ptr);
+
+        for (uint64_t offset = 0; offset < (size >> 2); ++offset)
+        {
+            swapPtr[offset] = Xertz::SwapBytes<uint32_t>(swapPtr[offset]);
+        }
+    }
+
     static std::wstring GetStringFromID(const std::vector<EMUPAIR>& pairs, const int ID)
     {
         auto tmpPair = std::ranges::find_if(pairs.begin(), pairs.end(),

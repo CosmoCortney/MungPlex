@@ -285,6 +285,7 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 		break;
 	}
 
+	Search::SetRereorderRegion(_rereorderRegion);
 	Search::SetUnderlyingBigEndianFlag(_underlyingIsBigEndian);
 	Cheats::SetPlatform(_platform.c_str());
 	Cheats::SetGameID(_gameID.c_str());
@@ -296,8 +297,9 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 bool MungPlex::ProcessInformation::InitProject64()
 {
 	_processName = "Project64";
-	_underlyingIsBigEndian = false;
+	_underlyingIsBigEndian = true;
 	_addressWidth = 4;
+	_rereorderRegion = true;
 	bool found = false;
 
 	for (const auto& region : _regions)
@@ -364,6 +366,7 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	_processName = "Dolphin";
 	_underlyingIsBigEndian = true;
 	_addressWidth = 4;
+	_rereorderRegion = false;
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
 	_systemRegions.erase(_systemRegions.begin() + 2); // |- remove these lines once caches and sram are figured out
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
@@ -440,6 +443,7 @@ bool MungPlex::ProcessInformation::InitCemu()
 	_platform = "Wii U";
 	_underlyingIsBigEndian = true;
 	_addressWidth = 4;
+	_rereorderRegion = false;
 	bool titleIDFound = false;
 	PointerSearch::SelectPreset(WIIU);
 
@@ -604,4 +608,9 @@ HANDLE MungPlex::ProcessInformation::GetHandle()
 int32_t MungPlex::ProcessInformation::GetAddressWidth()
 {
 	return GetInstance()._addressWidth;
+}
+
+bool MungPlex::ProcessInformation::GetRereorderFlag()
+{
+	return GetInstance()._rereorderRegion;
 }

@@ -36,6 +36,7 @@ namespace MungPlex
         std::string _dummy;
         HANDLE _handle;
         bool _validAddress = false;
+        bool _rereorder = false;
 
         void drawControlPanel();
         void drawHexEditor();
