@@ -203,7 +203,7 @@ void MungPlex::Search::DrawRangeOptions()
 
 			ImGui::Checkbox("Re-reorder Region", &_rereorderRegion);
 			ImGui::SameLine();
-			HelpMarker("Some emulators like Project64 reorder the emulatoed RAM in 4 byte chunks of the opposite endianness which requires re-reordering before scanning. The best option is auto-select for you but it might be helpful do set it manually if you encounter a reordered region or fraction of it on another platform.");
+			HelpMarker("Some emulators like Project64 reorder the emulatoed RAM in 4 byte chunks of the opposite endianness which requires re-reordering before scanning. The best option is auto-selected for you, but it might be helpful to set it manually if you encounter a reordered region or structure on another platform.");
 		}
 		ImGui::EndGroup();
 	}
