@@ -896,16 +896,16 @@ void MungPlex::Search::drawResultsTableNew()
 					switch (_currentArrayTypeSelect)
 					{
 					case INT8:
-						DrawArrayValues<uint8_t>(col, itemCount, resultsIndex, buf, tempValue, literal);
+						DrawArrayValues<uint8_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
 						break;
 					case INT16:
-						DrawArrayValues<uint16_t>(col, itemCount, resultsIndex, buf, tempValue, literal);
+						DrawArrayValues<uint16_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
 						break;
 					case INT32:
-						DrawArrayValues<uint32_t>(col, itemCount, resultsIndex, buf, tempValue, literal);
+						DrawArrayValues<uint32_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
 						break;
 					case INT64:
-						DrawArrayValues<uint64_t>(col, itemCount, resultsIndex, buf, tempValue, literal);
+						DrawArrayValues<uint64_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
 						break;
 						/*case FLOAT:
 							DrawArrayValues<float>(col, itemCount, resultsIndex, buf, tempValue, literal);
@@ -929,7 +929,7 @@ void MungPlex::Search::drawResultsTableNew()
 
 						if (col == 1)
 						{
-							rgb565 = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint16_t>(row);
+							rgb565 = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint16_t>(pageIndexWithRowCount);
 							rectColor = LitColor::RGB565ToRGB888(rgb565);
 
 							if (!_pokePrevious)
@@ -937,7 +937,7 @@ void MungPlex::Search::drawResultsTableNew()
 						}
 						else if (col == 2)
 						{
-							rgb565 = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint16_t>(row);
+							rgb565 = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint16_t>(pageIndexWithRowCount);
 							rectColor = LitColor::RGB565ToRGB888(rgb565);
 
 							if (_pokePrevious)
@@ -955,7 +955,7 @@ void MungPlex::Search::drawResultsTableNew()
 
 						if (col == 1)
 						{
-							colorPtr = MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<float>(row * colorValueCount);
+							colorPtr = MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<float>(pageIndexWithRowCount * colorValueCount);
 							rectColor = usesAlpha ? LitColor::RGBAFToRGBA8888(colorPtr) : LitColor::RGBFToRGB888(colorPtr);
 
 							if (!_pokePrevious)
@@ -969,7 +969,7 @@ void MungPlex::Search::drawResultsTableNew()
 							}
 							else
 							{
-								colorPtr = MemoryCompare::MemCompare::GetResults().GetSpecificPreviousValuePtrAllRanges<float>(row * colorValueCount);
+								colorPtr = MemoryCompare::MemCompare::GetResults().GetSpecificPreviousValuePtrAllRanges<float>(pageIndexWithRowCount * colorValueCount);
 								rectColor = usesAlpha ? LitColor::RGBAFToRGBA8888(colorPtr) : LitColor::RGBFToRGB888(colorPtr);
 							}
 
@@ -984,14 +984,14 @@ void MungPlex::Search::drawResultsTableNew()
 					{
 						if (col == 1)
 						{
-							rectColor = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint32_t>(row);
+							rectColor = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint32_t>(pageIndexWithRowCount);
 
 							if (!_pokePrevious)
 								vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
 						}
 						else if (col == 2)
 						{
-							rectColor = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint32_t>(row);
+							rectColor = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint32_t>(pageIndexWithRowCount);
 
 							if (_pokePrevious)
 								vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
@@ -1015,7 +1015,7 @@ void MungPlex::Search::drawResultsTableNew()
 					if (!strLength)
 						strLength = MemoryCompare::MemCompare::GetResults().GetValueWidth();
 
-					resultsIndex *= strLength;
+					pageIndexWithRowCount *= strLength;
 
 					if (col == 1)
 					{
@@ -1024,26 +1024,26 @@ void MungPlex::Search::drawResultsTableNew()
 						switch (_currentTextTypeSelect)
 						{
 						case MorphText::ASCII: {
-							temputf8 = MorphText::ASCII_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(resultsIndex));
+							temputf8 = MorphText::ASCII_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount));
 						} break;
 						case MorphText::SHIFTJIS: {
-							temputf8 = MorphText::ShiftJis_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(resultsIndex));
+							temputf8 = MorphText::ShiftJis_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount));
 						} break;
 						case MorphText::UTF8: {
-							temputf8 = MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(resultsIndex);
+							temputf8 = MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount);
 						} break;
 						case MorphText::UTF16LE: case MorphText::UTF16BE: {
 							temputf8 = _currentTextTypeSelect == MorphText::UTF16BE
-								? MorphText::Utf16BE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<wchar_t>(resultsIndex))
-								: MorphText::Utf16LE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<wchar_t>(resultsIndex));
+								? MorphText::Utf16BE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<wchar_t>(pageIndexWithRowCount))
+								: MorphText::Utf16LE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<wchar_t>(pageIndexWithRowCount));
 						} break;
 						case MorphText::UTF32LE: case MorphText::UTF32BE: {
 							temputf8 = _currentTextTypeSelect == MorphText::UTF32BE
-								? MorphText::Utf32BE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char32_t>(resultsIndex))
-								: MorphText::Utf32LE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char32_t>(resultsIndex));
+								? MorphText::Utf32BE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char32_t>(pageIndexWithRowCount))
+								: MorphText::Utf32LE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char32_t>(pageIndexWithRowCount));
 						} break;
 						default: { //ISO-8859-X
-							temputf8 = MorphText::ISO8859X_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(resultsIndex), _currentTextTypeSelect);
+							temputf8 = MorphText::ISO8859X_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount), _currentTextTypeSelect);
 						} break;
 						}
 
