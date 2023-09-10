@@ -173,7 +173,7 @@ namespace MungPlex
             case INT16:
                 return "%04X";
             case INT64:
-                return "%016X";
+                return "%016llX";
             default:
                 return "%08X";
             }
