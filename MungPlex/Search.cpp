@@ -531,13 +531,15 @@ void MungPlex::Search::DrawResultsArea()
 						PokeColor<uint32_t>();
 				} break;
 				default: { //PRIMITIVE
-					if (_hex && _currentPrimitiveTypeSelect < FLOAT)
-						stream << std::hex << std::string(_pokeValueText);
-					else
-						stream << std::string(_pokeValueText);
+					int64_t tempVal;
 
-					int64_t tempVal = 0;
-					stream >> tempVal;
+					if (_hex && _currentPrimitiveTypeSelect < FLOAT)
+					{
+						stream << std::hex << std::string(_pokeValueText);
+						stream >> tempVal;
+					}
+					else
+						tempVal = std::stoll(_pokeValueText);
 
 					switch (_currentPrimitiveTypeSelect)
 					{
