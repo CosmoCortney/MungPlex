@@ -985,6 +985,8 @@ void MungPlex::Search::drawResultsTableNew()
 						if (col == 1)
 						{
 							rectColor = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint32_t>(pageIndexWithRowCount);
+							if (_currentColorTypeSelect == LitColor::RGB888)
+								rectColor |= 0xFF;
 
 							if (!_pokePrevious)
 								vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
@@ -992,6 +994,9 @@ void MungPlex::Search::drawResultsTableNew()
 						else if (col == 2)
 						{
 							rectColor = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint32_t>(pageIndexWithRowCount);
+							
+							if (_currentColorTypeSelect == LitColor::RGB888)
+								rectColor |= 0xFF;
 
 							if (_pokePrevious)
 								vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
