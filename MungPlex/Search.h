@@ -87,7 +87,7 @@ namespace MungPlex
         //value options
         char _knownValueText[2048] = { "" };
         char _secondaryKnownValueText[2048] = { "" };
-        std::vector<const char*> _iterations;
+        std::vector<std::string> _iterations;
         int _iterationIndex = 0;
 
         //range options

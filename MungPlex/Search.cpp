@@ -641,13 +641,12 @@ void MungPlex::Search::PerformSearch()
 
 	SetUpAndIterate();
 
-	static char x[4];
 	int iter = MemoryCompare::MemCompare::GetSearchStats().second;
+
 	if (iter < _iterations.size())
 		_iterations.erase(_iterations.begin() + iter-1, _iterations.end());
 
-	strcpy_s(x, sizeof(x), std::to_string(iter).c_str());
-	_iterations.emplace_back(x);
+	_iterations.emplace_back(std::to_string(iter).c_str());
 	_iterationIndex = --iter;
 	_selectedIndices.resize(_maxResultsPerPage);
 	uint64_t resultCount = MemoryCompare::MemCompare::GetSearchStats().first;
