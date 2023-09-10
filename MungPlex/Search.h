@@ -70,6 +70,7 @@ namespace MungPlex
         bool _hex = false;
         bool _cached = false;
         float _precision = 100.0f;
+        bool _diableBecauseUnknownAndNotRangebased = false;
         bool _disableBecauseNoPrimitive = false;
         bool _disableBecauseNoInt = false;
         bool _disableBecauseNoText = false;

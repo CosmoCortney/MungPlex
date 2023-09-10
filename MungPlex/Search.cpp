@@ -223,46 +223,48 @@ void MungPlex::Search::DrawSearchOptions()
 		static bool disableSecondaryValueText = true;
 		int iterationCount = MemoryCompare::MemCompare::GetSearchStats().second;
 
+		_diableBecauseUnknownAndNotRangebased = _currentComparisionTypeSelect == MemoryCompare::UNKNOWN && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
+
 		switch (_currentValueTypeSelect)
 		{
 		case ARRAY:
-			strcpy_s(knownPrimaryValueLabel, "Array Expression");
+			strcpy_s(knownPrimaryValueLabel, "Array Expression:");
 			strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			break;
 		case COLOR:
-			strcpy_s(knownPrimaryValueLabel, "Color Expression");
+			strcpy_s(knownPrimaryValueLabel, "Color Expression:");
 			strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			break;
 		case TEXT:
-			strcpy_s(knownPrimaryValueLabel, "Text Value");
+			strcpy_s(knownPrimaryValueLabel, "Text Value:");
 			strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			break;
 		default: //PRIMITIVE
 			if (_currentConditionTypeSelect == MemoryCompare::BETWEEN)
 			{
-				strcpy_s(knownPrimaryValueLabel, "Lowest");
-				strcpy_s(knownSecondaryValueLabel, "Highest");
+				strcpy_s(knownPrimaryValueLabel, "Lowest:");
+				strcpy_s(knownSecondaryValueLabel, "Highest:");
 				disableSecondaryValueText = false;
 			}
 			else if (_currentConditionTypeSelect == MemoryCompare::NOT_BETWEEN)
 			{
-				strcpy_s(knownPrimaryValueLabel, "Below");
-				strcpy_s(knownSecondaryValueLabel, "Above");
+				strcpy_s(knownPrimaryValueLabel, "Below:");
+				strcpy_s(knownSecondaryValueLabel, "Above:");
 				disableSecondaryValueText = false;
 			}
 			else if (_currentConditionTypeSelect == MemoryCompare::INCREASED_BY)
 			{
-				strcpy_s(knownPrimaryValueLabel, "Increased by");
+				strcpy_s(knownPrimaryValueLabel, "Increased by:");
 				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
 			else if (_currentConditionTypeSelect == MemoryCompare::DECREASED_BY)
 			{
-				strcpy_s(knownPrimaryValueLabel, "Decreased by");
+				strcpy_s(knownPrimaryValueLabel, "Decreased by:");
 				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
 			else
 			{
-				strcpy_s(knownPrimaryValueLabel, "Value");
+				strcpy_s(knownPrimaryValueLabel, "Value:");
 				strcpy_s(knownSecondaryValueLabel, "Not applicable");
 			}
 		}
@@ -311,11 +313,11 @@ void MungPlex::Search::DrawSearchOptions()
 			MungPlex::SetUpCombo("Condition Type:", *conditionTypeItems, _currentConditionTypeSelect, 0.5f, 0.4f);
 		if (!_disableBecauseNoText) ImGui::EndDisabled();
 
-		if (disablePrimaryValueText) ImGui::BeginDisabled();
+		if (_diableBecauseUnknownAndNotRangebased) ImGui::BeginDisabled();
 		if (SetUpInputText(knownPrimaryValueLabel, _knownValueText, IM_ARRAYSIZE(_knownValueText), 0.5f, 0.4f))
 		{
 		}
-		if (disablePrimaryValueText) ImGui::EndDisabled();
+		if (_diableBecauseUnknownAndNotRangebased) ImGui::EndDisabled();
 
 		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < MemoryCompare::BETWEEN || _currentConditionTypeSelect > MemoryCompare::NOT_BETWEEN))) ImGui::BeginDisabled();
 		if (SetUpInputText(knownSecondaryValueLabel, _secondaryKnownValueText, IM_ARRAYSIZE(_secondaryKnownValueText), 0.5f, 0.4f))
