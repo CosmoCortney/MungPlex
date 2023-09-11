@@ -12,6 +12,11 @@
 #include"Cheats.h"
 #include"Log.h"
 #include "PointerSearch.h"
+#ifndef NDEBUG
+	#pragma comment(linker, "/SUBSYSTEM:console /ENTRY:mainCRTStartup")
+#else
+	#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+#endif
 
 void key_callback(GLFWwindow* window, const int key, const int scancode, const int action, const int mode) //keep unused parameters since that signature is required for glfwSetKeyCallback
 {
@@ -135,9 +140,6 @@ int main()
 		MungPlex::Cheats::DrawWindow();
 		MungPlex::Log::DrawWindow();
 		MungPlex::PointerSearch::DrawWindow();
-
-		if (!MungPlex::Connection::IsOpen())
-			break;
 
 		static bool setWindowFocused = true;
 		if (setWindowFocused)
