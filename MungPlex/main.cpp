@@ -28,6 +28,9 @@ int main()
 		return EXIT_FAILURE;
 	}
 
+	std::string windowTitle("MungPlex ");
+	windowTitle.append(std::to_string(MungPlex_VERSION_MAJOR) + "." + std::to_string(MungPlex_VERSION_MINOR) + "." + std::to_string(MungPlex_VERSION_PATCH));
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	auto& io = ImGui::GetIO();
@@ -36,14 +39,14 @@ int main()
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	ImGui::StyleColorsDark();
 
-	const auto window = glfwCreateWindow(720, 480, "MungPlex", nullptr, nullptr);
+	const auto window = glfwCreateWindow(1280, 720, windowTitle.c_str(), nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
 
 	glfwSwapInterval(1);
 
 	ImGuiStyle& style = ImGui::GetStyle();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	//if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
 		style.WindowRounding = 0.0f;
 		const int styleID = MungPlex::Settings::GetGeneralSettings().Style;
@@ -94,7 +97,7 @@ int main()
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	ImVec4 clear_color = ImVec4(0.2f, 0.2f, 0.2f, 1.00f);
 	ImFontConfig cfg;
 	static const ImWchar icons_ranges[] = { 0x0000, 0xf3ff, 0 };
 

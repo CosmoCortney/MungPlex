@@ -7,10 +7,6 @@ project ("MungPlex")
 set(CMAKE_CXX_STANDARD 23)
 
 add_subdirectory ("MungPlex")
-#add_subdirectory ("include/Xertz")#maybe can be removed
-#add_subdirectory ("include/Xertz/OperativeArray")#maybe can be removed
-#add_subdirectory ("include/Xertz/LitColor")#maybe can be removed
-#add_subdirectory ("include/Xertz/MorphText")#maybe can be removed
 
 target_include_directories(MungPlex PRIVATE
     "include/imgui"
