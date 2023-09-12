@@ -37,7 +37,24 @@ void MungPlex::Connection::DrawConnectionSelect()
 		if (ImGui::BeginTabItem("Native Application"))
 		{
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
-			ImGui::Button("Connect", ImVec2(200, 50));
+
+			if(Xertz::SystemInfo::GetProcessInfoList().size() == 0)
+				Xertz::SystemInfo::RefreshProcessInfoList();
+
+			SetUpCombo("Process:", Xertz::SystemInfo::GetProcessInfoList(), _selectedProcessIndex, 0.75f, 0.4f);
+
+			if (ImGui::Button("Connect"))
+			{
+				_connected = MungPlex::ProcessInformation::ConnectToProcess(_selectedProcessIndex);
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Refresh List"))
+			{
+				Xertz::SystemInfo::RefreshProcessInfoList();
+			}
+
 			ImGui::EndTabItem();
 		}
 		

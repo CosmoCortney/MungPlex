@@ -286,7 +286,12 @@ namespace MungPlex
                 items_str.emplace_back(std::string(item.first.begin(), item.first.end()).c_str());
             else if constexpr (std::is_same_v<T, std::tuple<std::string, int, bool>>)
                 items_str.emplace_back(std::get<std::string>(item).c_str());
-            else if constexpr (std::is_same_v < T, SystemRegion>)
+            else if constexpr (std::is_same_v<T, Xertz::ProcessInfo>)
+            {
+                Xertz::ProcessInfo x = item;
+                items_str.emplace_back(x.GetProcessName());
+            }
+            else if constexpr (std::is_same_v<T, SystemRegion>)
             {
                 items_str.emplace_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
             }

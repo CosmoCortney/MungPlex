@@ -1183,7 +1183,7 @@ void MungPlex::Search::drawResultsTableNew()
 			}
 			else
 			{
-				sprintf_s(buf, addressTextWidth == 16 ? "%016X" : "%08X", address);
+				sprintf_s(buf, addressTextWidth == 16 ? "%016llX" : "%08X", address);
 				std::memcpy(tempAddress, buf, 17);
 			}
 
@@ -1290,6 +1290,10 @@ void MungPlex::Search::generateDumpRegionMap()
 	{
 		emplaceDumpRegion(_currentRegionSelect);
 	}
+
+	//if (ProcessInformation::GetProcessType() == PC)
+	//	for (SystemRegion& region : _dumpRegions)
+	//		;
 }
 
 void MungPlex::Search::emplaceDumpRegion(const uint16_t index)

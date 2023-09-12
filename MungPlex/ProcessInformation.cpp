@@ -285,13 +285,64 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 		break;
 	}
 
-	Search::SetRereorderRegion(_rereorderRegion);
-	Search::SetUnderlyingBigEndianFlag(_underlyingIsBigEndian);
+	setupSearch();
 	Cheats::SetPlatform(_platform.c_str());
 	Cheats::SetGameID(_gameID.c_str());
 	Cheats::InitCheatFile();
 	ObtainGameEntities(_systemRegions[0].BaseLocationProcess);
 	return connected;
+}
+
+bool MungPlex::ProcessInformation::ConnectToProcess(int processIndex)
+{
+	Xertz::ProcessInfo process = Xertz::SystemInfo::GetProcessInfoList()[processIndex];
+	GetInstance()._pid = process.GetPID();
+	bool connected = GetInstance()._pid > 0 && process.IsOpen();
+	if (!connected)
+		return false;
+
+	GetInstance()._systemRegions.clear();
+	uint64_t total = 0;
+
+	for (Xertz::MemoryRegion& region : process.GetRegionList())
+	{
+		std::string label;
+
+		if (region.GetProtect() & (PAGE_READONLY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_READWRITE) && region.GetRegionSize() > 0)
+		{
+			std::cout << std::hex << region.GetBaseAddress<uint64_t>() << " - " << region.GetRegionSize() << std::endl;
+			label = "R";
+			total += region.GetRegionSize();
+
+			if (region.GetProtect() & (PAGE_EXECUTE_READWRITE | PAGE_READWRITE))
+				label.append("W");
+
+			if(region.GetProtect() & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE))
+				label.append("E");
+
+			GetInstance()._systemRegions.emplace_back(label, region.GetBaseAddress<uint64_t>(), region.GetRegionSize(), region.GetBaseAddress<void*>());
+		}
+
+	}
+
+
+	std::cout << std::dec << total << std::endl;
+
+	GetInstance()._processName = process.GetProcessName();
+	GetInstance()._underlyingIsBigEndian = false;
+	GetInstance()._addressWidth = process.IsX64() ? 8 : 4;
+	GetInstance()._rereorderRegion = false;
+	GetInstance().setupSearch();
+	Cheats::SetPlatform("PC");
+	Cheats::SetGameID(GetInstance()._processName.c_str());
+	Cheats::InitCheatFile();
+	return connected;
+}
+
+void MungPlex::ProcessInformation::setupSearch()
+{
+	Search::SetRereorderRegion(_rereorderRegion);
+	Search::SetUnderlyingBigEndianFlag(_underlyingIsBigEndian);
 }
 
 bool MungPlex::ProcessInformation::InitProject64()
@@ -539,6 +590,9 @@ void MungPlex::ProcessInformation::ObtainGameEntities(void* baseLocation)
 		Value = entityValue;
 	}
 }
+
+
+
 
 bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 {

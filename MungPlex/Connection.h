@@ -43,6 +43,7 @@ namespace MungPlex
         bool _connected = false;
         uint32_t _memViewerCount = 0;
         int _selectedEmulatorIndex = 0;
+        int _selectedProcessIndex = 0;
         char _connectionMessage[256];
         std::vector<MemoryViewer> _memoryViewers;
         void DrawConnectionSelect();
