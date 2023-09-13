@@ -38,10 +38,29 @@ void MungPlex::Connection::DrawConnectionSelect()
 		{
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-			if(Xertz::SystemInfo::GetProcessInfoList().size() == 0)
-				Xertz::SystemInfo::RefreshProcessInfoList();
 
-			SetUpCombo("Process:", Xertz::SystemInfo::GetProcessInfoList(), _selectedProcessIndex, 0.75f, 0.4f);
+			if (ImGui::BeginTabBar("ProcessesTab", tab_bar_flags))
+			{
+				if (Xertz::SystemInfo::GetProcessInfoList().size() == 0)
+					Xertz::SystemInfo::RefreshProcessInfoList();
+
+				if (Xertz::SystemInfo::GetApplicationProcessInfoList().size() == 0)
+					Xertz::SystemInfo::RefreshApplicationProcessInfoList();
+
+				if (ImGui::BeginTabItem("Applications"))
+				{
+					SetUpCombo("Application:", Xertz::SystemInfo::GetApplicationProcessInfoList(), _selectedApplicationProcessIndex, 0.75f, 0.4f);
+					ImGui::EndTabItem();
+				}
+
+				if (ImGui::BeginTabItem("Processes"))
+				{
+					SetUpCombo("Process:", Xertz::SystemInfo::GetProcessInfoList(), _selectedProcessIndex, 0.75f, 0.4f);
+					ImGui::EndTabItem();
+				}
+
+				ImGui::EndTabBar();
+			}
 
 			if (ImGui::Button("Connect"))
 			{
@@ -53,6 +72,7 @@ void MungPlex::Connection::DrawConnectionSelect()
 			if (ImGui::Button("Refresh List"))
 			{
 				Xertz::SystemInfo::RefreshProcessInfoList();
+				Xertz::SystemInfo::RefreshApplicationProcessInfoList();
 			}
 
 			ImGui::EndTabItem();

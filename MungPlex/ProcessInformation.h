@@ -50,7 +50,7 @@ namespace MungPlex
         }
 
         int32_t _processType = 0;
-        int32_t _pid = -1;
+        DWORD _pid = -1;
         MODULE_LIST _modules{};
         REGION_LIST _regions{};
         bool _isX64 = false;
