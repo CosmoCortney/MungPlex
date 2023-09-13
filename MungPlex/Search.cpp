@@ -582,13 +582,13 @@ void MungPlex::Search::DrawResultsArea()
 						break;
 					case FLOAT:
 					{
-						float temp = std::stof(stream.str());
+						float temp = std::stof(_pokeValueText);
 						_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&temp), reinterpret_cast<char*>(&temp) + 4);
 						ProcessInformation::GetAddressWidth() > 4 ? PokeValue<float, uint64_t>() : PokeValue<float, uint32_t>();
 					}   break;
 					case DOUBLE:
 					{
-						double temp = std::stof(stream.str());
+						double temp = std::stod(_pokeValueText);
 						_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&temp), reinterpret_cast<char*>(&temp) + 8);
 						ProcessInformation::GetAddressWidth() > 4 ? PokeValue<double, uint64_t>() : PokeValue<double, uint32_t>();
 					}
