@@ -101,6 +101,9 @@ namespace MungPlex
         uint64_t _rangeEndValue = 0;
         bool _crossRegion = false;
         bool _rereorderRegion = false;
+        bool _read = true;
+        bool _write = true;
+        bool _execute = false;
 
         //results
         uint32_t _pagesAmountValue = 0;

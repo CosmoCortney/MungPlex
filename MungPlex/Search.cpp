@@ -171,9 +171,9 @@ void MungPlex::Search::DrawRangeOptions()
 		ImGui::BeginGroup();
 		{
 			_regions = ProcessInformation::GetRegions();
-			_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.75f, 0.3f);
-			_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText, IM_ARRAYSIZE(_rangeStartText), 0.75f, 0.3f);
-			_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText, IM_ARRAYSIZE(_rangeEndText), 0.75f, 0.3f);
+			_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.5f, 0.4f);
+			_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText, IM_ARRAYSIZE(_rangeStartText), 0.5f, 0.4f);
+			_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText, IM_ARRAYSIZE(_rangeEndText), 0.5f, 0.4f);
 		}
 		ImGui::EndGroup();
 
@@ -204,6 +204,29 @@ void MungPlex::Search::DrawRangeOptions()
 			ImGui::Checkbox("Re-reorder Region", &_rereorderRegion);
 			ImGui::SameLine();
 			HelpMarker("Some emulators like Project64 reorder the emulatoed RAM in 4 byte chunks of the opposite endianness which requires re-reordering before scanning. The best option is auto-selected for you, but it might be helpful to set it manually if you encounter a reordered region or structure on another platform.");
+		
+			if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::BeginDisabled();
+			{
+				static bool refresh = false;
+
+				//if (ImGui::Checkbox("Read", &_read))
+				//	refresh = true;
+
+				if (ImGui::Checkbox("Write", &_write))
+					refresh = true;
+
+				ImGui::SameLine();
+				if (ImGui::Checkbox("Exec.", &_execute))
+					refresh = true;
+
+				if(refresh)
+					ProcessInformation::RefreshRegionlistPC(_read, _write, _execute);
+
+				ImGui::SameLine();
+				HelpMarker("If Write AND Exec. are unchecked, only read-only ranges are considered. Otherwise readable ranges are always considered.");
+
+			}
+			if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::EndDisabled();
 		}
 		ImGui::EndGroup();
 	}

@@ -101,6 +101,7 @@ namespace MungPlex
         static std::string& GetGameID();
         static void DrawWindow();
         static void RefreshData(int32_t PID);
+        static void RefreshRegionlistPC(bool read = true, const bool write = true, const bool execute = true);
         static bool ConnectToEmulator(int EmulatorIndex);
         static bool ConnectToProcess(int processIndex);
         static void SetProcessType(int32_t processType);

@@ -301,38 +301,13 @@ bool MungPlex::ProcessInformation::ConnectToProcess(int processIndex)
 	if (!connected)
 		return false;
 
-	GetInstance()._systemRegions.clear();
-	uint64_t total = 0;
-
-	for (Xertz::MemoryRegion& region : process.GetRegionList())
-	{
-		std::string label;
-
-		if (region.GetProtect() & (PAGE_READONLY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_READWRITE) && region.GetRegionSize() > 0)
-		{
-			std::cout << std::hex << region.GetBaseAddress<uint64_t>() << " - " << region.GetRegionSize() << std::endl;
-			label = "R";
-			total += region.GetRegionSize();
-
-			if (region.GetProtect() & (PAGE_EXECUTE_READWRITE | PAGE_READWRITE))
-				label.append("W");
-
-			if(region.GetProtect() & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE))
-				label.append("E");
-
-			GetInstance()._systemRegions.emplace_back(label, region.GetBaseAddress<uint64_t>(), region.GetRegionSize(), region.GetBaseAddress<void*>());
-		}
-
-	}
-
-
-	std::cout << std::dec << total << std::endl;
-
+	GetInstance().RefreshRegionlistPC();
 	GetInstance()._processName = process.GetProcessName();
 	GetInstance()._underlyingIsBigEndian = false;
 	GetInstance()._addressWidth = process.IsX64() ? 8 : 4;
 	GetInstance()._rereorderRegion = false;
 	GetInstance().setupSearch();
+	GetInstance()._processType = NATIVE;
 	Cheats::SetPlatform("PC");
 	Cheats::SetGameID(GetInstance()._processName.c_str());
 	Cheats::InitCheatFile();
@@ -591,9 +566,6 @@ void MungPlex::ProcessInformation::ObtainGameEntities(void* baseLocation)
 	}
 }
 
-
-
-
 bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 {
 	if (!GetInstance().LoadSystemInformationJSON(emulatorIndex))
@@ -604,6 +576,7 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	
 	GetInstance()._exePath = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).GetFilePath(); // refactor these two lines when implementing PC game support
 	GetInstance()._isX64 = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).IsX64();		  //-^
+	GetInstance()._processType = EMULATOR;
 
 	std::string msg("Connected to ");
 	msg.append(GetInstance()._processName + " (");
@@ -667,4 +640,47 @@ int32_t MungPlex::ProcessInformation::GetAddressWidth()
 bool MungPlex::ProcessInformation::GetRereorderFlag()
 {
 	return GetInstance()._rereorderRegion;
+}
+
+void MungPlex::ProcessInformation::RefreshRegionlistPC(bool read, const bool write, const bool execute)
+{
+	GetInstance()._systemRegions.clear();
+	Xertz::ProcessInfo process = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid);
+	int flags = 0;
+
+	if (write || execute)
+		read = true;
+
+	if (read)
+		flags |= PAGE_READONLY;
+	if (write)
+		flags |= PAGE_READWRITE;
+	if(execute)
+		flags |= PAGE_EXECUTE_READ;
+	if(write && execute)
+		flags |= PAGE_EXECUTE_READWRITE;
+
+	for (Xertz::MemoryRegion& region : process.GetRegionList())
+	{
+		std::string label;
+
+		if (region.GetProtect() & (flags) && region.GetRegionSize() > 0)
+		{
+			std::cout << std::hex << region.GetBaseAddress<uint64_t>() << " - " << region.GetRegionSize() << std::endl;
+			label = "R";
+			//total += region.GetRegionSize();
+
+			if (region.GetProtect() & (PAGE_EXECUTE_READWRITE | PAGE_READWRITE) & flags)
+				label.append("W");
+
+			if (region.GetProtect() & (PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE) & flags)
+				label.append("E");
+
+			GetInstance()._systemRegions.emplace_back(label, region.GetBaseAddress<uint64_t>(), region.GetRegionSize(), region.GetBaseAddress<void*>());
+		}
+
+	}
+
+
+	//std::cout << std::dec << total << std::endl;
 }
