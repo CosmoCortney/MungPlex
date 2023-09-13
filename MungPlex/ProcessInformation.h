@@ -79,6 +79,7 @@ namespace MungPlex
         bool InitCemu();
         void ObtainGameEntities(void* baseLocation);
         void setupSearch();
+        bool connectToProcessFR();
 
     public:
         enum ProcessType
@@ -104,6 +105,7 @@ namespace MungPlex
         static void RefreshRegionlistPC(bool read = true, const bool write = true, const bool execute = true);
         static bool ConnectToEmulator(int EmulatorIndex);
         static bool ConnectToProcess(int processIndex);
+        static bool ConnectToApplicationProcess(int applicationProcessIndex);
         static void SetProcessType(int32_t processType);
         static std::vector<EMUPAIR>& GetEmulatorList();
         static int32_t GetProcessType();

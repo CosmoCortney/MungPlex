@@ -37,7 +37,7 @@ void MungPlex::Connection::DrawConnectionSelect()
 		if (ImGui::BeginTabItem("Native Application"))
 		{
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
-
+			static bool app = true;
 
 			if (ImGui::BeginTabBar("ProcessesTab", tab_bar_flags))
 			{
@@ -49,12 +49,14 @@ void MungPlex::Connection::DrawConnectionSelect()
 
 				if (ImGui::BeginTabItem("Applications"))
 				{
+					app = true;
 					SetUpCombo("Application:", Xertz::SystemInfo::GetApplicationProcessInfoList(), _selectedApplicationProcessIndex, 0.75f, 0.4f);
 					ImGui::EndTabItem();
 				}
 
 				if (ImGui::BeginTabItem("Processes"))
 				{
+					app = false;
 					SetUpCombo("Process:", Xertz::SystemInfo::GetProcessInfoList(), _selectedProcessIndex, 0.75f, 0.4f);
 					ImGui::EndTabItem();
 				}
@@ -64,7 +66,10 @@ void MungPlex::Connection::DrawConnectionSelect()
 
 			if (ImGui::Button("Connect"))
 			{
-				_connected = MungPlex::ProcessInformation::ConnectToProcess(_selectedProcessIndex);
+				if (app)
+					_connected = MungPlex::ProcessInformation::ConnectToApplicationProcess(_selectedApplicationProcessIndex);
+				else
+					_connected = MungPlex::ProcessInformation::ConnectToProcess(_selectedProcessIndex);
 			}
 
 			ImGui::SameLine();

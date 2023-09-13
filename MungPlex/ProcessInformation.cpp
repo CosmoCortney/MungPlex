@@ -297,22 +297,34 @@ bool MungPlex::ProcessInformation::ConnectToProcess(int processIndex)
 {
 	Xertz::ProcessInfo process = Xertz::SystemInfo::GetProcessInfoList()[processIndex];
 	GetInstance()._pid = process.GetPID();
-	bool connected = GetInstance()._pid > 0 && process.IsOpen();
-	if (!connected)
-		return false;
-
-	GetInstance().RefreshRegionlistPC();
-	GetInstance()._processName = process.GetProcessName();
-	GetInstance()._underlyingIsBigEndian = false;
-	GetInstance()._addressWidth = process.IsX64() ? 8 : 4;
-	GetInstance()._rereorderRegion = false;
-	GetInstance().setupSearch();
-	GetInstance()._processType = NATIVE;
-	Cheats::SetPlatform("PC");
-	Cheats::SetGameID(GetInstance()._processName.c_str());
-	Cheats::InitCheatFile();
-	return connected;
+	return GetInstance().connectToProcessFR();
 }
+
+ bool MungPlex::ProcessInformation::ConnectToApplicationProcess(int applicationProcessIndex)
+{
+	 Xertz::ProcessInfo process = Xertz::SystemInfo::GetApplicationProcessInfoList()[applicationProcessIndex];
+	 GetInstance()._pid = process.GetPID();
+	 return GetInstance().connectToProcessFR();
+}
+
+ bool MungPlex::ProcessInformation::connectToProcessFR()
+ {
+	 bool connected = GetInstance()._pid > 0 && Xertz::SystemInfo::GetProcessInfo(_pid).IsOpen();
+	 if (!connected)
+		 return false;
+
+	 GetInstance().RefreshRegionlistPC();
+	 GetInstance()._processName = Xertz::SystemInfo::GetProcessInfo(_pid).GetProcessName();
+	 GetInstance()._underlyingIsBigEndian = false;
+	 GetInstance()._addressWidth = Xertz::SystemInfo::GetProcessInfo(_pid).IsX64() ? 8 : 4;
+	 GetInstance()._rereorderRegion = false;
+	 GetInstance().setupSearch();
+	 GetInstance()._processType = NATIVE;
+	 Cheats::SetPlatform("PC");
+	 Cheats::SetGameID(GetInstance()._processName.c_str());
+	 Cheats::InitCheatFile();
+	 return connected;
+ }
 
 void MungPlex::ProcessInformation::setupSearch()
 {
