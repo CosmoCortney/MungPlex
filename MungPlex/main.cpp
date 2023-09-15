@@ -26,12 +26,23 @@ void key_callback(GLFWwindow* window, const int key, const int scancode, const i
 	}
 }
 
+void clearSearchResultsDir()
+{
+	std::wstring path(MorphText::Utf8_To_Utf16LE(MungPlex::Settings::GetGeneralSettings().DocumentsPath).append(L"\\MungPlex\\Search"));
+	std::wcout << path;
+
+	for (const auto& entry : std::filesystem::directory_iterator(path))
+		std::filesystem::remove_all(entry.path());
+}
+
 int main()
 {
 	if (!glfwInit())
 	{
 		return EXIT_FAILURE;
 	}
+
+	clearSearchResultsDir();
 
 	std::string windowTitle("MungPlex ");
 	windowTitle.append(std::to_string(MungPlex_VERSION_MAJOR) + "." + std::to_string(MungPlex_VERSION_MINOR) + "." + std::to_string(MungPlex_VERSION_PATCH));
@@ -168,5 +179,6 @@ int main()
 		glfwSwapBuffers(window);
 	}
 	
+	clearSearchResultsDir();
 	return EXIT_SUCCESS;
 }
