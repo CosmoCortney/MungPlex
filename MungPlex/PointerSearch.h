@@ -1,25 +1,14 @@
 #pragma once
-#include <iostream>
-#include <stdio.h>
-#include "GLFW/glfw3.h"
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include "examples/libs/emscripten/emscripten_mainloop_stub.h"
-#include<string>
-#include<fstream>
-#include <iomanip>
-#include "Xertz.h"
+
+#include <string>
 #include <Windows.h>
 #include <string>
-#include"HelperFunctions.h"
+#include "HelperFunctions.h"
 
 namespace MungPlex
 {
     class PointerSearch
     {
-    private:
         PointerSearch();
         ~PointerSearch()
         {
@@ -76,6 +65,6 @@ namespace MungPlex
 
     public:
         static void DrawWindow();
-        static void SelectPreset(const int presetIndex);
+        static void SelectPreset(int presetIndex);
     };
 }
