@@ -269,13 +269,9 @@ bool MungPlex::PointerSearch::performScan()
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
-#ifndef NDEBUG
-    std::string path = "F:\\Workspace\\MungPlex\\MungPlex\\resources\\Universal-Pointer-Searcher-Engine\\UniversalPointerSearcher.exe";
-#else
-    std::string path = "resources\\Universal-Pointer-Searcher-Engine\\UniversalPointerSearcher.exe";
-#endif
+    const auto pointerSearcherFilePath = GetResourcesFilePath("Universal-Pointer-Searcher-Engine\\UniversalPointerSearcher.exe");
 
-    const bool success = CreateProcess(path.c_str(),
+    const bool success = CreateProcess(pointerSearcherFilePath.string().data(),
         const_cast<LPSTR>(std::string("UniversalPointerSearcher.exe ").append(_arg).c_str()),
         NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
 
@@ -291,6 +287,10 @@ bool MungPlex::PointerSearch::performScan()
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
         waitNload.join();
+    }
+    else
+    {
+        std::cerr << "Pointer searcher exited with an error" << std::endl;
     }
 
     return success;

@@ -12,6 +12,7 @@
 #include"Connection.h"
 #include<any>
 #include<cstdint>
+#include <filesystem>
 #include"Settings.h"
 #include"LitColor.h"
 #include"MorphText.h"
@@ -448,4 +449,20 @@ namespace MungPlex
             _slotsOnTextChanged.emplace_back(slot);
         }
     };
+
+    inline std::filesystem::path GetResourcesFilePath(const std::filesystem::path &resourceFileName)
+    {
+        const auto resourcesDirectory = "resources" / resourceFileName;
+
+#ifdef _DEBUG
+        const auto currentPath = std::filesystem::current_path();
+        const auto projectPath = currentPath / ".." / ".." / ".." / "..";
+        auto fontPath = projectPath / "MungPlex" / resourcesDirectory;
+        fontPath = absolute(fontPath);
+
+        return fontPath;
+#endif
+
+        return resourcesDirectory;
+    }
 }

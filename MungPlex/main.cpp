@@ -28,11 +28,14 @@ void key_callback(GLFWwindow* window, const int key, const int scancode, const i
 
 void clearSearchResultsDir()
 {
-	std::wstring path(MorphText::Utf8_To_Utf16LE(MungPlex::Settings::GetGeneralSettings().DocumentsPath).append(L"\\MungPlex\\Search"));
+	const std::wstring path(MorphText::Utf8_To_Utf16LE(MungPlex::Settings::GetGeneralSettings().DocumentsPath).append(L"\\MungPlex\\Search"));
 	std::wcout << path;
 
-	for (const auto& entry : std::filesystem::directory_iterator(path))
-		std::filesystem::remove_all(entry.path());
+	if (std::filesystem::is_directory(path))
+	{
+		for (const auto& entry : std::filesystem::directory_iterator(path))
+			std::filesystem::remove_all(entry.path());
+	}
 }
 
 int main()
@@ -119,11 +122,13 @@ int main()
 
 #ifndef NDEBUG
 	bool show_demo_window = true;
-	bool fontLoaded = io.Fonts->AddFontFromFileTTF("F:\\Workspace\\MungPlex\\MungPlex\\resources\\NotoSansJP-Black.ttf", MungPlex::Settings::GetGeneralSettings().Scale * 20.0f, &cfg, io.Fonts->GetGlyphRangesJapanese());
 #else
 	bool show_demo_window = false;
-	bool fontLoaded = io.Fonts->AddFontFromFileTTF("resources\\NotoSansJP-Black.ttf", MungPlex::Settings::GetGeneralSettings().Scale * 20.0f, &cfg, io.Fonts->GetGlyphRangesJapanese());
 #endif
+
+	const auto fontPath = MungPlex::GetResourcesFilePath("NotoSansJP-Black.ttf");
+	const bool fontLoaded = io.Fonts->AddFontFromFileTTF(fontPath.string().data(), MungPlex::Settings::GetGeneralSettings().Scale * 20.0f, &cfg, io.Fonts->GetGlyphRangesJapanese());
+	std::cout << "Font successfully loaded: " << fontLoaded << std::endl;
 
 	const auto version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 	std::cout << "OpenGL Version: " << version << std::endl;

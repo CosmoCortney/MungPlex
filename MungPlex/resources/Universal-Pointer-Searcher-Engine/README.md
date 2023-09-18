@@ -51,9 +51,23 @@ $ ldd UniversalPointerSearcher.elf
     /lib64/ld-linux-x86-64.so.2 (0x00007f7c365f6000)
 ```
 
+### macOS
+
+**Fair warning:** The macOS build is currently not optimal due to missing C++17 parallel algorithms in AppleClang 14 on my macOS development machine (since the Macbook is from 2015 it no longer receives the latest updates). This means that certain operations by the pointer searcher will remain single-threaded and therefore will be slower than on other operating systems.
+
+```
+% oTool -L UniversalPointerSearcher.macho
+UniversalPointerSearcher.macho:
+        /System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration (compatibility version 1.0.0, current version 1163.100.19)
+        /System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 60158.100.133)
+        /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 1858.112.0)
+        /usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 1300.23.0)
+        /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1311.100.3)
+```
+
 ## Files
 
-[The release](https://github.com/BullyWiiPlaza/Universal-Pointer-Searcher-Engine/releases) contains the **README.md**, the **LICENSE**, the compiled **UniversalPointerSearcher.exe** (**Windows** version), the **DLLs** for the **Windows** version, the **UniversalpointerSearcher.macho** (**MacOS X** version) and the compiled **UniversalPointerSearcher.elf** (**Linux** version).
+[The release](https://github.com/BullyWiiPlaza/Universal-Pointer-Searcher-Engine/releases) contains the **README.md**, the **LICENSE**, the compiled **UniversalPointerSearcher.exe** (**Windows** version), the **DLLs** for the **Windows** version (if any), the **UniversalpointerSearcher.macho** (**MacOS X** version) and the compiled **UniversalPointerSearcher.elf** (**Linux** version).
 
 ## Usage
 
@@ -61,19 +75,18 @@ This is a command line application. You have to pass the respective information 
 
 ```
 >UniversalPointerSearcher.exe --help
-2022-08-28 17:37:23.122 (   0.000s) [        D9350E37]               main.cpp:40    INFO| Windows C++ Universal Pointer Searcher Engine v3.7
+[2023-09-06 20:09:35.276] [42640] [info] Windows C++ Universal Pointer Searcher Engine v3.8
 Release Build
-Copyright (c) 2018 - 2022 BullyWiiPlaza Productions
-2022-08-28 17:37:23.132 (   0.009s) [        D9350E37]   ProgramValidator.cpp:106   INFO| Validating application...
-2022-08-28 17:37:23.134 (   0.012s) [        D9350E37]   ProgramValidator.cpp:61    INFO| Validating environment...
-2022-08-28 17:37:23.138 (   0.016s) [        D9350E37]   ProgramValidator.cpp:113   INFO| Retrieving latest version details...
-2022-08-28 17:37:23.936 (   0.814s) [        D9350E37]   ProgramValidator.cpp:140   INFO| Verifying binary...
-2022-08-28 17:37:23.989 (   0.867s) [        D9350E37]   ProgramValidator.cpp:166   INFO| Application validation passed...
+Copyright (C) 2018 - 2023 BullyWiiPlaza Productions
+[2023-09-06 20:09:35.277] [42640] [info] Command line arguments:
+[2023-09-06 20:09:35.277] [42640] [info] [0]: UniversalPointerSearcher.exe
+[2023-09-06 20:09:35.277] [42640] [info] [1]: --help
+[2023-09-06 20:09:35.277] [42640] [info] Parsing command line arguments...
 Usage: UniversalPointerSearcher.exe [OPTIONS]
 
 Options:
   -h,--help                   Print this help message and exit
-  --verbose BOOLEAN           Whether to perform verbose logging of the pointer searcher output
+  --verbose                   Whether to perform verbose logging of the pointer searcher output
   --working-directory TEXT    The directory to use as a relative base for resolving file paths
   --initial-file-path TEXT ...
                               The file path to a memory snapshot file to add to the initial input or a folder to parse
@@ -87,38 +100,46 @@ Options:
   --target-address TEXT ...   The target address of the memory snapshot(s)
   --endian TEXT               All memory snapshot file's endian (= byte order)
   --address-size UINT         Every memory snapshot file's address size (in bytes)
-  --initial-pointer-address-range TEXT ...
+  --pointer-address-range TEXT ...
                               The memory snapshot's pointer address range (useful for speeding up slow pointer map parsing). Each range consists of a positive numeric start value, a comma and a positive numeric end value (inclusive).
   --comparison-file-path TEXT ...
                               The file path to a memory snapshot file to add as comparison or a folder to parse
   --comparison-starting-address TEXT ...
                               The starting address of each comparison memory snapshot file
-  --scan-deeper-by INT        Specifies how many additional levels of depth the pointer searcher should add to the provided memory pointers, by default 0.
+  --scan-deeper-by INT        Specifies how many additional levels of depth the pointer searcher should add to the provided memory pointers, by default 0 (requires an input memory pointers file path).
+  --target-pointer-maps TEXT ...
+                              The pointer maps to target for writing/reading, must be either "initial" or "comparison"followed by the comparison group number (which starts at 1). You may not skip numbers or provide them in a different order for correct behavior.
   --write-pointer-maps-file-paths TEXT ...
                               The file paths to write the generated pointer maps to
   --compress-pointer-maps BOOLEAN ...
                               Whether to compress the respective written pointer map (default = true)
+  --pointer-map-compression-levels INT:INT in [0 - 9] ...
+                              The compression levels for generating the pointer maps
   --read-pointer-maps-file-paths TEXT ...
                               The file paths to read the pointer maps from
   --pointer-offset-range TEXT The pointer offset range to use for the pointer search. Each range consists of a potentially negative start value, a comma and a potentially negative end value (inclusive)
   --exclude-cycles BOOLEAN    Whether cycles are excluded in the resulting memory pointers list (reduces redundant results)
   --pointer-depth-range TEXT  The pointer depth range for the pointer search (may yield a lot more results). Each range consists of a positive start value, a comma and a positive end value (inclusive)
-  --maximum-pointers-count INT
-                              The pointer count where the pointer searcher will stop searching for more
+  --maximum-pointer-count INT The pointer count where the pointer searcher will stop searching for more
   --last-pointer-offsets TEXT The enforced last pointer offsets of all memory pointers for the pointer search
-  --pointer-sorting-type Memory pointer sorting type in {no sorting = 0, by address = 1, by absolute offset sum and by address = 2, by offset count, by absolute offset sum and by address = 3}:{0,1,2,3}
+  --pointer-sorting-type Memory pointer sorting type, one of: (no sorting = 0) | (by address = 1) | (by absolute offset sum and by address = 2) | (by offset count, by absolute offset sum and by address = 3):{0,1,2,3}
                               The memory pointer sorting type to use
   --maximum-pointers-printed-count UINT
                               The maximum amount of pointers printed by the pointer searcher (useful for performance reasons)
   --print-visited-addresses   Whether to print the visited addresses for each discovered memory pointer
+  --disable-printing-memory-pointers-to-console
+                              Whether to disable printing memory pointers to the console (useful when writing the pointers to an output file)
   --print-module-file-names   Whether the base addresses of memory pointers will be expressed with the module file's file name
   --maximum-memory-utilization-fraction FLOAT:FLOAT in [0 - 1]
                               Whether to stop collecting memory pointers when the RAM is full at least the provided percentage to avoid out of memory crashes
+  --target-system TEXT        The system to target, one of "Game Boy", "Game Boy Advance", "Game Boy Color", "Microsoft Windows x64", "Microsoft Windows x86", "NES", "Nintendo 3DS", "Nintendo 64", "Nintendo DS", "Nintendo GameCube", "Nintendo Switch", "Nintendo Wii", "Nintendo Wii U", "Playstation 1", "Playstation 2", "Playstation 3", "Playstation 4", "Playstation 5", "Playstation Portable", "Playstation Vita", "SNES", "Sega CD", "Sega Dreamcast", "Sega Saturn", "Triforce", "Xbox", "Xbox 360", "Xbox One" or "Xbox Series". Simply just a convenience flag for setting the address size and byte order. Therefore, if you try to target a system not listed here, it does NOT mean that it's unsupported, you will have to specify the address size and byte order manually.
+  --print-target-system-configurations BOOLEAN
+                              Whether to print the configurations of recognized target systems
 ```
 
 If you do not pass certain command line options, meaningful defaults will be chosen for you automatically which may or may not be what you wanted.
 
-Command line parsing works via `CLI11` so you may want to consult the documentation [here](https://cliutils.github.io/CLI11/book/) if you have any questions on how to pass certain information to the application.
+Command line parsing works via `CLI11` so you may want to consult the documentation [here](https://cliutils.github.io/CLI11/book) if you have any questions on how to pass certain information to the application.
 
 Some pointer searcher demonstration runs can be seen [here](https://www.youtube.com/watch?v=FPbmaZVXkDw) or for learning in the section below.
 
