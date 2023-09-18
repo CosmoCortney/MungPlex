@@ -270,6 +270,7 @@ bool MungPlex::PointerSearch::performScan()
     ZeroMemory(&pi, sizeof(pi));
 
     const auto pointerSearcherFilePath = GetResourcesFilePath("Universal-Pointer-Searcher-Engine\\UniversalPointerSearcher.exe");
+    std::cout << "Starting pointer searcher with arguments: " << _arg;
 
     const bool success = CreateProcess(pointerSearcherFilePath.string().data(),
         const_cast<LPSTR>(std::string("UniversalPointerSearcher.exe ").append(_arg).c_str()),
