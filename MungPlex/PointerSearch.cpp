@@ -53,7 +53,9 @@ MungPlex::PointerSearch::PointerSearch()
     _maxOffset = new char[17];
     strcpy_s(_maxOffset, 17, "1000");
     _resultsPath = new char[512];
-    strcpy_s(_resultsPath, 512, std::string(Settings::GetGeneralSettings().DocumentsPath).append("\\MungPlex\\PointerSearch\\results.txt").c_str());
+    const auto temporary_directory_path = std::filesystem::temp_directory_path();
+    const auto pointers_output_file_path = temporary_directory_path / "Pointers.txt";
+    strcpy_s(_resultsPath, 512, pointers_output_file_path.string().c_str());
     _results = new char[4];
     *_results = 0;
 }
@@ -357,12 +359,13 @@ void MungPlex::PointerSearch::generateArgument()
                 if (memDump.second[3] == 0)
                     targetPointermaps.append("Initial ");
                 else
-                    targetPointermaps.append("\"Comparision ").append(std::to_string(memDump.second[3])).append("\" ");
+                    targetPointermaps.append("\"Comparison ").append(std::to_string(memDump.second[3])).append("\" ");
             }
             else
             {
                 if (memDump.second[3] == currentCorrespondence && currentCorrespondence == 0)
                 {
+                    // TODO When passing in file paths, make sure they are surrounded by quotes because of potential spaces!
                     initialFilePaths.append(memDump.first).append(" "); //file path
 
                     stream << std::hex << memDump.second[0]; //starting address
@@ -404,16 +407,17 @@ void MungPlex::PointerSearch::generateArgument()
     }
     else
     {
+        // TODO This is wrong, we cannot pass the file path argument without specifying the file paths afterwards!
         _arg.append(initialFilePaths);
         _arg.append(initialStartingAddresses);
-        _arg.append(comparisionFilePaths);
-        _arg.append(comparisionStartingAddresses);
+        // _arg.append(comparisionFilePaths);
+        // _arg.append(comparisionStartingAddresses);
     }
 
     _arg.append(targetAdresses);
     _arg.append("--endian ").append(_isBigEndian ? "big " : "little ");
     _arg.append("--address-size ").append(std::to_string(_addressWidth) + " ");
-    _arg.append("--store-memory-pointers-file-path ").append(_resultsPath).append(" ");
+    _arg.append("--store-memory-pointers-file-path \"").append(_resultsPath).append("\" ");
     _arg.append("--maximum-memory-utilization-fraction ").append(std::to_string(_maxMemUtilizationFraction) + " ");
     _arg.append("--file-extensions .dmp .bin .raw ");
     _arg.append("--maximum-pointer-count ").append(std::to_string(_maxPointerCount) + " ");

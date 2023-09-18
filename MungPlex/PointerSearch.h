@@ -59,6 +59,7 @@ namespace MungPlex
         bool _isBigEndian = false;
         char* _minOffset = nullptr;
         char* _maxOffset = nullptr;
+        // TODO Always use std::string instead of char*, it's possible to pre-allocate std::strings as well!
         char* _resultsPath = nullptr;
         int _minPointerDepth = 1;
         int _maxPointerDepth = 1;
