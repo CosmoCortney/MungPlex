@@ -283,6 +283,9 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 	case CEMU:
 		connected = InitCemu();
 		break;
+	case MELONDS:
+		connected = initMelonDS();
+		break;
 	}
 
 	setupSearch();
@@ -330,6 +333,27 @@ void MungPlex::ProcessInformation::setupSearch()
 {
 	Search::SetRereorderRegion(_rereorderRegion);
 	Search::SetUnderlyingBigEndianFlag(_underlyingIsBigEndian);
+}
+
+bool MungPlex::ProcessInformation::initMelonDS()
+{
+	_processName = "melonDS";
+	_underlyingIsBigEndian = false;
+	_addressWidth = 4;
+	_rereorderRegion = false;
+
+	for (const auto& region : _regions)
+	{
+		const uint64_t rSize = region.GetRegionSize();
+
+		if (rSize == 0x10F0000)
+		{
+			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool MungPlex::ProcessInformation::InitProject64()

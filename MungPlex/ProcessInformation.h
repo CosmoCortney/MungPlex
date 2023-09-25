@@ -36,6 +36,7 @@ namespace MungPlex
             _emulators.emplace_back(L"Project64", PROJECT64);
             _emulators.emplace_back(L"Dolphin", DOLPHIN);
             _emulators.emplace_back(L"Cemu", CEMU);
+            _emulators.emplace_back(L"melonDS", MELONDS);
         }
 
         ~ProcessInformation(){};
@@ -77,6 +78,7 @@ namespace MungPlex
         bool InitDolphin();
         bool InitProject64();
         bool InitCemu();
+        bool initMelonDS();
         void ObtainGameEntities(void* baseLocation);
         void setupSearch();
         bool connectToProcessFR();
@@ -89,7 +91,7 @@ namespace MungPlex
 
         enum Emulators
         {
-            PROJECT64, DOLPHIN, CEMU
+            PROJECT64, DOLPHIN, CEMU, MELONDS
         };
 
         enum Systems
