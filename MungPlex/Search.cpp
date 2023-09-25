@@ -601,8 +601,17 @@ void MungPlex::Search::DrawResultsArea()
 				}
 				}
 			}
+
+			ImGui::Dummy(ImVec2(0.0f, ImGui::GetContentRegionAvail().y - 40.f));
+
+			if (MemoryCompare::MemCompare::GetSearchStats().second > 0) ImGui::BeginDisabled();
+			{
+				SetUpInputInt("Max. results per page:", &_maxResultsPerPage, 32, 128, 1.0f, 0.5f);
+			}
+			if (MemoryCompare::MemCompare::GetSearchStats().second > 0) ImGui::EndDisabled();
 		}
 		ImGui::EndGroup();
+
 	}
 	ImGui::EndChild();
 }
