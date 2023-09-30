@@ -156,6 +156,20 @@ void MungPlex::PointerSearch::drawSettings()
             generateArgument();
             performScan();
         }
+
+        ImGui::Dummy(ImVec2(0.0f, ImGui::GetContentRegionAvail().y - 40.0f));
+
+        _regions = ProcessInformation::GetRegions();
+        SetUpCombo("Region:", _regions, _regionSelect, 0.5f, 0.4f);
+        
+        ImGui::SameLine();
+        
+        if (ImGui::Button("Dump"))
+        {
+            SystemRegion& region = _regions[_regionSelect];
+            std::wstring path = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath) + L"\\MungPlex\\Dumps\\" + std::to_wstring(region.Base) + L".bin";
+            Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).DumpMemory(region.BaseLocationProcess, path, region.Size);
+        }
     }
     ImGui::EndChild();
 }

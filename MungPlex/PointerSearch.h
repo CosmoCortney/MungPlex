@@ -62,6 +62,8 @@ namespace MungPlex
         int _presetSelect = 0;
         int _selectedInputType = 0;
         const std::vector<std::string> _inputTypeSelect = { "Memory Dump", "Pointer Map" };
+        std::vector<SystemRegion> _regions{};
+        int _regionSelect = 0;
 
     public:
         static void DrawWindow();
