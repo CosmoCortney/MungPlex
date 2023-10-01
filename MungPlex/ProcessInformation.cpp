@@ -283,6 +283,9 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 	case CEMU:
 		connected = InitCemu();
 		break;
+	case YUZU:
+		connected = initYuzu();
+		break;
 	case MELONDS:
 		connected = initMelonDS();
 		break;
@@ -350,6 +353,48 @@ bool MungPlex::ProcessInformation::initMelonDS()
 		{
 			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
 			return true;
+		}
+	}
+
+	return false;
+}
+
+bool MungPlex::ProcessInformation::initYuzu()
+{
+	_processName = "Yuzu";
+	_underlyingIsBigEndian = false;
+	_addressWidth = 8;
+	_rereorderRegion = false;
+
+	for (const auto& region : _regions)
+	{
+		const uint64_t rSize = region.GetRegionSize();
+
+		if (rSize == 0x100000000)
+		{
+			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+			
+			uint64_t* dump = new uint64_t[0x1000000/8];
+			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(dump, _systemRegions[0].BaseLocationProcess, 0x1000000);
+
+			//get title id
+			//todo: append patch number to id
+			//when games are closed and others are started IDs of previous games will remain in memory and cause retreival of wrong IDs
+			for (int i = 0; i < 0x1000000 / 8; ++i)
+			{
+				if (dump[i] == 0xFFFFFFFF0000000)
+				{
+					if (dump[i - 1] == 7)
+					{
+						_gameID = ToHexString(dump[i - 25], 16, false);
+						delete[] dump;
+						std::cout << _gameID << std::endl;
+						return true;
+					}
+				}
+			}
+
+			delete[] dump;
 		}
 	}
 

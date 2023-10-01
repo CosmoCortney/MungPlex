@@ -636,6 +636,18 @@
       "Entities": [
 
       ]
+    },
+    "Yuzu": {
+      "Regions": [
+        {
+          "Label": "MEM1",
+          "Base": "0x0",
+          "Size": "0x100000000"
+        }
+      ],
+      "Entities": [
+
+      ]
     }
   }
 }
