@@ -127,6 +127,9 @@ void MungPlex::Search::DrawValueTypeOptions()
 				|| !_disableBecauseNoColor
 				|| !_disableBecauseNoText;
 
+			if (_currentValueTypeSelect == TEXT || _currentValueTypeSelect == COLOR)
+				_currentComparisionTypeSelect = MemoryCompare::KNOWN;
+
 			if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
 			MungPlex::SetUpCombo("Primitive Type:", _searchPrimitiveTypes, _currentPrimitiveTypeSelect, 0.5f, 0.4f);
 			if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
