@@ -63,7 +63,7 @@ MungPlex::Search::Search()
 	_searchConditionTypes.emplace_back("AND (has all true bits)", MemoryCompare::AND);
 	_searchConditionTypes.emplace_back("OR (has at least 1 true bit)", MemoryCompare::OR);
 
-	_searchComparasionType.emplace_back("Unknown/Initial", MemoryCompare::UNKNOWN);
+	_searchComparasionType.emplace_back("Unknown/Initial", 0);
 	_searchComparasionType.emplace_back("Known Value", MemoryCompare::KNOWN);
 
 	_RegionSelectSignalCombo.ConnectOnIndexChanged(Slot_IndexChanged);
@@ -246,7 +246,7 @@ void MungPlex::Search::DrawSearchOptions()
 		static bool disableSecondaryValueText = true;
 		int iterationCount = MemoryCompare::MemCompare::GetSearchStats().second;
 
-		_diableBecauseUnknownAndNotRangebased = _currentComparisionTypeSelect == MemoryCompare::UNKNOWN && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
+		_diableBecauseUnknownAndNotRangebased = _currentComparisionTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
 
 		switch (_currentValueTypeSelect)
 		{
@@ -1375,8 +1375,6 @@ void MungPlex::Search::emplaceDumpRegion(const uint16_t index)
 
 void MungPlex::Search::SetUpAndIterate()
 {
-	bool isKnown = _currentComparisionTypeSelect == MemoryCompare::KNOWN;
-	bool signedOrCaseSensitive = _currentValueTypeSelect == TEXT ? _caseSensitive : _signed;
 	uint16_t subsidiaryDatatype;
 
 	switch (_currentValueTypeSelect)
@@ -1398,9 +1396,33 @@ void MungPlex::Search::SetUpAndIterate()
 	std::string tempsecondary(_secondaryKnownValueText);
 
 	if (MemoryCompare::MemCompare::GetSearchStats().second < 2)
-		MemoryCompare::MemCompare::SetUp(_resultsPath, _currentValueTypeSelect, subsidiaryDatatype, ProcessInformation::GetAddressWidth(), signedOrCaseSensitive, _alignmentValue, _underlyingBigEndian, _cached, false);
+	{
+		uint32_t setupFlags = 0;
 
-	MemoryCompare::MemCompare::NewIteration(_currentConditionTypeSelect, _hex, isKnown, _iterationIndex + 1, tempprimary, tempsecondary, _precision / 100.0f);
+		if (_signed)
+			setupFlags |= MemoryCompare::SIGNED;
+
+		if (_caseSensitive)
+			setupFlags |= MemoryCompare::CASE_SENSITIVE;
+
+		if (_underlyingBigEndian)
+			setupFlags |= MemoryCompare::BIG_ENDIAN;
+
+		if (_cached)
+			setupFlags |= MemoryCompare::CACHED;
+
+		MemoryCompare::MemCompare::SetUp(_resultsPath, _currentValueTypeSelect, subsidiaryDatatype, ProcessInformation::GetAddressWidth(), _alignmentValue, setupFlags);
+	}
+
+	uint32_t iterationFlags = 0;
+
+	if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
+		iterationFlags |= MemoryCompare::KNOWN;
+
+	if (_hex)
+		iterationFlags |= MemoryCompare::HEX;
+
+	MemoryCompare::MemCompare::NewIteration(_currentConditionTypeSelect, _iterationIndex + 1, tempprimary, tempsecondary, _precision / 100.0f, iterationFlags);
 
 	generateDumpRegionMap();
 
