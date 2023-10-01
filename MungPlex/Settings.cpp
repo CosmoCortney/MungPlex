@@ -317,6 +317,8 @@ void MungPlex::Settings::createDocFolders() const
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Wii");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Wii U");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\PC");
+		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\NDS");
+		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Switch");
 	}
 }
 

@@ -352,6 +352,10 @@ bool MungPlex::ProcessInformation::initMelonDS()
 		if (rSize == 0x10F0000)
 		{
 			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+			char tempId[7] = "";
+			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempId, region.GetBaseAddress<char*>() + 0x3FFA8C, 6);
+			_gameID = tempId;
+			_platform = "NDS";
 			return true;
 		}
 	}
@@ -388,7 +392,7 @@ bool MungPlex::ProcessInformation::initYuzu()
 					{
 						_gameID = ToHexString(dump[i - 25], 16, false);
 						delete[] dump;
-						std::cout << _gameID << std::endl;
+						_platform = "Switch";
 						return true;
 					}
 				}
