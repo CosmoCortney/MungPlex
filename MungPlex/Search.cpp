@@ -1398,7 +1398,7 @@ void MungPlex::Search::SetUpAndIterate()
 	std::string tempprimary(_knownValueText);
 	std::string tempsecondary(_secondaryKnownValueText);
 
-	if (MemoryCompare::MemCompare::GetSearchStats().second < 2)
+	if (MemoryCompare::MemCompare::GetSearchStats().second < 1)
 	{
 		uint32_t setupFlags = 0;
 
