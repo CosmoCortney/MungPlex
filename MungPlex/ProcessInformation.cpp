@@ -486,6 +486,8 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	uint32_t flagGCN = 0;
 	uint32_t flagWii = 0;
 	char tempID[7] = "";
+	char discNo;
+	char discVer;
 
 	for (const auto& _region : _regions)
 	{
@@ -504,10 +506,14 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	}
 
 	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID, _systemRegions[0].BaseLocationProcess, 6);
+	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&discNo, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 6, 1);
+	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&discVer, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 7, 1);
 	_gameID = tempID;
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{
+		_gameID.append("-").append(std::to_string(discNo));
+		_gameID.append("-").append(std::to_string(discVer));
 		_platform = "GameCube";
 		PointerSearch::SelectPreset(GAMECUBE);
 		_systemRegions.erase(_systemRegions.begin() + 1);
@@ -532,6 +538,7 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	int IDcopy;
 	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, _systemRegions[0].BaseLocationProcess, 4);
 	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
+	_gameID.append("-").append(std::to_string(discVer)); 
 	_platform = "Wii";
 	PointerSearch::SelectPreset(WII);
 
