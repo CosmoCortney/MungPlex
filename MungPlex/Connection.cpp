@@ -21,6 +21,13 @@ void MungPlex::Connection::DrawConnectionSelect()
 
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
+			if (_selectedEmulatorIndex == ProcessInformation::MESEN)
+			{
+				ImGui::TextWrapped("In order to connect to Mesen disable rewind by going to Settings/Preferences/Advanced/ and uncheck \"Allow rewind to use up to...\"");
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
+			}
+
+
 			if (ImGui::Button("Connect"))
 			{
 				_connected = ProcessInformation::ConnectToEmulator(_selectedEmulatorIndex);

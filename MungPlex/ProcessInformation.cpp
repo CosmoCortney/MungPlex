@@ -289,6 +289,9 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 	case MELONDS:
 		connected = initMelonDS();
 		break;
+	case MESEN: 
+		connected = initMesen();
+		break;
 	}
 
 	setupSearch();
@@ -403,6 +406,100 @@ bool MungPlex::ProcessInformation::initYuzu()
 	}
 
 	return false;
+}
+
+bool MungPlex::ProcessInformation::initMesen()
+{
+	Xertz::ProcessInfo Mesen = Xertz::SystemInfo::GetProcessInfo(_pid);
+	_processName = "Mesen";
+	_platform = "SNES";
+	_underlyingIsBigEndian = false;
+	_addressWidth = 2;
+	_rereorderRegion = false;
+	bool ramFound = false;
+	bool romFound = false;
+	char* RAM;
+	uint64_t ROMflag = 0;
+
+	for (Xertz::MemoryRegion& region : Mesen.GetRegionList())
+	{
+		if (ramFound)
+			break;
+
+		if ((region.GetProtect() & PAGE_READWRITE) != PAGE_READWRITE)
+			continue;
+
+		int regionSize = region.GetRegionSize();
+
+		if (regionSize < 0x100000 || regionSize > 0x1000000)
+			continue;
+
+		uint64_t* buf = new uint64_t[regionSize/8];
+		Mesen.ReadExRAM(buf, region.GetBaseAddress<void*>(), regionSize);
+
+		for (int i = 0; i < regionSize/8; i += 2)
+		{
+			if (buf[i] == 0x78656C50676E754D)
+			{
+				//std::cout << "ram found!\n";
+				RAM = region.GetBaseAddress<char*>() + i * 8 - 0xD0;
+				ROMflag = buf[i + 1];
+				ramFound = true;
+				_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(RAM);
+				break;
+			}
+		}
+		delete[] buf;
+	}
+
+	if (!ramFound)
+		return false;
+
+	for (Xertz::MemoryRegion& region : Mesen.GetRegionList())
+	{
+		if (romFound)
+			break;
+
+		if ((region.GetProtect() & PAGE_READWRITE) != PAGE_READWRITE)
+			continue;
+
+		int regionSize = region.GetRegionSize();
+
+		if (regionSize < 0x100000 || regionSize > 0x1000000)
+			continue;
+
+		uint64_t* buf = new uint64_t[regionSize / 8];
+		Mesen.ReadExRAM(buf, region.GetBaseAddress<void*>(), regionSize);
+
+		for (int i = 0; i < regionSize / 8; i += 2)
+		{
+			if (buf[i] == ROMflag)
+			{
+				//std::cout << "rom found!\n";
+				RAM = region.GetBaseAddress<char*>() + i * 8;
+				ROMflag = buf[i + 1];
+				romFound = true;
+				_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(RAM);
+				break;
+			}
+		}
+		delete[] buf;
+	}
+
+	if (!romFound)
+		return false;
+
+	//todo JIS X 0201 encoding once MorphText supports it
+	_gameID = std::string(21, 0);
+	Mesen.ReadExRAM(_gameID.data(), RAM + 0x7FC0, 21);
+	_gameID.append("-");
+	char tempByte = 0;
+	Mesen.ReadExRAM(&tempByte, RAM + 0x7FD9, 1);
+	_gameID.append(std::to_string(tempByte)).append("-");
+	Mesen.ReadExRAM(&tempByte, RAM + 0x7FDB, 1);
+	_gameID.append(std::to_string(tempByte));
+
+	return true;
 }
 
 bool MungPlex::ProcessInformation::InitProject64()

@@ -648,6 +648,23 @@
       "Entities": [
 
       ]
+    },
+    "Mesen": {
+      "Regions": [
+        {
+          "Label": "Work RAM",
+          "Base": "0x0",
+          "Size": "0x8000"
+        },
+        {
+          "Label": "ROM",
+          "Base": "0x8000",
+          "Size": "0x8000"
+        }
+      ],
+      "Entities": [
+
+      ]
     }
   }
 }

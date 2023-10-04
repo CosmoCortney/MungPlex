@@ -33,6 +33,7 @@ namespace MungPlex
     {
         ProcessInformation()
         {
+            _emulators.emplace_back(L"Mesen", MESEN);
             _emulators.emplace_back(L"Project64", PROJECT64);
             _emulators.emplace_back(L"Dolphin", DOLPHIN);
             _emulators.emplace_back(L"Cemu", CEMU);
@@ -78,6 +79,7 @@ namespace MungPlex
         bool InitProcess(const std::wstring& processName);
         bool InitDolphin();
         bool InitProject64();
+        bool initMesen();
         bool InitCemu();
         bool initMelonDS();
         bool initYuzu();
@@ -93,7 +95,7 @@ namespace MungPlex
 
         enum Emulators
         {
-            PROJECT64, DOLPHIN, CEMU, YUZU, MELONDS
+            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, MELONDS
         };
 
         enum Systems

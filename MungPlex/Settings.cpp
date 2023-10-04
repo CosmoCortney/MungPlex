@@ -313,6 +313,7 @@ void MungPlex::Settings::createDocFolders() const
 		std::filesystem::create_directory(mungPlexDocsPath + "\\PointerSearch");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Nintendo 64");
+		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\SNES");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\GameCube");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Wii");
 		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Wii U");
