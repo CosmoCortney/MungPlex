@@ -52,40 +52,42 @@ namespace MungPlex
             return Instance;
         }
 
-        int32_t _processType = 0;
-        DWORD _pid = -1;
-        MODULE_LIST _modules{};
-        REGION_LIST _regions{};
-        bool _isX64 = false;
-        bool _underlyingIsBigEndian = false;
-        bool _rereorderRegion = false;
-        std::string _gameID;
-        std::string _platform;
-        std::string _processName;
-        int32_t _addressWidth = 8;
-        HANDLE _handle = 0;
-        std::vector<GameEntity> _gameEntities{};
-        std::vector<SystemRegion> _systemRegions{};
-        std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions{};
-        int32_t _currentEmulatorNumber = -1;
-        std::vector<EMUPAIR> _emulators{};
-        std::wstring _exePath;
+        static int32_t _processType;
+        static DWORD _pid;
+        static MODULE_LIST _modules;
+        static REGION_LIST _regions;
+        static Xertz::ProcessInfo _process;
+        static bool _isX64;
+        static bool _underlyingIsBigEndian;
+        static bool _rereorderRegion;
+        static std::string _gameID;
+        static std::string _platform;
+        static std::string _processName;
+        static int32_t _addressWidth;
+        static HANDLE _handle;
+        static std::vector<GameEntity> _gameEntities;
+        static std::vector<SystemRegion> _systemRegions;
+        static std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
+        static int32_t _currentEmulatorNumber;
+        static std::vector<EMUPAIR> _emulators;
+        static std::wstring _exePath;
 
-        void DrawModuleList() const;
-        void DrawRegionList() const;
-        void DrawMiscInformation();
-        void DrawGameInformation() const;
-        bool InitEmulator(int emulatorIndex);
-        bool InitProcess(const std::wstring& processName);
-        bool InitDolphin();
-        bool InitProject64();
-        bool initMesen();
-        bool InitCemu();
-        bool initMelonDS();
-        bool initYuzu();
-        void ObtainGameEntities(void* baseLocation);
-        void setupSearch();
-        bool connectToProcessFR();
+        static void drawModuleList();
+        static void drawRegionList();
+        static void drawMiscInformation();
+        static void drawGameInformation();
+        static bool initEmulator(int emulatorIndex);
+        static bool initProcess(const std::wstring& processName);
+        static bool initDolphin();
+        static bool initProject64();
+        static bool initMesen();
+        static bool initCemu();
+        static bool initMelonDS();
+        static bool initYuzu();
+        static void obtainGameEntities(void* baseLocation);
+        static void setupSearch();
+        static bool connectToProcessFR();
+        static void setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth);
 
     public:
         enum ProcessType

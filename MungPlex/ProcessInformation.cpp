@@ -5,31 +5,52 @@
 #include "Log.h"
 #include"PointerSearch.h"
 
+int32_t MungPlex::ProcessInformation::_processType;
+DWORD MungPlex::ProcessInformation::_pid;
+MODULE_LIST MungPlex::ProcessInformation::_modules;
+REGION_LIST MungPlex::ProcessInformation::_regions;
+Xertz::ProcessInfo MungPlex::ProcessInformation::_process;
+bool MungPlex::ProcessInformation::_isX64;
+bool MungPlex::ProcessInformation::_underlyingIsBigEndian;
+bool MungPlex::ProcessInformation::_rereorderRegion;
+std::string MungPlex::ProcessInformation::_gameID;
+std::string MungPlex::ProcessInformation::_platform;
+std::string MungPlex::ProcessInformation::_processName;
+int32_t MungPlex::ProcessInformation::_addressWidth;
+HANDLE MungPlex::ProcessInformation::_handle;
+std::vector<MungPlex::GameEntity> MungPlex::ProcessInformation::_gameEntities;
+std::vector<MungPlex::SystemRegion> MungPlex::ProcessInformation::_systemRegions;
+std::vector<std::pair<std::string, size_t>> MungPlex::ProcessInformation::_labeledEmulatorRegions;
+int32_t MungPlex::ProcessInformation::_currentEmulatorNumber;
+std::vector<EMUPAIR> MungPlex::ProcessInformation::_emulators;
+std::wstring MungPlex::ProcessInformation::_exePath;
+
 void MungPlex::ProcessInformation::DrawWindow()
 {
 	ImGui::Begin("Process Information");
 	
-	GetInstance().DrawMiscInformation();
+	drawMiscInformation();
 	ImGui::Separator();
-	GetInstance().DrawGameInformation();
+	drawGameInformation();
 	ImGui::Separator();
-	GetInstance().DrawModuleList();
+	drawModuleList();
 	ImGui::Separator();
-	GetInstance().DrawRegionList();
+	drawRegionList();
 
 	ImGui::End();
 }
 
 void MungPlex::ProcessInformation::RefreshData(const int pid)
 {
-	GetInstance()._pid = pid;
-	GetInstance()._handle = Xertz::SystemInfo::GetProcessInfo(pid).GetHandle();
-	GetInstance()._modules = Xertz::SystemInfo::GetProcessInfo(pid).GetModuleList();
-	GetInstance()._regions = Xertz::SystemInfo::GetProcessInfo(pid).GetRegionList();
+	_pid = pid;
+	_process = Xertz::SystemInfo::GetProcessInfo(pid);
+	_handle = _process.GetHandle();
+	_modules = _process.GetModuleList();
+	_regions = _process.GetRegionList();
 	Log::LogInformation("Refreshed Process Information");
 }
 
-void MungPlex::ProcessInformation::DrawModuleList() const
+void MungPlex::ProcessInformation::drawModuleList()
 {
 	if (!ImGui::CollapsingHeader("Modules"))
 		return;
@@ -45,7 +66,7 @@ void MungPlex::ProcessInformation::DrawModuleList() const
 	ImGui::TableSetupColumn("Base Address");
 	ImGui::TableHeadersRow();
 
-	for (const auto& [currentModule, moduleAddress] : GetInstance()._modules)
+	for (const auto& [currentModule, moduleAddress] : _modules)
 	{
 		ImGui::TableNextRow();
 		for (int column = 0; column < 2; ++column)
@@ -73,8 +94,7 @@ void MungPlex::ProcessInformation::DrawModuleList() const
 	ImGui::EndTable();
 }
 
-
-void MungPlex::ProcessInformation::DrawRegionList() const
+void MungPlex::ProcessInformation::drawRegionList()
 {
 	if (!ImGui::CollapsingHeader("Regions"))
 		return;
@@ -97,7 +117,7 @@ void MungPlex::ProcessInformation::DrawRegionList() const
 	ImGui::TableSetupColumn("Type");
 	ImGui::TableHeadersRow();
 
-	for (auto& region : GetInstance()._regions)
+	for (auto& region : _regions)
 	{
 		ImGui::TableNextRow();
 		for (int column = 0; column < 8; ++column)
@@ -148,7 +168,7 @@ void MungPlex::ProcessInformation::DrawRegionList() const
 	ImGui::EndTable();
 }
 
-void MungPlex::ProcessInformation::DrawMiscInformation()
+void MungPlex::ProcessInformation::drawMiscInformation()
 {
 	// TODO No C buffers in C++ code, use std::string and std::stringstream etc.
 	char buf[2048];
@@ -169,8 +189,7 @@ void MungPlex::ProcessInformation::DrawMiscInformation()
 	ImGui::EndGroup();
 }
 
-
-void MungPlex::ProcessInformation::DrawGameInformation() const
+void MungPlex::ProcessInformation::drawGameInformation()
 {
 	if (!ImGui::CollapsingHeader("Game Information"))
 		return;
@@ -207,9 +226,9 @@ void MungPlex::ProcessInformation::DrawGameInformation() const
 
 bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorIndex)
 {
-	std::wstring emulator = GetInstance()._emulators[emulatorIndex].first;
-	GetInstance()._gameEntities.clear();
-	GetInstance()._systemRegions.clear();
+	std::wstring emulator = _emulators[emulatorIndex].first;
+	_gameEntities.clear();
+	_systemRegions.clear();
 	std::string buffer;
 	std::string jsonstr;
 
@@ -236,7 +255,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 			auto label = region["Label"].get<std::string>();
 			uint64_t base = std::stoll(region["Base"].get<std::string>(), 0, 0);
 			uint64_t size = std::stoll(region["Size"].get<std::string>(), 0, 0);
-			GetInstance()._systemRegions.emplace_back(SystemRegion(label, base, size));
+			_systemRegions.emplace_back(SystemRegion(label, base, size));
 		}
 
 		for (auto& gameEntity : entities)
@@ -246,7 +265,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 			auto datatype = gameEntity["Datatype"].get<std::string>();
 			int size = std::stoi(gameEntity["Size"].get<std::string>(), 0, 0);
 			bool hex = gameEntity["Hex"].get<bool>();
-			GetInstance()._gameEntities.emplace_back(GameEntity(entity, location, datatype, size, hex));
+			_gameEntities.emplace_back(GameEntity(entity, location, datatype, size, hex));
 		}
 
 		if (regions.empty())
@@ -261,27 +280,25 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 	return true;
 }
 
-bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
+bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 {
-	const EMUPAIR emulator = GetInstance()._emulators[emulatorIndex];
-	_pid = Xertz::SystemInfo::GetProcessInfo(emulator.first, true, false).GetPID();
-	bool connected = false;
-
-	if (_pid == -1)
+	const EMUPAIR emulator = _emulators[emulatorIndex];
+	
+	if (!initProcess(emulator.first))
 		return false;
 
-	RefreshData(_pid);
+	bool connected = false;
 	
 	switch (emulator.second)
 	{
 	case DOLPHIN:
-		connected = InitDolphin();
+		connected = initDolphin();
 		break;
 	case PROJECT64:
-		connected = InitProject64();
+		connected = initProject64();
 		break;
 	case CEMU:
-		connected = InitCemu();
+		connected = initCemu();
 		break;
 	case YUZU:
 		connected = initYuzu();
@@ -298,37 +315,34 @@ bool MungPlex::ProcessInformation::InitEmulator(const int emulatorIndex)
 	Cheats::SetPlatform(_platform.c_str());
 	Cheats::SetGameID(_gameID.c_str());
 	Cheats::InitCheatFile();
-	ObtainGameEntities(_systemRegions[0].BaseLocationProcess);
+	obtainGameEntities(_systemRegions[0].BaseLocationProcess);
 	return connected;
 }
 
 bool MungPlex::ProcessInformation::ConnectToProcess(int processIndex)
 {
-	Xertz::ProcessInfo process = Xertz::SystemInfo::GetProcessInfoList()[processIndex];
-	GetInstance()._pid = process.GetPID();
+	_process = Xertz::SystemInfo::GetProcessInfoList()[processIndex];
+	_pid = _process.GetPID();
 	return GetInstance().connectToProcessFR();
 }
 
  bool MungPlex::ProcessInformation::ConnectToApplicationProcess(int applicationProcessIndex)
 {
-	 Xertz::ProcessInfo process = Xertz::SystemInfo::GetApplicationProcessInfoList()[applicationProcessIndex];
-	 GetInstance()._pid = process.GetPID();
-	 return GetInstance().connectToProcessFR();
+	 _process = Xertz::SystemInfo::GetApplicationProcessInfoList()[applicationProcessIndex];
+	 _pid = _process.GetPID();
+	 return connectToProcessFR();
 }
 
- bool MungPlex::ProcessInformation::connectToProcessFR()
+bool MungPlex::ProcessInformation::connectToProcessFR()
  {
-	 bool connected = GetInstance()._pid > 0 && Xertz::SystemInfo::GetProcessInfo(_pid).IsOpen();
+	 bool connected = _pid > 0 && _process.IsOpen();
 	 if (!connected)
 		 return false;
 
-	 GetInstance().RefreshRegionlistPC();
-	 GetInstance()._processName = Xertz::SystemInfo::GetProcessInfo(_pid).GetProcessName();
-	 GetInstance()._underlyingIsBigEndian = false;
-	 GetInstance()._addressWidth = Xertz::SystemInfo::GetProcessInfo(_pid).IsX64() ? 8 : 4;
-	 GetInstance()._rereorderRegion = false;
+	 RefreshRegionlistPC();
+	 setMiscProcessInfo(_process.GetProcessName(), false, false, _process.IsX64() ? 8 : 4);
 	 GetInstance().setupSearch();
-	 GetInstance()._processType = NATIVE;
+	 GetInstance().GetInstance()._processType = NATIVE;
 	 Cheats::SetPlatform("PC");
 	 Cheats::SetGameID(GetInstance()._processName.c_str());
 	 Cheats::InitCheatFile();
@@ -343,10 +357,7 @@ void MungPlex::ProcessInformation::setupSearch()
 
 bool MungPlex::ProcessInformation::initMelonDS()
 {
-	_processName = "melonDS";
-	_underlyingIsBigEndian = false;
-	_addressWidth = 4;
-	_rereorderRegion = false;
+	setMiscProcessInfo("melonDS", false, false, 4);
 
 	for (const auto& region : _regions)
 	{
@@ -356,9 +367,10 @@ bool MungPlex::ProcessInformation::initMelonDS()
 		{
 			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
 			char tempId[7] = "";
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempId, region.GetBaseAddress<char*>() + 0x3FFA8C, 6);
+			_process.ReadExRAM(tempId, region.GetBaseAddress<char*>() + 0x3FFA8C, 6);
 			_gameID = tempId;
 			_platform = "NDS";
+			PointerSearch::SelectPreset(NDS);
 			return true;
 		}
 	}
@@ -368,10 +380,7 @@ bool MungPlex::ProcessInformation::initMelonDS()
 
 bool MungPlex::ProcessInformation::initYuzu()
 {
-	_processName = "Yuzu";
-	_underlyingIsBigEndian = false;
-	_addressWidth = 8;
-	_rereorderRegion = false;
+	setMiscProcessInfo("Yuzu", false, false, 8);
 
 	for (const auto& region : _regions)
 	{
@@ -382,7 +391,7 @@ bool MungPlex::ProcessInformation::initYuzu()
 			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
 			
 			uint64_t* dump = new uint64_t[0x1000000/8];
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(dump, _systemRegions[0].BaseLocationProcess, 0x1000000);
+			_process.ReadExRAM(dump, _systemRegions[0].BaseLocationProcess, 0x1000000);
 
 			//get title id
 			//todo: append patch number to id
@@ -396,6 +405,7 @@ bool MungPlex::ProcessInformation::initYuzu()
 						_gameID = ToHexString(dump[i - 25], 16, false);
 						delete[] dump;
 						_platform = "Switch";
+						PointerSearch::SelectPreset(SWITCH);
 						return true;
 					}
 				}
@@ -410,18 +420,14 @@ bool MungPlex::ProcessInformation::initYuzu()
 
 bool MungPlex::ProcessInformation::initMesen()
 {
-	Xertz::ProcessInfo Mesen = Xertz::SystemInfo::GetProcessInfo(_pid);
-	_processName = "Mesen";
+	setMiscProcessInfo("Mesen", false, false, 2);
 	_platform = "SNES";
-	_underlyingIsBigEndian = false;
-	_addressWidth = 2;
-	_rereorderRegion = false;
 	bool ramFound = false;
 	bool romFound = false;
 	char* RAM;
 	uint64_t ROMflag = 0;
 
-	for (Xertz::MemoryRegion& region : Mesen.GetRegionList())
+	for (Xertz::MemoryRegion& region : _regions)
 	{
 		if (ramFound)
 			break;
@@ -435,7 +441,7 @@ bool MungPlex::ProcessInformation::initMesen()
 			continue;
 
 		uint64_t* buf = new uint64_t[regionSize/8];
-		Mesen.ReadExRAM(buf, region.GetBaseAddress<void*>(), regionSize);
+		_process.ReadExRAM(buf, region.GetBaseAddress<void*>(), regionSize);
 
 		for (int i = 0; i < regionSize/8; i += 2)
 		{
@@ -455,7 +461,7 @@ bool MungPlex::ProcessInformation::initMesen()
 	if (!ramFound)
 		return false;
 
-	for (Xertz::MemoryRegion& region : Mesen.GetRegionList())
+	for (Xertz::MemoryRegion& region : _regions)
 	{
 		if (romFound)
 			break;
@@ -469,7 +475,7 @@ bool MungPlex::ProcessInformation::initMesen()
 			continue;
 
 		uint64_t* buf = new uint64_t[regionSize / 8];
-		Mesen.ReadExRAM(buf, region.GetBaseAddress<void*>(), regionSize);
+		_process.ReadExRAM(buf, region.GetBaseAddress<void*>(), regionSize);
 
 		for (int i = 0; i < regionSize / 8; i += 2)
 		{
@@ -491,23 +497,21 @@ bool MungPlex::ProcessInformation::initMesen()
 
 	//todo JIS X 0201 encoding once MorphText supports it
 	_gameID = std::string(21, 0);
-	Mesen.ReadExRAM(_gameID.data(), RAM + 0x7FC0, 21);
+	_process.ReadExRAM(_gameID.data(), RAM + 0x7FC0, 21);
 	_gameID.append("-");
 	char tempByte = 0;
-	Mesen.ReadExRAM(&tempByte, RAM + 0x7FD9, 1);
+	_process.ReadExRAM(&tempByte, RAM + 0x7FD9, 1);
 	_gameID.append(std::to_string(tempByte)).append("-");
-	Mesen.ReadExRAM(&tempByte, RAM + 0x7FDB, 1);
+	_process.ReadExRAM(&tempByte, RAM + 0x7FDB, 1);
 	_gameID.append(std::to_string(tempByte));
+	PointerSearch::SelectPreset(SNES);
 
 	return true;
 }
 
-bool MungPlex::ProcessInformation::InitProject64()
+bool MungPlex::ProcessInformation::initProject64()
 {
-	_processName = "Project64";
-	_underlyingIsBigEndian = true;
-	_addressWidth = 4;
-	_rereorderRegion = true;
+	setMiscProcessInfo("Project64", true, true, 4);
 	bool found = false;
 
 	for (const auto& region : _regions)
@@ -518,7 +522,7 @@ bool MungPlex::ProcessInformation::InitProject64()
 		{
 			uint32_t temp;
 
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, region.GetBaseAddress<char*>() + 8, 4);
+			_process.ReadExRAM(&temp, region.GetBaseAddress<char*>() + 8, 4);
 
 			if (temp == 0x03400008)
 			{
@@ -540,20 +544,20 @@ bool MungPlex::ProcessInformation::InitProject64()
 		{
 			uint64_t temp;
 
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, region.GetBaseAddress<char*>(), 8);
+			_process.ReadExRAM(&temp, region.GetBaseAddress<char*>(), 8);
 
 			if (temp == 0x0000000F80371240)
 			{
-				region.SetProtect(Xertz::SystemInfo::GetProcessInfo(_pid).GetHandle(),PAGE_EXECUTE_READWRITE);
+				region.SetProtect(_handle, PAGE_EXECUTE_READWRITE);
 				_systemRegions[1].BaseLocationProcess = region.GetBaseAddress<void*>();
 				_systemRegions[1].Size = rSize;
 				found = true;
 				_platform = "Nintendo 64";
 				char tempID[5] = "";
-				Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID, region.GetBaseAddress<char*>() + 0x38, 1);
-				Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID + 1, region.GetBaseAddress<char*>() + 0x3F, 1);
-				Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID + 2, region.GetBaseAddress<char*>() + 0x3E, 1);
-				Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID + 3, region.GetBaseAddress<char*>() + 0x3D, 1);
+				_process.ReadExRAM(tempID, region.GetBaseAddress<char*>() + 0x38, 1);
+				_process.ReadExRAM(tempID + 1, region.GetBaseAddress<char*>() + 0x3F, 1);
+				_process.ReadExRAM(tempID + 2, region.GetBaseAddress<char*>() + 0x3E, 1);
+				_process.ReadExRAM(tempID + 3, region.GetBaseAddress<char*>() + 0x3D, 1);
 				_gameID = std::string(tempID);
 				PointerSearch::SelectPreset(N64);
 				break;
@@ -564,17 +568,29 @@ bool MungPlex::ProcessInformation::InitProject64()
 	return found;
 }
 
-bool MungPlex::ProcessInformation::InitProcess(const std::wstring& processName) //placeholder
+bool MungPlex::ProcessInformation::initProcess(const std::wstring& processName)
 {
-	return false;
+	_process = Xertz::SystemInfo::GetProcessInfo(processName, true, false);
+	_pid = _process.GetPID();
+
+	if (_pid == -1)
+		return false;
+
+	RefreshData(_pid);
+	return true;
 }
 
-bool MungPlex::ProcessInformation::InitDolphin()
+void MungPlex::ProcessInformation::setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth)
 {
-	_processName = "Dolphin";
-	_underlyingIsBigEndian = true;
-	_addressWidth = 4;
-	_rereorderRegion = false;
+	_processName = processName;
+	_underlyingIsBigEndian = bigEndian;
+	_addressWidth = addressWidth;
+	_rereorderRegion = rereorder;
+}
+
+bool MungPlex::ProcessInformation::initDolphin()
+{
+	setMiscProcessInfo("Dolphin", true, false, 4);
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
 	_systemRegions.erase(_systemRegions.begin() + 2); // |- remove these lines once caches and sram are figured out
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
@@ -590,9 +606,9 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	{
 		if (_region.GetRegionSize() == 0x2000000)
 		{
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x28), 4);
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&flagGCN, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x18), 4);
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&flagWii, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x1C), 4);
+			_process.ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x28), 4);
+			_process.ReadExRAM(&flagGCN, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x18), 4);
+			_process.ReadExRAM(&flagWii, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x1C), 4);
 
 			if (temp == 0x8001)
 			{
@@ -602,9 +618,9 @@ bool MungPlex::ProcessInformation::InitDolphin()
 		}
 	}
 
-	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(tempID, _systemRegions[0].BaseLocationProcess, 6);
-	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&discNo, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 6, 1);
-	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&discVer, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 7, 1);
+	_process.ReadExRAM(tempID, _systemRegions[0].BaseLocationProcess, 6);
+	_process.ReadExRAM(&discNo, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 6, 1);
+	_process.ReadExRAM(&discVer, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 7, 1);
 	_gameID = tempID;
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
@@ -622,7 +638,7 @@ bool MungPlex::ProcessInformation::InitDolphin()
 		if (_region.GetRegionSize() == 0x4000000)
 		{
 			unsigned char temp;
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 1), 1);
+			_process.ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 1), 1);
 
 			if (temp == 0x9f)
 			{
@@ -633,8 +649,8 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	}
 
 	int IDcopy;
-	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&temp, _systemRegions[0].BaseLocationProcess, 4);
-	Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
+	_process.ReadExRAM(&temp, _systemRegions[0].BaseLocationProcess, 4);
+	_process.ReadExRAM(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
 	_gameID.append("-").append(std::to_string(discVer)); 
 	_platform = "Wii";
 	PointerSearch::SelectPreset(WII);
@@ -652,13 +668,10 @@ bool MungPlex::ProcessInformation::InitDolphin()
 	return false;
 }
 
-bool MungPlex::ProcessInformation::InitCemu()
+bool MungPlex::ProcessInformation::initCemu()
 {
-	_processName = "Cemu";
+	setMiscProcessInfo("Cemu", true, false, 4);
 	_platform = "Wii U";
-	_underlyingIsBigEndian = true;
-	_addressWidth = 4;
-	_rereorderRegion = false;
 	bool titleIDFound = false;
 	PointerSearch::SelectPreset(WIIU);
 
@@ -675,7 +688,7 @@ bool MungPlex::ProcessInformation::InitCemu()
 		{
 			const int bufSize = 0x6000;
 			char buf[bufSize];
-			Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(&buf, region.GetBaseAddress<void*>(), bufSize);
+			_process.ReadExRAM(&buf, region.GetBaseAddress<void*>(), bufSize);
 
 			//get title type id, title id and version
 			for (int offset = 0; offset < bufSize; offset += 4)
@@ -702,15 +715,15 @@ bool MungPlex::ProcessInformation::InitCemu()
 
 std::string& MungPlex::ProcessInformation::GetGameID()
 {
-	return GetInstance()._gameID;
+	return _gameID;
 }
 
 std::vector<MungPlex::SystemRegion>& MungPlex::ProcessInformation::GetRegions()
 {
-	return GetInstance()._systemRegions;
+	return _systemRegions;
 }
 
-void MungPlex::ProcessInformation::ObtainGameEntities(void* baseLocation)
+void MungPlex::ProcessInformation::obtainGameEntities(void* baseLocation)
 {
 	std::string entityValue;
 	entityValue.reserve(2048);
@@ -724,7 +737,7 @@ void MungPlex::ProcessInformation::ObtainGameEntities(void* baseLocation)
 		const bool hex = Hex;
 
 		const void* readLocation = static_cast<char*>(baseLocation) + Location;
-		Xertz::SystemInfo::GetProcessInfo(_pid).ReadExRAM(buffer, readLocation, size);
+		_process.ReadExRAM(buffer, readLocation, size);
 
 		if (Datatype.compare("INT") == 0)
 		{
@@ -757,20 +770,20 @@ void MungPlex::ProcessInformation::ObtainGameEntities(void* baseLocation)
 
 bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 {
-	if (!GetInstance().LoadSystemInformationJSON(emulatorIndex))
+	if (!LoadSystemInformationJSON(emulatorIndex))
 		return false;
 
-	if (!GetInstance().InitEmulator(emulatorIndex))
+	if (!initEmulator(emulatorIndex))
 		return false;
 	
-	GetInstance()._exePath = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).GetFilePath(); // refactor these two lines when implementing PC game support
-	GetInstance()._isX64 = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).IsX64();		  //-^
+	_exePath = _process.GetFilePath(); // refactor these two lines when implementing PC game support
+	_isX64 = _process.IsX64();		   //-^
 	GetInstance()._processType = EMULATOR;
 
 	std::string msg("Connected to ");
-	msg.append(GetInstance()._processName + " (");
-	msg.append(GetInstance()._platform + ") - Game ID: ");
-	msg.append(GetInstance()._gameID);
+	msg.append(_processName + " (");
+	msg.append(_platform + ") - Game ID: ");
+	msg.append(_gameID);
 	Log::LogInformation(msg.c_str());
 
 	return true; 
@@ -783,7 +796,7 @@ void MungPlex::ProcessInformation::SetProcessType(const int32_t processType)
 
 std::vector<EMUPAIR>& MungPlex::ProcessInformation::GetEmulatorList()
 {
-	return GetInstance()._emulators;
+	return _emulators;
 }
 
 int32_t MungPlex::ProcessInformation::GetProcessType()
@@ -793,48 +806,48 @@ int32_t MungPlex::ProcessInformation::GetProcessType()
 
 int32_t MungPlex::ProcessInformation::GetPID()
 {
-	return GetInstance()._pid;
+	return _pid;
 }
 
 void MungPlex::ProcessInformation::SetX64Flag(const bool isX64)
 {
-	GetInstance()._isX64 = isX64;
+	_isX64 = isX64;
 }
 
 bool MungPlex::ProcessInformation::IsX64()
 {
-	return GetInstance()._isX64;
+	return _isX64;
 }
 
 void MungPlex::ProcessInformation::SetUnderlyingBigEndianFlag(const bool isBigEndian)
 {
-	GetInstance()._underlyingIsBigEndian = isBigEndian;
+	_underlyingIsBigEndian = isBigEndian;
 }
 
 bool MungPlex::ProcessInformation::UnderlyingIsBigEndian()
 {
-	return GetInstance()._underlyingIsBigEndian;
+	return _underlyingIsBigEndian;
 }
 
 HANDLE MungPlex::ProcessInformation::GetHandle()
 {
-	return GetInstance()._handle;
+	return _handle;
 }
 
 int32_t MungPlex::ProcessInformation::GetAddressWidth()
 {
-	return GetInstance()._addressWidth;
+	return _addressWidth;
 }
 
 bool MungPlex::ProcessInformation::GetRereorderFlag()
 {
-	return GetInstance()._rereorderRegion;
+	return _rereorderRegion;
 }
 
 void MungPlex::ProcessInformation::RefreshRegionlistPC(bool read, const bool write, const bool execute)
 {
-	GetInstance()._systemRegions.clear();
-	Xertz::ProcessInfo process = Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid);
+	_systemRegions.clear();
+	_process = Xertz::SystemInfo::GetProcessInfo(_pid);
 	int flags = 0;
 
 	if (write || execute)
@@ -849,13 +862,13 @@ void MungPlex::ProcessInformation::RefreshRegionlistPC(bool read, const bool wri
 	if(write && execute)
 		flags |= PAGE_EXECUTE_READWRITE;
 
-	for (Xertz::MemoryRegion& region : process.GetRegionList())
+	for (Xertz::MemoryRegion& region : _process.GetRegionList())
 	{
 		std::string label;
 
 		if (region.GetProtect() & (flags) && region.GetRegionSize() > 0)
 		{
-			std::cout << std::hex << region.GetBaseAddress<uint64_t>() << " - " << region.GetRegionSize() << std::endl;
+			//std::cout << std::hex << region.GetBaseAddress<uint64_t>() << " - " << region.GetRegionSize() << std::endl;
 			label = "R";
 			//total += region.GetRegionSize();
 
@@ -867,9 +880,5 @@ void MungPlex::ProcessInformation::RefreshRegionlistPC(bool read, const bool wri
 
 			GetInstance()._systemRegions.emplace_back(label, region.GetBaseAddress<uint64_t>(), region.GetRegionSize(), region.GetBaseAddress<void*>());
 		}
-
 	}
-
-
-	//std::cout << std::dec << total << std::endl;
 }
