@@ -62,6 +62,7 @@ void MungPlex::Log::DrawWindow()
 	if (ImGui::Button("Clear Log"))
 	{
 		GetInstance().clear();
+		GetInstance()._initialized = false;
 	}
 
 	ImGui::SameLine();
@@ -76,6 +77,10 @@ void MungPlex::Log::DrawWindow()
 
 void MungPlex::Log::LogInformation(const char* text, bool appendToLast)
 {
+	if (GetInstance()._logToFile)
+		if (!GetInstance()._initialized)
+			GetInstance()._initialized = GetInstance().init();
+
 	std::string appendingStr;
 
 	if (appendToLast)
@@ -98,9 +103,6 @@ void MungPlex::Log::LogInformation(const char* text, bool appendToLast)
 
 	if (GetInstance()._logToFile)
 	{
-		if (!GetInstance()._initialized)
-			GetInstance()._initialized = GetInstance().init();
-
 		if (GetInstance()._initialized)
 			*GetInstance()._logFile << appendingStr;
 
