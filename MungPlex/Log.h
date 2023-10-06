@@ -15,7 +15,7 @@ namespace MungPlex
     {
     private:
         Log() {}
-        ~Log() {}
+        ~Log();
         Log(const Log&) = delete;
         Log(Log&&) = delete;
         void operator=(const Log&) = delete;
@@ -26,11 +26,17 @@ namespace MungPlex
             return Instance;
         }
         
-        std::string _logMessage;
-        void clearLog();
+        static std::string _logMessage;
+        bool _logToFile = true;
+        std::fstream* _logFile;
+        bool _initialized = false;
+        std::string _logPath;
+
+        bool init();
+        void clear(const bool deleteFileOnly = false);
 
     public:
         static void DrawWindow();
-        static void LogInformation(const char* text);
+        static void LogInformation(const char* text, bool appendToLast = false);
     };
 }
