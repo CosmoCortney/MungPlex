@@ -114,51 +114,55 @@ void MungPlex::Search::DrawValueTypeOptions()
 	{
 		ImGui::SeparatorText("Value Type Options");
 
-		ImGui::BeginGroup();
+		if (_searchActive) ImGui::BeginDisabled();
 		{
-			MungPlex::SetUpCombo("Value Type:", _searchValueTypes, _currentValueTypeSelect, 0.5f, 0.4f);
+			ImGui::BeginGroup();
+			{
+				MungPlex::SetUpCombo("Value Type:", _searchValueTypes, _currentValueTypeSelect, 0.5f, 0.4f);
 
-			_disableBecauseNoPrimitive = _currentValueTypeSelect != PRIMITIVE;
-			_disableBecauseNoArray = _currentValueTypeSelect != ARRAY;
-			_disableBecauseNoColor = _currentValueTypeSelect != COLOR;
-			_disableBecauseNoText = _currentValueTypeSelect != TEXT;
-			_disableBecauseNoInt = (!_disableBecauseNoPrimitive && _currentPrimitiveTypeSelect > INT64)
-				|| (!_disableBecauseNoArray && _currentArrayTypeSelect > INT64)
-				|| !_disableBecauseNoColor
-				|| !_disableBecauseNoText;
+				_disableBecauseNoPrimitive = _currentValueTypeSelect != PRIMITIVE;
+				_disableBecauseNoArray = _currentValueTypeSelect != ARRAY;
+				_disableBecauseNoColor = _currentValueTypeSelect != COLOR;
+				_disableBecauseNoText = _currentValueTypeSelect != TEXT;
+				_disableBecauseNoInt = (!_disableBecauseNoPrimitive && _currentPrimitiveTypeSelect > INT64)
+					|| (!_disableBecauseNoArray && _currentArrayTypeSelect > INT64)
+					|| !_disableBecauseNoColor
+					|| !_disableBecauseNoText;
 
-			if (_currentValueTypeSelect == TEXT || _currentValueTypeSelect == COLOR)
-				_currentComparisionTypeSelect = MemoryCompare::KNOWN;
+				if (_currentValueTypeSelect == TEXT || _currentValueTypeSelect == COLOR)
+					_currentComparisionTypeSelect = MemoryCompare::KNOWN;
 
-			if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Primitive Type:", _searchPrimitiveTypes, _currentPrimitiveTypeSelect, 0.5f, 0.4f);
-			if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
+				if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
+				SetUpCombo("Primitive Type:", _searchPrimitiveTypes, _currentPrimitiveTypeSelect, 0.5f, 0.4f);
+				if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
 
-			if (_disableBecauseNoArray) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Array Type:", _searchArrayTypes, _currentArrayTypeSelect, 0.5f, 0.4f); //use primitived types here once Arrays support floats
-			if (_disableBecauseNoArray) ImGui::EndDisabled();
+				if (_disableBecauseNoArray) ImGui::BeginDisabled();
+				SetUpCombo("Array Type:", _searchArrayTypes, _currentArrayTypeSelect, 0.5f, 0.4f); //use primitived types here once Arrays support floats
+				if (_disableBecauseNoArray) ImGui::EndDisabled();
 
-			if (_disableBecauseNoText) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Text Type:", _searchTextTypes, _currentTextTypeSelect, 0.5f, 0.4f);
-			if (_disableBecauseNoText) ImGui::EndDisabled();
+				if (_disableBecauseNoText) ImGui::BeginDisabled();
+				SetUpCombo("Text Type:", _searchTextTypes, _currentTextTypeSelect, 0.5f, 0.4f);
+				if (_disableBecauseNoText) ImGui::EndDisabled();
 
-			if (_disableBecauseNoColor) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Color Type:", _searchColorTypes, _currentColorTypeSelect, 0.5f, 0.4f);
-			if (_disableBecauseNoColor) ImGui::EndDisabled();
+				if (_disableBecauseNoColor) ImGui::BeginDisabled();
+				SetUpCombo("Color Type:", _searchColorTypes, _currentColorTypeSelect, 0.5f, 0.4f);
+				if (_disableBecauseNoColor) ImGui::EndDisabled();
+			}
+			ImGui::EndGroup();
+
+			ImGui::SameLine();
+
+			ImGui::BeginGroup();
+			{
+				ImGui::Checkbox("Big Endian", &_underlyingBigEndian);
+
+				if (_disableBecauseNoInt) ImGui::BeginDisabled();
+				ImGui::Checkbox("Signed", &_signed);
+				if (_disableBecauseNoInt) ImGui::EndDisabled();
+			}
+			ImGui::EndGroup();
 		}
-		ImGui::EndGroup();
-
-		ImGui::SameLine();
-
-		ImGui::BeginGroup();
-		{
-			ImGui::Checkbox("Big Endian", &_underlyingBigEndian);
-
-			if (_disableBecauseNoInt) ImGui::BeginDisabled();
-			ImGui::Checkbox("Signed", &_signed);
-			if (_disableBecauseNoInt) ImGui::EndDisabled();
-		}
-		ImGui::EndGroup();
+		if (_searchActive) ImGui::EndDisabled();
 	}
 	ImGui::EndChild();
 }
@@ -171,67 +175,71 @@ void MungPlex::Search::DrawRangeOptions()
 	{
 		ImGui::SeparatorText("Range Options");
 
-		ImGui::BeginGroup();
+		if (_searchActive) ImGui::BeginDisabled();
 		{
-			_regions = ProcessInformation::GetRegions();
-			_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.5f, 0.4f);
-			_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText, IM_ARRAYSIZE(_rangeStartText), 0.5f, 0.4f);
-			_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText, IM_ARRAYSIZE(_rangeEndText), 0.5f, 0.4f);
-		}
-		ImGui::EndGroup();
-
-		ImGui::SameLine();
-
-		ImGui::BeginGroup();
-		{
-			if (ImGui::Checkbox("Cross-Region", &_crossRegion))
+			ImGui::BeginGroup();
 			{
-				std::string hexStartStr;
-				std::string hexEndStr;
-
-				if (_crossRegion)
-				{
-					hexStartStr = ToHexString(_regions.front().Base, 0);
-					hexEndStr = ToHexString(_regions.back().Base + _regions.back().Size - 1, 0);
-				}
-				else
-				{
-					hexStartStr = ToHexString(_regions[_currentRegionSelect].Base, 0);
-					hexEndStr = ToHexString(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1, 0);
-				}
-
-				strcpy_s(_rangeStartText, hexStartStr.c_str());
-				strcpy_s(_rangeEndText, hexEndStr.c_str());
+				_regions = ProcessInformation::GetRegions();
+				_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.5f, 0.4f);
+				_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText, IM_ARRAYSIZE(_rangeStartText), 0.5f, 0.4f);
+				_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText, IM_ARRAYSIZE(_rangeEndText), 0.5f, 0.4f);
 			}
+			ImGui::EndGroup();
 
-			ImGui::Checkbox("Re-reorder Region", &_rereorderRegion);
 			ImGui::SameLine();
-			HelpMarker("Some emulators like Project64 reorder the emulatoed RAM in 4 byte chunks of the opposite endianness which requires re-reordering before scanning. The best option is auto-selected for you, but it might be helpful to set it manually if you encounter a reordered region or structure on another platform.");
-		
-			if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::BeginDisabled();
+
+			ImGui::BeginGroup();
 			{
-				static bool refresh = false;
+				if (ImGui::Checkbox("Cross-Region", &_crossRegion))
+				{
+					std::string hexStartStr;
+					std::string hexEndStr;
 
-				//if (ImGui::Checkbox("Read", &_read))
-				//	refresh = true;
+					if (_crossRegion)
+					{
+						hexStartStr = ToHexString(_regions.front().Base, 0);
+						hexEndStr = ToHexString(_regions.back().Base + _regions.back().Size - 1, 0);
+					}
+					else
+					{
+						hexStartStr = ToHexString(_regions[_currentRegionSelect].Base, 0);
+						hexEndStr = ToHexString(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1, 0);
+					}
 
-				if (ImGui::Checkbox("Write", &_write))
-					refresh = true;
+					strcpy_s(_rangeStartText, hexStartStr.c_str());
+					strcpy_s(_rangeEndText, hexEndStr.c_str());
+				}
 
+				ImGui::Checkbox("Re-reorder Region", &_rereorderRegion);
 				ImGui::SameLine();
-				if (ImGui::Checkbox("Exec.", &_execute))
-					refresh = true;
+				HelpMarker("Some emulators like Project64 reorder the emulatoed RAM in 4 byte chunks of the opposite endianness which requires re-reordering before scanning. The best option is auto-selected for you, but it might be helpful to set it manually if you encounter a reordered region or structure on another platform.");
+		
+				if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::BeginDisabled();
+				{
+					static bool refresh = false;
 
-				if(refresh)
-					ProcessInformation::RefreshRegionlistPC(_read, _write, _execute);
+					//if (ImGui::Checkbox("Read", &_read))
+					//	refresh = true;
 
-				ImGui::SameLine();
-				HelpMarker("If Write AND Exec. are unchecked, only read-only ranges are considered. Otherwise readable ranges are always considered.");
+					if (ImGui::Checkbox("Write", &_write))
+						refresh = true;
 
+					ImGui::SameLine();
+					if (ImGui::Checkbox("Exec.", &_execute))
+						refresh = true;
+
+					if(refresh)
+						ProcessInformation::RefreshRegionlistPC(_read, _write, _execute);
+
+					ImGui::SameLine();
+					HelpMarker("If Write AND Exec. are unchecked, only read-only ranges are considered. Otherwise readable ranges are always considered.");
+
+				}
+				if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::EndDisabled();
 			}
-			if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::EndDisabled();
+			ImGui::EndGroup();
 		}
-		ImGui::EndGroup();
+		if (_searchActive) ImGui::EndDisabled();
 	}
 	ImGui::EndChild();
 }
@@ -371,7 +379,10 @@ void MungPlex::Search::DrawSearchOptions()
 		
 
 		if (ImGui::Button("Search"))
+		{
+			_searchActive = true;
 			PerformSearch();
+		}
 
 		ImGui::SameLine();
 
@@ -381,7 +392,9 @@ void MungPlex::Search::DrawSearchOptions()
 			MemoryCompare::MemCompare::Reset();
 			_iterations.clear();
 			_iterationIndex = 0;
+			_searchActive = false;
 		}
+
 		if (iterationCount < 1) ImGui::EndDisabled();
 
 		ImGui::EndGroup();
@@ -831,18 +844,6 @@ void MungPlex::Search::drawResultsTableNew()
 
 	if (!ImGui::BeginTable("Results", 4, flags, ImVec2(ImGui::GetContentRegionAvail().x * 0.666f, ImGui::GetContentRegionAvail().y)))
 		return;
-
-	/*auto results = MemoryCompare::MemCompare<dataType, addressType>::GetResults();
-	const int iterationCount = std::get<1>(_searchStats);
-	if (!_cached && iterationCount > 0)
-	{
-		if (iterationCount > 1 && results->at(iterationCount - 2)->HasResults())
-			results->at(iterationCount - 2)->FreeData(false);
-
-		if (!results->at(iterationCount - 1)->HasResults())
-			if (!results->at(iterationCount - 1)->LoadResults(false))
-				return;
-	}*/
 
 	const uint64_t resultCount = MemoryCompare::MemCompare::GetSearchStats().first;
 	ImGui::TableSetupColumn("Address");
@@ -1325,10 +1326,6 @@ void MungPlex::Search::generateDumpRegionMap()
 	{
 		emplaceDumpRegion(_currentRegionSelect);
 	}
-
-	//if (ProcessInformation::GetProcessType() == PC)
-	//	for (SystemRegion& region : _dumpRegions)
-	//		;
 }
 
 void MungPlex::Search::emplaceDumpRegion(const uint16_t index)

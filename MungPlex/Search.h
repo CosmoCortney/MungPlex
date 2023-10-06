@@ -84,6 +84,7 @@ namespace MungPlex
         int _currentColorTypeSelect = 0;
         bool _useColorWheel = false;
         std::wstring _resultsPath = {};
+        bool _searchActive = false;
 
         //value options
         char _knownValueText[2048] = { "" };
