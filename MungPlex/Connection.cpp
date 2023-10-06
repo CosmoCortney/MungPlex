@@ -23,10 +23,14 @@ void MungPlex::Connection::DrawConnectionSelect()
 
 			if (_selectedEmulatorIndex == ProcessInformation::MESEN)
 			{
-				ImGui::TextWrapped("In order to connect to Mesen disable rewind by going to Settings/Preferences/Advanced/ and uncheck \"Allow rewind to use up to...\"");
+				ImGui::TextWrapped("SNES support only. In order to connect to Mesen disable rewind by going to \"Settings/Preferences/Advanced/\" and uncheck \"Allow rewind to use up to...\". Also apply the lua script \"MungPlex/resources/setMesenMungPlexFlag.lua\"");
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 			}
-
+			else if (_selectedEmulatorIndex == ProcessInformation::YUZU)
+			{
+				ImGui::TextWrapped("Experimental, base adresses are not yet figured out.");
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
+			}
 
 			if (ImGui::Button("Connect"))
 			{
