@@ -37,6 +37,7 @@ namespace MungPlex
 
     public:
         static void DrawWindow();
-        static void LogInformation(const char* text, bool appendToLast = false);
+        static void LogInformation(const char* text, const bool appendToLast = false, const int indentation = 0);
+        static void LogInformation(const std::string& text, const bool appendToLast = false, const int indentation = 0);
     };
 }

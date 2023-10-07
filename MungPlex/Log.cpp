@@ -75,7 +75,7 @@ void MungPlex::Log::DrawWindow()
 	ImGui::End();
 }
 
-void MungPlex::Log::LogInformation(const char* text, bool appendToLast)
+void MungPlex::Log::LogInformation(const char* text, const bool appendToLast, const int indentation)
 {
 	if (GetInstance()._logToFile)
 		if (!GetInstance()._initialized)
@@ -85,7 +85,15 @@ void MungPlex::Log::LogInformation(const char* text, bool appendToLast)
 
 	if (appendToLast)
 	{
-		appendingStr = " " + std::string(text);
+		if (indentation == 0)
+		{
+			appendingStr = " " + std::string(text);
+		}
+		else
+		{
+			appendingStr = "\n" + std::string(indentation, ' ');
+		}
+
 		_logMessage.append(appendingStr);
 	}
 	else
@@ -108,4 +116,10 @@ void MungPlex::Log::LogInformation(const char* text, bool appendToLast)
 
 		GetInstance()._logFile->flush();
 	}
+}
+
+
+void MungPlex::Log::LogInformation(const std::string& text, const bool appendToLast, const int indentation)
+{
+	LogInformation(text.c_str(), appendToLast);
 }
