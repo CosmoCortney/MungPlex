@@ -136,10 +136,10 @@ namespace MungPlex
         void DrawResultsArea();
         void PickColorFromScreen();
         void PerformSearch();
-        void PrimitiveTypeSearch();
-        void ArrayTypeSearch();
-        void TextTypeSearch();
-        void ColorTypeSearch();
+        void primitiveTypeSearchLog();
+        void arrayTypeSearchLog();
+        void textTypeSearchLog();
+        void colorTypeSearchLog();
         void drawResultsTableNew();
         void generateDumpRegionMap();
         void emplaceDumpRegion(const uint16_t index);

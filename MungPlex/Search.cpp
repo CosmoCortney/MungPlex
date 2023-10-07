@@ -673,21 +673,26 @@ void MungPlex::Search::PickColorFromScreen()
 
 void MungPlex::Search::PerformSearch()
 {
+	Log::LogInformation("Search: Iteration " + std::to_string(_iterationCount + 1));
+
 	switch (_currentValueTypeSelect)
 	{
 	case ARRAY:
-		ArrayTypeSearch();
+		arrayTypeSearchLog();
 		break;
 	case TEXT:
-		TextTypeSearch();
+		textTypeSearchLog();
 		break;
 	case COLOR:
-		ColorTypeSearch();
+		colorTypeSearchLog();
 		break;
 	default:
-		PrimitiveTypeSearch();
+		primitiveTypeSearchLog();
 		break;
 	}
+
+	if(_currentValueTypeSelect != PRIMITIVE)
+		_currentComparisionTypeSelect = MemoryCompare::KNOWN;
 
 	SetUpAndIterate();
 
@@ -710,131 +715,62 @@ void MungPlex::Search::PerformSearch()
 	stream >> _pagesAmountText;
 }
 
-void MungPlex::Search::PrimitiveTypeSearch()
+void MungPlex::Search::primitiveTypeSearchLog()
 {
-	std::string logMsg("Perform Search for ");
-	std::stringstream stream1;
+	Log::LogInformation("Primitive: ", true, 4);
 
 	if (_currentPrimitiveTypeSelect < FLOAT)
 	{
 		if (_signed)
-		{
-			logMsg.append("signed ");
-			int64_t knownVal, knownValSecondary;
-
-			if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
-				logMsg.append("known value of ");
-			else
-				logMsg.append("unknown value ");
-
-			if (GetInstance()._hex)
-			{
-				stream1 << std::hex << std::string(_knownValueText);
-
-				if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
-					logMsg.append(stream1.str());
-			}
-			else
-			{
-				stream1 << std::string(_knownValueText);
-
-				if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
-					logMsg.append(stream1.str());
-			}
-
-			switch (_currentPrimitiveTypeSelect)
-			{
-			case INT8:
-				logMsg.append("(int 8)");
-				break;
-			case INT16:
-				logMsg.append("(int 16)");
-				break;
-			case INT64:
-				logMsg.append("(int 64)");
-				break;
-			default: //INT32
-				logMsg.append("(int 32)");
-			}
-		}
+			Log::LogInformation("signed", true);
 		else
-		{
-			logMsg.append("unsigned ");
-
-			if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
-				logMsg.append("known value of ");
-			else
-				logMsg.append("unknown value ");
-
-			if (GetInstance()._hex)
-			{
-				stream1 << std::hex << std::string(_knownValueText);
-
-				if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
-					logMsg.append(stream1.str());
-			}
-			else
-			{
-				stream1 << std::string(_knownValueText);
-
-				if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
-					logMsg.append(stream1.str());
-			}
-
-			switch (_currentPrimitiveTypeSelect)
-			{
-			case INT8:
-				logMsg.append("(int 8)");
-				break;
-			case INT16:
-				logMsg.append("(int 16)");
-				break;
-			case INT64:
-				logMsg.append("(int 64)");
-				break;
-			default: //INT32
-				logMsg.append("(int 32)");
-			}
-		}
+			Log::LogInformation("unsigned", true);
 	}
-	else if (_currentPrimitiveTypeSelect == FLOAT || _currentPrimitiveTypeSelect == DOUBLE)
+
+	switch (_currentPrimitiveTypeSelect)
 	{
-		if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
-		{
-			logMsg.append("known value of ");
-		}
-		else
-			logMsg.append("unknown value ");
-
-		if (_currentPrimitiveTypeSelect == FLOAT)
-		{
-			logMsg.append("(float)");
-		}
-		else
-		{
-			logMsg.append("(double)");
-		}
+	case INT8:
+		Log::LogInformation("int 8.", true);
+		break;
+	case INT16:
+		Log::LogInformation("int 16.", true);
+		break;
+	case INT64:
+		Log::LogInformation("int 64.", true);
+		break;
+	case FLOAT:
+		Log::LogInformation("float single", true);
+		break;
+	case DOUBLE:
+		Log::LogInformation("float double", true);
+		break;
+	default: //INT32
+		Log::LogInformation("int 32.", true);
 	}
 
-	Log::LogInformation(logMsg.c_str());
+	Log::LogInformation("Comparision Type:", true, 4);
+
+	if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
+	{
+		Log::LogInformation("Known: " + std::string(_knownValueText) + ", " + std::string(_secondaryKnownValueText), true);
+	}
+	else
+		Log::LogInformation("Unknown", true);
 }
 
-void MungPlex::Search::ArrayTypeSearch()
+void MungPlex::Search::arrayTypeSearchLog()
 {
-	Log::LogInformation((std::string("Perform Search for array of type ") + _searchArrayTypes[_currentArrayTypeSelect].first).c_str());
-	_currentComparisionTypeSelect = MemoryCompare::KNOWN;
+	Log::LogInformation("Array<" + _searchArrayTypes[_currentArrayTypeSelect].first + ">: " + std::string(_knownValueText), true, 4);
 }
 
-void MungPlex::Search::TextTypeSearch()
+void MungPlex::Search::textTypeSearchLog()
 {
-	Log::LogInformation((std::string("Perform Search for text of type ") + _searchTextTypes[_currentTextTypeSelect].first).c_str());
-	_currentComparisionTypeSelect = MemoryCompare::KNOWN;
+	Log::LogInformation("Text<" + _searchTextTypes[_currentTextTypeSelect].first + ">: " + std::string(_knownValueText), true, 4);
 }
 
-void MungPlex::Search::ColorTypeSearch()
+void MungPlex::Search::colorTypeSearchLog()
 {
-	Log::LogInformation((std::string("Perform Search for color of type ") + _searchColorTypes[_currentColorTypeSelect].first).c_str());
-	_currentComparisionTypeSelect = MemoryCompare::KNOWN;
+	Log::LogInformation("Text<" + _searchColorTypes[_currentColorTypeSelect].first + ">: " + std::string(_knownValueText), true, 4);
 }
 
 void MungPlex::Search::drawResultsTableNew()
