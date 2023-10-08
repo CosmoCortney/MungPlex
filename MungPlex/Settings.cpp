@@ -117,7 +117,7 @@ MungPlex::Settings::Settings()
 	try
 	{
 		auto save = false;
-		std::ifstream file_reader(SettingsJSON);
+		std::ifstream file_reader(GetResourcesFilePath("settings.json"));
 		auto doc = nlohmann::json::parse(file_reader);
 		auto& settings = doc["Settings"];
 
@@ -161,7 +161,7 @@ MungPlex::Settings::Settings()
 	}
 	catch (const nlohmann::json::parse_error& exception)
 	{
-		Log::LogInformation((std::string("Failed parsing settings file: ") + exception.what()).c_str());
+		//Log::LogInformation((std::string("Failed parsing settings file: ") + exception.what()).c_str());
 		return;
 	}
 }
@@ -250,7 +250,7 @@ void MungPlex::Settings::drawCheatSettings()
 
 bool MungPlex::Settings::saveSettings()
 {
-	std::ofstream file(SettingsJSON, std::ios::binary);
+	std::ofstream file(GetResourcesFilePath("settings.json"), std::ios::binary);
 	const bool isOpen = file.is_open();
 
 	if (isOpen)
@@ -294,11 +294,12 @@ bool MungPlex::Settings::saveSettings()
 
 		file << "\xEF\xBB\xBF"; //write BOM
 		file << jsonData.dump(2);
-		Log::LogInformation("Settings saved");
+		//Log::LogInformation("Settings saved");
+		return true;
 	}
 	
-	Log::LogInformation("Unable to save settings");
-	return isOpen;
+	//Log::LogInformation("Unable to save settings");
+	return false;
 }
 
 void MungPlex::Settings::createDocFolders() const
