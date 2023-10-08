@@ -311,6 +311,7 @@ To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item 
   - Corruptor
   - Value watch and control
   - Data Conversion
+  - Save Log files to exe folder instead of documents folder
 - Search 
   - Text Types: `JIS X 0201`, `JIS X 0208`, Pokemon game text encodings, `EUC-KR`, `EUC-JP`, `EUC-CN`, `EUC-TW`, `Big5`, `base64`, ...
   - Color types: `RGB332`, `RGB444`, `RGBA4444`, `RGB555`, `RGBA5551`, `RGB5A3`, `IA8`, ...
