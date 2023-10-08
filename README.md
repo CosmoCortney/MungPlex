@@ -10,7 +10,10 @@ Even though this tool should not cause any damage to your games or system, it is
 It is also possible for flashing lights and sudden loud noises to appear when editing random values. Keep this in mind especially if you are easily startled or suffer from epilepsy.
 Also do not use this tool for cheating online in public sessions/rooms! Only losers do that and you may get banned from your game's network.
 None of the contributors of this project bear any warranty or responsibility for any damage happening.
- 
+
+## Releases
+Find the latest release [here](https://github.com/CosmoCortney/MungPlex/releases/)
+
 ## Connection
 The Connection frame allows you to connect to the supported emulators or any PC game. 
 
