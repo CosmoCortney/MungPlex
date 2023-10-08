@@ -1,12 +1,12 @@
 # MungPlex
 
-MungPlex is a cheat search tool and game enhancer for various emulators and PC games. It allows you to experience and mung up your favorite games in multiple ways - hence the name MungPlex. Version 2.0.0 has re-implemented all features of the depricated repository and comes with some new features. 
+MungPlex is a cheat search tool and game enhancer for various emulators and PC games. It allows you to experience and mung up your favorite games in multiple ways - hence the name MungPlex. Version 2.0.0 has re-implemented all features of the depricated repository and comes with some new features. You can also join the affiliated [Discord Server](https://discord.gg/wU62ZTvQRj) (may be renamed).
 
 The following feature illustration also guides you through the general usage of MungPlex.
 
 ## Before You Proceed
 If the app looks off go to Settings and change the UI scale.
-Even though this tool should not cause any damage to your games or system, it is possible to corrupt save data and cause blue screen and therefore result in data loss. It is good to have a backup of your save data and have every opened document and project saved.
+Even though this tool should not cause any damage to your games or system, it is possible to corrupt save data and cause blue screens and therefore result in data loss. It is good to have a backup of your save data and have every opened document and project saved.
 It is also possible for flashing lights and sudden loud noises to appear when editing random values. Keep this in mind especially if you are easily startled or suffer from epilepsy.
 Also do not use this tool for cheating online in public sessions/rooms! Only losers do that and you may get banned from your game's network.
 None of the contributors of this project bear any warranty or responsibility for any damage happening.
