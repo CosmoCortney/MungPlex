@@ -1,14 +1,14 @@
 ﻿{
   "Settings": {
     "Cheats": {
-      "DefaultCheatList": true,
+      "DefaultCheatList": false,
       "DefaultInterval": 60
     },
     "General": {
       "ColorScheme": 1,
       "DefaultWindowSelect": 0,
-      "DocumentsPath": "C:\\Users\\s_sch\\Documents",
-      "Scale": 1.1050159931182861
+      "DocumentsPath": "",
+      "Scale": 0.9678450226783752
     },
     "Search": {
       "DefaultAlignment": 4,
