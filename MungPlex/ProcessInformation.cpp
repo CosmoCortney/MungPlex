@@ -283,7 +283,8 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 {
 	const EMUPAIR emulator = _emulators[emulatorIndex];
-	
+	_gameID.clear();
+
 	if (!initProcess(emulator.first))
 		return false;
 
@@ -671,8 +672,8 @@ bool MungPlex::ProcessInformation::initDolphin()
 bool MungPlex::ProcessInformation::initCemu()
 {
 	setMiscProcessInfo("Cemu", true, false, 4);
-	_platform = "Wii U";
 	bool titleIDFound = false;
+	_platform = "Wii U";
 	PointerSearch::SelectPreset(WIIU);
 
 	for (const auto& region : _regions)
@@ -695,15 +696,20 @@ bool MungPlex::ProcessInformation::initCemu()
 			{
 				if (*reinterpret_cast<int*>(buf + offset) == 0x746F6F52)
 				{
-					titleIDFound = true;
 					for (int i = 0x9C; i <= 0xA4; i += 4)
 					{
-						int tempID = *reinterpret_cast<int*>(buf + offset + i);
-						tempID = Xertz::SwapBytes<int>(tempID);
+						uint32_t tempID = *reinterpret_cast<uint32_t*>(buf + offset + i);
+						tempID = Xertz::SwapBytes<uint32_t>(tempID);
+
+						if (i == 0x9C && tempID != 0x00050000)
+							break;
+
 						_gameID.append(ToHexString(tempID, 8, false));
 
 						if(i <= 0xA0)
 							_gameID.append("-");
+
+						titleIDFound = true;
 					}
 				}
 			}
