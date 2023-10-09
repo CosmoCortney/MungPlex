@@ -187,6 +187,8 @@ void MungPlex::Settings::DrawWindow()
 
 	ImGui::SameLine();
 	ImGui::Button("Reset");
+	ImGui::SameLine();
+	ImGui::Text("Changes take effect after restarting MungPlex.");
 	ImGui::End();
 }
 
