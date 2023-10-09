@@ -623,11 +623,11 @@ bool MungPlex::ProcessInformation::initDolphin()
 	_process.ReadExRAM(&discNo, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 6, 1);
 	_process.ReadExRAM(&discVer, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 7, 1);
 	_gameID = tempID;
+	_gameID.append("-").append(std::to_string(discNo));
+	_gameID.append("-").append(std::to_string(discVer));
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{
-		_gameID.append("-").append(std::to_string(discNo));
-		_gameID.append("-").append(std::to_string(discVer));
 		_platform = "GameCube";
 		PointerSearch::SelectPreset(GAMECUBE);
 		_systemRegions.erase(_systemRegions.begin() + 1);
@@ -652,7 +652,6 @@ bool MungPlex::ProcessInformation::initDolphin()
 	int IDcopy;
 	_process.ReadExRAM(&temp, _systemRegions[0].BaseLocationProcess, 4);
 	_process.ReadExRAM(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
-	_gameID.append("-").append(std::to_string(discVer)); 
 	_platform = "Wii";
 	PointerSearch::SelectPreset(WII);
 
