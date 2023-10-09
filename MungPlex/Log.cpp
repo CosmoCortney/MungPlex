@@ -8,7 +8,14 @@ std::string MungPlex::Log::_logMessage;
 
 bool MungPlex::Log::init()
 {
-	_logPath = std::string(Settings::GetGeneralSettings().DocumentsPath) + "\\MungPlex\\Log";
+	LPSTR str = new CHAR[512];
+	GetModuleFileName(NULL, str, 512);
+	_logPath = str;
+	delete[] str;
+
+	while (_logPath.back() != '\\')
+		_logPath.pop_back();
+
 	if (!std::filesystem::is_directory(_logPath))
 		return _logToFile = false;
 

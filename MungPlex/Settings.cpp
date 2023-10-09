@@ -161,7 +161,7 @@ MungPlex::Settings::Settings()
 	}
 	catch (const nlohmann::json::parse_error& exception)
 	{
-		//Log::LogInformation((std::string("Failed parsing settings file: ") + exception.what()).c_str());
+		Log::LogInformation((std::string("Failed parsing settings file: ") + exception.what()).c_str());
 		return;
 	}
 }
@@ -294,11 +294,11 @@ bool MungPlex::Settings::saveSettings()
 
 		file << "\xEF\xBB\xBF"; //write BOM
 		file << jsonData.dump(2);
-		//Log::LogInformation("Settings saved");
+		Log::LogInformation("Settings saved");
 		return true;
 	}
 	
-	//Log::LogInformation("Unable to save settings");
+	Log::LogInformation("Unable to save settings");
 	return false;
 }
 
