@@ -39,6 +39,8 @@ MungPlex::Search::Search()
 	_searchTextTypes.emplace_back("ISO-8859-15 (West European, Latin-9)", MorphText::ISO_8859_15);
 	_searchTextTypes.emplace_back("ISO-8859-16 (South-East European, Latin-10)", MorphText::ISO_8859_16);
 	_searchTextTypes.emplace_back("Shift-Jis", MorphText::SHIFTJIS);
+	_searchTextTypes.emplace_back("JIS x 0201 Full Width", MorphText::JIS_X_0201_FULLWIDTH);
+	_searchTextTypes.emplace_back("JIS x 0201 Half Width", MorphText::JIS_X_0201_FULLWIDTH);
 
 	_searchColorTypes.emplace_back("RGB 888 (3 Bytes)", LitColor::RGB888);
 	_searchColorTypes.emplace_back("RGBA 8888 (4 Bytes)", LitColor::RGBA8888);
@@ -1008,6 +1010,12 @@ void MungPlex::Search::drawResultsTableNew()
 						} break;
 						case MorphText::SHIFTJIS: {
 							temputf8 = MorphText::ShiftJis_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount));
+						} break;
+						case MorphText::JIS_X_0201_FULLWIDTH: {
+							temputf8 = MorphText::JIS_X_0201_FullWidth_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount));
+						} break;
+						case MorphText::JIS_X_0201_HALFWIDTH: {
+							temputf8 = MorphText::JIS_X_0201_HalfWidth_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount));
 						} break;
 						case MorphText::UTF8: {
 							temputf8 = MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount);

@@ -186,6 +186,12 @@ namespace MungPlex
                     case MorphText::SHIFTJIS:
                         WriteTextEx(pid, pokeValue.GetShiftJis(), address);
                     break;
+                    case MorphText::JIS_X_0201_FULLWIDTH:
+                        WriteTextEx(pid, pokeValue.GetJisX0201FullWidth(), address);
+                    break;
+                    case MorphText::JIS_X_0201_HALFWIDTH:
+                        WriteTextEx(pid, pokeValue.GetJisX0201HalfWidth(), address);
+                    break;
                     case MorphText::UTF8:
                         WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
                     break;
@@ -217,16 +223,27 @@ namespace MungPlex
 
                     switch (_currentTextTypeSelect)
                     {
-                    case MorphText::ASCII:
+                    case MorphText::ASCII: {
                         success = WriteTextEx(pid, pokeValue.GetASCII(), address);
-                    case MorphText::SHIFTJIS:
+                    } break;
+                    case MorphText::SHIFTJIS: {
                         success = WriteTextEx(pid, pokeValue.GetShiftJis(), address);
-                    case MorphText::UTF8:
+                    } break;
+                    case MorphText::JIS_X_0201_FULLWIDTH: {
+                        success = WriteTextEx(pid, pokeValue.GetJisX0201FullWidth(), address);
+                    } break;
+                    case MorphText::JIS_X_0201_HALFWIDTH: {
+                        success = WriteTextEx(pid, pokeValue.GetJisX0201HalfWidth(), address);
+                    } break;
+                    case MorphText::UTF8: {
                         success = WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
-                    case MorphText::UTF16LE: case MorphText::UTF16BE:
+                    } break;
+                    case MorphText::UTF16LE: case MorphText::UTF16BE: {
                         success = WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
-                    case MorphText::UTF32LE: case MorphText::UTF32BE:
+                    } break;
+                    case MorphText::UTF32LE: case MorphText::UTF32BE: {
                         success = WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
+                    } break;
                     default: //ISO-8859-X
                         success = WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
                     }
