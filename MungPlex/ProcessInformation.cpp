@@ -499,6 +499,7 @@ bool MungPlex::ProcessInformation::initMesen()
 	//todo JIS X 0201 encoding once MorphText supports it
 	_gameID = std::string(21, 0);
 	_process.ReadExRAM(_gameID.data(), RAM + 0x7FC0, 21);
+	_gameID = MorphText::JIS_X_0201_FullWidth_To_Utf8(_gameID.data());
 	_gameID.append("-");
 	char tempByte = 0;
 	_process.ReadExRAM(&tempByte, RAM + 0x7FD9, 1);
