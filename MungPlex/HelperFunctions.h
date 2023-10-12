@@ -118,6 +118,46 @@ namespace MungPlex
 	    return IM_COL32(int(colorVec.x * 255), int(colorVec.y * 255), int(colorVec.z * 255), int(colorVec.w * 255));
     }
 
+    static ImVec4 PickColorFromScreen()
+    {
+        POINT point;
+        ImVec4 colorVec;
+        std::atomic_bool buttonPressed(false);
+
+        std::thread mouseThread([&buttonPressed]()
+            {
+                while (!buttonPressed)
+                {
+                    if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+                    {
+                        buttonPressed = true;
+                        break;
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                }
+            });
+
+        mouseThread.join();
+
+        HDC hdc = GetDC(NULL);
+        if (hdc == NULL)
+            return colorVec;
+
+        if (!GetCursorPos(&point))
+            return colorVec;
+
+        COLORREF color = GetPixel(hdc, point.x, point.y);
+        if (color == CLR_INVALID)
+            return colorVec;
+
+        ReleaseDC(GetDesktopWindow(), hdc);
+
+        colorVec.x = static_cast<float>(GetRValue(color)) / 255.0f;
+        colorVec.y = static_cast<float>(GetGValue(color)) / 255.0f;
+        colorVec.z = static_cast<float>(GetBValue(color)) / 255.0f;
+        colorVec.w = 1.0f;
+        return colorVec;
+    }
 
     static void ColorValuesToCString(const ImVec4& rgba, const int type, char* destination, const bool forceAlpha = false)
     {

@@ -447,7 +447,7 @@ void MungPlex::Search::DrawSearchOptions()
 			if (ImGui::Button("Pick color from screen"))
 			{
 				//HWND windowHandle = GetForegroundWindow(); todo: make this work ): 
-				PickColorFromScreen();
+				_colorVec = PickColorFromScreen();
 				//MungPlex::SetWindowToForeground(windowHandle);
 			}
 
@@ -639,45 +639,6 @@ void MungPlex::Search::DrawResultsArea()
 
 	}
 	ImGui::EndChild();
-}
-
-void MungPlex::Search::PickColorFromScreen()
-{
-	POINT point;
-	std::atomic_bool buttonPressed(false);
-
-	std::thread mouseThread([&buttonPressed]()
-	{
-		while (!buttonPressed)
-		{
-			if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
-			{
-				buttonPressed = true;
-				break;
-			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
-	});
-
-	mouseThread.join();
-
-	HDC hdc = GetDC(NULL);
-	if (hdc == NULL)
-		return;
-
-	if (!GetCursorPos(&point))
-		return;
-
-	COLORREF color = GetPixel(hdc, point.x, point.y);
-	if (color == CLR_INVALID)
-		return;
-
-	ReleaseDC(GetDesktopWindow(), hdc);
-
-	_colorVec.x = static_cast<float>(GetRValue(color)) / 255.0f;
-	_colorVec.y = static_cast<float>(GetGValue(color)) / 255.0f;
-	_colorVec.z = static_cast<float>(GetBValue(color)) / 255.0f;
-	_colorVec.w = 1.0f;
 }
 
 void MungPlex::Search::PerformSearch()

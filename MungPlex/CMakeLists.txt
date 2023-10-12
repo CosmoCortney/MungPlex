@@ -38,6 +38,8 @@ add_executable (MungPlex
     Cheats.cpp
     MemoryViewer.h
     MemoryViewer.cpp
+    DataConversion.h
+    DataConversion.cpp
     ../include/imgui/imgui.cpp
     ../include/imgui/imgui_demo.cpp
     ../include/imgui/imgui_draw.cpp

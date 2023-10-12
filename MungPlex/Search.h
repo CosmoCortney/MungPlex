@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <iostream>
 #include <stdio.h>
 #include "GLFW/glfw3.h"
@@ -82,6 +82,7 @@ namespace MungPlex
         int _currentArrayTypeSelect = 0;
         int _currentTextTypeSelect = 0;
         int _currentColorTypeSelect = 0;
+        bool _forceAlpha = false;
         bool _useColorWheel = false;
         std::wstring _resultsPath = {};
         bool _searchActive = false;
@@ -134,7 +135,6 @@ namespace MungPlex
         void DrawRangeOptions();
         void DrawSearchOptions();
         void DrawResultsArea();
-        void PickColorFromScreen();
         void PerformSearch();
         void primitiveTypeSearchLog();
         void arrayTypeSearchLog();

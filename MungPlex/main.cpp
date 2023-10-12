@@ -12,6 +12,8 @@
 #include"Cheats.h"
 #include"Log.h"
 #include "PointerSearch.h"
+#include"DataConversion.h"
+
 #ifndef NDEBUG
 	#pragma comment(linker, "/SUBSYSTEM:console /ENTRY:mainCRTStartup")
 #else
@@ -156,6 +158,7 @@ int main()
 		MungPlex::Cheats::DrawWindow();
 		MungPlex::Log::DrawWindow();
 		MungPlex::PointerSearch::DrawWindow();
+		MungPlex::DataConversion::DrawWindow();
 
 		static bool setWindowFocused = true;
 		if (setWindowFocused)
