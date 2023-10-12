@@ -3,6 +3,7 @@
 #include"HelperFunctions.h"
 #include"LitColor.h"
 #include"Settings.h"
+#include"Xertz.h"
 
 MungPlex::DataConversion::DataConversion()
 {
@@ -15,6 +16,10 @@ MungPlex::DataConversion::DataConversion()
 
 	_floatTypes.emplace_back("Float Single", FloatTypes::FLOAT);
 	_floatTypes.emplace_back("Float Double", FloatTypes::DOUBLE);
+
+	_intTypes.emplace_back("Int 16", IntTypes::INT16);
+	_intTypes.emplace_back("Int 32", IntTypes::INT32);
+	_intTypes.emplace_back("Int 64", IntTypes::INT64);
 }
 
 void MungPlex::DataConversion::DrawWindow()
@@ -37,60 +42,8 @@ void MungPlex::DataConversion::drawPrimitiveConversion()
 	ImGui::BeginChild("Primitive Value Conversion", childXY);
 	{
 		ImGui::SeparatorText("Primitive Value Conversion");
-		ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 0.75f));
-
-		CenteredText("Float <-> Hex Conversion");
-		ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 0.4f));
-		{
-			static int selectedFloatType = FloatTypes::FLOAT;
-			static std::string hexFloat(17, 0);
-			static float floatVal = 1.0f;
-			static double doubleVal = 1.0;
-			static bool isDouble = false;
-			static bool update = true;
-
-			if (SetUpCombo("FloatType:", _floatTypes, selectedFloatType, 1.0f, 0.35f))
-			{
-				isDouble = selectedFloatType == FloatTypes::DOUBLE;
-				update = true;
-			}
-
-			if (isDouble)
-			{
-				if (SetUpInputDouble("Double:", &doubleVal, 0.1, 1.0, "%.16f", 1.0f, 0.35f) || update)
-				{
-					hexFloat = ToHexString(*(uint64_t*)&doubleVal, 16, false);
-					update = false;
-				}
-			}
-			else
-			{
-				if (SetUpInputFloat("Float:", &floatVal, 0.1f, 1.0f, "%.8f", 1.0f, 0.35f) || update)
-				{
-					hexFloat = ToHexString(*(uint32_t*)&floatVal, 8, false);
-					update = false;
-				}
-			}
-
-			if (SetUpInputText("Hex Float:", hexFloat.data(), hexFloat.size() + 1, 1.0f, 0.35f))
-			{
-				std::stringstream stream;
-				stream << hexFloat;
-
-				if (isDouble)
-				{
-					uint64_t temp;
-					stream >> std::hex >> temp;
-					doubleVal = *(double*)&temp;
-				}
-				else
-				{
-					uint32_t temp;
-					stream >> std::hex >> temp;
-					floatVal = *(float*)&temp;
-				}
-			}
-		}
+		drawHexFloatConversion();
+		drawEndiannessConversion();
 	}
 	ImGui::EndChild();
 }
@@ -171,4 +124,123 @@ void MungPlex::DataConversion::drawColorConversion()
 		ImGui::EndGroup();
 	}
 	ImGui::EndChild();
+}
+
+void MungPlex::DataConversion::drawHexFloatConversion()
+{
+	ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 0.75f));
+	CenteredText("Float <-> Hex Conversion");
+	ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 0.4f));
+
+	ImGui::BeginGroup();
+	{
+		static int selectedFloatType = FloatTypes::FLOAT;
+		static std::string hexFloat(17, 0);
+		static float floatVal = 1.0f;
+		static double doubleVal = 1.0;
+		static bool isDouble = false;
+		static bool update = true;
+
+		if (SetUpCombo("FloatType:", _floatTypes, selectedFloatType, 1.0f, 0.35f))
+		{
+			isDouble = selectedFloatType == FloatTypes::DOUBLE;
+			update = true;
+		}
+
+		if (isDouble)
+		{
+			if (SetUpInputDouble("Double:", &doubleVal, 0.1, 1.0, "%.16f", 1.0f, 0.35f) || update)
+			{
+				hexFloat = ToHexString(*(uint64_t*)&doubleVal, 16, false);
+				update = false;
+			}
+		}
+		else
+		{
+			if (SetUpInputFloat("Float:", &floatVal, 0.1f, 1.0f, "%.8f", 1.0f, 0.35f) || update)
+			{
+				hexFloat = ToHexString(*(uint32_t*)&floatVal, 8, false);
+				update = false;
+			}
+		}
+
+		if (SetUpInputText("Hex Float:", hexFloat.data(), hexFloat.size() + 1, 1.0f, 0.35f))
+		{
+			std::stringstream stream;
+			stream << hexFloat;
+
+			if (isDouble)
+			{
+				uint64_t temp;
+				stream >> std::hex >> temp;
+				doubleVal = *(double*)&temp;
+			}
+			else
+			{
+				uint32_t temp;
+				stream >> std::hex >> temp;
+				floatVal = *(float*)&temp;
+			}
+		}
+	}
+	ImGui::EndGroup();
+}
+
+void MungPlex::DataConversion::drawEndiannessConversion()
+{
+	ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 0.75f));
+	CenteredText("Change Endiannes");
+	ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 0.4f));
+
+	ImGui::BeginGroup();
+	{
+		static uint64_t le = 0;
+		static uint64_t be = 0;
+		static std::string leStr;
+		static std::string beStr;
+		static int intSelect = IntTypes::INT16;
+		static bool update = true;
+
+		if (SetUpCombo("Int Type:", _intTypes, intSelect, 1.0f, 0.35f) || update)
+		{
+			leStr.resize(4 << intSelect);
+			beStr.resize(4 << intSelect);
+			update = false;
+		}
+
+		if (SetUpInputText("Little Endian:", leStr.data(), leStr.size() + 1, 1.0f, 0.35f))
+		{
+			beStr = swapBytes(leStr, intSelect);
+			update = true;
+		}
+
+		if (SetUpInputText("Big Endian:", beStr.data(), beStr.size() + 1, 1.0f, 0.35f))
+		{
+			leStr = swapBytes(beStr, intSelect);
+			update = true;
+		}
+	}
+	ImGui::EndGroup();
+}
+
+std::string MungPlex::DataConversion::swapBytes(std::string& in, const int select)
+{
+	uint64_t temp = 0;
+	std::stringstream stream;
+	stream << in;
+	stream >> std::hex >> temp;
+
+	switch (select)
+	{
+	case IntTypes::INT16:
+		temp = Xertz::SwapBytes(static_cast<uint16_t>(temp));
+		break;
+	case IntTypes::INT64:
+		temp = Xertz::SwapBytes(static_cast<uint64_t>(temp));
+		break;
+	default: //INT32
+		temp = Xertz::SwapBytes(static_cast<uint32_t>(temp));
+	}
+
+	return ToHexString(temp, 4 << select, false);
 }

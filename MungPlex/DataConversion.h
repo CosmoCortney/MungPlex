@@ -34,11 +34,20 @@ namespace MungPlex
             FLOAT, DOUBLE
         };
 
+        enum IntTypes
+        {
+            INT16, INT32, INT64
+        };
+
         std::vector<std::pair<std::string, int>> _specializedColorTypes;
         std::vector<std::pair<std::string, int>> _floatTypes;
+        std::vector<std::pair<std::string, int>> _intTypes;
         ImVec2 _verticalSpacing;
 
         void drawPrimitiveConversion();
+        void drawHexFloatConversion();
+        void drawEndiannessConversion();
+        std::string swapBytes(std::string& in, const int select);
         void drawColorConversion();
         void drawTextConversion();
 
