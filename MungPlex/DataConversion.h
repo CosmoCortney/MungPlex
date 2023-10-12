@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include"LitColor.h"
 
 
 namespace MungPlex
@@ -30,12 +29,18 @@ namespace MungPlex
             return Instance;
         }
 
+        enum FloatTypes
+        {
+            FLOAT, DOUBLE
+        };
+
         std::vector<std::pair<std::string, int>> _specializedColorTypes;
+        std::vector<std::pair<std::string, int>> _floatTypes;
+        ImVec2 _verticalSpacing;
 
         void drawPrimitiveConversion();
         void drawColorConversion();
         void drawTextConversion();
-        ImVec4 specializedColorToPackedColor();
 
 
     public:
