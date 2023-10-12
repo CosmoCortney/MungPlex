@@ -47,6 +47,7 @@ MungPlex::Search::Search()
 	_searchColorTypes.emplace_back("RGBF (3 Floats)", LitColor::RGBF);
 	_searchColorTypes.emplace_back("RGBAF (4 Floats)", LitColor::RGBAF);
 	_searchColorTypes.emplace_back("RGB 565 (2 Bytes)", LitColor::RGB565);
+	_searchColorTypes.emplace_back("RGB 5A3 (2 Bytes)", LitColor::RGB5A3);
 
 	_searchConditionTypes.emplace_back("Equal (==)", MemoryCompare::EQUAL);
 	_searchConditionTypesText = _searchConditionTypes;
@@ -149,6 +150,12 @@ void MungPlex::Search::DrawValueTypeOptions()
 				if (_disableBecauseNoColor) ImGui::BeginDisabled();
 				SetUpCombo("Color Type:", _searchColorTypes, _currentColorTypeSelect, 0.5f, 0.4f);
 				if (_disableBecauseNoColor) ImGui::EndDisabled();
+
+				ImGui::SameLine();
+
+				if (_disableBecauseNoColor || _currentColorTypeSelect != LitColor::RGB5A3) ImGui::BeginDisabled();
+				ImGui::Checkbox("Force Alpha", &_forceAlpha);
+				if (_disableBecauseNoColor || _currentColorTypeSelect != LitColor::RGB5A3) ImGui::EndDisabled();
 			}
 			ImGui::EndGroup();
 
@@ -422,7 +429,7 @@ void MungPlex::Search::DrawSearchOptions()
 			case LitColor::RGBAF:
 				colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
 				break;
-			default: //RGB888, RGB565
+			default: //RGB888, RGB565, RGB5A3
 				colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
 			}
 
@@ -431,7 +438,7 @@ void MungPlex::Search::DrawSearchOptions()
 			ImGui::PopItemWidth();
 
 			if (!_disableBecauseNoColor)
-				ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText);
+				ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText, _forceAlpha);
 
 
 			ImGui::Checkbox("Color Wheel", &_useColorWheel);
@@ -924,6 +931,30 @@ void MungPlex::Search::drawResultsTableNew()
 							break;
 					}
 					break;
+					case LitColor::RGB5A3:
+					{
+						static uint16_t rgb5A3;
+
+						if (col == 1)
+						{
+							rgb5A3 = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint16_t>(pageIndexWithRowCount);
+							rectColor = _forceAlpha ? LitColor::RGB5A3ToRGBA8888(rgb5A3) : LitColor::RGB5A3ToRGB888(rgb5A3) | 0xFF;
+
+							if (!_pokePrevious)
+								vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
+						}
+						else if (col == 2)
+						{
+							rgb5A3 = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint16_t>(pageIndexWithRowCount);
+							rectColor = _forceAlpha ? LitColor::RGB5A3ToRGBA8888(rgb5A3) : LitColor::RGB5A3ToRGB888(rgb5A3) | 0xFF;
+
+							if (_pokePrevious)
+								vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
+						}
+						else
+							break;
+					}
+					break;
 					case LitColor::RGBF: case LitColor::RGBAF:
 					{
 						static bool usesAlpha = _currentColorTypeSelect == LitColor::RGBAF;
@@ -983,7 +1014,7 @@ void MungPlex::Search::drawResultsTableNew()
 					}
 					}
 
-					ColorValuesToCString(vecCol, _currentColorTypeSelect, buf);
+					ColorValuesToCString(vecCol, _currentColorTypeSelect, buf, _forceAlpha);
 					std::memcpy(tempValue, buf, 1024);
 					strcpy_s(buf, "");
 					ImDrawList* drawList = ImGui::GetWindowDrawList();

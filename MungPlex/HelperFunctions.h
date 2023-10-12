@@ -118,7 +118,8 @@ namespace MungPlex
 	    return IM_COL32(int(colorVec.x * 255), int(colorVec.y * 255), int(colorVec.z * 255), int(colorVec.w * 255));
     }
 
-    static void ColorValuesToCString(const ImVec4& rgba, const int type, char* destination)
+
+    static void ColorValuesToCString(const ImVec4& rgba, const int type, char* destination, const bool forceAlpha = false)
     {
         std::stringstream cstream;
 
@@ -137,11 +138,15 @@ namespace MungPlex
             LitColor color((float*)&rgba);
             cstream << "#" << std::hex << std::setfill('0') << std::setw(4) << color.GetRGB565();
         }break;
+        case LitColor::RGB5A3: {
+            LitColor color((float*)&rgba, forceAlpha);
+            cstream << "@" << std::hex << std::setfill('0') << std::setw(4) << color.GetRGB5A3();
+        }break;
         default: //RGB888
             cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(rgba.x * 255.0f) << std::setw(2) << static_cast<int>(rgba.y * 255.0f) << std::setw(2) << static_cast<int>(rgba.z * 255.0f);
         }
         
-        strcpy_s(destination, 128,cstream.str().c_str());
+        strcpy_s(destination, 48,cstream.str().c_str());
     }
 
     template<typename uType> static void SwapBytesArray(OperativeArray<uType>& arr)

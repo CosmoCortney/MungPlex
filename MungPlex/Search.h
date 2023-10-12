@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <iostream>
 #include <stdio.h>
 #include "GLFW/glfw3.h"
@@ -311,9 +311,19 @@ namespace MungPlex
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
                         }
                     }
-                    else if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                    else if (pokeValue.GetSelectedType() == LitColor::RGB565 || pokeValue.GetSelectedType() == LitColor::RGB565)
                     {
-                        uint16_t val = _pokePrevious ? MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint16_t>(resultIndex + index) : pokeValue.GetRGB565();
+                        uint16_t val;
+                        
+                        if (_pokePrevious)
+                            val = MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint16_t>(resultIndex + index);
+                        else
+                        {
+                            if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                                val = pokeValue.GetRGB565();
+                            else
+                                val = pokeValue.GetRGB5A3();
+                        }
 
                         if (_underlyingBigEndian)
                             val = Xertz::SwapBytes<uint16_t>(val);
