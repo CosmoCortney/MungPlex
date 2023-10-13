@@ -127,7 +127,9 @@ MungPlex::Settings::Settings()
 		_generalSettings.DefaultWindowSelect = settings["General"]["DefaultWindowSelect"].get<int>();
 		_generalSettings.Style = settings["General"]["ColorScheme"].get<int>();
 
-		if (!std::filesystem::is_directory(_generalSettings.DocumentsPath))
+		if(std::filesystem::is_directory(_generalSettings.DocumentsPath))
+			createDocFolders(); //ensure changes to docfolder also become updated
+		else
 		{
 			auto tmp = new wchar_t[512];
 			SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &tmp);
@@ -304,26 +306,29 @@ bool MungPlex::Settings::saveSettings()
 	return false;
 }
 
-void MungPlex::Settings::createDocFolders() const
+void MungPlex::Settings::createDocFolders() 
 {
 	std::string mungPlexDocsPath = std::string(_generalSettings.DocumentsPath) + "\\MungPlex";
+	validateDir(mungPlexDocsPath);
+	validateDir(mungPlexDocsPath + "\\Search");
+	validateDir(mungPlexDocsPath + "\\Dumps");
+	validateDir(mungPlexDocsPath + "\\PointerSearch");
+	validateDir(mungPlexDocsPath + "\\Cheats");
+	validateDir(mungPlexDocsPath + "\\Cheats\\Nintendo 64");
+	validateDir(mungPlexDocsPath + "\\Cheats\\SNES");
+	validateDir(mungPlexDocsPath + "\\Cheats\\GameCube");
+	validateDir(mungPlexDocsPath + "\\Cheats\\Wii");
+	validateDir(mungPlexDocsPath + "\\Cheats\\Wii U");
+	validateDir(mungPlexDocsPath + "\\Cheats\\PC");
+	validateDir(mungPlexDocsPath + "\\Cheats\\NDS");
+	validateDir(mungPlexDocsPath + "\\Cheats\\Switch");
+	validateDir(mungPlexDocsPath + "\\Cheats\\PSP");
+}
 
-	if (!std::filesystem::is_directory(mungPlexDocsPath))
-	{
-		std::filesystem::create_directory(mungPlexDocsPath);
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Search");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Dumps");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\PointerSearch");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Nintendo 64");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\SNES");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\GameCube");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Wii");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Wii U");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\PC");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\NDS");
-		std::filesystem::create_directory(mungPlexDocsPath + "\\Cheats\\Switch");
-	}
+void MungPlex::Settings::validateDir(const std::string dir)
+{
+	if (!std::filesystem::is_directory(dir))
+		std::filesystem::create_directory(dir);
 }
 
 MungPlex::GeneralSettings& MungPlex::Settings::GetGeneralSettings()

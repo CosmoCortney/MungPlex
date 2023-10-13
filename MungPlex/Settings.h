@@ -103,7 +103,8 @@ namespace MungPlex
         void drawSearchSettings();
         void drawCheatSettings();
         bool saveSettings();
-        void createDocFolders() const;
+        void createDocFolders();
+        void validateDir(const std::string dir);
 
         enum Styles
         {
