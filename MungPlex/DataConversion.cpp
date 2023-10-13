@@ -295,7 +295,10 @@ void MungPlex::DataConversion::drawColorConversion()
 				//MungPlex::SetWindowToForeground(windowHandle);
 			}
 
-			if (ImGui::Button("Specialized To RGB(A)"))
+			ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 2.0f));
+			ImGui::Text("Specialized Value:");
+
+			if (SetUpInputText("##Specialized Val:", specializedColorValueStr.data(), specializedColorValueStr.size(), 1.0f, 0.333f, false))
 			{
 				LitColor specialized(specializedColorValueStr);
 				specializedColorVal.x = specialized.GetColorValue<float>(0);
@@ -303,10 +306,6 @@ void MungPlex::DataConversion::drawColorConversion()
 				specializedColorVal.z = specialized.GetColorValue<float>(2);
 				specializedColorVal.w = specialized.GetColorValue<float>(3);
 			}
-
-			ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 2.0f));
-			ImGui::Text("Specialized Value:");
-			SetUpInputText("##Specialized Val:", specializedColorValueStr.data(), specializedColorValueStr.size(), 1.0f, 0.333f, false);
 		}
 		ImGui::EndGroup();
 	}
