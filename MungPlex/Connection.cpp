@@ -81,6 +81,11 @@ void MungPlex::Connection::DrawConnectionSelect()
 					_connected = MungPlex::ProcessInformation::ConnectToApplicationProcess(_selectedApplicationProcessIndex);
 				else
 					_connected = MungPlex::ProcessInformation::ConnectToProcess(_selectedProcessIndex);
+
+				if(_connected)
+					strcpy_s(_connectionMessage, "Connected to Process: ");
+					strcat_s(_connectionMessage, ProcessInformation::GetProcessName().c_str());
+
 			}
 
 			ImGui::SameLine();

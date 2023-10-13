@@ -888,3 +888,8 @@ void MungPlex::ProcessInformation::RefreshRegionlistPC(bool read, const bool wri
 		}
 	}
 }
+
+std::string MungPlex::ProcessInformation::GetProcessName()
+{
+	return _processName;
+}

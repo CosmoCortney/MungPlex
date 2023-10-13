@@ -128,5 +128,6 @@ namespace MungPlex
         static bool GetRereorderFlag();
         static bool LoadSystemInformationJSON(int emulatorIndex);
         static std::vector<SystemRegion>& GetRegions();
+        static std::string GetProcessName();
     };
 }
