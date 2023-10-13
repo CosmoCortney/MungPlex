@@ -16,6 +16,7 @@ bool MungPlex::ProcessInformation::_rereorderRegion;
 std::string MungPlex::ProcessInformation::_gameID;
 std::string MungPlex::ProcessInformation::_platform;
 std::string MungPlex::ProcessInformation::_processName;
+std::string MungPlex::ProcessInformation::_gameName;
 int32_t MungPlex::ProcessInformation::_addressWidth;
 HANDLE MungPlex::ProcessInformation::_handle;
 std::vector<MungPlex::GameEntity> MungPlex::ProcessInformation::_gameEntities;
@@ -307,8 +308,11 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	case MELONDS:
 		connected = initMelonDS();
 		break;
-	case MESEN: 
+	case MESEN:
 		connected = initMesen();
+		break;
+	case PPSSPP:
+		connected = initPPSSPP();
 		break;
 	}
 
@@ -717,6 +721,52 @@ bool MungPlex::ProcessInformation::initCemu()
 	}
 
 	return titleIDFound;
+}
+
+bool MungPlex::ProcessInformation::initPPSSPP()
+{
+	setMiscProcessInfo("PPSSPP", false, false, 4);
+	bool titleIDFound = false;
+	_platform = "PSP";
+	PointerSearch::SelectPreset(PSP);
+
+	for (Xertz::MemoryRegion region : _regions)
+	{
+		if (region.GetRegionSize() == 0x1f00000)
+		{
+			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x1000000;
+			break;
+		}
+	}
+
+	for (Xertz::MemoryRegion region : _regions)
+	{
+		if (region.GetRegionSize() > 0x20000 && region.GetRegionSize() < 0x8000000 && (region.GetProtect() & PAGE_READWRITE) == PAGE_READWRITE)
+		{
+			static uint64_t flag = 0x90000400195C7849;
+			char* buf = new char[region.GetRegionSize()];
+			_process.ReadExRAM(buf, reinterpret_cast<void*>(region.GetBaseAddress<uint64_t>()), region.GetRegionSize());
+
+			for (int i = 0; i < region.GetRegionSize(); i+=8)
+			{
+				uint64_t test = *reinterpret_cast<uint64_t*>(&buf[i]);
+				if (*reinterpret_cast<uint64_t*>(&buf[i]) == flag)
+				{
+					_gameID = std::string(10, 0);
+					memcpy_s(_gameID.data(), 10, &buf[i+8], 9);
+					_gameName = std::string(&buf[i+18]);
+					delete[] buf;
+					//std::cout << _gameID << std::endl;
+					//std::cout << _gameName << std::endl;
+					return true;
+				}
+			}
+
+			delete[] buf;
+			continue;
+		}
+	}
+	return false;
 }
 
 std::string& MungPlex::ProcessInformation::GetGameID()

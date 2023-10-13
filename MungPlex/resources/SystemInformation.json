@@ -665,6 +665,18 @@
       "Entities": [
 
       ]
+    },
+    "PPSSPP": {
+      "Regions": [
+        {
+          "Label": "Main RAM",
+          "Base": "0x08000000",
+          "Size": "0x2000000"
+        }
+      ],
+      "Entities": [
+
+      ]
     }
   }
 }

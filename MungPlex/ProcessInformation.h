@@ -39,6 +39,7 @@ namespace MungPlex
             _emulators.emplace_back(L"Cemu", CEMU);
             _emulators.emplace_back(L"Yuzu", YUZU);
             _emulators.emplace_back(L"melonDS", MELONDS);
+            _emulators.emplace_back(L"PPSSPP", PPSSPP);
         }
 
         ~ProcessInformation(){};
@@ -63,6 +64,7 @@ namespace MungPlex
         static std::string _gameID;
         static std::string _platform;
         static std::string _processName;
+        static std::string _gameName;
         static int32_t _addressWidth;
         static HANDLE _handle;
         static std::vector<GameEntity> _gameEntities;
@@ -83,6 +85,7 @@ namespace MungPlex
         static bool initMesen();
         static bool initCemu();
         static bool initMelonDS();
+        static bool initPPSSPP();
         static bool initYuzu();
         static void obtainGameEntities(void* baseLocation);
         static void setupSearch();
@@ -97,7 +100,7 @@ namespace MungPlex
 
         enum Emulators
         {
-            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, MELONDS
+            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, MELONDS, PPSSPP
         };
 
         enum Systems
