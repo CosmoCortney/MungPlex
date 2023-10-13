@@ -42,6 +42,7 @@ namespace MungPlex
         std::vector<std::pair<std::string, int>> _specializedColorTypes;
         std::vector<std::pair<std::string, int>> _floatTypes;
         std::vector<std::pair<std::string, int>> _intTypes;
+        std::vector<std::pair<std::string, int>> _textTypes;
         ImVec2 _verticalSpacing;
 
         void drawPrimitiveConversion();
@@ -50,10 +51,10 @@ namespace MungPlex
         std::string swapBytes(std::string& in, const int select);
         void drawColorConversion();
         void drawTextConversion();
-
+        void convertText(std::string& in, std::string& out, const int textTypeSelect);
+        void convertHexText(std::string& in, std::string& out, const int textTypeSelect);
 
     public:
         static void DrawWindow();
-        
     };
 }

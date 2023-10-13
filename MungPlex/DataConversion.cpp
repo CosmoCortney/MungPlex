@@ -4,6 +4,7 @@
 #include"LitColor.h"
 #include"Settings.h"
 #include"Xertz.h"
+#include"imgui_memory_editor.h"
 
 MungPlex::DataConversion::DataConversion()
 {
@@ -20,6 +21,31 @@ MungPlex::DataConversion::DataConversion()
 	_intTypes.emplace_back("Int 16", IntTypes::INT16);
 	_intTypes.emplace_back("Int 32", IntTypes::INT32);
 	_intTypes.emplace_back("Int 64", IntTypes::INT64);
+
+	_textTypes.emplace_back("UTF-8", MorphText::UTF8);
+	_textTypes.emplace_back("UTF-16 Little Endian", MorphText::UTF16LE);
+	_textTypes.emplace_back("UTF-16 Big Endian", MorphText::UTF16BE);
+	_textTypes.emplace_back("UTF-32 Little Endian", MorphText::UTF32LE);
+	_textTypes.emplace_back("UTF-32 Big Endian", MorphText::UTF32BE);
+	_textTypes.emplace_back("ASCII", MorphText::ASCII);
+	_textTypes.emplace_back("ISO-8859-1 (Latin 1)", MorphText::ISO_8859_1);
+	_textTypes.emplace_back("ISO-8859-2 (Latin 2)", MorphText::ISO_8859_2);
+	_textTypes.emplace_back("ISO-8859-3 (Latin 3)", MorphText::ISO_8859_3);
+	_textTypes.emplace_back("ISO-8859-4 (Latin 4)", MorphText::ISO_8859_4);
+	_textTypes.emplace_back("ISO-8859-5 (Cyrillic)", MorphText::ISO_8859_5);
+	_textTypes.emplace_back("ISO-8859-6 (Arabic)", MorphText::ISO_8859_6);
+	_textTypes.emplace_back("ISO-8859-7 (Greek)", MorphText::ISO_8859_7);
+	_textTypes.emplace_back("ISO-8859-8 (Hebrew)", MorphText::ISO_8859_8);
+	_textTypes.emplace_back("ISO-8859-9 (Turkish)", MorphText::ISO_8859_9);
+	_textTypes.emplace_back("ISO-8859-10 (Nordic)", MorphText::ISO_8859_10);
+	_textTypes.emplace_back("ISO-8859-11 (Thai)", MorphText::ISO_8859_11);
+	_textTypes.emplace_back("ISO-8859-13 (Baltic)", MorphText::ISO_8859_13);
+	_textTypes.emplace_back("ISO-8859-14 (Celtic", MorphText::ISO_8859_14);
+	_textTypes.emplace_back("ISO-8859-15 (West European)", MorphText::ISO_8859_15);
+	_textTypes.emplace_back("ISO-8859-16 (South-East European)", MorphText::ISO_8859_16);
+	_textTypes.emplace_back("Shift-Jis", MorphText::SHIFTJIS);
+	_textTypes.emplace_back("Jis X 0201 Full Width", MorphText::JIS_X_0201_FULLWIDTH);
+	_textTypes.emplace_back("Jis X 0201 Half Width", MorphText::JIS_X_0201_HALFWIDTH);
 }
 
 void MungPlex::DataConversion::DrawWindow()
@@ -29,7 +55,7 @@ void MungPlex::DataConversion::DrawWindow()
 	GetInstance().drawPrimitiveConversion();
 	ImGui::SameLine();
 	GetInstance().drawColorConversion();
-
+	GetInstance().drawTextConversion();
 	ImGui::End();
 }
 
@@ -46,6 +72,167 @@ void MungPlex::DataConversion::drawPrimitiveConversion()
 		drawEndiannessConversion();
 	}
 	ImGui::EndChild();
+}
+
+void MungPlex::DataConversion::drawTextConversion()
+{
+	ImGui::BeginChild("Text Conversion");
+	{
+		ImGui::SeparatorText("Text Conversion");
+
+		static int charCount = 512;
+		static std::string plainText(charCount, 0);
+		static std::string convertedText(charCount, 0);
+		static MemoryEditor memEdit;
+		static int memEditFlags = MemoryEditor::HIDE_OPTIONS | MemoryEditor::HIDE_ASCII;
+		static int textTypeSelect = MorphText::UTF8;
+		static bool update = true;
+
+		ImGui::BeginGroup();
+		{
+			if (SetUpCombo("Text Type:", _textTypes, textTypeSelect, 0.5f, 0.35f))
+				update = true;
+
+			float height = 1.0f - ImGui::GetCursorPosY() / ImGui::GetContentRegionAvail().y;
+			if (SetUpInputTextMultiline("Plain Text:", plainText.data(), plainText.size() + 1, 0.5f, height))
+			{
+				update = true;
+			}
+		}
+		ImGui::EndGroup();
+
+		ImGui::SameLine();
+		ImGui::Dummy(ImVec2(10.0f, 0.0f));
+		ImGui::SameLine();
+
+		ImGui::BeginGroup();
+		{
+			if (memEdit.DrawContents(convertedText.data(), convertedText.size(), 0, NULL, nullptr, false, memEditFlags))
+				convertHexText(convertedText, plainText, textTypeSelect);
+			ImGui::Separator();
+
+			if (update)
+			{
+				convertText(plainText, convertedText, textTypeSelect);
+				update = false;
+			}	
+		}
+		ImGui::EndGroup();
+	}
+	ImGui::EndChild();
+}
+
+void MungPlex::DataConversion::convertHexText(std::string& in, std::string& out, const int textTypeSelect)
+{
+	out = std::string(in.size(), 0);
+
+	switch (textTypeSelect)
+	{
+	case MorphText::UTF16LE: {
+		std::string temp = MorphText::Utf16LE_To_Utf8(std::wstring(reinterpret_cast<wchar_t*>(in.data())));
+		out.resize(out.size() * 2);
+		memcpy_s(out.data(), out.size(), temp.data(), temp.size() * 2);
+	} break;
+	case MorphText::UTF16BE: {
+		std::string temp = MorphText::Utf16BE_To_Utf8(std::wstring(reinterpret_cast<wchar_t*>(in.data())));
+		out.resize(out.size() * 2);
+		memcpy_s(out.data(), out.size(), temp.data(), temp.size() * 2);
+	} break;
+	case MorphText::UTF32LE: {
+		std::string temp = MorphText::Utf32LE_To_Utf8(std::u32string(reinterpret_cast<char32_t*>(in.data())));
+		out.resize(out.size() * 4);
+		memcpy_s(out.data(), out.size(), temp.data(), temp.size() * 4);
+	} break;
+	case MorphText::UTF32BE: {
+		std::string temp = MorphText::Utf32BE_To_Utf8(std::u32string(reinterpret_cast<char32_t*>(in.data())));
+		out.resize(out.size() * 4);
+		memcpy_s(out.data(), out.size(), temp.data(), temp.size() * 4);
+	} break;
+	case MorphText::ASCII: {
+		std::string temp = MorphText::ASCII_To_Utf8(in.data());
+		memcpy_s(out.data(), out.size(), temp.data(), temp.size());
+	} break;
+	case MorphText::ISO_8859_1: case MorphText::ISO_8859_2: case MorphText::ISO_8859_3:
+	case MorphText::ISO_8859_4: case MorphText::ISO_8859_5: case MorphText::ISO_8859_6:
+	case MorphText::ISO_8859_7: case MorphText::ISO_8859_8: case MorphText::ISO_8859_9:
+	case MorphText::ISO_8859_10: case MorphText::ISO_8859_11: case MorphText::ISO_8859_13:
+	case MorphText::ISO_8859_14: case MorphText::ISO_8859_15: case MorphText::ISO_8859_16: {
+		std::string temp = MorphText::ISO8859X_To_Utf8(in.data(), textTypeSelect);
+		memcpy_s(out.data(), out.size(), temp.data(), temp.size());
+	} break;
+	case MorphText::SHIFTJIS: {
+		std::string temp = MorphText::ShiftJis_To_Utf8(in.data());
+		memcpy_s(out.data(), out.size(), temp.data(), temp.size());
+	} break;
+	case MorphText::JIS_X_0201_FULLWIDTH: {
+		std::string temp = MorphText::JIS_X_0201_FullWidth_To_Utf8(in.data());
+		memcpy_s(out.data(), out.size(), temp.data(), temp.size());
+	} break;
+	case MorphText::JIS_X_0201_HALFWIDTH: {
+		std::string temp = MorphText::JIS_X_0201_HalfWidth_To_Utf8(in.data());
+		memcpy_s(out.data(), out.size(), temp.data(), temp.size());
+	} break;
+	default: {// MorphText::UTF8
+		out = in;
+	} break;
+	}
+}
+
+void MungPlex::DataConversion::convertText(std::string& in, std::string& out, const int textTypeSelect)
+{
+	out = std::string(in.size(), 0);
+
+	switch (textTypeSelect)
+	{
+		case MorphText::UTF16LE: {
+			std::wstring temp = MorphText::Utf8_To_Utf16LE(in);
+			out.resize(out.size() * 2);
+			memcpy_s(out.data(), out.size(), temp.data(), temp.size() * 2);
+		} break;
+		case MorphText::UTF16BE: {
+			std::wstring temp = MorphText::Utf8_To_Utf16BE(in);
+			out.resize(out.size() * 2);
+			memcpy_s(out.data(), out.size(), temp.data(), temp.size() * 2);
+		} break;
+		case MorphText::UTF32LE: {
+			std::u32string temp = MorphText::Utf8_To_Utf32LE(in);
+			out.resize(out.size() * 4);
+			memcpy_s(out.data(), out.size(), temp.data(), temp.size() * 4);
+		} break;
+		case MorphText::UTF32BE: {
+			std::u32string temp = MorphText::Utf8_To_Utf32BE(in);
+			out.resize(out.size() * 4);
+			memcpy_s(out.data(), out.size(), temp.data(), temp.size() * 4);
+		} break;
+		case MorphText::ASCII: {
+			std::string temp = MorphText::Utf8_To_ASCII(in);
+			memcpy_s(out.data(), out.size(), temp.data(), temp.size());
+		} break;
+		case MorphText::ISO_8859_1: case MorphText::ISO_8859_2: case MorphText::ISO_8859_3: 
+		case MorphText::ISO_8859_4: case MorphText::ISO_8859_5: case MorphText::ISO_8859_6:
+		case MorphText::ISO_8859_7: case MorphText::ISO_8859_8: case MorphText::ISO_8859_9:
+		case MorphText::ISO_8859_10: case MorphText::ISO_8859_11: case MorphText::ISO_8859_13: 
+		case MorphText::ISO_8859_14: case MorphText::ISO_8859_15: case MorphText::ISO_8859_16: {
+			std::string temp = MorphText::Utf8_To_ISO8859X(in, textTypeSelect);
+			memcpy_s(out.data(), out.size(), temp.data(), temp.size());
+		} break;
+		case MorphText::SHIFTJIS: {
+			std::string temp = MorphText::Utf8_To_ShiftJis(in);
+			out.resize(out.size() * 2);
+			memcpy_s(out.data(), out.size(), temp.data(), temp.size() * 2);
+		} break;
+		case MorphText::JIS_X_0201_FULLWIDTH: {
+			std::string temp = MorphText::Utf8_To_JIS_X_0201_FullWidth(in);
+			memcpy_s(out.data(), out.size(), temp.data(), temp.size());
+		} break;
+		case MorphText::JIS_X_0201_HALFWIDTH: {
+			std::string temp = MorphText::Utf8_To_JIS_X_0201_HalfWidth(in);
+			memcpy_s(out.data(), out.size(), temp.data(), temp.size());
+		} break;
+		default:{// MorphText::UTF8
+			out = in;
+		} break;
+	}
 }
 
 void MungPlex::DataConversion::drawColorConversion()
