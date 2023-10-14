@@ -27,6 +27,7 @@ As of version 2.0.0 the following emulators and systems are supported:
 - Cemu (Wii U)
 - Yuzu (Switch) Experimental!
 - melonDS (Nintendo DS)
+- PPSSPP (PSP)
 
 <img src="MungPlex\resources\img\manual\MungPlex_connection_01.png" width="256">
 
@@ -87,11 +88,14 @@ Currently supported encodings:
     - `UTF-32 LE`
     - `UTF-32 BE`
     - `Shift-Jis`
+    - `Jis X 0201 Full Width`
+    - `Jis X 0201 Half Width`
     - `ISO-8859-1` to `ISO-8859-16`
   - `Color`: Allows you to search for color values. If you don't know what color type certain objects or textures use you may need to try different types.
     - `RGB888`: Common 24-bit color value commonly used in 3D games
     - `RGBA8888`: Same as above but with an additional alpha channel
-    - `RGB565`: 16-bit color value commonly used in textures of GameCube games
+    - `RGB565`: 16-bit color value commonly used in textures of GameCube/Wii games
+    - `RGB5A3`: 16-bit color value with alpha flag commonly used in textures of GameCube/Wii games
     - `RGBF`: Floating point/HDR variant of RGB888. Commonly used of colors may do smooth transitions like the engine flames in F-Zero GX or ink in Splatoon
     - `RGBAF`: Same as RGBF but with an additional alpha channel
 
@@ -103,6 +107,9 @@ Check this if the values should be treated as big endian (reversed byte order). 
 
 - `Signed `: 
 Check this if primitive integral types should be signed.
+
+- `Force Alpha `: 
+Some Color types (RGB5A3) feature a color flag and have no dedicate type with its own alpha channel. Therefore forcing the alpha flag might come in handy.
 
 ### Range Options
 Here you can select the memory ranges to be scanned.
@@ -292,6 +299,20 @@ Define various settings and preferences.
 - `Cheat List by default`
 - `Default Interval`
 
+## Data Conversion
+A small conversion utility
+
+<img src="MungPlex\resources\img\manual\MungPlex_DataConversion_01.png" height="440">
+
+### Primitive Value Conversion
+- Float <-> Hex Conversion: Convert Float/Double to Hex and vice versa
+- Change Endianness: Swap the byte order of the selected integer type
+
+### Color Conversion
+- Convert RGB(A) to RGB(A)F, RGB565, RGB5A3 and vice versa
+
+### Text Conversion
+- Convert UTF-8 Text to UTF-16 Little Endian, UTF-16 Big Endian, UTF-32 Little Endian, UTF-32 Big Endian, Shift-Jis, Jis x 0201 Full Width, Jis X 0201 Half Width, ASCII, ISO-8859-1 - 16 and vice versa
 
 ## Compiling
 
@@ -310,18 +331,21 @@ To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item 
   - Texture Streaming
   - Corruptor
   - Value watch and control
-  - Data Conversion
 - Search 
   - Text Types: `JIS X 0208`, Pokemon game text encodings, `EUC-KR`, `EUC-JP`, `EUC-CN`, `EUC-TW`, `Big5`, `base64`, ...
-  - Color types: `RGB332`, `RGB444`, `RGBA4444`, `RGB555`, `RGBA5551`, `RGB5A3`, `IA8`, ...
+  - Color types: `RGB332`, `RGB444`, `RGBA4444`, `RGB555`, `RGBA5551`, `IA8`, ...
   - Array types: float, double
 - Pointer Search
   - Fix potential problems with argument list
 - Connection
   - Mesen NES support
-  - More Emulators: Visual Boy Advance, Fusion, Yabause, NullDC, EPSXE, PCSX2, RPCS3, PPSSPP, Citra, TeknoParrot, ...
+  - More Emulators: Visual Boy Advance, Fusion, Yabause, NullDC, EPSXE, PCSX2, RPCS3, Citra, TeknoParrot, ...
 - Cheats
   - Syntax Highlighting, more OS functionalities
 
 
 
+## Special Thanks
+- Lawn Meower: Idea, code, reverse engineering
+- [BullyWiiPlaza](https://github.com/BullyWiiPlaza/): Help with code and cmake
+- [Divengerss](https://www.youtube.com/channel/UCZDBXfuNiVXXb7Wbh_syiDw): Testing, reporting bugs
