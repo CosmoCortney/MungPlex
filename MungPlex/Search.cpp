@@ -135,9 +135,19 @@ void MungPlex::Search::DrawValueTypeOptions()
 				if (_currentValueTypeSelect == TEXT || _currentValueTypeSelect == COLOR)
 					_currentComparisionTypeSelect = MemoryCompare::KNOWN;
 
+				ImGui::SameLine();
+
+				ImGui::Checkbox("Big Endian", &_underlyingBigEndian);
+
 				if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
 				SetUpCombo("Primitive Type:", _searchPrimitiveTypes, _currentPrimitiveTypeSelect, 0.5f, 0.4f);
 				if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
+
+				ImGui::SameLine();
+
+				if (_disableBecauseNoInt) ImGui::BeginDisabled();
+				ImGui::Checkbox("Signed", &_signed);
+				if (_disableBecauseNoInt) ImGui::EndDisabled();
 
 				if (_disableBecauseNoArray) ImGui::BeginDisabled();
 				SetUpCombo("Array Type:", _searchArrayTypes, _currentArrayTypeSelect, 0.5f, 0.4f); //use primitived types here once Arrays support floats
@@ -156,18 +166,6 @@ void MungPlex::Search::DrawValueTypeOptions()
 				if (_disableBecauseNoColor || _currentColorTypeSelect != LitColor::RGB5A3) ImGui::BeginDisabled();
 				ImGui::Checkbox("Force Alpha", &_forceAlpha);
 				if (_disableBecauseNoColor || _currentColorTypeSelect != LitColor::RGB5A3) ImGui::EndDisabled();
-			}
-			ImGui::EndGroup();
-
-			ImGui::SameLine();
-
-			ImGui::BeginGroup();
-			{
-				ImGui::Checkbox("Big Endian", &_underlyingBigEndian);
-
-				if (_disableBecauseNoInt) ImGui::BeginDisabled();
-				ImGui::Checkbox("Signed", &_signed);
-				if (_disableBecauseNoInt) ImGui::EndDisabled();
 			}
 			ImGui::EndGroup();
 		}
