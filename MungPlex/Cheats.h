@@ -45,6 +45,7 @@ namespace MungPlex
         std::wstring _cheatListPath;
         sol::state _lua{};
         bool _isBigEndian = false;
+        bool _reorderedMemory = false;
         int _pid = 0;
         std::vector<SystemRegion> _regions{};
         int _perSecond = 60;
@@ -77,7 +78,7 @@ namespace MungPlex
         void DrawCheatInformation(); //top-right
         void DrawControl(); //bottom left
         void updateConnectionInfo();
-
+        
         
         int getRangeIndex(uint64_t address) const;
         void cheatRoutine();
@@ -124,10 +125,23 @@ namespace MungPlex
 
         static void writeDouble(uint64_t address, double value);
 
+        template <typename dataType> void writeValue(uint64_t writeAddress, dataType writeValue)
+        {
+            if (_isBigEndian)
+                writeValue = Xertz::SwapBytes(writeValue);
+
+            int8_t* writeValAddr = reinterpret_cast<int8_t*>(&writeValue);
+
+            for (int i = 0; i < sizeof(dataType); ++i)
+                writeInt8(writeAddress + i, *(writeValAddr + i));
+        }
+
     public:
         static void DrawWindow();
         static void SetGameID(const char* ID);
         static void SetPlatform(const char* platform);
+        static void SetBigEndian(const bool isBE);
+        static void SetReorderedMemory(const bool reordered);
         static void InitCheatFile();
 	};
 }

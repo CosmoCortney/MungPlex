@@ -51,6 +51,36 @@ namespace MungPlex
             return reinterpret_cast<addressType>(tempPtr);
     }
 
+    template<typename dataType> static void ReadFromReorderedRangeEx(const Xertz::ProcessInfo& process, dataType* out, void* readAddress)
+    {
+        char* address = reinterpret_cast<char*>(readAddress);
+        char* dest = reinterpret_cast<char*>(out);
+
+        for (int i = 0; i < sizeof(dataType); ++i)
+        {
+                
+            char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
+            process.ReadExRAM(dest + i, reorderedAddress, 1);
+        }
+        
+        return;
+    }
+
+    template<typename dataType> static void WriteToReorderedRangeEx(const Xertz::ProcessInfo& process, dataType* in, void* writeAddress)
+    {
+        char* address = reinterpret_cast<char*>(writeAddress);
+        char* dest = reinterpret_cast<char*>(in);
+
+        for (int i = 0; i < sizeof(dataType); ++i)
+        {
+
+            char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
+            process.WriteExRAM(dest + i, reorderedAddress, 1);
+        }
+
+        return;
+    }
+
     static void Rereorder4BytesReorderedMemory(void* ptr, const uint64_t size)
     {
         uint32_t* swapPtr = reinterpret_cast<uint32_t*>(ptr);

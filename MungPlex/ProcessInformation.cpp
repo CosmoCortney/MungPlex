@@ -317,9 +317,7 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	}
 
 	setupSearch();
-	Cheats::SetPlatform(_platform.c_str());
-	Cheats::SetGameID(_gameID.c_str());
-	Cheats::InitCheatFile();
+	setupCheats();
 	obtainGameEntities(_systemRegions[0].BaseLocationProcess);
 	return connected;
 }
@@ -358,6 +356,15 @@ void MungPlex::ProcessInformation::setupSearch()
 {
 	Search::SetRereorderRegion(_rereorderRegion);
 	Search::SetUnderlyingBigEndianFlag(_underlyingIsBigEndian);
+}
+
+void MungPlex::ProcessInformation::setupCheats()
+{
+	Cheats::SetPlatform(_platform.c_str());
+	Cheats::SetGameID(_gameID.c_str());
+	Cheats::SetReorderedMemory(_rereorderRegion);
+	Cheats::SetBigEndian(_underlyingIsBigEndian);
+	Cheats::InitCheatFile();
 }
 
 bool MungPlex::ProcessInformation::initMelonDS()
@@ -753,12 +760,12 @@ bool MungPlex::ProcessInformation::initPPSSPP()
 
 			_gameID = wTitle.substr(pos+2, 9);
 			_gameName = wTitle.substr(pos + 14);
-					//std::cout << _gameID << std::endl;
-					//std::cout << _gameName << std::endl;
+			//std::cout << _gameID << std::endl;
+			//std::cout << _gameName << std::endl;
 			delete[] str;
-					return true;
-				}
-			}
+			return true;
+		}
+	}
 
 	delete[] str;
 	return false;

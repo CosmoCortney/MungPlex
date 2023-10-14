@@ -89,6 +89,7 @@ namespace MungPlex
         static bool initYuzu();
         static void obtainGameEntities(void* baseLocation);
         static void setupSearch();
+        static void setupCheats();
         static bool connectToProcessFR();
         static void setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth);
 

@@ -81,7 +81,14 @@ bool MungPlex::Cheats::readBool(const uint64_t address)
 
 int8_t MungPlex::Cheats::readInt8(const uint64_t address)
 {
-	return GetInstance()._isBigEndian ? readInt64(address) >> 56 : readInt64(address);
+	int8_t temp = 0;
+
+	if (GetInstance()._reorderedMemory)
+		temp = !GetInstance()._isBigEndian ? readInt64(address) : readInt64(address) >> 56;
+	else
+		temp = GetInstance()._isBigEndian ? readInt64(address) >> 56 : readInt64(address);
+
+	return temp;
 }
 
 uint8_t MungPlex::Cheats::readUInt8(const uint64_t address)
@@ -91,7 +98,14 @@ uint8_t MungPlex::Cheats::readUInt8(const uint64_t address)
 
 int16_t MungPlex::Cheats::readInt16(const uint64_t address)
 {
-	return GetInstance()._isBigEndian ? readInt64(address) >> 48 : readInt64(address);
+	int16_t temp = 0;
+
+	if (GetInstance()._reorderedMemory)
+		temp = !GetInstance()._isBigEndian ? readInt64(address) : readInt64(address) >> 48;
+	else
+		temp = GetInstance()._isBigEndian ? readInt64(address) >> 48 : readInt64(address);
+
+	return temp;
 }
 
 uint16_t MungPlex::Cheats::readUInt16(const uint64_t address)
@@ -101,7 +115,14 @@ uint16_t MungPlex::Cheats::readUInt16(const uint64_t address)
 
 int32_t MungPlex::Cheats::readInt32(const uint64_t address)
 {
-	return GetInstance()._isBigEndian ? readInt64(address) >> 32 : readInt64(address);
+	int temp = 0;
+
+	if (GetInstance()._reorderedMemory)
+		temp = !GetInstance()._isBigEndian ? readInt64(address) : readInt64(address) >> 32;
+	else
+		temp = GetInstance()._isBigEndian ? readInt64(address) >> 32 : readInt64(address);
+
+	return temp;
 }
 
 uint32_t MungPlex::Cheats::readUInt32(const uint64_t address)
@@ -117,9 +138,16 @@ int64_t MungPlex::Cheats::readInt64(const uint64_t address)
 	if (rangeIndex == -1)
 		return 0;
 
-	const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
-	if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<int64_t>(readValue);
+	void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
+	
+	if (GetInstance()._reorderedMemory)
+		ReadFromReorderedRangeEx<int64_t>(GetInstance()._processInfo, &readValue, readAddress);
+	else
+		GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
+	
+	if (GetInstance()._isBigEndian)
+		readValue = Xertz::SwapBytes<int64_t>(readValue);
+	
 	return readValue;
 }
 
@@ -130,30 +158,16 @@ uint64_t MungPlex::Cheats::readUInt64(const uint64_t address)
 
 float MungPlex::Cheats::readFloat(const uint64_t address)
 {
-	float readValue = 0.0f;
-	const int rangeIndex = GetInstance().getRangeIndex(address);
-
-	if (rangeIndex == -1)
-		return 0.0f;
-
-	const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 4);
-	if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<float>(readValue);
-	return readValue;
+	int32_t temp = 0;
+	temp = readInt32(address);
+	return *(float*)&temp;
 }
 
 double MungPlex::Cheats::readDouble(const uint64_t address)
 {
-	double readValue = 0.0;
-	const int rangeIndex = GetInstance().getRangeIndex(address);
-
-	if (rangeIndex == -1)
-		return 0.0;
-
-	const void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
-	if (GetInstance()._isBigEndian) readValue = Xertz::SwapBytes<double>(readValue);
-	return readValue;
+	int64_t temp = 0;
+	temp = readInt64(address);
+	return *(double*)&temp;
 }
 
 void MungPlex::Cheats::writeToRAM(const int type, const uint64_t address, double value)
@@ -207,13 +221,7 @@ void MungPlex::Cheats::writeToRAM(const int type, const uint64_t address, double
 
 void MungPlex::Cheats::writeBool(const uint64_t address, const bool value)
 {
-	const int rangeIndex = GetInstance().getRangeIndex(address);
-
-	if (rangeIndex == -1)
-		return;
-
-	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 1);
+	writeInt8(address, value);
 }
 
 void MungPlex::Cheats::writeInt8(const uint64_t address, int8_t value)
@@ -224,67 +232,36 @@ void MungPlex::Cheats::writeInt8(const uint64_t address, int8_t value)
 		return;
 
 	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 1);
+	
+	if (GetInstance()._reorderedMemory)
+		WriteToReorderedRangeEx<int8_t>(GetInstance()._processInfo, &value, writeAddress);
+	else
+		GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 1);
 }
 
 void MungPlex::Cheats::writeInt16(const uint64_t address, int16_t value)
 {
-	const int rangeIndex = GetInstance().getRangeIndex(address);
-
-	if (rangeIndex == -1)
-		return;
-
-	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int16_t>(value);
-	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 2);
+	GetInstance().writeValue<int16_t>(address, value);
 }
 
 void MungPlex::Cheats::writeInt32(const uint64_t address, int32_t value)
 {
-	const int rangeIndex = GetInstance().getRangeIndex(address);
-
-	if (rangeIndex == -1)
-		return;
-
-	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int32_t>(value);
-	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 4);
+	GetInstance().writeValue<int32_t>(address, value);
 }
 
 void MungPlex::Cheats::writeInt64(const uint64_t address, int64_t value)
 {
-	const int rangeIndex = GetInstance().getRangeIndex(address);
-
-	if (rangeIndex == -1)
-		return;
-
-	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<int64_t>(value);
-	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 8);
+	GetInstance().writeValue<int64_t>(address, value);
 }
 
 void MungPlex::Cheats::writeFloat(const uint64_t address, float value)
 {
-	const int rangeIndex = GetInstance().getRangeIndex(address);
-
-	if (rangeIndex == -1)
-		return;
-
-	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<float>(value);
-	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 4);
+	GetInstance().writeValue<float>(address, value);
 }
 
 void MungPlex::Cheats::writeDouble(const uint64_t address, double value)
 {
-	const int rangeIndex = GetInstance().getRangeIndex(address);
-
-	if (rangeIndex == -1)
-		return;
-
-	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	if (GetInstance()._isBigEndian) value = Xertz::SwapBytes<double>(value);
-	GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 8);
+	GetInstance().writeValue<double>(address, value);
 }
 
 void MungPlex::Cheats::DrawWindow()
@@ -772,8 +749,17 @@ void MungPlex::Cheats::refreshModuleList()
 
 void MungPlex::Cheats::updateConnectionInfo()
 {
-	_isBigEndian = ProcessInformation::UnderlyingIsBigEndian();
 	_pid = ProcessInformation::GetPID();
 	_regions = ProcessInformation::GetRegions();
 	refreshModuleList();
+}
+
+void MungPlex::Cheats::SetBigEndian(const bool isBE)
+{
+	GetInstance()._isBigEndian = isBE;
+}
+
+void MungPlex::Cheats::SetReorderedMemory(const bool reordered)
+{
+	GetInstance()._reorderedMemory = reordered;
 }
