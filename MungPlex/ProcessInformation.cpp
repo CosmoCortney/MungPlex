@@ -739,33 +739,28 @@ bool MungPlex::ProcessInformation::initPPSSPP()
 		}
 	}
 
-	for (Xertz::MemoryRegion region : _regions)
-	{
-		if (region.GetRegionSize() > 0x20000 && region.GetRegionSize() < 0x8000000 && (region.GetProtect() & PAGE_READWRITE) == PAGE_READWRITE)
-		{
-			static uint64_t flag = 0x90000400195C7849;
-			char* buf = new char[region.GetRegionSize()];
-			_process.ReadExRAM(buf, reinterpret_cast<void*>(region.GetBaseAddress<uint64_t>()), region.GetRegionSize());
 
-			for (int i = 0; i < region.GetRegionSize(); i+=8)
-			{
-				uint64_t test = *reinterpret_cast<uint64_t*>(&buf[i]);
-				if (*reinterpret_cast<uint64_t*>(&buf[i]) == flag)
-				{
-					_gameID = std::string(10, 0);
-					memcpy_s(_gameID.data(), 10, &buf[i+8], 9);
-					_gameName = std::string(&buf[i+18]);
-					delete[] buf;
+
+	LPSTR str = new CHAR[64];
+	for (HWND wHandle: Xertz::SystemInfo::GetWindowHandleList())
+	{
+		GetWindowTextA(wHandle, str, 64);
+		std::string wTitle = str;
+
+		if (wTitle.find("PPSSPP") == 0)
+		{
+			int pos = wTitle.find("-");
+
+			_gameID = wTitle.substr(pos+2, 9);
+			_gameName = wTitle.substr(pos + 14);
 					//std::cout << _gameID << std::endl;
 					//std::cout << _gameName << std::endl;
+			delete[] str;
 					return true;
 				}
 			}
 
-			delete[] buf;
-			continue;
-		}
-	}
+	delete[] str;
 	return false;
 }
 
