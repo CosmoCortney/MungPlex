@@ -347,5 +347,5 @@ To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item 
 
 ## Special Thanks
 - Lawn Meower: Idea, code, reverse engineering
-- [BullyWiiPlaza](https://github.com/BullyWiiPlaza/): Help with code and cmake
+- [BullyWiiPlaza](https://github.com/BullyWiiPlaza/): Code, Creation of Pointer Search Engine
 - [Divengerss](https://www.youtube.com/channel/UCZDBXfuNiVXXb7Wbh_syiDw): Testing, reporting bugs
