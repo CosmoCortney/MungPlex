@@ -317,48 +317,50 @@ void MungPlex::Cheats::DrawCheatInformation()
 	
 	ImGui::BeginGroup();
 	{
+		static bool disableFlag = false;
 		ImGui::SeparatorText("Cheat Information");
 		
-		if (SetUpInputText("Title:", _textCheatTitle.data(), TITLE, 1.0f, 0.15f))
+		if (_executeCheats) ImGui::BeginDisabled();
 		{
-			_unsavedChangesTextCheat = true;
-		}
+			if (SetUpInputText("Title:", _textCheatTitle.data(), TITLE, 1.0f, 0.15f))
+			{
+				_unsavedChangesTextCheat = true;
+			}
 
-		if(SetUpInputText("Hacker(s):", _textCheatHacker.data(), HACKER, 1.0f, 0.15f))
-		{
-			_unsavedChangesTextCheat = true;
-		}
-		
-		static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
-		
-		if(SetUpInputTextMultiline("Lua Cheat:", _textCheatLua.data(), CHEAT, 1.0f, 0.55f, flags))
-		{
-			_unsavedChangesTextCheat = true;
-		}
-		
-		if(SetUpInputTextMultiline("Description:", _textCheatDescription.data(), DESCRIPTION, 1.0f, 0.35f, flags))
-		{
-			_unsavedChangesTextCheat = true;
-		}
+			if (SetUpInputText("Hacker(s):", _textCheatHacker.data(), HACKER, 1.0f, 0.15f))
+			{
+				_unsavedChangesTextCheat = true;
+			}
 
-		if (ImGui::Button("Add to list"))
-		{
-			copyCheatToList(-1);
-			saveCheatList();
-			_unsavedChangesTextCheat = false;
-			_markedCheats.assign(_markedCheats.size(), false);
-			_markedCheats.emplace_back(true);
-			_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats.back().ID));
-			Log::LogInformation("Added Cheat to list");
-		}
+			static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 
-		ImGui::SameLine();
+			if (SetUpInputTextMultiline("Lua Cheat:", _textCheatLua.data(), CHEAT, 1.0f, 0.55f, flags))
+			{
+				_unsavedChangesTextCheat = true;
+			}
 
-		static bool disableFlag = false;
-		if (_luaCheats.empty())
-			_disableEditButtons = true;
+			if (SetUpInputTextMultiline("Description:", _textCheatDescription.data(), DESCRIPTION, 1.0f, 0.35f, flags))
+			{
+				_unsavedChangesTextCheat = true;
+			}
 
-		if (_disableEditButtons) ImGui::BeginDisabled();
+			if (ImGui::Button("Add to list"))
+			{
+				copyCheatToList(-1);
+				saveCheatList();
+				_unsavedChangesTextCheat = false;
+				_markedCheats.assign(_markedCheats.size(), false);
+				_markedCheats.emplace_back(true);
+				_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats.back().ID));
+				Log::LogInformation("Added Cheat to list");
+			}
+
+			ImGui::SameLine();
+
+			if (_luaCheats.empty())
+				_disableEditButtons = true;
+
+			if (_disableEditButtons) ImGui::BeginDisabled();
 			if (ImGui::Button("Update Entry"))
 			{
 				copyCheatToList(_selectedID);
@@ -375,13 +377,15 @@ void MungPlex::Cheats::DrawCheatInformation()
 				deleteCheat(_selectedID);
 				saveCheatList();
 				_unsavedChangesTextCheat = false;
-				
+
 				if (_luaCheats.empty())
 					disableFlag = true;
 
 				Log::LogInformation((std::string("Deleted Cheat at ") + std::to_string(_selectedID)).c_str());
 			}
-		if (_disableEditButtons) ImGui::EndDisabled();
+			if (_disableEditButtons) ImGui::EndDisabled();
+		}
+		if (_executeCheats) ImGui::EndDisabled();
 
 		if (disableFlag)
 		{
