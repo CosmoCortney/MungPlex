@@ -38,10 +38,18 @@ namespace MungPlex
             return Instance;
         }
 
-        char _textCheatTitle[256];
-        char _textCheatHacker[128];
-        char _textCheatLua[1024 * 128];
-        char _textCheatDescription[1024 * 16];
+        enum StrLengths
+        {
+            TITLE = 256,
+            HACKER = 128,
+            CHEAT = 1024 * 64,
+            DESCRIPTION = 1024 * 16
+        };
+
+        std::string _textCheatTitle = std::string(TITLE, 0);
+        std::string _textCheatHacker = std::string(HACKER, 0);
+        std::string _textCheatLua = std::string(CHEAT, 0);
+        std::string _textCheatDescription = std::string(DESCRIPTION, 0);
         std::wstring _cheatListPath;
         sol::state _lua{};
         bool _isBigEndian = false;

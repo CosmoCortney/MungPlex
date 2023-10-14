@@ -300,7 +300,7 @@ void MungPlex::Cheats::DrawCheatList()
 				if (ImGui::Selectable(_luaCheats[i].Title.c_str(), &marked))
 				{
 					_markedCheats.assign(_markedCheats.size(), false);
-					_markedCheats[i] = marked;
+					_markedCheats[i] = !marked;
 					_selectedID = i;
 					copyCheatToInformationBox(i);
 				}
@@ -319,24 +319,24 @@ void MungPlex::Cheats::DrawCheatInformation()
 	{
 		ImGui::SeparatorText("Cheat Information");
 		
-		if (SetUpInputText("Title:", _textCheatTitle, IM_ARRAYSIZE(_textCheatTitle), 1.0f, 0.15f))
+		if (SetUpInputText("Title:", _textCheatTitle.data(), TITLE, 1.0f, 0.15f))
 		{
 			_unsavedChangesTextCheat = true;
 		}
 
-		if(SetUpInputText("Hacker(s):", _textCheatHacker, IM_ARRAYSIZE(_textCheatHacker), 1.0f, 0.15f))
+		if(SetUpInputText("Hacker(s):", _textCheatHacker.data(), HACKER, 1.0f, 0.15f))
 		{
 			_unsavedChangesTextCheat = true;
 		}
 		
 		static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 		
-		if(SetUpInputTextMultiline("Lua Cheat:", _textCheatLua, IM_ARRAYSIZE(_textCheatLua), 1.0f, 0.55f, flags))
+		if(SetUpInputTextMultiline("Lua Cheat:", _textCheatLua.data(), CHEAT, 1.0f, 0.55f, flags))
 		{
 			_unsavedChangesTextCheat = true;
 		}
 		
-		if(SetUpInputTextMultiline("Description:", _textCheatDescription, IM_ARRAYSIZE(_textCheatDescription), 1.0f, 0.35f, flags))
+		if(SetUpInputTextMultiline("Description:", _textCheatDescription.data(), DESCRIPTION, 1.0f, 0.35f, flags))
 		{
 			_unsavedChangesTextCheat = true;
 		}
@@ -580,10 +580,10 @@ void MungPlex::Cheats::InitCheatFile()
 	GetInstance()._luaCheats.clear();
 	GetInstance()._markedCheats.clear();
 	GetInstance()._checkBoxIDs.clear();
-	memset(GetInstance()._textCheatTitle, 0, strlen(GetInstance()._textCheatTitle));
-	memset(GetInstance()._textCheatHacker, 0, strlen(GetInstance()._textCheatHacker));
-	memset(GetInstance()._textCheatLua, 0, strlen(GetInstance()._textCheatLua));
-	memset(GetInstance()._textCheatDescription, 0, strlen(GetInstance()._textCheatDescription));
+	GetInstance()._textCheatTitle = std::string(TITLE, 0);
+	GetInstance()._textCheatHacker = std::string(HACKER, 0);
+	GetInstance()._textCheatLua = std::string(CHEAT, 0);
+	GetInstance()._textCheatDescription = std::string(DESCRIPTION, 0);
 
 	std::string jsonstr;
 	{
@@ -663,16 +663,27 @@ int MungPlex::Cheats::getRangeIndex(const uint64_t address) const
 
 void MungPlex::Cheats::copyCheatToInformationBox(const int index)
 {
-	strcpy_s(_textCheatTitle, _luaCheats[index].Title.c_str());
-	strcpy_s(_textCheatHacker, _luaCheats[index].Hacker.c_str());
-	strcpy_s(_textCheatLua, _luaCheats[index].Lua.c_str());
-	strcpy_s(_textCheatDescription, _luaCheats[index].Description.c_str());
+	_textCheatTitle = _luaCheats[index].Title;
+	_textCheatHacker = _luaCheats[index].Hacker;
+	_textCheatLua = _luaCheats[index].Lua;
+	_textCheatDescription = _luaCheats[index].Description;
 }
 
 void MungPlex::Cheats::copyCheatToList(const int index)
 {
 	if (index == -1)
 	{
+		for (LuaCheat& cheat : _luaCheats)
+		{
+			static int count = 2;
+
+			if (cheat.Title.compare(_textCheatTitle) == 0)
+			{
+				_textCheatTitle.append(std::to_string(count));
+				++count;
+			}
+		}
+
 		_luaCheats.emplace_back(LuaCheat(!_luaCheats.empty() ? _luaCheats.back().ID + 1 : 0,
 			true,
 			_textCheatTitle,
