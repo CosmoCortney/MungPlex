@@ -46,6 +46,12 @@ namespace MungPlex
             DESCRIPTION = 1024 * 16
         };
 
+        enum CheatTypes
+        {
+            GCN_AR, WII_GECKO, WIIU_CAFE
+        };
+
+        std::vector<std::pair<std::string, int>> _cheatTypes;
         std::string _textCheatTitle = std::string(TITLE, 0);
         std::string _textCheatHacker = std::string(HACKER, 0);
         std::string _textCheatLua = std::string(CHEAT, 0);
@@ -86,8 +92,7 @@ namespace MungPlex
         void DrawCheatInformation(); //top-right
         void DrawControl(); //bottom left
         void updateConnectionInfo();
-        
-        
+        void drawCheatConverter();
         int getRangeIndex(uint64_t address) const;
         void cheatRoutine();
 

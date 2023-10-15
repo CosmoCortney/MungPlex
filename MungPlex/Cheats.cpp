@@ -71,6 +71,8 @@ MungPlex::Cheats::Cheats()
 	_cheatList = Settings::GetCheatsSettings().DefaultCheatList;
 	_perSecond = Settings::GetCheatsSettings().DefaultInterval;
 	_documentsPath = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath);
+
+	_cheatTypes.emplace_back("GameCuber ActionReplay", GCN_AR);
 	//initCheatFile();
 }
 
@@ -269,8 +271,19 @@ void MungPlex::Cheats::DrawWindow()
 	ImGui::Begin("Cheats");
 	if (!Connection::IsConnected()) ImGui::BeginDisabled();
 	{
-		GetInstance().DrawCheatList();
+		ImGui::BeginGroup();
+			GetInstance().DrawCheatList();
+#ifndef NDEBUG
+			if (!Connection::IsConnected()) ImGui::EndDisabled();
+#endif
+			//GetInstance().drawCheatConverter();
+#ifndef NDEBUG
+			if (!Connection::IsConnected()) ImGui::BeginDisabled();
+#endif
+		ImGui::EndGroup();
+
 		ImGui::SameLine();
+
 		GetInstance().DrawCheatInformation();
 		GetInstance().DrawControl();
 	}
@@ -278,9 +291,24 @@ void MungPlex::Cheats::DrawWindow()
 	ImGui::End();
 }
 
+void MungPlex::Cheats::drawCheatConverter()
+{
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.8f };
+	static int cheatTypeSelect = GCN_AR;
+
+	ImGui::BeginChild("Cheat Convert", childXY, true);
+	{
+		ImGui::SeparatorText("Cheat Convert");
+
+		SetUpCombo("Cheat Format:", _cheatTypes, cheatTypeSelect, 1.0f, 0.333f);
+
+	}
+	ImGui::EndChild();
+}
+
 void MungPlex::Cheats::DrawCheatList()
 {
-	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.8f};
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * /*0.333f*/ 0.8f};
 	ImGui::BeginGroup();
 	{
 		ImGui::SeparatorText("Cheat List");
@@ -402,11 +430,8 @@ void MungPlex::Cheats::DrawCheatInformation()
 
 void MungPlex::Cheats::DrawControl()
 {
-	const float groupWidth = ImGui::GetContentRegionAvail().x / scale;
-
 	ImGui::BeginGroup();
 	{
-		ImGui::PushItemWidth(groupWidth);
 		ImGui::SeparatorText("Cheat Control");
 
 		ImGui::BeginGroup();
