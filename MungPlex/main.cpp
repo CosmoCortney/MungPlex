@@ -27,7 +27,7 @@ void key_callback(GLFWwindow* window, const int key, const int scancode, const i
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
-		glfwSetWindowShouldClose(window, GL_TRUE);
+glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 }
 
@@ -126,10 +126,14 @@ int main()
 	images[1].height = images[1].width = 32;
 	images[2].height = images[2].width = 48;
 	std::string imgPath = MungPlex::GetResourcesFilePath("img\\icon\\").generic_string();
-	images[0].pixels = stbi_load((imgPath + "icon16.png").data(), &images[0].width, &images[0].height, &channels, 4);
-	images[1].pixels = stbi_load((imgPath + "icon32.png").data(), &images[1].width, &images[1].height, &channels, 4);
-	images[2].pixels = stbi_load((imgPath + "icon48.png").data(), &images[2].width, &images[2].height, &channels, 4);
-	glfwSetWindowIcon(window, 1, images);
+	
+	if (std::filesystem::is_directory(imgPath))
+	{
+		images[0].pixels = stbi_load((imgPath + "icon16.png").data(), &images[0].width, &images[0].height, &channels, 4);
+		images[1].pixels = stbi_load((imgPath + "icon32.png").data(), &images[1].width, &images[1].height, &channels, 4);
+		images[2].pixels = stbi_load((imgPath + "icon48.png").data(), &images[2].width, &images[2].height, &channels, 4);
+		glfwSetWindowIcon(window, 3, images);
+	}
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
