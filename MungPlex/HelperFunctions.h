@@ -4,7 +4,6 @@
 #include<stdio.h>
 #include<sstream>
 #include <Windows.h>
-#pragma once
 #include <vector>
 #include <functional>
 #include "GLFW/glfw3.h"
@@ -58,7 +57,6 @@ namespace MungPlex
 
         for (int i = 0; i < sizeof(dataType); ++i)
         {
-                
             char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
             process.ReadExRAM(dest + i, reorderedAddress, 1);
         }
@@ -73,7 +71,6 @@ namespace MungPlex
 
         for (int i = 0; i < sizeof(dataType); ++i)
         {
-
             char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
             process.WriteExRAM(dest + i, reorderedAddress, 1);
         }

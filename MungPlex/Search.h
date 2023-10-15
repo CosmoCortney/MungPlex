@@ -298,18 +298,9 @@ namespace MungPlex
                             val = Xertz::SwapBytes<uint32_t>(val);
 
                         if (_rereorderRegion)
-                        {
-                            for (int r = 0; r < pokeValueWidth; ++r)
-                            {
-                                uint64_t tempAddr = address;
-                                tempAddr = TranslatePtrTo4BytesReorderingPtr<uint64_t>(tempAddr + r);
-                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&reinterpret_cast<uint8_t*>(&val)[r], reinterpret_cast<void*>(tempAddr), 1);
-                            }
-                        }
+                            WriteToReorderedRangeEx<uint32_t>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address));
                         else
-                        {
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
-                        }
                     }
                     else if (pokeValue.GetSelectedType() == LitColor::RGB565 || pokeValue.GetSelectedType() == LitColor::RGB565)
                     {
@@ -329,18 +320,9 @@ namespace MungPlex
                             val = Xertz::SwapBytes<uint16_t>(val);
 
                         if (_rereorderRegion)
-                        {
-                            for (int r = 0; r < sizeof(uint16_t); ++r)
-                            {
-                                uint64_t tempAddr = address;
-                                tempAddr = TranslatePtrTo4BytesReorderingPtr<uint64_t>(tempAddr + r);
-                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&reinterpret_cast<uint8_t*>(&val)[r], reinterpret_cast<void*>(tempAddr), 1);
-                            }
-                        }
+                            WriteToReorderedRangeEx<uint16_t>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address));
                         else
-                        {
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), sizeof(uint16_t));
-                        }
                     }
                     else //RGBF, RGBAF
                     {
@@ -352,18 +334,9 @@ namespace MungPlex
                                 val = Xertz::SwapBytes<float>(val);
 
                             if (_rereorderRegion)
-                            {
-                                for (int r = 0; r < pokeValueWidth; ++r)
-                                {
-                                    uint64_t tempAddr = address;
-                                    tempAddr = TranslatePtrTo4BytesReorderingPtr<uint64_t>(tempAddr + r);
-                                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&reinterpret_cast<uint8_t*>(&val)[r], reinterpret_cast<void*>(tempAddr), 1);
-                                }
-                            }
+                                WriteToReorderedRangeEx<float>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address + item * sizeof(float)));
                             else
-                            {
                                 Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
-                            }
                         }
                     }
                 }
@@ -389,20 +362,11 @@ namespace MungPlex
                             val = Xertz::SwapBytes<uint32_t>(val);
 
                         if (_rereorderRegion)
-                        {
-                            for (int r = 0; r < pokeValueWidth; ++r)
-                            {
-                                uint64_t tempAddr = address;
-                                tempAddr = TranslatePtrTo4BytesReorderingPtr<uint64_t>(tempAddr + r);
-                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&reinterpret_cast<uint8_t*>(&val)[r], reinterpret_cast<void*>(tempAddr), 1);
-                            }
-                        }
+                            WriteToReorderedRangeEx<uint32_t>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address));
                         else
-                        {
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
-                        }
                     }
-                    else if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                    else if (pokeValue.GetSelectedType() == LitColor::RGB565 || pokeValue.GetSelectedType() == LitColor::RGB565)
                     {
                         uint16_t val = pokeValue.GetRGB565();
 
@@ -410,18 +374,9 @@ namespace MungPlex
                             val = Xertz::SwapBytes<uint16_t>(val);
 
                         if (_rereorderRegion)
-                        {
-                            for (int r = 0; r < sizeof(uint16_t); ++r)
-                            {
-                                uint64_t tempAddr = address;
-                                tempAddr = TranslatePtrTo4BytesReorderingPtr<uint64_t>(tempAddr + r);
-                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&reinterpret_cast<uint8_t*>(&val)[r], reinterpret_cast<void*>(tempAddr), 1);
-                            }
-                        }
+                            WriteToReorderedRangeEx<uint16_t>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address));
                         else
-                        {
                             Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), sizeof(uint16_t));
-                        }
                     }
                     else //RGBF, RGBAF
                     {
@@ -433,18 +388,9 @@ namespace MungPlex
                                 val = Xertz::SwapBytes<float>(val);
 
                             if (_rereorderRegion)
-                            {
-                                for (int r = 0; r < pokeValueWidth; ++r)
-                                {
-                                    uint64_t tempAddr = address;
-                                    tempAddr = TranslatePtrTo4BytesReorderingPtr<uint64_t>(tempAddr + r);
-                                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&reinterpret_cast<uint8_t*>(&val)[r], reinterpret_cast<void*>(tempAddr), 1);
-                                }
-                            }
+                                WriteToReorderedRangeEx<float>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address + item * sizeof(float)));
                             else
-                            {
                                 Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
-                            }
                         }
                     }
 
@@ -490,7 +436,7 @@ namespace MungPlex
 
                     if (_pokePrevious)
                     {
-                        if (_iterationCount < 2)
+                        if (_iterationCount < 0)
                         {
                             uType* buf = new uType[itemCount];
                             std::fill(buf, buf + itemCount-1, 0);
@@ -515,18 +461,9 @@ namespace MungPlex
                         if (!pokeArray.IsIgnoredIndex(i))
                         {
                             if (_rereorderRegion)
-                            {
-                                for (int r = 0; r < sizeof(uType); ++r)
-                                {
-                                    uint64_t tempAddr = address;
-                                    tempAddr = TranslatePtrTo4BytesReorderingPtr<uint64_t>(tempAddr + r);
-                                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&reinterpret_cast<uint8_t*>(&pokeArray[i])[r], reinterpret_cast<void*>(tempAddr), 1);
-                                }
-                            }
+                                WriteToReorderedRangeEx<uType>(Xertz::SystemInfo::GetProcessInfo(pid), &pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i));
                             else
-                            {
                                 Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
-                            }
                         }
                     }
                 }
@@ -551,18 +488,9 @@ namespace MungPlex
                         if (!pokeArray.IsIgnoredIndex(i))
                         {
                             if (_rereorderRegion)
-                            {
-                                for (int r = 0; r < sizeof(uType); ++r)
-                                {
-                                    uint64_t tempAddr = address;
-                                    tempAddr = TranslatePtrTo4BytesReorderingPtr<uint64_t>(tempAddr + r);
-                                    Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&reinterpret_cast<uint8_t*>(&pokeArray[i])[r], reinterpret_cast<void*>(tempAddr), 1);
-                                }
-                            }
+                                WriteToReorderedRangeEx<uType>(Xertz::SystemInfo::GetProcessInfo(pid), &pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i));
                             else
-                            {
                                 Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
-                            }
                         }
                     }
 
@@ -605,7 +533,7 @@ namespace MungPlex
                         return false;
 
                     if (_pokePrevious)
-                        if (_iterationCount < 2)
+                        if (_iterationCount < 1)
                             *pokeValuePtr = 0;
                         else
                             *pokeValuePtr = MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<dataType>(resultIndex + index);
@@ -622,18 +550,9 @@ namespace MungPlex
                     address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
 
                     if (_rereorderRegion)
-                    {
-                        for (int i = 0; i < sizeof(dataType); ++i)
-                        {
-                            uint64_t tempAddr = address;
-                            tempAddr = TranslatePtrTo4BytesReorderingPtr<uint64_t>(tempAddr + i);
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&reinterpret_cast<uint8_t*>(pokeValuePtr)[i], reinterpret_cast<void*>(tempAddr), 1);
-                        }
-                    }
+                        WriteToReorderedRangeEx<dataType>(Xertz::SystemInfo::GetProcessInfo(pid), pokeValuePtr, reinterpret_cast<void*>(address));
                     else
-                    {
                         Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeValuePtr, reinterpret_cast<void*>(address), sizeof(dataType));
-                    }
                 }
 
                 Log::LogInformation((std::string("Multi-poked ") + _searchPrimitiveTypes[_currentPrimitiveTypeSelect].first + " values").c_str());
@@ -653,19 +572,10 @@ namespace MungPlex
                     address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
 
                     if (_rereorderRegion)
-                    {
-                        for (int i = 0; i < sizeof(dataType); ++i)
-                        {
-                            uint64_t tempAddr = address;
-                            tempAddr = TranslatePtrTo4BytesReorderingPtr<uint64_t>(tempAddr + i);
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&reinterpret_cast<uint8_t*>(pokeValuePtr)[i], reinterpret_cast<void*>(tempAddr), 1);
-                        }
-                    }
+                        WriteToReorderedRangeEx<dataType>(Xertz::SystemInfo::GetProcessInfo(pid), pokeValuePtr, reinterpret_cast<void*>(address));
                     else
-                    {
                         Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeValuePtr, reinterpret_cast<void*>(address), sizeof(dataType));
-                    }
-
+                    
                     Log::LogInformation((std::string("Poked ") + _searchPrimitiveTypes[_currentPrimitiveTypeSelect].first + " value").c_str());
                 	return true;
                 }

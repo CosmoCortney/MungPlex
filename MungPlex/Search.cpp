@@ -663,6 +663,7 @@ void MungPlex::Search::PerformSearch()
 		_currentComparisionTypeSelect = MemoryCompare::KNOWN;
 
 	SetUpAndIterate();
+	_iterationCount = MemoryCompare::MemCompare::GetSearchStats().second;
 
 	int iter = MemoryCompare::MemCompare::GetSearchStats().second;
 
