@@ -124,6 +124,7 @@ namespace MungPlex
         char _pokeAddressText[17] = { "0" };
         std::tuple<uint64_t, int> _searchStats;
         bool _underlyingBigEndian = false;
+        bool _deselectedIllegalSelection = false;
 
         uint32_t _maxRegionSizeMB = 256;
         uint64_t _maxRegionSize = _maxRegionSizeMB * 1024 * 1024;

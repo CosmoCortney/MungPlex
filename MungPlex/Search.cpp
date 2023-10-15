@@ -489,6 +489,9 @@ void MungPlex::Search::DrawResultsArea()
 						_currentPageValue = _pagesAmountValue;
 					else if (_currentPageValue > _pagesAmountValue && _pagesAmountValue > 0)
 						_currentPageValue = 1;
+
+					if (_currentPageValue == _pagesAmountValue)
+						_deselectedIllegalSelection = true;
 				}
 
 				ImGui::SameLine();
@@ -773,11 +776,21 @@ void MungPlex::Search::drawResultsTableNew()
 		if (_currentPageValue > _pagesAmountValue)
 			break;
 
+		
 		if (_currentPageValue == _pagesAmountValue)
-			if (resultCount % _maxResultsPerPage == 0)
+		{
+			static uint32_t lastPageResultCount = resultCount % _maxResultsPerPage;
+			if (lastPageResultCount == 0)
 				;
-			else if (row >= resultCount % _maxResultsPerPage)
+			else if (row >= lastPageResultCount)
 				break;
+
+			if(_deselectedIllegalSelection && lastPageResultCount != 0)
+				for (int i = lastPageResultCount; i < _maxResultsPerPage; ++i)
+					_selectedIndices[i] = false;
+
+			_deselectedIllegalSelection = false;
+		}
 
 		static char tempAddress[1024];
 		static char tempValue[1024];
