@@ -13,6 +13,9 @@
 #include"Log.h"
 #include "PointerSearch.h"
 #include"DataConversion.h"
+#include"HelperFunctions.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include"stb/stb_image.h"
 
 #ifndef NDEBUG
 	#pragma comment(linker, "/SUBSYSTEM:console /ENTRY:mainCRTStartup")
@@ -51,7 +54,6 @@ int main()
 
 	std::string windowTitle("MungPlex ");
 	windowTitle.append(std::to_string(MungPlex_VERSION_MAJOR) + "." + std::to_string(MungPlex_VERSION_MINOR) + "." + std::to_string(MungPlex_VERSION_PATCH));
-
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	auto& io = ImGui::GetIO();
@@ -61,6 +63,7 @@ int main()
 	ImGui::StyleColorsDark();
 
 	const auto window = glfwCreateWindow(1280, 720, windowTitle.c_str(), nullptr, nullptr);
+
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
 
@@ -115,6 +118,18 @@ int main()
 			style.Colors[ImGuiCol_TableHeaderBg] = colors.TableHeaderBg;
 		}
 	}
+
+	int channels;
+
+	GLFWimage images[3];
+	images[0].height = images[0].width = 16;
+	images[1].height = images[1].width = 32;
+	images[2].height = images[2].width = 48;
+	std::string imgPath = MungPlex::GetResourcesFilePath("img\\icon\\").generic_string();
+	images[0].pixels = stbi_load((imgPath + "icon16.png").data(), &images[0].width, &images[0].height, &channels, 4);
+	images[1].pixels = stbi_load((imgPath + "icon32.png").data(), &images[1].width, &images[1].height, &channels, 4);
+	images[2].pixels = stbi_load((imgPath + "icon48.png").data(), &images[2].width, &images[2].height, &channels, 4);
+	glfwSetWindowIcon(window, 1, images);
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
