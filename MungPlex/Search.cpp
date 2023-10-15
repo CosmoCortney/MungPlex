@@ -472,161 +472,165 @@ void MungPlex::Search::DrawResultsArea()
 		{
 			ImGui::SeparatorText("Value Poke");
 
-			SetUpLableText("Results:", std::to_string(MemoryCompare::MemCompare::GetSearchStats().first).c_str(), 32, 1.0f, 0.2f);
-
-			ImGui::BeginGroup();
+			if (MemoryCompare::MemCompare::GetSearchStats().first == 0) ImGui::BeginDisabled();
 			{
-				SetUpInputText("Address:", _pokeAddressText, IM_ARRAYSIZE(_pokeAddressText), 1.0f, 0.2f);
-				SetUpInputText("Value:", _pokeValueText, IM_ARRAYSIZE(_pokeValueText), 1.0f, 0.2f);
-			}
-			ImGui::EndGroup();
+				SetUpLableText("Results:", std::to_string(MemoryCompare::MemCompare::GetSearchStats().first).c_str(), 32, 1.0f, 0.2f);
 
-			ImGui::BeginGroup();
-			{
-				SetUpInputInt("Page:", &_currentPageValue, 1, 10, 0.5f, 0.4f);
+				ImGui::BeginGroup();
 				{
-					if (_currentPageValue < 1)
-						_currentPageValue = _pagesAmountValue;
-					else if (_currentPageValue > _pagesAmountValue && _pagesAmountValue > 0)
-						_currentPageValue = 1;
-
-					if (_currentPageValue == _pagesAmountValue)
-						_deselectedIllegalSelection = true;
+					SetUpInputText("Address:", _pokeAddressText, IM_ARRAYSIZE(_pokeAddressText), 1.0f, 0.2f);
+					SetUpInputText("Value:", _pokeValueText, IM_ARRAYSIZE(_pokeValueText), 1.0f, 0.2f);
 				}
+				ImGui::EndGroup();
+
+				ImGui::BeginGroup();
+				{
+					SetUpInputInt("Page:", &_currentPageValue, 1, 10, 0.5f, 0.4f);
+					{
+						if (_currentPageValue < 1)
+							_currentPageValue = _pagesAmountValue;
+						else if (_currentPageValue > _pagesAmountValue && _pagesAmountValue > 0)
+							_currentPageValue = 1;
+
+						if (_currentPageValue == _pagesAmountValue)
+							_deselectedIllegalSelection = true;
+					}
+
+					ImGui::SameLine();
+					SetUpLableText("Of", _pagesAmountText.c_str(), _pagesAmountText.size(), 1.0f, 0.125f);
+				}
+				ImGui::EndGroup();
+
+				if (!_disableBecauseNoText) ImGui::BeginDisabled();
+				{
+					ImGui::Checkbox("Previous Value", &_pokePrevious);
+				}
+				if (!_disableBecauseNoText) ImGui::EndDisabled();
 
 				ImGui::SameLine();
-				SetUpLableText("Of", _pagesAmountText.c_str(), _pagesAmountText.size(), 1.0f, 0.125f);
-			}
-			ImGui::EndGroup();
 
-			if (!_disableBecauseNoText) ImGui::BeginDisabled();
-			{
-				ImGui::Checkbox("Previous Value", &_pokePrevious);
-			}
-			if (!_disableBecauseNoText) ImGui::EndDisabled();
+				HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous values - no matter what's in the \"Value\" text field. If this is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
 
-			ImGui::SameLine();
+				ImGui::SameLine();
 
-			HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous values - no matter what's in the \"Value\" text field. If this is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
-			
-			ImGui::SameLine();
+				ImGui::Checkbox("Multi-Poke", &_multiPoke);
 
-			ImGui::Checkbox("Multi-Poke", &_multiPoke);
-
-			if (ImGui::Button("Poke"))
-			{
-				_pokeValue.clear();
-				std::stringstream stream;
-
-				if (!_multiPoke)
+				if (ImGui::Button("Poke"))
 				{
-					stream << std::hex << std::string(_pokeAddressText);
-					stream >> _pokeAddress;
-					stream.str(std::string());
-					stream.clear();
-				}
+					_pokeValue.clear();
+					std::stringstream stream;
 
-				switch (_currentValueTypeSelect)
-				{
-				case ARRAY: {
-					switch (_currentArrayTypeSelect)
+					if (!_multiPoke)
 					{
-					case INT8: {
-						if (ProcessInformation::GetAddressWidth() > 4)
-							PokeArray<uint8_t, uint64_t>();
-						else
-							PokeArray<uint8_t, uint32_t>();
-					} break;
-					case INT16: {
-						if (ProcessInformation::GetAddressWidth() > 4)
-							PokeArray<uint16_t, uint64_t>();
-						else
-							PokeArray<uint16_t, uint32_t>();
-					} break;
-					case INT64: {
-						if (ProcessInformation::GetAddressWidth() > 4)
-							PokeArray<uint64_t, uint64_t>();
-						else
-							PokeArray<uint64_t, uint32_t>();
-					} break;
-					case FLOAT: {
-						if (ProcessInformation::GetAddressWidth() > 4)
-							PokeArray<float, uint64_t>();
-						else
-							PokeArray<float, uint32_t>();
-					} break;
-					case DOUBLE: {
-						if (ProcessInformation::GetAddressWidth() > 4)
-							PokeArray<double, uint64_t>();
-						else
-							PokeArray<double, uint32_t>();
-					} break;
-					default: { //OperativeArray<INT32>
-						if (ProcessInformation::GetAddressWidth() > 4)
-							PokeArray<uint32_t, uint64_t>();
-						else
-							PokeArray<uint32_t, uint32_t>();
-					} break;
-					}break;
-				} break;
-				case TEXT: {
-					if (ProcessInformation::GetAddressWidth() > 4)
-						PokeText<uint64_t>();
-					else
-						PokeText<uint32_t>();
-				} break;
-				case COLOR: {
-					if (ProcessInformation::GetAddressWidth() > 4)
-						PokeColor<uint64_t>();
-					else
-						PokeColor<uint32_t>();
-				} break;
-				default: { //PRIMITIVE
-					int64_t tempVal;
+						stream << std::hex << std::string(_pokeAddressText);
+						stream >> _pokeAddress;
+						stream.str(std::string());
+						stream.clear();
+					}
 
-					if (_hex && _currentPrimitiveTypeSelect < FLOAT)
+					switch (_currentValueTypeSelect)
 					{
-						stream << std::hex << std::string(_pokeValueText);
-						stream >> tempVal;
-					}
-					else
-						tempVal = std::stoll(_pokeValueText);
+					case ARRAY: {
+						switch (_currentArrayTypeSelect)
+						{
+						case INT8: {
+							if (ProcessInformation::GetAddressWidth() > 4)
+								PokeArray<uint8_t, uint64_t>();
+							else
+								PokeArray<uint8_t, uint32_t>();
+						} break;
+						case INT16: {
+							if (ProcessInformation::GetAddressWidth() > 4)
+								PokeArray<uint16_t, uint64_t>();
+							else
+								PokeArray<uint16_t, uint32_t>();
+						} break;
+						case INT64: {
+							if (ProcessInformation::GetAddressWidth() > 4)
+								PokeArray<uint64_t, uint64_t>();
+							else
+								PokeArray<uint64_t, uint32_t>();
+						} break;
+						case FLOAT: {
+							if (ProcessInformation::GetAddressWidth() > 4)
+								PokeArray<float, uint64_t>();
+							else
+								PokeArray<float, uint32_t>();
+						} break;
+						case DOUBLE: {
+							if (ProcessInformation::GetAddressWidth() > 4)
+								PokeArray<double, uint64_t>();
+							else
+								PokeArray<double, uint32_t>();
+						} break;
+						default: { //OperativeArray<INT32>
+							if (ProcessInformation::GetAddressWidth() > 4)
+								PokeArray<uint32_t, uint64_t>();
+							else
+								PokeArray<uint32_t, uint32_t>();
+						} break;
+						}break;
+					} break;
+					case TEXT: {
+						if (ProcessInformation::GetAddressWidth() > 4)
+							PokeText<uint64_t>();
+						else
+							PokeText<uint32_t>();
+					} break;
+					case COLOR: {
+						if (ProcessInformation::GetAddressWidth() > 4)
+							PokeColor<uint64_t>();
+						else
+							PokeColor<uint32_t>();
+					} break;
+					default: { //PRIMITIVE
+						int64_t tempVal;
 
-					switch (_currentPrimitiveTypeSelect)
-					{
-					case INT8:
-						_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&tempVal), reinterpret_cast<char*>(&tempVal) + 1);
-						ProcessInformation::GetAddressWidth() > 4 ? PokeValue<uint8_t, uint64_t>() : PokeValue<uint8_t, uint32_t>();
-					break;
-					case INT16:
-						_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&tempVal), reinterpret_cast<char*>(&tempVal) + 2);
-						ProcessInformation::GetAddressWidth() > 4 ? PokeValue<uint16_t, uint64_t>() : PokeValue<uint16_t, uint32_t>();
+						if (_hex && _currentPrimitiveTypeSelect < FLOAT)
+						{
+							stream << std::hex << std::string(_pokeValueText);
+							stream >> tempVal;
+						}
+						else
+							tempVal = std::stoll(_pokeValueText);
+
+						switch (_currentPrimitiveTypeSelect)
+						{
+						case INT8:
+							_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&tempVal), reinterpret_cast<char*>(&tempVal) + 1);
+							ProcessInformation::GetAddressWidth() > 4 ? PokeValue<uint8_t, uint64_t>() : PokeValue<uint8_t, uint32_t>();
+							break;
+						case INT16:
+							_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&tempVal), reinterpret_cast<char*>(&tempVal) + 2);
+							ProcessInformation::GetAddressWidth() > 4 ? PokeValue<uint16_t, uint64_t>() : PokeValue<uint16_t, uint32_t>();
+							break;
+						case INT64:
+							_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&tempVal), reinterpret_cast<char*>(&tempVal) + 1);
+							ProcessInformation::GetAddressWidth() > 4 ? PokeValue<uint64_t, uint64_t>() : PokeValue<uint64_t, uint32_t>();
+							break;
+						case FLOAT:
+						{
+							float temp = std::stof(_pokeValueText);
+							_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&temp), reinterpret_cast<char*>(&temp) + 4);
+							ProcessInformation::GetAddressWidth() > 4 ? PokeValue<float, uint64_t>() : PokeValue<float, uint32_t>();
+						}   break;
+						case DOUBLE:
+						{
+							double temp = std::stod(_pokeValueText);
+							_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&temp), reinterpret_cast<char*>(&temp) + 8);
+							ProcessInformation::GetAddressWidth() > 4 ? PokeValue<double, uint64_t>() : PokeValue<double, uint32_t>();
+						}
 						break;
-					case INT64:
-						_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&tempVal), reinterpret_cast<char*>(&tempVal) + 1);
-						ProcessInformation::GetAddressWidth() > 4 ? PokeValue<uint64_t, uint64_t>() : PokeValue<uint64_t, uint32_t>();
-						break;
-					case FLOAT:
-					{
-						float temp = std::stof(_pokeValueText);
-						_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&temp), reinterpret_cast<char*>(&temp) + 4);
-						ProcessInformation::GetAddressWidth() > 4 ? PokeValue<float, uint64_t>() : PokeValue<float, uint32_t>();
-					}   break;
-					case DOUBLE:
-					{
-						double temp = std::stod(_pokeValueText);
-						_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&temp), reinterpret_cast<char*>(&temp) + 8);
-						ProcessInformation::GetAddressWidth() > 4 ? PokeValue<double, uint64_t>() : PokeValue<double, uint32_t>();
+						default:
+							_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&tempVal), reinterpret_cast<char*>(&tempVal) + 4);
+							ProcessInformation::GetAddressWidth() > 4 ? PokeValue<uint32_t, uint64_t>() : PokeValue<uint32_t, uint32_t>();
+							break;
+						}
 					}
-						break;
-					default:
-						_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&tempVal), reinterpret_cast<char*>(&tempVal) + 4);
-						ProcessInformation::GetAddressWidth() > 4 ? PokeValue<uint32_t, uint64_t>() : PokeValue<uint32_t, uint32_t>();
-						break;
 					}
-				}
 				}
 			}
+			if (MemoryCompare::MemCompare::GetSearchStats().first == 0) ImGui::EndDisabled();
 
 			ImGui::Dummy(ImVec2(0.0f, ImGui::GetContentRegionAvail().y - 40.f));
 
