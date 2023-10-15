@@ -677,6 +677,18 @@
       "Entities": [
 
       ]
+    },
+    "No$psx": {
+      "Regions": [
+        {
+          "Label": "Main RAM",
+          "Base": "0x0",
+          "Size": "0x200000"
+        }
+      ],
+      "Entities": [
+
+      ]
     }
   }
 }

@@ -314,6 +314,9 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	case PPSSPP:
 		connected = initPPSSPP();
 		break;
+	case NO$PSX:
+		connected = initNo$psx();
+		break;
 	}
 
 	setupSearch();
@@ -599,6 +602,27 @@ void MungPlex::ProcessInformation::setMiscProcessInfo(const std::string processN
 	_underlyingIsBigEndian = bigEndian;
 	_addressWidth = addressWidth;
 	_rereorderRegion = rereorder;
+}
+
+
+bool MungPlex::ProcessInformation::initNo$psx()
+{
+	setMiscProcessInfo("No$psx", false, false, 4);
+	_platform = "PS1";
+	PointerSearch::SelectPreset(PS1);
+
+	for (const Xertz::MemoryRegion& region : _regions)
+	{
+		if (region.GetRegionSize() == 0x459000)
+		{
+			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x30100;
+			_gameID = std::string(12, 0);
+			_process.ReadExRAM(_gameID.data(), region.GetBaseAddress<char*>() + 0x30100 + 0x00003A49, 11);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool MungPlex::ProcessInformation::initDolphin()
