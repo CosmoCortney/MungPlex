@@ -12,25 +12,14 @@ void MungPlex::Connection::DrawConnectionSelect()
 	static ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 	if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
 	{
-		std::string emuSelect;
+		static std::string emuSelect;
+
 		if (ImGui::BeginTabItem("Emulator"))
 		{
+			ImGui::Dummy(ImVec2(0.0f, 5.0f));
+			SetUpCombo("Emulator:", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex, 1.0f, 0.35f, true, "Emulators are always in development and therefore crucial things may change that will prevent MungPlex from finding the needed memory regions and game ID. If this is the case report it at the MungPlex discord server so it can be fixed :)");
 
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
-			SetUpCombo("Emulator:", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex, 0.75f, 0.4f);
-
-			ImGui::Dummy(ImVec2(0.0f, 5.0f));
-
-			if (_selectedEmulatorIndex == ProcessInformation::MESEN)
-			{
-				ImGui::TextWrapped("SNES support only. In order to connect to Mesen disable rewind by going to \"Settings/Preferences/Advanced/\" and uncheck \"Allow rewind to use up to...\". Also apply the lua script \"MungPlex/resources/setMesenMungPlexFlag.lua\"");
-				ImGui::Dummy(ImVec2(0.0f, 5.0f));
-			}
-			else if (_selectedEmulatorIndex == ProcessInformation::YUZU)
-			{
-				ImGui::TextWrapped("Experimental, base adresses are not yet figured out.");
-				ImGui::Dummy(ImVec2(0.0f, 5.0f));
-			}
 
 			if (ImGui::Button("Connect"))
 			{
@@ -42,6 +31,32 @@ void MungPlex::Connection::DrawConnectionSelect()
 					strcat_s(_connectionMessage, MorphText::Utf16LE_To_Utf8(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first).c_str());
 				}
 			}
+
+			if (_selectedEmulatorIndex == ProcessInformation::MESEN || _selectedEmulatorIndex == ProcessInformation::RPCS3 || _selectedEmulatorIndex == ProcessInformation::YUZU)
+			{
+				ImGui::SameLine();
+				ImGui::Text("Important:");
+				ImGui::SameLine();
+
+				switch (_selectedEmulatorIndex)
+				{
+				case ProcessInformation::MESEN:
+					HelpMarker("SNES support only. In order to connect to Mesen disable rewind by going to \"Settings/Preferences/Advanced/\" and uncheck \"Allow rewind to use up to...\". Also apply the lua script \"MungPlex/resources/setMesenMungPlexFlag.lua\"");
+					break;
+				case ProcessInformation::RPCS3:
+					ImGui::Text("Important:");
+					ImGui::SameLine();
+					HelpMarker("Rpcs3 has unique memory mapping for each game(?) so you may need to figure out how much of each range is mapped.");
+					break;
+				case ProcessInformation::YUZU:
+					ImGui::Text("Important:");
+					ImGui::SameLine();
+					HelpMarker("Experimental, base adresses are not yet figured out.");
+					break;
+				}
+			}
+
+
 			ImGui::EndTabItem();
 		}
 
@@ -117,6 +132,7 @@ void MungPlex::Connection::drawAdditionalFeatureSelect()
 {
 	if (!_connected || _memoryViewers.size() >= 16) ImGui::BeginDisabled();
 	{
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 		if (ImGui::Button("Open Memory Viewer"))
 			_memoryViewers.emplace_back(++_memViewerCount);
 	}

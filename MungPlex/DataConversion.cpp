@@ -327,7 +327,7 @@ void MungPlex::DataConversion::drawHexFloatConversion()
 		static bool isDouble = false;
 		static bool update = true;
 
-		if (SetUpCombo("FloatType:", _floatTypes, selectedFloatType, 1.0f, 0.35f))
+		if (SetUpCombo("Float Type:", _floatTypes, selectedFloatType, 1.0f, 0.35f))
 		{
 			isDouble = selectedFloatType == FloatTypes::DOUBLE;
 			update = true;
@@ -375,7 +375,7 @@ void MungPlex::DataConversion::drawHexFloatConversion()
 void MungPlex::DataConversion::drawEndiannessConversion()
 {
 	ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 0.75f));
-	CenteredText("Change Endiannes");
+	CenteredText("Change Endianness");
 	ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 0.4f));
 
 	ImGui::BeginGroup();
