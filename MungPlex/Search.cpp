@@ -1381,7 +1381,7 @@ void MungPlex::Search::SetUpAndIterate()
 	for (SystemRegion& dumpRegion : _dumpRegions)
 	{
 		char* buf = new char[dumpRegion.Size];
-		Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).ReadExRAM(buf, dumpRegion.BaseLocationProcess, dumpRegion.Size);
+		Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).ReadExRAM(buf, dumpRegion.BaseLocationProcess, dumpRegion.Size, 0x1000);
 		{
 			if (_rereorderRegion)
 				Rereorder4BytesReorderedMemory(buf, dumpRegion.Size);

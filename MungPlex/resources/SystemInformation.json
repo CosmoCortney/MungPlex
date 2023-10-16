@@ -701,6 +701,33 @@
       "Entities": [
 
       ]
+    },
+    "Rpcs3": {
+      "Regions": [
+        {
+          "Label": "PPU/SPU Shared",
+          "Base": "0x10000",
+          "Size": "0x2FFF0000"
+        },
+        {
+          "Label": "PPU/SPU/RSX Shared",
+          "Base": "0x30000000",
+          "Size": "0x10000000"
+        },
+        {
+          "Label": "PPU/SPU Local",
+          "Base": "0x40000000",
+          "Size": "0x10000000"
+        },
+        {
+          "Label": "User Data 1",
+          "Base": "0x50000000",
+          "Size": "0x60000000"
+        }
+      ],
+      "Entities": [
+
+      ]
     }
   }
 }

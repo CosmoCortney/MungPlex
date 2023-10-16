@@ -320,6 +320,9 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	case PCSX2:
 		connected = initPcsx2();
 		break;
+	case RPCS3:
+		connected = initRpcs3();
+		break;
 	}
 
 	setupSearch();
@@ -607,7 +610,6 @@ void MungPlex::ProcessInformation::setMiscProcessInfo(const std::string processN
 	_rereorderRegion = rereorder;
 }
 
-
 bool MungPlex::ProcessInformation::initNo$psx()
 {
 	setMiscProcessInfo("No$psx", false, false, 4);
@@ -625,6 +627,37 @@ bool MungPlex::ProcessInformation::initNo$psx()
 		}
 	}
 
+	return false;
+}
+
+bool MungPlex::ProcessInformation::initRpcs3()
+{
+	setMiscProcessInfo("Rpcs3", true, false, 4);
+	_platform = "PS3";
+	PointerSearch::SelectPreset(PS3);
+
+	_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(0x300010000);
+	_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(0x330000000);
+	_systemRegions[2].BaseLocationProcess = reinterpret_cast<void*>(0x340000000);
+	_systemRegions[3].BaseLocationProcess = reinterpret_cast<void*>(0x350000000);
+
+	uint32_t bufSize = 0x2000000;
+	char* exeAddr = reinterpret_cast<char*>(_process.GetModuleAddress(L"rpcs3.exe")+0x2000000);
+	char* buf = new char[bufSize];
+	_process.ReadExRAM(buf, exeAddr, bufSize);
+
+	for (int offset = 0; offset < bufSize; ++offset)
+	{
+		if (*reinterpret_cast<uint64_t*>(&buf[offset]) != 0x227B3A2279746976)
+			continue;
+
+		_gameID = reinterpret_cast<char*>(&buf[offset + 16]);
+		_gameID.resize(9);
+		delete[] buf;
+		return true;
+	}
+
+	delete[] buf;
 	return false;
 }
 
