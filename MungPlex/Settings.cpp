@@ -324,6 +324,7 @@ void MungPlex::Settings::createDocFolders()
 	validateDir(mungPlexDocsPath + "\\Cheats\\Switch");
 	validateDir(mungPlexDocsPath + "\\Cheats\\PSP");
 	validateDir(mungPlexDocsPath + "\\Cheats\\PS1");
+	validateDir(mungPlexDocsPath + "\\Cheats\\PS2");
 }
 
 void MungPlex::Settings::validateDir(const std::string dir)

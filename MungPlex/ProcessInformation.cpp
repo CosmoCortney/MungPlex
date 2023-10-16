@@ -317,6 +317,9 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	case NO$PSX:
 		connected = initNo$psx();
 		break;
+	case PCSX2:
+		connected = initPcsx2();
+		break;
 	}
 
 	setupSearch();
@@ -620,6 +623,52 @@ bool MungPlex::ProcessInformation::initNo$psx()
 			_process.ReadExRAM(_gameID.data(), region.GetBaseAddress<char*>() + 0x30100 + 0x00003A49, 11);
 			return true;
 		}
+	}
+
+	return false;
+}
+
+bool MungPlex::ProcessInformation::initPcsx2()
+{
+	setMiscProcessInfo("Pcsx2", false, false, 4);
+	_platform = "PS2";
+	PointerSearch::SelectPreset(PS2);
+
+	for (int i = 0; i < _regions.size(); ++i)
+	{
+		jmp:
+		if (_regions[i].GetRegionSize() != 0x80000)
+			continue;
+
+		++i;
+		for (int j = 0; j < 20; ++j)
+			if (_regions[i + j].GetRegionSize() != 0x1000)
+			{
+				++i;
+				goto jmp;
+			}
+
+		for(int k = i; k < 0x1F80; ++k)
+			if(_regions[k].GetAllocationProtect() != PAGE_READWRITE)
+				_regions[k].SetProtect(_handle, PAGE_READWRITE);
+
+		_systemRegions[0].BaseLocationProcess = _regions[i].GetBaseAddress<char*>();
+
+		uint32_t bufSize = 0x1000000;
+		uint64_t* exeAddr = reinterpret_cast<uint64_t*>(_process.GetModuleAddress(L"pcsx2-qt.exe"));
+		uint64_t* buf = new uint64_t[bufSize / sizeof(uint64_t)];
+		_process.ReadExRAM(buf, exeAddr, bufSize);
+
+		for (int offset = 0; offset < bufSize / sizeof(uint64_t); ++offset)
+		{
+			if (buf[offset] != 0x6461655256413F2E)
+				continue;
+
+			_gameID = reinterpret_cast<char*>(&buf[offset + 7]);
+			delete[] buf;
+			return true;
+		}
+		delete[] buf;
 	}
 
 	return false;

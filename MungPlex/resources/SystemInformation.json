@@ -689,6 +689,18 @@
       "Entities": [
 
       ]
+    },
+    "pcsx2": {
+      "Regions": [
+        {
+          "Label": "Main Memory",
+          "Base": "0x80000",
+          "Size": "0x1F80000"
+        }
+      ],
+      "Entities": [
+
+      ]
     }
   }
 }
