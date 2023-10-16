@@ -44,13 +44,9 @@ void MungPlex::Connection::DrawConnectionSelect()
 					HelpMarker("SNES support only. In order to connect to Mesen disable rewind by going to \"Settings/Preferences/Advanced/\" and uncheck \"Allow rewind to use up to...\". Also apply the lua script \"MungPlex/resources/setMesenMungPlexFlag.lua\"");
 					break;
 				case ProcessInformation::RPCS3:
-					ImGui::Text("Important:");
-					ImGui::SameLine();
 					HelpMarker("Rpcs3 has unique memory mapping for each game(?) so you may need to figure out how much of each range is mapped.");
 					break;
 				case ProcessInformation::YUZU:
-					ImGui::Text("Important:");
-					ImGui::SameLine();
 					HelpMarker("Experimental, base adresses are not yet figured out.");
 					break;
 				}
