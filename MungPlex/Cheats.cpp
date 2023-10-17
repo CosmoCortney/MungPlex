@@ -10,13 +10,13 @@ MungPlex::Cheats::Cheats()
 {
 	updateConnectionInfo();
 	_lua.open_libraries(sol::lib::base,
-		sol::lib::string,
-		sol::lib::math,
-		sol::lib::package,
-		sol::lib::coroutine,
-		sol::lib::table,
-		sol::lib::io,
-		sol::lib::os);
+						sol::lib::string,
+						sol::lib::math,
+						sol::lib::package,
+						sol::lib::coroutine,
+						sol::lib::table,
+						sol::lib::io,
+						sol::lib::os);
 
 	_lua.set("INT8", INT8);
 	_lua.set("INT16", INT16);
@@ -38,6 +38,16 @@ MungPlex::Cheats::Cheats()
 	_lua.set_function("ReadUInt64", &readUInt64);
 	_lua.set_function("ReadFloat", &readFloat);
 	_lua.set_function("ReadDouble", &readDouble);
+	_lua.set_function("ReadArrayInt8", &readArrayInt8);
+	_lua.set_function("ReadArrayInt16", &readArrayInt16);
+	_lua.set_function("ReadArrayInt32", &readArrayInt32);
+	_lua.set_function("ReadArrayInt64", &readArrayInt64);
+	_lua.set_function("ReadArrayUInt8", &readArrayUInt8);
+	_lua.set_function("ReadArrayUInt16", &readArrayUInt16);
+	_lua.set_function("ReadArrayUInt32", &readArrayUInt32);
+	_lua.set_function("ReadArrayUInt64", &readArrayUInt64);
+	_lua.set_function("ReadArrayFloat", &readArrayFloat);
+	_lua.set_function("ReadArrayDouble", &readArrayDouble);
 
 	_lua.set_function("WriteToRAM", &writeToRAM);
 	_lua.set_function("WriteBool", &writeBool);
@@ -47,6 +57,27 @@ MungPlex::Cheats::Cheats()
 	_lua.set_function("WriteInt64", &writeInt64);
 	_lua.set_function("WriteFloat", &writeFloat);
 	_lua.set_function("WriteDouble", &writeDouble);
+	_lua.set_function("WriteArrayInt8", &writeArrayInt8);
+	_lua.set_function("WriteArrayInt16", &writeArrayInt16);
+	_lua.set_function("WriteArrayInt32", &writeArrayInt32);
+	_lua.set_function("WriteArrayInt64", &writeArrayInt64);
+	_lua.set_function("WriteArrayFloat", &writeArrayFloat);
+	_lua.set_function("WriteArrayDouble", &writeArrayDouble);
+
+	_lua.set_function("IsInRange", &isInRange);
+
+	_lua.set_function("LogText", &logText);
+	_lua.set_function("LogUInt8", &logUInt8);
+	_lua.set_function("LogUInt16", &logUInt16);
+	_lua.set_function("LogUInt32", &logUInt32);
+	_lua.set_function("LogUInt64", &logUInt64);
+	_lua.set_function("LogInt8", &logInt8);
+	_lua.set_function("LogInt16", &logInt16);
+	_lua.set_function("LogInt32", &logInt32);
+	_lua.set_function("LogInt64", &logInt64);
+	_lua.set_function("LogFloat", &logFloat);
+	_lua.set_function("LogDouble", &logDouble);
+	_lua.set_function("LogBool", &logBool);
 
 	lua_State* L = _lua.lua_state();
 	for (int i = 0; i < 32; ++i)
@@ -172,6 +203,106 @@ double MungPlex::Cheats::readDouble(const uint64_t address)
 	return *(double*)&temp;
 }
 
+sol::table MungPlex::Cheats::readArrayInt8(const uint64_t address, const uint32_t size)
+{
+	sol::table table = GetInstance()._lua.create_table(size);
+
+	for (int i = 0; i < size; ++i)
+		table[i+1] = readInt8(address+i);
+
+	return table;
+}
+
+sol::table MungPlex::Cheats::readArrayUInt8(const uint64_t address, const uint32_t size)
+{
+	sol::table table = GetInstance()._lua.create_table(size);
+
+	for (int i = 0; i < size; ++i)
+		table[i + 1] = readUInt8(address + i);
+
+	return table;
+}
+
+sol::table MungPlex::Cheats::readArrayInt16(const uint64_t address, const uint32_t size)
+{
+	sol::table table = GetInstance()._lua.create_table(size);
+
+	for (int i = 0; i < size; ++i)
+		table[i + 1] = readInt16(address + i*2);
+
+	return table;
+}
+
+sol::table MungPlex::Cheats::readArrayUInt16(const uint64_t address, const uint32_t size)
+{
+	sol::table table = GetInstance()._lua.create_table(size);
+
+	for (int i = 0; i < size; ++i)
+		table[i + 1] = readUInt16(address + i*2);
+
+	return table;
+}
+
+sol::table MungPlex::Cheats::readArrayInt32(const uint64_t address, const uint32_t size)
+{
+	sol::table table = GetInstance()._lua.create_table(size);
+
+	for (int i = 0; i < size; ++i)
+		table[i + 1] = readInt32(address + i*4);
+
+	return table;
+}
+
+sol::table MungPlex::Cheats::readArrayUInt32(const uint64_t address, const uint32_t size)
+{
+	sol::table table = GetInstance()._lua.create_table(size);
+
+	for (int i = 0; i < size; ++i)
+		table[i + 1] = readUInt32(address + i*4);
+
+	return table;
+}
+
+sol::table MungPlex::Cheats::readArrayInt64(const uint64_t address, const uint32_t size)
+{
+	sol::table table = GetInstance()._lua.create_table(size);
+
+	for (int i = 0; i < size; ++i)
+		table[i + 1] = readInt64(address + i*8);
+
+	return table;
+}
+
+sol::table MungPlex::Cheats::readArrayUInt64(const uint64_t address, const uint32_t size)
+{
+	sol::table table = GetInstance()._lua.create_table(size);
+
+	for (int i = 0; i < size; ++i)
+		table[i + 1] = readUInt64(address + i*8);
+
+	return table;
+}
+
+sol::table MungPlex::Cheats::readArrayFloat(const uint64_t address, const uint32_t size)
+{
+	sol::table table = GetInstance()._lua.create_table(size);
+
+	for (int i = 0; i < size; ++i)
+		table[i + 1] = readFloat(address + i*4);
+
+	return table;
+}
+
+sol::table MungPlex::Cheats::readArrayDouble(const uint64_t address, const uint32_t size)
+{
+	sol::table table = GetInstance()._lua.create_table(size);
+
+	for (int i = 0; i < size; ++i)
+		table[i + 1] = readDouble(address + i*8);
+
+	return table;
+}
+
 void MungPlex::Cheats::writeToRAM(const int type, const uint64_t address, double value)
 {
 	uint64_t writeValue;
@@ -266,6 +397,199 @@ void MungPlex::Cheats::writeDouble(const uint64_t address, double value)
 	GetInstance().writeValue<double>(address, value);
 }
 
+void MungPlex::Cheats::writeArrayInt8(const uint64_t address, const sol::table arr)
+{
+	if (!arr.valid())
+		return;
+
+	for (int i = 1; i <= arr.size(); ++i)
+	{
+		GetInstance().writeValue<int8_t>(address + i - 1, arr[i]);
+	}
+}
+
+void MungPlex::Cheats::writeArrayInt16(const uint64_t address, const sol::table arr)
+{
+	if (!arr.valid())
+		return;
+
+	for (int i = 1; i <= arr.size(); ++i)
+	{
+		GetInstance().writeValue<int16_t>(address + i*2 - 2, arr[i]);
+	}
+}
+
+void MungPlex::Cheats::writeArrayInt32(const uint64_t address, const sol::table arr)
+{
+	if (!arr.valid())
+		return;
+
+	for (int i = 1; i <= arr.size(); ++i)
+	{
+		GetInstance().writeValue<int32_t>(address + i*4 - 4, arr[i]);
+	}
+}
+
+void MungPlex::Cheats::writeArrayInt64(const uint64_t address, const sol::table arr)
+{
+	if (!arr.valid())
+		return;
+
+	for (int i = 1; i <= arr.size(); ++i)
+	{
+		GetInstance().writeValue<int64_t>(address + i*8 - 8, arr[i]);
+	}
+}
+
+void MungPlex::Cheats::writeArrayFloat(const uint64_t address, const sol::table arr)
+{
+	if (!arr.valid())
+		return;
+
+	for (int i = 1; i <= arr.size(); ++i)
+	{
+		GetInstance().writeValue<float>(address + i * 4 - 4, arr[i]);
+	}
+}
+
+void MungPlex::Cheats::writeArrayDouble(const uint64_t address, const sol::table arr)
+{
+	if (!arr.valid())
+		return;
+
+	for (int i = 1; i <= arr.size(); ++i)
+	{
+		GetInstance().writeValue<double>(address + i * 8 - 8, arr[i]);
+	}
+}
+
+bool MungPlex::Cheats::isInRange(const uint64_t ptr, const uint64_t start, const uint64_t end)
+{
+	return ptr >= start && ptr < end;
+}
+
+void MungPlex::Cheats::logText(const char* text)
+{
+	Log::LogInformation(text);
+}
+
+void MungPlex::Cheats::logUInt8(const uint8_t value, const bool hex)
+{
+	GetInstance()._logStream.str(std::string());
+	uint32_t temp = value;
+
+	if(hex)
+		GetInstance()._logStream << std::hex << temp;
+	else
+		GetInstance()._logStream << std::dec << temp;
+
+	Log::LogInformation(GetInstance()._logStream.str());
+}
+
+void MungPlex::Cheats::logUInt16(const uint16_t value, const bool hex)
+{
+	GetInstance()._logStream.str(std::string());
+
+	if (hex)
+		GetInstance()._logStream << std::hex << value;
+	else
+		GetInstance()._logStream << std::dec << value;
+
+	Log::LogInformation(GetInstance()._logStream.str());
+}
+
+void MungPlex::Cheats::logUInt32(const uint32_t value, const bool hex)
+{
+	GetInstance()._logStream.str(std::string());
+
+	if (hex)
+		GetInstance()._logStream << std::hex << value;
+	else
+		GetInstance()._logStream << std::dec << value;
+
+	Log::LogInformation(GetInstance()._logStream.str());
+}
+
+void MungPlex::Cheats::logUInt64(const uint64_t value, const bool hex)
+{
+	GetInstance()._logStream.str(std::string());
+
+	if (hex)
+		GetInstance()._logStream << std::hex << value;
+	else
+		GetInstance()._logStream << std::dec << value;
+
+	Log::LogInformation(GetInstance()._logStream.str());
+}
+
+void MungPlex::Cheats::logInt8(const int8_t value, const bool hex)
+{
+	GetInstance()._logStream.str(std::string());
+	int32_t temp = value;
+
+	if (hex)
+		GetInstance()._logStream << std::hex << (temp & 0xFF);
+	else
+		GetInstance()._logStream << std::dec << temp;
+
+	Log::LogInformation(GetInstance()._logStream.str());
+}
+
+void MungPlex::Cheats::logInt16(const int16_t value, const bool hex)
+{
+	GetInstance()._logStream.str(std::string());
+
+	if (hex)
+		GetInstance()._logStream << std::hex << value;
+	else
+		GetInstance()._logStream << std::dec << value;
+
+	Log::LogInformation(GetInstance()._logStream.str());
+}
+
+void MungPlex::Cheats::logInt32(const int32_t value, const bool hex)
+{
+	GetInstance()._logStream.str(std::string());
+
+	if (hex)
+		GetInstance()._logStream << std::hex << value;
+	else
+		GetInstance()._logStream << std::dec << value;
+
+	Log::LogInformation(GetInstance()._logStream.str());
+}
+
+void MungPlex::Cheats::logInt64(const int64_t value, const bool hex)
+{
+	GetInstance()._logStream.str(std::string());
+
+	if (hex)
+		GetInstance()._logStream << std::hex << value;
+	else
+		GetInstance()._logStream << std::dec << value;
+
+	Log::LogInformation(GetInstance()._logStream.str());
+}
+
+void MungPlex::Cheats::logFloat(const float value)
+{
+	GetInstance()._logStream.str(std::string());
+	GetInstance()._logStream << value;
+	Log::LogInformation(GetInstance()._logStream.str());
+}
+
+void MungPlex::Cheats::logDouble(const double value)
+{
+	GetInstance()._logStream.str(std::string());
+	GetInstance()._logStream << value;
+	Log::LogInformation(GetInstance()._logStream.str());
+}
+
+void MungPlex::Cheats::logBool(const bool value)
+{
+	Log::LogInformation(value ? "true" : "false");
+}
+
 void MungPlex::Cheats::DrawWindow()
 {
 	ImGui::Begin("Cheats");
@@ -276,7 +600,7 @@ void MungPlex::Cheats::DrawWindow()
 #ifndef NDEBUG
 			if (!Connection::IsConnected()) ImGui::EndDisabled();
 #endif
-			//GetInstance().drawCheatConverter();
+			GetInstance().drawCheatConverter();
 #ifndef NDEBUG
 			if (!Connection::IsConnected()) ImGui::BeginDisabled();
 #endif

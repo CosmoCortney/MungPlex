@@ -81,6 +81,7 @@ namespace MungPlex
         bool _unsavedChangesCheatList = false;
         int _selectedID = -1;
         bool _disableEditButtons = false;
+        std::stringstream _logStream;
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
         void copyCheatToInformationBox(int index);
@@ -96,48 +97,43 @@ namespace MungPlex
         int getRangeIndex(uint64_t address) const;
         void cheatRoutine();
 
-        //legacy function to keep older cheats functioning
-        static double readFromRAM(int type, uint64_t address);
+        static double readFromRAM(int type, uint64_t address); //legacy function to keep older cheats functioning
+        static bool readBool(const uint64_t address);
+        static int8_t readInt8(const uint64_t address);
+        static uint8_t readUInt8(const uint64_t address);
+        static int16_t readInt16(const uint64_t address);
+        static uint16_t readUInt16(const uint64_t address);
+        static int32_t readInt32(const uint64_t address);
+        static uint32_t readUInt32(const uint64_t address);
+        static int64_t readInt64(const uint64_t address);
+        static uint64_t readUInt64(const uint64_t address);
+        static float readFloat(const uint64_t address);
+        static double readDouble(const uint64_t address);
+        static sol::table readArrayInt8(const uint64_t address, const uint32_t size);
+        static sol::table readArrayUInt8(const uint64_t address, const uint32_t size);
+        static sol::table readArrayInt16(const uint64_t address, const uint32_t size);
+        static sol::table readArrayUInt16(const uint64_t address, const uint32_t size);
+        static sol::table readArrayInt32(const uint64_t address, const uint32_t size);
+        static sol::table readArrayUInt32(const uint64_t address, const uint32_t size);
+        static sol::table readArrayInt64(const uint64_t address, const uint32_t size);
+        static sol::table readArrayUInt64(const uint64_t address, const uint32_t size);
+        static sol::table readArrayFloat(const uint64_t address, const uint32_t size);
+        static sol::table readArrayDouble(const uint64_t address, const uint32_t size);
 
-        static bool readBool(uint64_t address);
-
-        static int8_t readInt8(uint64_t address);
-
-        static uint8_t readUInt8(uint64_t address);
-
-        static int16_t readInt16(uint64_t address);
-
-        static uint16_t readUInt16(uint64_t address);
-
-        static int32_t readInt32(uint64_t address);
-
-        static uint32_t readUInt32(uint64_t address);
-
-        static int64_t readInt64(uint64_t address);
-
-        static uint64_t readUInt64(uint64_t address);
-
-        static float readFloat(uint64_t address);
-
-        static double readDouble(uint64_t address);
-
-        //legacy function to keep older cheats functioning
-        static void writeToRAM(int type, uint64_t address, double value);
-
-        static void writeBool(uint64_t address, bool value);
-
-        static void writeInt8(uint64_t address, int8_t value);
-
-        static void writeInt16(uint64_t address, int16_t value);
-
-        static void writeInt32(uint64_t address, int32_t value);
-
-        static void writeInt64(uint64_t address, int64_t value);
-
-        static void writeFloat(uint64_t address, float value);
-
-        static void writeDouble(uint64_t address, double value);
-
+        static void writeToRAM(int type, uint64_t address, double value); //legacy function to keep older cheats functioning
+        static void writeBool(const uint64_t address, bool value);
+        static void writeInt8(const uint64_t address, int8_t value);
+        static void writeInt16(const uint64_t address, int16_t value);
+        static void writeInt32(const uint64_t address, int32_t value);
+        static void writeInt64(const uint64_t address, int64_t value);
+        static void writeFloat(const uint64_t address, float value);
+        static void writeDouble(const uint64_t address, double value);
+        static void writeArrayInt8(const uint64_t address, const sol::table arr);
+        static void writeArrayInt16(const uint64_t address, const sol::table arr);
+        static void writeArrayInt32(const uint64_t address, const sol::table arr);
+        static void writeArrayInt64(const uint64_t address, const sol::table arr);
+        static void writeArrayFloat(const uint64_t address, const sol::table arr);
+        static void writeArrayDouble(const uint64_t address, const sol::table arr);
         template <typename dataType> void writeValue(uint64_t writeAddress, dataType writeValue)
         {
             if (_isBigEndian)
@@ -148,6 +144,20 @@ namespace MungPlex
             for (int i = 0; i < sizeof(dataType); ++i)
                 writeInt8(writeAddress + i, *(writeValAddr + i));
         }
+
+        static bool isInRange(const uint64_t ptr, const uint64_t start, const uint64_t end);
+        static void logText(const char* text);
+        static void logUInt8(const uint8_t value, const bool hex = false);
+        static void logUInt16(const uint16_t value, const bool hex = false);
+        static void logUInt32(const uint32_t value, const bool hex = false);
+        static void logUInt64(const uint64_t value, const bool hex = false);
+        static void logInt8(const int8_t value, const bool hex = false);
+        static void logInt16(const int16_t value, const bool hex = false);
+        static void logInt32(const int32_t value, const bool hex = false);
+        static void logInt64(const int64_t value, const bool hex = false);
+        static void logFloat(const float value);
+        static void logDouble(const double value);
+        static void logBool(const bool value);
 
     public:
         static void DrawWindow();
