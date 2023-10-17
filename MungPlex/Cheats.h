@@ -134,6 +134,12 @@ namespace MungPlex
         static void writeArrayInt64(const uint64_t address, const sol::table arr);
         static void writeArrayFloat(const uint64_t address, const sol::table arr);
         static void writeArrayDouble(const uint64_t address, const sol::table arr);
+        static void fillAndSlideInt8(const uint64_t address, const int64_t addressIncrement, const int8_t value, const int8_t valueIncrement, const uint8_t count);
+        static void fillAndSlideInt16(const uint64_t address, const int64_t addressIncrement, const int16_t value, const int16_t valueIncrement, const uint16_t count);
+        static void fillAndSlideInt32(const uint64_t address, const int64_t addressIncrement, const int32_t value, const int32_t valueIncrement, const uint32_t count);
+        static void fillAndSlideInt64(const uint64_t address, const int64_t addressIncrement, const int64_t value, const int64_t valueIncrement, const uint32_t count);
+        static void fillAndSlideFloat(const uint64_t address, const int64_t addressIncrement, const float value, const float valueIncrement, const uint32_t count);
+        static void fillAndSlideDouble(const uint64_t address, const int64_t addressIncrement, const double value, const double valueIncrement, const uint32_t count);
         template <typename dataType> void writeValue(uint64_t writeAddress, dataType writeValue)
         {
             if (_isBigEndian)
@@ -147,6 +153,7 @@ namespace MungPlex
 
         static bool isInRange(const uint64_t ptr, const uint64_t start, const uint64_t end);
         static uint64_t getModuleAddress(const char* moduleName);
+        static void copyMemory(const uint64_t source, const uint64_t destination, const uint32_t size);
 
         static void logText(const char* text);
         static void logUInt8(const uint8_t value, const bool hex = false);

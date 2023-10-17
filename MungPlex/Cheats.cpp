@@ -63,9 +63,16 @@ MungPlex::Cheats::Cheats()
 	_lua.set_function("WriteArrayInt64", &writeArrayInt64);
 	_lua.set_function("WriteArrayFloat", &writeArrayFloat);
 	_lua.set_function("WriteArrayDouble", &writeArrayDouble);
+	_lua.set_function("FillAndSlideInt8", &fillAndSlideInt8);
+	_lua.set_function("FillAndSlideInt16", &fillAndSlideInt16);
+	_lua.set_function("FillAndSlideInt32", &fillAndSlideInt32);
+	_lua.set_function("FillAndSlideInt64", &fillAndSlideInt64);
+	_lua.set_function("FillAndSlideFloat", &fillAndSlideFloat);
+	_lua.set_function("FillAndSlideDouble", &fillAndSlideDouble);
 
 	_lua.set_function("IsInRange", &isInRange);
 	_lua.set_function("GetModuleAddress", &getModuleAddress);
+	_lua.set_function("CopyMemory", &copyMemory);
 
 	_lua.set_function("LogText", &logText);
 	_lua.set_function("LogUInt8", &logUInt8);
@@ -462,6 +469,101 @@ void MungPlex::Cheats::writeArrayDouble(const uint64_t address, const sol::table
 	{
 		GetInstance().writeValue<double>(address + i * 8 - 8, arr[i]);
 	}
+}
+
+void MungPlex::Cheats::fillAndSlideInt8(const uint64_t address, const int64_t addressIncrement, const int8_t value, const int8_t valueIncrement, const uint8_t count)
+{
+	uint64_t addr = address;
+	int8_t val = value;
+
+	for (uint32_t i = 0; i < count; ++i)
+	{
+		writeInt8(addr, val);
+		addr += addressIncrement;
+		val += valueIncrement;
+	}
+}
+
+void MungPlex::Cheats::fillAndSlideInt16(const uint64_t address, const int64_t addressIncrement, const int16_t value, const int16_t valueIncrement, const uint16_t count)
+{
+	uint64_t addr = address;
+	int16_t val = value;
+
+	for (uint32_t i = 0; i < count; ++i)
+	{
+		writeInt16(addr, val);
+		addr += addressIncrement;
+		val += valueIncrement;
+	}
+}
+
+void MungPlex::Cheats::fillAndSlideInt32(const uint64_t address, const int64_t addressIncrement, const int32_t value, const int32_t valueIncrement, const uint32_t count)
+{
+	uint64_t addr = address;
+	int32_t val = value;
+
+	for (uint32_t i = 0; i < count; ++i)
+	{
+		writeInt32(addr, val);
+		addr += addressIncrement;
+		val += valueIncrement;
+	}
+}
+
+void MungPlex::Cheats::fillAndSlideInt64(const uint64_t address, const int64_t addressIncrement, const int64_t value, const int64_t valueIncrement, const uint32_t count)
+{
+	uint64_t addr = address;
+	int64_t val = value;
+
+	for (uint32_t i = 0; i < count; ++i)
+	{
+		writeInt64(addr, val);
+		addr += addressIncrement;
+		val += valueIncrement;
+	}
+}
+
+void MungPlex::Cheats::fillAndSlideFloat(const uint64_t address, const int64_t addressIncrement, const float value, const float valueIncrement, const uint32_t count)
+{
+	uint64_t addr = address;
+	float val = value;
+
+	for (uint32_t i = 0; i < count; ++i)
+	{
+		writeFloat(addr, val);
+		addr += addressIncrement;
+		val += valueIncrement;
+	}
+}
+
+void MungPlex::Cheats::fillAndSlideDouble(const uint64_t address, const int64_t addressIncrement, const double value, const double valueIncrement, const uint32_t count)
+{
+	uint64_t addr = address;
+	double val = value;
+
+	for (uint32_t i = 0; i < count; ++i)
+	{
+		writeDouble(addr, val);
+		addr += addressIncrement;
+		val += valueIncrement;
+	}
+}
+
+void MungPlex::Cheats::copyMemory(const uint64_t source, const uint64_t destination, const uint32_t size)
+{
+	const int sourceIndex = GetInstance().getRangeIndex(source);
+	const int destinationIndex = GetInstance().getRangeIndex(destination);
+
+	if (sourceIndex == -1 || GetInstance().getRangeIndex(destinationIndex + size) == -1)
+		return;
+
+	void* src = static_cast<char*>(GetInstance()._regions[sourceIndex].BaseLocationProcess) + source - GetInstance()._regions[sourceIndex].Base;
+	void* dest = static_cast<char*>(GetInstance()._regions[destinationIndex].BaseLocationProcess) + destination - GetInstance()._regions[destinationIndex].Base;
+
+	char* buf = new char[size];
+	Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).ReadExRAM(buf, src, size);
+	Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).WriteExRAM(buf, dest, size);
+	delete[] buf;
 }
 
 bool MungPlex::Cheats::isInRange(const uint64_t ptr, const uint64_t start, const uint64_t end)
