@@ -27,6 +27,9 @@ As of version 2.0.0 the following emulators and systems are supported:
 - Cemu (Wii U)
 - Yuzu (Switch) Experimental!
 - melonDS (Nintendo DS)
+- No$psx (PS1)
+- PCSX2 (PS2)
+- RPCS3 (PS3)
 - PPSSPP (PSP)
 
 <img src="MungPlex\resources\img\manual\MungPlex_connection_01.png" width="256">
@@ -188,6 +191,7 @@ In the following you will learn about all additional features required to create
 
 #### Read Functions
 The following functions can be used to read data from game memory:
+
 - `bool ReadBool(uint64 address)`: returns the boolean value located at `address` of the game's memory
 - `int8 ReadInt8(uint64 address)`: returns the signed 8-bit value located at `address` of the game's memory
 - `int16 ReadInt16(uint64 address)`: returns the signed 16-bit value located at `address` of the game's memory
@@ -199,8 +203,20 @@ The following functions can be used to read data from game memory:
 - `uint64 ReadUInt64(uint64 address)`: returns the unsigned 64-bit value located at `address` of the game's memory
 - `float ReadFloat(uint64 address)`: returns the float value located at `address` of the game's memory
 - `double ReadDouble(uint64 address)`: returns the double value located at `address` of the game's memory
+- `table ReadArrayInt8(const uint64_t address, uint32_t size)`: returns the signed 8-bit array of `size` located at `address` of the game's memory
+- `table ReadArrayUInt8(const uint64_t address, uint32_t size)`: returns the unsigned 8-bit array of `size` located at `address` of the game's memory
+- `table ReadArrayInt16(const uint64_t address, uint32_t size)`: returns the signed 16-bit array of `size` located at `address` of the game's memory
+- `table ReadArrayUInt16(const uint64_t address, uint32_t size)`: returns the unsigned 16-bit array of `size` located at `address` of the game's memory
+- `table ReadArrayInt32(const uint64_t address, uint32_t size)`: returns the signed 32-bit array of `size` located at `address` of the game's memory
+- `table ReadArrayUInt32(const uint64_t address, uint32_t size)`: returns the unsigned 32-bit array of `size` located at `address` of the game's memory
+- `table ReadArrayInt64(const uint64_t address, uint32_t size)`: returns the signed 64-bit array of `size` located at `address` of the game's memory
+- `table ReadArrayUInt64(uint64_t address, uint32_t size)`: returns the unsigned 64-bit array of `size` located at `address` of the game's memory
+- `table ReadArrayFloat(uint64_t address, uint32_t size)`: returns the float array of `size` located at `address` of the game's memory
+- `table ReadArrayDouble(uint64_t address, uint32_t size)`: returns the double array of `size` located at `address` of the game's memory
 
 #### Write Functions
+The following functions can be used to write data to game memory:
+
 - `WriteBool(uint64 address, bool value)`: writes the boolean `value` to `address` of the game's memory
 - `WriteInt8(uint64 address, int8 value)`: writes the int8 `value` to `address` of the game's memory
 - `WriteInt16(uint64 address, int16 value)`: writes the int16 `value` to `address` of the game's memory
@@ -208,6 +224,41 @@ The following functions can be used to read data from game memory:
 - `WriteInt64(uint64 address, int64 value)`: writes the int64 `value` to `address` of the game's memory
 - `WriteFloat(uint64 address, float value)`: writes the float `value` to `address` of the game's memory
 - `WriteDouble(uint64 address, double value)`: writes the double `value` to `address` of the game's memory
+- `WriteArrayInt8(uint64_t address, table array)`: writes the int8 `array` to `address` of the game's memory
+- `WriteArrayInt16(uint64_t address, table array)`: writes the int16 `array` to `address` of the game's memory
+- `WriteArrayInt32(uint64_t address, table array)`: writes the int23 `array` to `address` of the game's memory
+- `WriteArrayInt64(uint64_t address, table array)`: writes the int64 `array` to `address` of the game's memory
+- `WriteArrayFloat(uint64_t address, table array)`: writes the float `array` to `address` of the game's memory
+- `WriteArrayDouble(uint64_t address, table array)`: writes the double `array` to `address` of the game's memory
+
+#### RAM Fill and Slide
+These functions consecutively write values and increment/decrement those alongside the address as many times as defined by `count`. Note that an address increment does not consider the value size. For instance, to consecutively write int32 values the minimum desired address increment would be 4 or -4. Increment values are signed(!). The first write does not apply any increment. If you don't want a value increment just pass a valueIncrement of 0.
+
+`fillAndSlideInt8(uint64_t address, int64_t addressIncrement, int8_t value, int8_t valueIncrement, uint8_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+`fillAndSlideInt16(uint64_t address, int64_t addressIncrement, int16_t value, int16_t valueIncrement, uint16_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+`fillAndSlideInt32(uint64_t address, int64_t addressIncrement, int32_t value, int32_t valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+`fillAndSlideInt64(uint64_t address, int64_t addressIncrement, int64_t value, int64_t valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+`fillAndSlideFloat(uint64_t address, int64_t addressIncrement, float value, float valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+`fillAndSlideDouble(uint64_t address, int64_t addressIncrement, double value, double valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+
+#### Log Functions
+- `LogText(const char* text)`: Logs the given `text` to the log frame
+- `LogUInt8(const uint8_t value, bool hex)`: Logs the given uint8 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogUInt16(const uint16_t value, bool hex)`: Logs the given uint16 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogUInt32(const uint32_t value, bool hex)`: Logs the given uint32 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogUInt64(const uint64_t value, bool hex)`: Logs the given uint64 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogInt8(const int8_t value, bool hex)`: Logs the given int8 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogInt16(const int16_t value, bool hex)`: Logs the given int16 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogInt32(const int32_t value, bool hex)`: Logs the given int32 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogInt64(const int64_t value, bool hex)`: Logs the given int64 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogFloat(const float value)`: Logs the given float `value` to the log frame
+- `LogDouble(const double value)`: Logs the given double `value` to the log frame
+- `LogBool(const bool value)`: Logs the given bool `value` to the log frame
+
+#### Misc. Functions
+- bool `IsInRange(uint64_t value, uint64_t start, uint64_t end)`: Checks if value is >= start and < end. This can be used to verify pointers are within a valid range to prevent possible crashes during loading times
+- uint64_t `GetModuleAddress(char* moduleName)`: returns the address of a processe's module (e.g. GetModuleAddress("mono.dll"))
+- `copyMemory(uint64_t source, uint64_t destination, uint32_t size)`: copies the `size` bytes of memory located at `source` ot `destination` 
 
 #### Registers
 These variables can be used to store and keep values across execution cycles and different cheats.

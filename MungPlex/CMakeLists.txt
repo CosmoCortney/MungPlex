@@ -1,7 +1,7 @@
 # CMakeList.txt : CMake project for MungPlex, include source and define
 # project specific logic here.
 cmake_minimum_required (VERSION 3.16)
-project(MungPlex VERSION 2.1.0)
+project(MungPlex VERSION 2.1.1)
 
 # Find lua
 find_package(Lua REQUIRED)
@@ -40,6 +40,7 @@ add_executable (MungPlex
     MemoryViewer.cpp
     DataConversion.h
     DataConversion.cpp
+    resources.rc
     ../include/imgui/imgui.cpp
     ../include/imgui/imgui_demo.cpp
     ../include/imgui/imgui_draw.cpp
@@ -68,6 +69,9 @@ add_executable (MungPlex
     ../include/ImGuiFileDialog/ImGuiFileDialog.cpp
     ../include/ImGui_MemoryEditor/imgui_memory_editor/imgui_memory_editor.h
 )
+
+# Link Icon
+target_sources(MungPlex PRIVATE resources.rc)
 
 # Link against lua
 target_link_libraries(MungPlex ${LUA_LIBRARIES})
