@@ -146,6 +146,8 @@ namespace MungPlex
         }
 
         static bool isInRange(const uint64_t ptr, const uint64_t start, const uint64_t end);
+        static uint64_t getModuleAddress(const char* moduleName);
+
         static void logText(const char* text);
         static void logUInt8(const uint8_t value, const bool hex = false);
         static void logUInt16(const uint16_t value, const bool hex = false);

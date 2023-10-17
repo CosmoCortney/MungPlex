@@ -65,6 +65,7 @@ MungPlex::Cheats::Cheats()
 	_lua.set_function("WriteArrayDouble", &writeArrayDouble);
 
 	_lua.set_function("IsInRange", &isInRange);
+	_lua.set_function("GetModuleAddress", &getModuleAddress);
 
 	_lua.set_function("LogText", &logText);
 	_lua.set_function("LogUInt8", &logUInt8);
@@ -466,6 +467,11 @@ void MungPlex::Cheats::writeArrayDouble(const uint64_t address, const sol::table
 bool MungPlex::Cheats::isInRange(const uint64_t ptr, const uint64_t start, const uint64_t end)
 {
 	return ptr >= start && ptr < end;
+}
+
+uint64_t MungPlex::Cheats::getModuleAddress(const char* moduleName)
+{
+	return Xertz::SystemInfo::GetProcessInfo(GetInstance()._pid).GetModuleAddress(MorphText::Utf8_To_Utf16LE(moduleName));
 }
 
 void MungPlex::Cheats::logText(const char* text)
