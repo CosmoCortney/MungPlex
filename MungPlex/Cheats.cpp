@@ -605,9 +605,9 @@ void MungPlex::Cheats::DrawWindow()
 			GetInstance().DrawCheatList();
 #ifndef NDEBUG
 			if (!Connection::IsConnected()) ImGui::EndDisabled();
-#endif
+
 			GetInstance().drawCheatConverter();
-#ifndef NDEBUG
+
 			if (!Connection::IsConnected()) ImGui::BeginDisabled();
 #endif
 		ImGui::EndGroup();
@@ -638,7 +638,7 @@ void MungPlex::Cheats::drawCheatConverter()
 
 void MungPlex::Cheats::DrawCheatList()
 {
-	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * /*0.333f*/ 0.8f};
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.8f /*0.333f*/ };
 	ImGui::BeginGroup();
 	{
 		ImGui::SeparatorText("Cheat List");
