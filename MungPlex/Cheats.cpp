@@ -488,7 +488,7 @@ void MungPlex::Cheats::cheatRoutine()
 		Log::LogInformation("Executing Cheat List");
 		for (const auto& cheat : _luaCheats)
 		{
-			pfr = _lua.safe_script(cheat.Lua, sol::script_pass_on_error);
+			pfr = _lua.safe_script(cheat.Lua.c_str(), sol::script_pass_on_error);
 			if (!pfr.valid())
 			{
 				sol_c_assert(!pfr.valid());
@@ -505,14 +505,14 @@ void MungPlex::Cheats::cheatRoutine()
 			for (const auto& cheat : _luaCheats)
 			{
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _perSecond));
-				_lua.safe_script(cheat.Lua, sol::script_pass_on_error);
+				_lua.safe_script(cheat.Lua.c_str(), sol::script_pass_on_error);
 			}
 		}
 	}
 	else
 	{
 		Log::LogInformation("Executing Text Cheat");
-		pfr = _lua.safe_script(_textCheatLua, sol::script_pass_on_error);
+		pfr = _lua.safe_script(_textCheatLua.c_str(), sol::script_pass_on_error);
 
 		if (!pfr.valid())
 		{
@@ -527,7 +527,7 @@ void MungPlex::Cheats::cheatRoutine()
 		while (_executeCheats)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _perSecond));
-			_lua.safe_script(_textCheatLua, sol::script_pass_on_error);
+			_lua.safe_script(_textCheatLua.c_str(), sol::script_pass_on_error);
 		}
 	}
 }
@@ -696,6 +696,10 @@ void MungPlex::Cheats::copyCheatToInformationBox(const int index)
 	_textCheatHacker = _luaCheats[index].Hacker;
 	_textCheatLua = _luaCheats[index].Lua;
 	_textCheatDescription = _luaCheats[index].Description;
+	_textCheatTitle.resize(TITLE);
+	_textCheatHacker.resize(HACKER);
+	_textCheatLua.resize(CHEAT);
+	_textCheatDescription.resize(DESCRIPTION);
 }
 
 void MungPlex::Cheats::copyCheatToList(const int index)
