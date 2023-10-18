@@ -168,8 +168,13 @@ void MungPlex::Search::DrawValueTypeOptions()
 
 				if (_disableBecauseNoColor) ImGui::BeginDisabled();
 				{
-					if(SetUpCombo("Color Type:", _searchColorTypes, _currentColorTypeSelect, 0.5f, 0.4f))
+					if (SetUpCombo("Color Type:", _searchColorTypes, _currentColorTypeSelect, 0.5f, 0.4f))
+					{
 						setRecommendedValueSettings(COLOR);
+
+						if (_currentColorTypeSelect != LitColor::RGB5A3)
+							_forceAlpha = false;
+					}
 				}
 				if (_disableBecauseNoColor) ImGui::EndDisabled();
 
@@ -436,7 +441,10 @@ void MungPlex::Search::DrawSearchOptions()
 				colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
 				break;
 			default: //RGB888, RGB565, RGB5A3
-				colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
+				if(_forceAlpha)
+					colorPickerFlags |= ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
+				else
+					colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
 			}
 
 			ImGui::PushItemWidth(childXY.x * 0.275f);
