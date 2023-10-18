@@ -126,41 +126,41 @@ void MungPlex::ProcessInformation::drawRegionList()
 		{
 			std::stringstream stream;
 			ImGui::TableSetColumnIndex(column);
-			static FloorString buf("", 64);
+			static std::string buf(64, 0);
 			Xertz::MemoryRegion& region = _regions[(page - 1) * maxRows + i];
 
 			switch(column)
 			{
 			case 0:
-				sprintf(buf.Data(), "%llX", region.GetBaseAddress<uint64_t>());
+				sprintf(buf.data(), "%llX", region.GetBaseAddress<uint64_t>());
 				break;
 			case 1:
-				sprintf(buf.Data(), "%llX", region.GetAllocationBase<uint64_t>());
+				sprintf(buf.data(), "%llX", region.GetAllocationBase<uint64_t>());
 				break;
 			case 2:
-				sprintf(buf.Data(), "%u", region.GetAllocationProtect());
+				sprintf(buf.data(), "%u", region.GetAllocationProtect());
 				break;
 			case 3:
-				sprintf(buf.Data(), "%u", region.GetPartitionId());
+				sprintf(buf.data(), "%u", region.GetPartitionId());
 				break;
 			case 4:
-				sprintf(buf.Data(), "%llX", region.GetProtect());
+				sprintf(buf.data(), "%llX", region.GetProtect());
 				break;
 			case 5:
-				sprintf(buf.Data(), "%llX", region.GetRegionSize());
+				sprintf(buf.data(), "%llX", region.GetRegionSize());
 				break;
 			case 6:
-				sprintf(buf.Data(), "%llX", region.GetState());
+				sprintf(buf.data(), "%llX", region.GetState());
 				break;
 			case 7:
-				sprintf(buf.Data(), "%llX", region.GetType());
+				sprintf(buf.data(), "%llX", region.GetType());
 				break;
 			}
 
 			if (contents_type == CT_Text)
-				ImGui::TextUnformatted(buf.CStr());
+				ImGui::TextUnformatted(buf.c_str());
 			else if (contents_type == CT_FillButton)
-				ImGui::Button(buf.CStr(), ImVec2(-FLT_MIN, 0.0f));
+				ImGui::Button(buf.c_str(), ImVec2(-FLT_MIN, 0.0f));
 		}
 	}
 	
@@ -169,21 +169,20 @@ void MungPlex::ProcessInformation::drawRegionList()
 
 void MungPlex::ProcessInformation::drawMiscInformation()
 {
-	// TODO No C buffers in C++ code, use std::string and std::stringstream etc.
-	char buf[2048];
+	static std::string buf(256, 0);
 	ImGui::SeparatorText("Misc. Information");
 
 	ImGui::BeginGroup();
 
-	strcpy_s(buf, std::string(_exePath.begin(), _exePath.end()).c_str());
-	SetUpLableText("Path:", buf, IM_ARRAYSIZE(buf), 1.0f, 0.1f);
+	strcpy(buf.data(), std::string(_exePath.begin(), _exePath.end()).c_str());
+	SetUpLableText("Path:", buf.c_str(), buf.size(), 1.0f, 0.1f);
 
-	strcpy_s(buf, std::to_string(GetInstance()._pid).c_str());
-	SetUpLableText("Process ID (dec):", buf, IM_ARRAYSIZE(buf), 1.0f, 0.1f);
+	strcpy(buf.data(), std::to_string(GetInstance()._pid).c_str());
+	SetUpLableText("Process ID (dec):", buf.c_str(), buf.size(), 1.0f, 0.1f);
 
 	const std::string strTemp = _isX64 ? "Yes" : "No";
-	strcpy_s(buf, strTemp.c_str());
-	SetUpLableText("Is x64:", buf, IM_ARRAYSIZE(buf), 1.0f, 0.1f);
+	strcpy(buf.data(), strTemp.c_str());
+	SetUpLableText("Is x64:", buf.c_str(), buf.size(), 1.0f, 0.1f);
 
 	ImGui::EndGroup();
 }
@@ -193,30 +192,28 @@ void MungPlex::ProcessInformation::drawGameInformation()
 	if (!ImGui::CollapsingHeader("Game Information"))
 		return;
 
-	//ImGui::SeparatorText("Game Information");
-
 	static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
 
 	if (ImGui::BeginTable("Game Info", 2, flags))
 	{
-		for (const auto& [Entity, Location, Datatype,
-			Size, Hex, Value] : _gameEntities)
+		for (const auto& [Entity, Location, Datatype, Size, Hex, Value] : _gameEntities)
 		{
 			ImGui::TableNextRow();
 			for (int column = 0; column < 2; column++)
 			{
 				ImGui::TableSetColumnIndex(column);
-				char buf[256];
+				static std::string buf(256, 0);
+
 				if (column == 0)
 				{
-					sprintf_s(buf, Entity.c_str());
+					sprintf(buf.data(), Entity.c_str());
 				}
 				else
 				{
-					sprintf_s(buf, Value.c_str());
+					sprintf(buf.data(), Value.c_str());
 				}
 
-				ImGui::TextUnformatted(buf);
+				ImGui::TextUnformatted(buf.data());
 			}
 		}
 		ImGui::EndTable();
