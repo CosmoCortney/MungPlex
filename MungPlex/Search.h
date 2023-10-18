@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <iostream>
 #include <stdio.h>
 #include "GLFW/glfw3.h"
@@ -144,6 +144,8 @@ namespace MungPlex
         void generateDumpRegionMap();
         void emplaceDumpRegion(const uint16_t index);
         void setRecommendedValueSettings(const int valueType);
+        void setUpIterationSelect();
+        void setUpResultPaging();
 
         template<typename addressType> bool PokeText()
         {

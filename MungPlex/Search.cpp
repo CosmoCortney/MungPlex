@@ -686,25 +686,34 @@ void MungPlex::Search::PerformSearch()
 		_currentComparisionTypeSelect = MemoryCompare::KNOWN;
 
 	SetUpAndIterate();
-	_iterationCount = MemoryCompare::MemCompare::GetSearchStats().second;
 
-	int iter = MemoryCompare::MemCompare::GetSearchStats().second;
+	_iterationCount = MemoryCompare::MemCompare::GetSearchStats().second;
+	_resultsCount = MemoryCompare::MemCompare::GetSearchStats().first;
+
+	setUpIterationSelect();
+	setUpResultPaging();
+}
+
+void MungPlex::Search::setUpIterationSelect()
+{
+	int iter = _iterationCount;
 
 	if (iter < _iterations.size())
-		_iterations.erase(_iterations.begin() + iter-1, _iterations.end());
+		_iterations.erase(_iterations.begin() + iter - 1, _iterations.end());
 
 	_iterations.emplace_back(std::to_string(iter).c_str());
 	_iterationIndex = --iter;
 	_selectedIndices.resize(_maxResultsPerPage);
-	uint64_t resultCount = MemoryCompare::MemCompare::GetSearchStats().first;
-	_pagesAmountValue = resultCount / _maxResultsPerPage;
+}
 
-	if (resultCount % _maxResultsPerPage > 0)
+void MungPlex::Search::setUpResultPaging()
+{
+	_pagesAmountValue = _resultsCount / _maxResultsPerPage;
+
+	if (_resultsCount % _maxResultsPerPage > 0)
 		++_pagesAmountValue;
 
-	std::stringstream stream;
-	stream << std::dec << _pagesAmountValue;
-	stream >> _pagesAmountText;
+	_pagesAmountText = std::to_string(_pagesAmountValue);
 }
 
 void MungPlex::Search::primitiveTypeSearchLog()
