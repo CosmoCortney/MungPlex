@@ -378,18 +378,26 @@ bool MungPlex::ProcessInformation::initMelonDS()
 
 	for (const auto& region : _regions)
 	{
-		const uint64_t rSize = region.GetRegionSize();
+		if (region.GetRegionSize() != 0x10F0000)
+			continue;
 
-		if (rSize == 0x10F0000)
+		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+		char tempId[7] = "";
+		_process.ReadExRAM(tempId, region.GetBaseAddress<char*>() + 0x3FFA8C, 6);
+		_gameID = tempId;
+
+		if (_gameID.size() != 6)
 		{
-			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
-			char tempId[7] = "";
-			_process.ReadExRAM(tempId, region.GetBaseAddress<char*>() + 0x3FFA8C, 6);
+			_process.ReadExRAM(tempId, region.GetBaseAddress<char*>() + 0x3FFE0C, 6);
 			_gameID = tempId;
-			_platform = "NDS";
-			PointerSearch::SelectPreset(NDS);
-			return true;
 		}
+
+		if (_gameID.size() != 6)
+			continue;
+
+		_platform = "NDS";
+		PointerSearch::SelectPreset(NDS);
+		return true;
 	}
 
 	return false;
@@ -403,32 +411,28 @@ bool MungPlex::ProcessInformation::initYuzu()
 	{
 		const uint64_t rSize = region.GetRegionSize();
 
-		if (rSize == 0x100000000)
+		if (rSize != 0x100000000)
+			continue;
+		
+		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+		std::vector<uint64_t> dump(0x1000000/8);
+		_process.ReadExRAM(dump.data(), _systemRegions[0].BaseLocationProcess, 0x1000000);
+
+		//get title id
+		//todo: append patch number to id
+		//when games are closed and others are started IDs of previous games will remain in memory and cause retreival of wrong IDs
+		for (int i = 0; i < 0x1000000 / 8; ++i)
 		{
-			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
-			
-			uint64_t* dump = new uint64_t[0x1000000/8];
-			_process.ReadExRAM(dump, _systemRegions[0].BaseLocationProcess, 0x1000000);
+			if (dump[i] != 0xFFFFFFFF0000000)
+				continue;
 
-			//get title id
-			//todo: append patch number to id
-			//when games are closed and others are started IDs of previous games will remain in memory and cause retreival of wrong IDs
-			for (int i = 0; i < 0x1000000 / 8; ++i)
-			{
-				if (dump[i] == 0xFFFFFFFF0000000)
-				{
-					if (dump[i - 1] == 7)
-					{
-						_gameID = ToHexString(dump[i - 25], 16, false);
-						delete[] dump;
-						_platform = "Switch";
-						PointerSearch::SelectPreset(SWITCH);
-						return true;
-					}
-				}
-			}
-
-			delete[] dump;
+			if (dump[i - 1] != 7)
+				continue;
+				
+			_gameID = ToHexString(dump[i - 25], 16, false);
+			_platform = "Switch";
+			PointerSearch::SelectPreset(SWITCH);
+			return true;
 		}
 	}
 
@@ -457,22 +461,21 @@ bool MungPlex::ProcessInformation::initMesen()
 		if (regionSize < 0x100000 || regionSize > 0x1000000)
 			continue;
 
-		uint64_t* buf = new uint64_t[regionSize/8];
-		_process.ReadExRAM(buf, region.GetBaseAddress<void*>(), regionSize);
+		std::vector<uint64_t> buf(regionSize/8);
+		_process.ReadExRAM(buf.data(), region.GetBaseAddress<void*>(), regionSize);
 
 		for (int i = 0; i < regionSize/8; i += 2)
 		{
-			if (buf[i] == 0x78656C50676E754D)
-			{
-				//std::cout << "ram found!\n";
-				RAM = region.GetBaseAddress<char*>() + i * 8 - 0xD0;
-				ROMflag = buf[i + 1];
-				ramFound = true;
-				_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(RAM);
-				break;
-			}
+			if (buf[i] != 0x78656C50676E754D)
+				continue;
+			
+			//std::cout << "ram found!\n";
+			RAM = region.GetBaseAddress<char*>() + i * 8 - 0xD0;
+			ROMflag = buf[i + 1];
+			ramFound = true;
+			_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(RAM);
+			break;
 		}
-		delete[] buf;
 	}
 
 	if (!ramFound)
@@ -496,17 +499,16 @@ bool MungPlex::ProcessInformation::initMesen()
 
 		for (int i = 0; i < regionSize / 8; i += 2)
 		{
-			if (buf[i] == ROMflag)
-			{
-				//std::cout << "rom found!\n";
-				RAM = region.GetBaseAddress<char*>() + i * 8;
-				ROMflag = buf[i + 1];
-				romFound = true;
-				_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(RAM);
-				break;
-			}
+			if (buf[i] != ROMflag)
+				continue;
+			
+			//std::cout << "rom found!\n";
+			RAM = region.GetBaseAddress<char*>() + i * 8;
+			ROMflag = buf[i + 1];
+			romFound = true;
+			_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(RAM);
+			break;
 		}
-		delete[] buf;
 	}
 
 	if (!romFound)
@@ -536,19 +538,18 @@ bool MungPlex::ProcessInformation::initProject64()
 	{
 		const uint64_t rSize = region.GetRegionSize();
 
-		if (rSize == 0x400000 || rSize == 0x800000)
-		{
-			uint32_t temp;
+		if (!(rSize == 0x400000 || rSize == 0x800000))
+			continue;
 
-			_process.ReadExRAM(&temp, region.GetBaseAddress<char*>() + 8, 4);
+		uint32_t temp;
+		_process.ReadExRAM(&temp, region.GetBaseAddress<char*>() + 8, 4);
 
-			if (temp == 0x03400008)
-			{
-				_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
-				found = true;
-				break;
-			}
-		}
+		if (temp != 0x03400008)
+			continue;
+
+		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+		found = true;
+		break;
 	}
 
 	if (!found)
@@ -558,29 +559,25 @@ bool MungPlex::ProcessInformation::initProject64()
 	{
 		const uint64_t rSize = region.GetRegionSize();
 
-		if (rSize >= 0x400000)
-		{
-			uint64_t temp;
+		if (rSize < 0x400000)
+			continue;
+		
+		uint64_t temp;
+		_process.ReadExRAM(&temp, region.GetBaseAddress<char*>(), 8);
 
-			_process.ReadExRAM(&temp, region.GetBaseAddress<char*>(), 8);
-
-			if (temp == 0x0000000F80371240)
-			{
-				region.SetProtect(_handle, PAGE_EXECUTE_READWRITE);
-				_systemRegions[1].BaseLocationProcess = region.GetBaseAddress<void*>();
-				_systemRegions[1].Size = rSize;
-				found = true;
-				_platform = "Nintendo 64";
-				char tempID[5] = "";
-				_process.ReadExRAM(tempID, region.GetBaseAddress<char*>() + 0x38, 1);
-				_process.ReadExRAM(tempID + 1, region.GetBaseAddress<char*>() + 0x3F, 1);
-				_process.ReadExRAM(tempID + 2, region.GetBaseAddress<char*>() + 0x3E, 1);
-				_process.ReadExRAM(tempID + 3, region.GetBaseAddress<char*>() + 0x3D, 1);
-				_gameID = std::string(tempID);
-				PointerSearch::SelectPreset(N64);
-				break;
-			}
-		}
+		if (temp != 0x0000000F80371240)
+			continue;
+		
+		region.SetProtect(_handle, PAGE_EXECUTE_READWRITE);
+		_systemRegions[1].BaseLocationProcess = region.GetBaseAddress<void*>();
+		_systemRegions[1].Size = rSize;
+		found = true;
+		_platform = "Nintendo 64";
+		char tempID[5] = "";
+		ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(tempID), region.GetBaseAddress<char*>() + 0x3B);
+		_gameID = std::string(tempID);
+		PointerSearch::SelectPreset(N64);
+		break;
 	}
 	
 	return found;
@@ -616,13 +613,13 @@ bool MungPlex::ProcessInformation::initNo$psx()
 
 	for (const Xertz::MemoryRegion& region : _regions)
 	{
-		if (region.GetRegionSize() == 0x459000)
-		{
-			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x30100;
-			_gameID = std::string(12, 0);
-			_process.ReadExRAM(_gameID.data(), region.GetBaseAddress<char*>() + 0x30100 + 0x00003A49, 11);
-			return true;
-		}
+		if (region.GetRegionSize() != 0x459000)
+			continue;
+
+		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x30100;
+		_gameID = std::string(12, 0);
+		_process.ReadExRAM(_gameID.data(), region.GetBaseAddress<char*>() + 0x30100 + 0x00003A49, 11);
+		return true;
 	}
 
 	return false;
@@ -641,8 +638,8 @@ bool MungPlex::ProcessInformation::initRpcs3()
 
 	uint32_t bufSize = 0x2000000;
 	char* exeAddr = reinterpret_cast<char*>(_process.GetModuleAddress(L"rpcs3.exe")+0x2000000);
-	char* buf = new char[bufSize];
-	_process.ReadExRAM(buf, exeAddr, bufSize);
+	std::vector<char> buf(bufSize);
+	_process.ReadExRAM(buf.data(), exeAddr, bufSize);
 
 	for (int offset = 0; offset < bufSize; ++offset)
 	{
@@ -651,11 +648,9 @@ bool MungPlex::ProcessInformation::initRpcs3()
 
 		_gameID = reinterpret_cast<char*>(&buf[offset + 16]);
 		_gameID.resize(9);
-		delete[] buf;
 		return true;
 	}
 
-	delete[] buf;
 	return false;
 }
 
@@ -687,8 +682,8 @@ bool MungPlex::ProcessInformation::initPcsx2()
 
 		uint32_t bufSize = 0x1000000;
 		uint64_t* exeAddr = reinterpret_cast<uint64_t*>(_process.GetModuleAddress(L"pcsx2-qt.exe"));
-		uint64_t* buf = new uint64_t[bufSize / sizeof(uint64_t)];
-		_process.ReadExRAM(buf, exeAddr, bufSize);
+		std::vector<uint64_t> buf(bufSize / sizeof(uint64_t));
+		_process.ReadExRAM(buf.data(), exeAddr, bufSize);
 
 		for (int offset = 0; offset < bufSize / sizeof(uint64_t); ++offset)
 		{
@@ -696,10 +691,8 @@ bool MungPlex::ProcessInformation::initPcsx2()
 				continue;
 
 			_gameID = reinterpret_cast<char*>(&buf[offset + 7]);
-			delete[] buf;
 			return true;
 		}
-		delete[] buf;
 	}
 
 	return false;
@@ -721,18 +714,18 @@ bool MungPlex::ProcessInformation::initDolphin()
 
 	for (const auto& _region : _regions)
 	{
-		if (_region.GetRegionSize() == 0x2000000)
-		{
-			_process.ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x28), 4);
-			_process.ReadExRAM(&flagGCN, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x18), 4);
-			_process.ReadExRAM(&flagWii, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x1C), 4);
+		if (_region.GetRegionSize() != 0x2000000)
+			continue;
 
-			if (temp == 0x8001)
-			{
-				_systemRegions[0].BaseLocationProcess = _region.GetBaseAddress<void*>();
-				break;
-			}
-		}
+		_process.ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x28), 4);
+		_process.ReadExRAM(&flagGCN, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x18), 4);
+		_process.ReadExRAM(&flagWii, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x1C), 4);
+
+		if (temp != 0x8001)
+			continue;
+
+		_systemRegions[0].BaseLocationProcess = _region.GetBaseAddress<void*>();
+		break;
 	}
 
 	_process.ReadExRAM(tempID, _systemRegions[0].BaseLocationProcess, 6);
@@ -752,16 +745,16 @@ bool MungPlex::ProcessInformation::initDolphin()
 
 	for (const auto& _region : _regions)
 	{
-		if (_region.GetRegionSize() == 0x4000000)
-		{
-			unsigned char temp;
-			_process.ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 1), 1);
+		if (_region.GetRegionSize() != 0x4000000)
+			continue;
 
-			if (temp == 0x9f)
-			{
-				_systemRegions[1].BaseLocationProcess = _region.GetBaseAddress<void*>();
-				break;
-			}
+		unsigned char temp;
+		_process.ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 1), 1);
+
+		if (temp == 0x9f)
+		{
+			_systemRegions[1].BaseLocationProcess = _region.GetBaseAddress<void*>();
+			break;
 		}
 	}
 
@@ -800,33 +793,33 @@ bool MungPlex::ProcessInformation::initCemu()
 			//return true;
 		}
 
-		if (region.GetRegionSize() == 0x1E000 && !titleIDFound)
+		if (!(region.GetRegionSize() == 0x1E000 && !titleIDFound))
+			continue;
+		
+		const int bufSize = 0x6000;
+		std::vector<char> buf(bufSize);
+		_process.ReadExRAM(buf.data(), region.GetBaseAddress<void*>(), bufSize);
+
+		//get title type id, title id and version
+		for (int offset = 0; offset < bufSize; offset += 4)
 		{
-			const int bufSize = 0x6000;
-			char buf[bufSize];
-			_process.ReadExRAM(&buf, region.GetBaseAddress<void*>(), bufSize);
-
-			//get title type id, title id and version
-			for (int offset = 0; offset < bufSize; offset += 4)
+			if (*reinterpret_cast<int*>(buf.data() + offset) != 0x746F6F52)
+				continue;
+			
+			for (int i = 0x9C; i <= 0xA4; i += 4)
 			{
-				if (*reinterpret_cast<int*>(buf + offset) == 0x746F6F52)
-				{
-					for (int i = 0x9C; i <= 0xA4; i += 4)
-					{
-						uint32_t tempID = *reinterpret_cast<uint32_t*>(buf + offset + i);
-						tempID = Xertz::SwapBytes<uint32_t>(tempID);
+				uint32_t tempID = *reinterpret_cast<uint32_t*>(buf.data() + offset + i);
+				tempID = Xertz::SwapBytes<uint32_t>(tempID);
 
-						if (i == 0x9C && tempID != 0x00050000)
-							break;
+				if (i == 0x9C && tempID != 0x00050000)
+					break;
 
-						_gameID.append(ToHexString(tempID, 8, false));
+				_gameID.append(ToHexString(tempID, 8, false));
 
-						if(i <= 0xA0)
-							_gameID.append("-");
+				if(i <= 0xA0)
+					_gameID.append("-");
 
-						titleIDFound = true;
-					}
-				}
+				titleIDFound = true;
 			}
 		}
 	}
