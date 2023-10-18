@@ -112,7 +112,7 @@ void MungPlex::Search::DrawWindow()
 void MungPlex::Search::DrawValueTypeOptions()
 {
 	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.19f };
-	char buf[256] = { "" };
+
 	ImGui::BeginChild("child_valueOptions", childXY, true);
 	{
 		ImGui::SeparatorText("Value Type Options");
@@ -316,12 +316,8 @@ void MungPlex::Search::DrawSearchOptions()
 			SetUpCombo("Counter Iteration:", _iterations, _iterationIndex, 0.5f, 0.4f);
 		if (!iterationCount) ImGui::EndDisabled();
 		
-		if (SetUpInputText("Alignment:", _alignmentText, IM_ARRAYSIZE(_alignmentText),0.5f, 0.4f))
+		if(SetUpInputInt("Alignment:", &_alignmentValue, 1, 1, 0.5f, 0.4f, 0, true, "This value specifies the increment of the next address to be scanned. 1 means that the following value to be scanned is the at the current address + 1. Here are some recommendations for each value type: Int8/Text/Color/Array<Int8> - 1, Int16/Color/Array<Int16> - 2, Int32/Int64/Float/Double/Color/Array<Int32>/Array<Int64> - 4. Systems that use less than 4MBs of RAM (PS1, SNES, MegaDrive, ...) should always consider an alignment of 1, despite the value recommendations."))
 		{
-			std::stringstream stream;
-			stream << std::hex << std::string(_alignmentText);
-			stream >> _alignmentValue;
-
 			if (_alignmentValue < 1)
 				_alignmentValue = 1;
 		}
@@ -1401,4 +1397,9 @@ void MungPlex::Search::SetUnderlyingBigEndianFlag(const bool isBigEndian)
 void MungPlex::Search::SetRereorderRegion(const bool rereorder)
 {
 	GetInstance()._rereorderRegion = rereorder;
+}
+
+void MungPlex::Search::SetAlignment(const int alignment)
+{
+	GetInstance()._alignmentValue = alignment;
 }

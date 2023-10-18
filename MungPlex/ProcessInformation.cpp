@@ -13,6 +13,7 @@ Xertz::ProcessInfo MungPlex::ProcessInformation::_process;
 bool MungPlex::ProcessInformation::_isX64;
 bool MungPlex::ProcessInformation::_underlyingIsBigEndian;
 bool MungPlex::ProcessInformation::_rereorderRegion;
+int MungPlex::ProcessInformation::_alignment;
 std::string MungPlex::ProcessInformation::_gameID;
 std::string MungPlex::ProcessInformation::_platform;
 std::string MungPlex::ProcessInformation::_processName;
@@ -352,7 +353,7 @@ bool MungPlex::ProcessInformation::connectToProcessFR()
 		 return false;
 
 	 RefreshRegionlistPC();
-	 setMiscProcessInfo(_process.GetProcessName(), false, false, _process.IsX64() ? 8 : 4);
+	 setMiscProcessInfo(_process.GetProcessName(), false, false, _process.IsX64() ? 8 : 4, 4);
 	 GetInstance().setupSearch();
 	 GetInstance().GetInstance()._processType = NATIVE;
 	 Cheats::SetPlatform("PC");
@@ -365,6 +366,7 @@ void MungPlex::ProcessInformation::setupSearch()
 {
 	Search::SetRereorderRegion(_rereorderRegion);
 	Search::SetUnderlyingBigEndianFlag(_underlyingIsBigEndian);
+	Search::SetAlignment(_alignment);
 }
 
 void MungPlex::ProcessInformation::setupCheats()
@@ -378,7 +380,7 @@ void MungPlex::ProcessInformation::setupCheats()
 
 bool MungPlex::ProcessInformation::initMelonDS()
 {
-	setMiscProcessInfo("melonDS", false, false, 4);
+	setMiscProcessInfo("melonDS", false, false, 4, 4);
 
 	for (const auto& region : _regions)
 	{
@@ -401,7 +403,7 @@ bool MungPlex::ProcessInformation::initMelonDS()
 
 bool MungPlex::ProcessInformation::initYuzu()
 {
-	setMiscProcessInfo("Yuzu", false, false, 8);
+	setMiscProcessInfo("Yuzu", false, false, 8, 4);
 
 	for (const auto& region : _regions)
 	{
@@ -441,7 +443,7 @@ bool MungPlex::ProcessInformation::initYuzu()
 
 bool MungPlex::ProcessInformation::initMesen()
 {
-	setMiscProcessInfo("Mesen", false, false, 2);
+	setMiscProcessInfo("Mesen", false, false, 2, 1);
 	_platform = "SNES";
 	bool ramFound = false;
 	bool romFound = false;
@@ -533,7 +535,7 @@ bool MungPlex::ProcessInformation::initMesen()
 
 bool MungPlex::ProcessInformation::initProject64()
 {
-	setMiscProcessInfo("Project64", true, true, 4);
+	setMiscProcessInfo("Project64", true, true, 4, 4);
 	bool found = false;
 
 	for (const auto& region : _regions)
@@ -602,17 +604,19 @@ bool MungPlex::ProcessInformation::initProcess(const std::wstring& processName)
 	return true;
 }
 
-void MungPlex::ProcessInformation::setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth)
+void MungPlex::ProcessInformation::setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth, const int alignment)
 {
 	_processName = processName;
 	_underlyingIsBigEndian = bigEndian;
 	_addressWidth = addressWidth;
 	_rereorderRegion = rereorder;
+	_alignment = alignment;
+
 }
 
 bool MungPlex::ProcessInformation::initNo$psx()
 {
-	setMiscProcessInfo("No$psx", false, false, 4);
+	setMiscProcessInfo("No$psx", false, false, 4, 1);
 	_platform = "PS1";
 	PointerSearch::SelectPreset(PS1);
 
@@ -632,7 +636,7 @@ bool MungPlex::ProcessInformation::initNo$psx()
 
 bool MungPlex::ProcessInformation::initRpcs3()
 {
-	setMiscProcessInfo("Rpcs3", true, false, 4);
+	setMiscProcessInfo("Rpcs3", true, false, 4, 4);
 	_platform = "PS3";
 	PointerSearch::SelectPreset(PS3);
 
@@ -663,7 +667,7 @@ bool MungPlex::ProcessInformation::initRpcs3()
 
 bool MungPlex::ProcessInformation::initPcsx2()
 {
-	setMiscProcessInfo("Pcsx2", false, false, 4);
+	setMiscProcessInfo("Pcsx2", false, false, 4, 4);
 	_platform = "PS2";
 	PointerSearch::SelectPreset(PS2);
 
@@ -709,7 +713,7 @@ bool MungPlex::ProcessInformation::initPcsx2()
 
 bool MungPlex::ProcessInformation::initDolphin()
 {
-	setMiscProcessInfo("Dolphin", true, false, 4);
+	setMiscProcessInfo("Dolphin", true, false, 4, 4);
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
 	_systemRegions.erase(_systemRegions.begin() + 2); // |- remove these lines once caches and sram are figured out
 	_systemRegions.erase(_systemRegions.begin() + 2); //--
@@ -788,7 +792,7 @@ bool MungPlex::ProcessInformation::initDolphin()
 
 bool MungPlex::ProcessInformation::initCemu()
 {
-	setMiscProcessInfo("Cemu", true, false, 4);
+	setMiscProcessInfo("Cemu", true, false, 4, 4);
 	bool titleIDFound = false;
 	_platform = "Wii U";
 	PointerSearch::SelectPreset(WIIU);
@@ -838,7 +842,7 @@ bool MungPlex::ProcessInformation::initCemu()
 
 bool MungPlex::ProcessInformation::initPPSSPP()
 {
-	setMiscProcessInfo("PPSSPP", false, false, 4);
+	setMiscProcessInfo("PPSSPP", false, false, 4, 4);
 	bool titleIDFound = false;
 	_platform = "PSP";
 	PointerSearch::SelectPreset(PSP);

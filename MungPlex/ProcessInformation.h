@@ -64,6 +64,7 @@ namespace MungPlex
         static bool _isX64;
         static bool _underlyingIsBigEndian;
         static bool _rereorderRegion;
+        static int _alignment;
         static std::string _gameID;
         static std::string _platform;
         static std::string _processName;
@@ -97,7 +98,7 @@ namespace MungPlex
         static void setupSearch();
         static void setupCheats();
         static bool connectToProcessFR();
-        static void setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth);
+        static void setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth, const int alignment);
 
     public:
         enum ProcessType

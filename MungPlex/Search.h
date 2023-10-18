@@ -63,7 +63,6 @@ namespace MungPlex
         ImVec4 _colorVec;
 
         //search settings
-        char _alignmentText[8] = { "4" };
         int _alignmentValue = 4;
         int _lastRangeSelect = -1;
         bool _signed = false;
@@ -639,6 +638,7 @@ namespace MungPlex
         static void DrawWindow();
         static void SetUnderlyingBigEndianFlag(const bool isBigEndian);
         static void SetRereorderRegion(const bool rereorder);
+        static void SetAlignment(const int alignment);
 
         SignalCombo<SystemRegion> _RegionSelectSignalCombo;
         SignalInputText _SignalInputTextRangeStart;
