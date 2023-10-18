@@ -140,7 +140,10 @@ void MungPlex::Search::DrawValueTypeOptions()
 				ImGui::Checkbox("Big Endian", &_underlyingBigEndian);
 
 				if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
-				SetUpCombo("Primitive Type:", _searchPrimitiveTypes, _currentPrimitiveTypeSelect, 0.5f, 0.4f);
+				{
+					if (SetUpCombo("Primitive Type:", _searchPrimitiveTypes, _currentPrimitiveTypeSelect, 0.5f, 0.4f))
+						setRecommendedValueSettings(PRIMITIVE);
+				}
 				if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
 
 				ImGui::SameLine();
@@ -150,15 +153,24 @@ void MungPlex::Search::DrawValueTypeOptions()
 				if (_disableBecauseNoInt) ImGui::EndDisabled();
 
 				if (_disableBecauseNoArray) ImGui::BeginDisabled();
-				SetUpCombo("Array Type:", _searchArrayTypes, _currentArrayTypeSelect, 0.5f, 0.4f); //use primitived types here once Arrays support floats
+				{
+					if(SetUpCombo("Array Type:", _searchArrayTypes, _currentArrayTypeSelect, 0.5f, 0.4f)) //use primitived types here once Arrays support floats
+						setRecommendedValueSettings(ARRAY);
+				}
 				if (_disableBecauseNoArray) ImGui::EndDisabled();
 
 				if (_disableBecauseNoText) ImGui::BeginDisabled();
-				SetUpCombo("Text Type:", _searchTextTypes, _currentTextTypeSelect, 0.5f, 0.4f);
+				{
+					if(SetUpCombo("Text Type:", _searchTextTypes, _currentTextTypeSelect, 0.5f, 0.4f))
+						setRecommendedValueSettings(TEXT);
+				}
 				if (_disableBecauseNoText) ImGui::EndDisabled();
 
 				if (_disableBecauseNoColor) ImGui::BeginDisabled();
-				SetUpCombo("Color Type:", _searchColorTypes, _currentColorTypeSelect, 0.5f, 0.4f);
+				{
+					if(SetUpCombo("Color Type:", _searchColorTypes, _currentColorTypeSelect, 0.5f, 0.4f))
+						setRecommendedValueSettings(COLOR);
+				}
 				if (_disableBecauseNoColor) ImGui::EndDisabled();
 
 				ImGui::SameLine();
@@ -1402,4 +1414,54 @@ void MungPlex::Search::SetRereorderRegion(const bool rereorder)
 void MungPlex::Search::SetAlignment(const int alignment)
 {
 	GetInstance()._alignmentValue = alignment;
+}
+
+void MungPlex::Search::setRecommendedValueSettings(const int valueType)
+{
+	switch (valueType)
+	{
+		case ARRAY:
+			_currentColorTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeSelect = 0;
+		break;	
+		case COLOR:
+			_currentArrayTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeSelect = 0;
+			break;
+		case TEXT:
+			_currentColorTypeSelect = _currentPrimitiveTypeSelect = _currentArrayTypeSelect = 0;
+		break;
+		default: //PRIMITIVE
+			_currentColorTypeSelect = _currentArrayTypeSelect = _currentTextTypeSelect = 0;
+	}
+
+	switch (_currentValueTypeSelect)
+	{
+	case COLOR:
+		switch (_currentColorTypeSelect)
+		{
+			case LitColor::RGB565: case LitColor::RGB5A3:
+				_alignmentValue = 2;
+			break;
+			case LitColor::RGB888:
+				_alignmentValue = 1;
+			break;
+			default:
+				_alignmentValue = 4;
+		}
+	break;
+	case TEXT:
+		_alignmentValue = 1;
+	break;
+	default:// PRIMITIVE, ARRAY
+		switch (_currentArrayTypeSelect | _currentPrimitiveTypeSelect)
+		{
+			case INT8:
+				_alignmentValue = 1;
+			break;
+			case INT16:
+				_alignmentValue = 2;
+			break;
+			default: //INT32, INT64
+			_alignmentValue = 4;
+		}
+	}
 }

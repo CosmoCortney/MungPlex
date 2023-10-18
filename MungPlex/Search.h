@@ -143,6 +143,7 @@ namespace MungPlex
         void drawResultsTableNew();
         void generateDumpRegionMap();
         void emplaceDumpRegion(const uint16_t index);
+        void setRecommendedValueSettings(const int valueType);
 
         template<typename addressType> bool PokeText()
         {
