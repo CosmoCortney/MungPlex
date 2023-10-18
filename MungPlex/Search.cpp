@@ -72,8 +72,8 @@ MungPlex::Search::Search()
 	_RegionSelectSignalCombo.ConnectOnIndexChanged(Slot_IndexChanged);
 	_RegionSelectSignalCombo.ConnectOnItemCountChanged(Slot_ItemCountChanged);
 	_RegionSelectSignalCombo.ConnectOnTextChanged(Slot_TextChanged);
-	_SignalInputTextRangeStart.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeStartText, std::ref(_rangeStartValue)));
-	_SignalInputTextRangeEnd.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeEndText, std::ref(_rangeEndValue)));
+	_SignalInputTextRangeStart.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeStartText.Data(), std::ref(_rangeStartValue)));
+	_SignalInputTextRangeEnd.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeEndText.Data(), std::ref(_rangeEndValue)));
 
 	_selectedIndices.resize(_maxResultsPerPage);
 	_alignmentValue = Settings::GetSearchSettings().DefaultAlignment;
@@ -121,7 +121,8 @@ void MungPlex::Search::DrawValueTypeOptions()
 		{
 			ImGui::BeginGroup();
 			{
-				MungPlex::SetUpCombo("Value Type:", _searchValueTypes, _currentValueTypeSelect, 0.5f, 0.4f);
+				if (MungPlex::SetUpCombo("Value Type:", _searchValueTypes, _currentValueTypeSelect, 0.5f, 0.4f))
+					_updateLabels = true;
 
 				_disableBecauseNoPrimitive = _currentValueTypeSelect != PRIMITIVE;
 				_disableBecauseNoArray = _currentValueTypeSelect != ARRAY;
@@ -149,19 +150,19 @@ void MungPlex::Search::DrawValueTypeOptions()
 				ImGui::SameLine();
 
 				if (_disableBecauseNoInt) ImGui::BeginDisabled();
-				ImGui::Checkbox("Signed", &_signed);
+					ImGui::Checkbox("Signed", &_signed);
 				if (_disableBecauseNoInt) ImGui::EndDisabled();
 
 				if (_disableBecauseNoArray) ImGui::BeginDisabled();
 				{
-					if(SetUpCombo("Array Type:", _searchArrayTypes, _currentArrayTypeSelect, 0.5f, 0.4f)) //use primitived types here once Arrays support floats
+					if (SetUpCombo("Array Type:", _searchArrayTypes, _currentArrayTypeSelect, 0.5f, 0.4f)) //use primitived types here once Arrays support floats
 						setRecommendedValueSettings(ARRAY);
 				}
 				if (_disableBecauseNoArray) ImGui::EndDisabled();
 
 				if (_disableBecauseNoText) ImGui::BeginDisabled();
 				{
-					if(SetUpCombo("Text Type:", _searchTextTypes, _currentTextTypeSelect, 0.5f, 0.4f))
+					if (SetUpCombo("Text Type:", _searchTextTypes, _currentTextTypeSelect, 0.5f, 0.4f))
 						setRecommendedValueSettings(TEXT);
 				}
 				if (_disableBecauseNoText) ImGui::EndDisabled();
@@ -181,7 +182,7 @@ void MungPlex::Search::DrawValueTypeOptions()
 				ImGui::SameLine();
 
 				if (_disableBecauseNoColor || _currentColorTypeSelect != LitColor::RGB5A3) ImGui::BeginDisabled();
-				ImGui::Checkbox("Force Alpha", &_forceAlpha);
+					ImGui::Checkbox("Force Alpha", &_forceAlpha);
 				if (_disableBecauseNoColor || _currentColorTypeSelect != LitColor::RGB5A3) ImGui::EndDisabled();
 			}
 			ImGui::EndGroup();
@@ -203,10 +204,23 @@ void MungPlex::Search::DrawRangeOptions()
 		{
 			ImGui::BeginGroup();
 			{
+				static std::stringstream stream;
 				_regions = ProcessInformation::GetRegions();
 				_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.5f, 0.4f);
-				_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText, IM_ARRAYSIZE(_rangeStartText), 0.5f, 0.4f);
-				_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText, IM_ARRAYSIZE(_rangeEndText), 0.5f, 0.4f);
+
+				if(_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText.Data(), _rangeStartText.Size(), 0.5f, 0.4f))
+				{
+					stream << _rangeStartText.StdStr();
+					stream >> std::hex >> _rangeStartValue;
+					stream.str(std::string());
+				}
+
+				if(_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText.Data(), _rangeEndText.Size(), 0.5f, 0.4f))
+				{
+					stream << _rangeEndText.StdStr();
+					stream >> std::hex >> _rangeEndValue;
+					stream.str(std::string());
+				}
 			}
 			ImGui::EndGroup();
 
@@ -230,8 +244,8 @@ void MungPlex::Search::DrawRangeOptions()
 						hexEndStr = ToHexString(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1, 0);
 					}
 
-					strcpy_s(_rangeStartText, hexStartStr.c_str());
-					strcpy_s(_rangeEndText, hexEndStr.c_str());
+					_rangeStartText = hexStartStr;
+					_rangeEndText = hexEndStr;
 				}
 
 				ImGui::Checkbox("Re-reorder Region", &_rereorderRegion);
@@ -241,9 +255,6 @@ void MungPlex::Search::DrawRangeOptions()
 				if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::BeginDisabled();
 				{
 					static bool refresh = false;
-
-					//if (ImGui::Checkbox("Read", &_read))
-					//	refresh = true;
 
 					if (ImGui::Checkbox("Write", &_write))
 						refresh = true;
@@ -275,56 +286,60 @@ void MungPlex::Search::DrawSearchOptions()
 	ImGui::BeginChild("child_searchOptions", childXY, true);
 	{
 		ImGui::SeparatorText("Search Options");
-		static char knownPrimaryValueLabel[64];
-		static char knownSecondaryValueLabel[64];
+		static std::string knownPrimaryValueLabel;
+		static std::string knownSecondaryValueLabel;
 		static bool disablePrimaryValueText = false;
 		static bool disableSecondaryValueText = true;
 		int iterationCount = MemoryCompare::MemCompare::GetSearchStats().second;
 
 		_diableBecauseUnknownAndNotRangebased = _currentComparisionTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
 
-		switch (_currentValueTypeSelect)
+		if (_updateLabels)
 		{
-		case ARRAY:
-			strcpy_s(knownPrimaryValueLabel, "Array Expression:");
-			strcpy_s(knownSecondaryValueLabel, "Not applicable");
-			break;
-		case COLOR:
-			strcpy_s(knownPrimaryValueLabel, "Color Expression:");
-			strcpy_s(knownSecondaryValueLabel, "Not applicable");
-			break;
-		case TEXT:
-			strcpy_s(knownPrimaryValueLabel, "Text Value:");
-			strcpy_s(knownSecondaryValueLabel, "Not applicable");
-			break;
-		default: //PRIMITIVE
-			if (_currentConditionTypeSelect == MemoryCompare::BETWEEN)
+			switch (_currentValueTypeSelect)
 			{
-				strcpy_s(knownPrimaryValueLabel, "Lowest:");
-				strcpy_s(knownSecondaryValueLabel, "Highest:");
-				disableSecondaryValueText = false;
+			case ARRAY:
+				knownPrimaryValueLabel = "Array Expression:";
+				knownSecondaryValueLabel = "Not applicable";
+				break;
+			case COLOR:
+				knownPrimaryValueLabel, "Color Expression:";
+				knownSecondaryValueLabel, "Not applicable";
+				break;
+			case TEXT:
+				knownPrimaryValueLabel = "Text Value:";
+				knownSecondaryValueLabel = "Not applicable";
+				break;
+			default: //PRIMITIVE
+				if (_currentConditionTypeSelect == MemoryCompare::BETWEEN)
+				{
+					knownPrimaryValueLabel = "Lowest:";
+					knownSecondaryValueLabel = "Highest:";
+					disableSecondaryValueText = false;
+				}
+				else if (_currentConditionTypeSelect == MemoryCompare::NOT_BETWEEN)
+				{
+					knownPrimaryValueLabel = "Below:";
+					knownSecondaryValueLabel = "Above:";
+					disableSecondaryValueText = false;
+				}
+				else if (_currentConditionTypeSelect == MemoryCompare::INCREASED_BY)
+				{
+					knownPrimaryValueLabel = "Increased by:";
+					knownSecondaryValueLabel = "Not applicable";
+				}
+				else if (_currentConditionTypeSelect == MemoryCompare::DECREASED_BY)
+				{
+					knownPrimaryValueLabel = "Decreased by:";
+					knownSecondaryValueLabel = "Not applicable";
+				}
+				else
+				{
+					knownPrimaryValueLabel = "Value:";
+					knownSecondaryValueLabel = "Not applicable";
+				}
 			}
-			else if (_currentConditionTypeSelect == MemoryCompare::NOT_BETWEEN)
-			{
-				strcpy_s(knownPrimaryValueLabel, "Below:");
-				strcpy_s(knownSecondaryValueLabel, "Above:");
-				disableSecondaryValueText = false;
-			}
-			else if (_currentConditionTypeSelect == MemoryCompare::INCREASED_BY)
-			{
-				strcpy_s(knownPrimaryValueLabel, "Increased by:");
-				strcpy_s(knownSecondaryValueLabel, "Not applicable");
-			}
-			else if (_currentConditionTypeSelect == MemoryCompare::DECREASED_BY)
-			{
-				strcpy_s(knownPrimaryValueLabel, "Decreased by:");
-				strcpy_s(knownSecondaryValueLabel, "Not applicable");
-			}
-			else
-			{
-				strcpy_s(knownPrimaryValueLabel, "Value:");
-				strcpy_s(knownSecondaryValueLabel, "Not applicable");
-			}
+			_updateLabels = false;
 		}
 
 		ImGui::BeginGroup();
@@ -340,7 +355,10 @@ void MungPlex::Search::DrawSearchOptions()
 		}
 
 		if(!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Comparision Type:", _searchComparasionType, _currentComparisionTypeSelect, 0.5f, 0.4f);
+		{
+			if (MungPlex::SetUpCombo("Comparision Type:", _searchComparasionType, _currentComparisionTypeSelect, 0.5f, 0.4f))
+				_updateLabels = true;
+		}
 		if (!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::EndDisabled();
 
 		std::vector<std::pair<std::string, int>>* conditionTypeItems;
@@ -364,27 +382,26 @@ void MungPlex::Search::DrawSearchOptions()
 		}
 
 		if (!_disableBecauseNoText) ImGui::BeginDisabled();
-			MungPlex::SetUpCombo("Condition Type:", *conditionTypeItems, _currentConditionTypeSelect, 0.5f, 0.4f);
+		{
+			if (SetUpCombo("Condition Type:", *conditionTypeItems, _currentConditionTypeSelect, 0.5f, 0.4f))
+				_updateLabels = true;
+		}
 		if (!_disableBecauseNoText) ImGui::EndDisabled();
 
 		if (_diableBecauseUnknownAndNotRangebased) ImGui::BeginDisabled();
-		if (SetUpInputText(knownPrimaryValueLabel, _knownValueText, IM_ARRAYSIZE(_knownValueText), 0.5f, 0.4f))
-		{
-		}
+			SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 0.5f, 0.4f);
 		if (_diableBecauseUnknownAndNotRangebased) ImGui::EndDisabled();
 
 		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < MemoryCompare::BETWEEN || _currentConditionTypeSelect > MemoryCompare::NOT_BETWEEN))) ImGui::BeginDisabled();
-		if (SetUpInputText(knownSecondaryValueLabel, _secondaryKnownValueText, IM_ARRAYSIZE(_secondaryKnownValueText), 0.5f, 0.4f))
-		{
-		}
+			SetUpInputText(knownSecondaryValueLabel, _secondaryKnownValueText.Data(), _secondaryKnownValueText.Size(), 0.5f, 0.4f);
 		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < MemoryCompare::BETWEEN || _currentConditionTypeSelect > MemoryCompare::NOT_BETWEEN))) ImGui::EndDisabled();
 
 		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::BeginDisabled();
-		SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 0.5f, 0.4f);
+			SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 0.5f, 0.4f);
 		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::EndDisabled();
 		
 		if (iterationCount) ImGui::BeginDisabled();
-		ImGui::Checkbox("Cached", &GetInstance()._cached);
+			ImGui::Checkbox("Cached", &GetInstance()._cached);
 		if (iterationCount) ImGui::EndDisabled();
 
 		ImGui::SameLine();
@@ -394,7 +411,7 @@ void MungPlex::Search::DrawSearchOptions()
 		_disableBecauseNoText = _currentValueTypeSelect != TEXT;
 
 		if (_disableBecauseNoText) ImGui::BeginDisabled();
-		ImGui::Checkbox("Case Sensitive", &_caseSensitive);
+			ImGui::Checkbox("Case Sensitive", &_caseSensitive);
 		if (_disableBecauseNoText) ImGui::EndDisabled();
 		
 
@@ -452,7 +469,7 @@ void MungPlex::Search::DrawSearchOptions()
 			ImGui::PopItemWidth();
 
 			if (!_disableBecauseNoColor)
-				ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText, _forceAlpha);
+				ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText.Data(), _forceAlpha);
 
 
 			ImGui::Checkbox("Color Wheel", &_useColorWheel);
@@ -494,8 +511,8 @@ void MungPlex::Search::DrawResultsArea()
 
 				ImGui::BeginGroup();
 				{
-					SetUpInputText("Address:", _pokeAddressText, IM_ARRAYSIZE(_pokeAddressText), 1.0f, 0.2f);
-					SetUpInputText("Value:", _pokeValueText, IM_ARRAYSIZE(_pokeValueText), 1.0f, 0.2f);
+					SetUpInputText("Address:", _pokeAddressText.Data(), _pokeAddressText.Size(), 1.0f, 0.2f);
+					SetUpInputText("Value:", _pokeValueText.Data(), _pokeValueText.Size(), 1.0f, 0.2f);
 				}
 				ImGui::EndGroup();
 
@@ -534,14 +551,13 @@ void MungPlex::Search::DrawResultsArea()
 				if (ImGui::Button("Poke"))
 				{
 					_pokeValue.clear();
-					std::stringstream stream;
+					static std::stringstream stream;
 
 					if (!_multiPoke)
 					{
-						stream << std::hex << std::string(_pokeAddressText);
+						stream << std::hex << std::string(_pokeAddressText.CStr());
 						stream >> _pokeAddress;
 						stream.str(std::string());
-						stream.clear();
 					}
 
 					switch (_currentValueTypeSelect)
@@ -604,11 +620,11 @@ void MungPlex::Search::DrawResultsArea()
 
 						if (_hex && _currentPrimitiveTypeSelect < FLOAT)
 						{
-							stream << std::hex << std::string(_pokeValueText);
+							stream << std::hex << _pokeValueText.CStr();
 							stream >> tempVal;
 						}
 						else
-							tempVal = std::stoll(_pokeValueText);
+							tempVal = std::stoll(_pokeValueText.CStr());
 
 						switch (_currentPrimitiveTypeSelect)
 						{
@@ -626,13 +642,13 @@ void MungPlex::Search::DrawResultsArea()
 							break;
 						case FLOAT:
 						{
-							float temp = std::stof(_pokeValueText);
+							float temp = std::stof(_pokeValueText.CStr());
 							_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&temp), reinterpret_cast<char*>(&temp) + 4);
 							ProcessInformation::GetAddressWidth() > 4 ? PokeValue<float, uint64_t>() : PokeValue<float, uint32_t>();
 						}   break;
 						case DOUBLE:
 						{
-							double temp = std::stod(_pokeValueText);
+							double temp = std::stod(_pokeValueText.CStr());
 							_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&temp), reinterpret_cast<char*>(&temp) + 8);
 							ProcessInformation::GetAddressWidth() > 4 ? PokeValue<double, uint64_t>() : PokeValue<double, uint32_t>();
 						}
@@ -753,7 +769,7 @@ void MungPlex::Search::primitiveTypeSearchLog()
 
 	if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
 	{
-		Log::LogInformation("Known: " + std::string(_knownValueText) + ", " + std::string(_secondaryKnownValueText), true);
+		Log::LogInformation("Known: " + _knownValueText.StdStr() + ", " + _secondaryKnownValueText.StdStr(), true);
 	}
 	else
 		Log::LogInformation("Unknown", true);
@@ -761,17 +777,17 @@ void MungPlex::Search::primitiveTypeSearchLog()
 
 void MungPlex::Search::arrayTypeSearchLog()
 {
-	Log::LogInformation("Array<" + _searchArrayTypes[_currentArrayTypeSelect].first + ">: " + std::string(_knownValueText), true, 4);
+	Log::LogInformation("Array<" + _searchArrayTypes[_currentArrayTypeSelect].first + ">: " + _knownValueText.StdStr(), true, 4);
 }
 
 void MungPlex::Search::textTypeSearchLog()
 {
-	Log::LogInformation("Text<" + _searchTextTypes[_currentTextTypeSelect].first + ">: " + std::string(_knownValueText), true, 4);
+	Log::LogInformation("Text<" + _searchTextTypes[_currentTextTypeSelect].first + ">: " + _knownValueText.StdStr(), true, 4);
 }
 
 void MungPlex::Search::colorTypeSearchLog()
 {
-	Log::LogInformation("Text<" + _searchColorTypes[_currentColorTypeSelect].first + ">: " + std::string(_knownValueText), true, 4);
+	Log::LogInformation("Text<" + _searchColorTypes[_currentColorTypeSelect].first + ">: " + _knownValueText.StdStr(), true, 4);
 }
 
 void MungPlex::Search::drawResultsTableNew()
@@ -821,9 +837,9 @@ void MungPlex::Search::drawResultsTableNew()
 			_deselectedIllegalSelection = false;
 		}
 
-		static char tempAddress[1024];
-		static char tempValue[1024];
-		static char buf[1024];
+		static FloorString tempAddress("", 18);
+		static FloorString tempValue("", 256);
+		static FloorString buf("", 256);
 		static int addressTextWidth = ProcessInformation::GetAddressWidth() > 4 ? 16 : 8;
 		static uint64_t pageIndex;
 		pageIndex = (_currentPageValue - 1) * _maxResultsPerPage;
@@ -882,16 +898,16 @@ void MungPlex::Search::drawResultsTableNew()
 					switch (_currentArrayTypeSelect)
 					{
 					case INT8:
-						DrawArrayValues<uint8_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
+						DrawArrayValues<uint8_t>(col, itemCount, pageIndexWithRowCount, buf.Data(), tempValue.Data(), literal);
 						break;
 					case INT16:
-						DrawArrayValues<uint16_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
+						DrawArrayValues<uint16_t>(col, itemCount, pageIndexWithRowCount, buf.Data(), tempValue.Data(), literal);
 						break;
 					case INT32:
-						DrawArrayValues<uint32_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
+						DrawArrayValues<uint32_t>(col, itemCount, pageIndexWithRowCount, buf.Data(), tempValue.Data(), literal);
 						break;
 					case INT64:
-						DrawArrayValues<uint64_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
+						DrawArrayValues<uint64_t>(col, itemCount, pageIndexWithRowCount, buf.Data(), tempValue.Data(), literal);
 						break;
 						/*case FLOAT:
 							DrawArrayValues<float>(col, itemCount, resultsIndex, buf, tempValue, literal);
@@ -1016,9 +1032,9 @@ void MungPlex::Search::drawResultsTableNew()
 					}
 					}
 
-					ColorValuesToCString(vecCol, _currentColorTypeSelect, buf, _forceAlpha);
-					std::memcpy(tempValue, buf, 1024);
-					strcpy_s(buf, "");
+					ColorValuesToCString(vecCol, _currentColorTypeSelect, buf.Data(), _forceAlpha);
+					tempValue = buf;
+					buf = "";
 					ImDrawList* drawList = ImGui::GetWindowDrawList();
 					ImVec2 rectMin = ImGui::GetCursorScreenPos();
 					ImVec2 rectMax = ImVec2(rectMin.x + 124, rectMin.y + 30);
@@ -1068,8 +1084,8 @@ void MungPlex::Search::drawResultsTableNew()
 						} break;
 						}
 
-						sprintf_s(buf, "%s", temputf8.c_str());
-						std::memcpy(tempValue, buf, 1024);
+						sprintf(buf.Data(), "%s", temputf8.c_str());
+						tempValue = buf;
 					}
 					else
 						break;
@@ -1141,17 +1157,17 @@ void MungPlex::Search::drawResultsTableNew()
 						switch (col)
 						{
 						case 1:
-							sprintf(buf, literal, currentValue);
+							sprintf(buf.Data(), literal, currentValue);
 							if (!_pokePrevious)
-								std::memcpy(tempValue, buf, 1024);
+								tempValue = buf.Data();
 							break;
 						case 2:
-							sprintf(buf, literal, previousValue);
+							sprintf(buf.Data(), literal, previousValue);
 							if (_pokePrevious)
-								std::memcpy(tempValue, buf, 1024);
+								tempValue = buf;
 							break;
 						case 3:
-							sprintf(buf, literal, currentValue - previousValue);
+							sprintf(buf.Data(), literal, currentValue - previousValue);
 							break;
 						}
 					}
@@ -1177,17 +1193,17 @@ void MungPlex::Search::drawResultsTableNew()
 						switch (col)
 						{
 						case 1:
-							sprintf(buf, literal, currentValue);
+							sprintf(buf.Data(), literal, currentValue);
 							if (!_pokePrevious)
-								std::memcpy(tempValue, buf, 1024);
+								tempValue = buf;
 							break;
 						case 2:
-							sprintf(buf, literal, previousValue);
+							sprintf(buf.Data(), literal, previousValue);
 							if (_pokePrevious)
-								std::memcpy(tempValue, buf, 1024);
+								tempValue = buf;
 							break;
 						case 3:
-							sprintf(buf, literal, currentValue - previousValue);
+							sprintf(buf.Data(), literal, currentValue - previousValue);
 							break;
 						}
 					}
@@ -1196,13 +1212,13 @@ void MungPlex::Search::drawResultsTableNew()
 			}
 			else
 			{
-				sprintf_s(buf, addressTextWidth == 16 ? "%016llX" : "%08X", address);
-				std::memcpy(tempAddress, buf, 17);
+				sprintf(buf.Data(), addressTextWidth == 16 ? "%016llX" : "%08X", address);
+				tempAddress = buf;
 			}
 
 			if (_selectedIndices[row])
 			{
-				ImGui::Selectable(buf, true, selectableFlags);
+				ImGui::Selectable(buf.Data(), true, selectableFlags);
 				for (int i = 0; i < 4; ++i)
 				{
 					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImVec4ToPackedColor(ImGui::GetStyle().Colors[ImGuiCol_Header]));
@@ -1211,14 +1227,14 @@ void MungPlex::Search::drawResultsTableNew()
 			}
 			else
 			{
-				ImGui::Selectable(buf, false, selectableFlags);
+				ImGui::Selectable(buf.Data(), false, selectableFlags);
 			}
 
 			if (_multiPoke //multi-select
 				&& ImGui::IsItemClicked()
 				&& (GetAsyncKeyState(VK_LCONTROL) || GetAsyncKeyState(VK_RCONTROL)))
 			{
-				strncpy(tempAddress, "Multi-Poke", 17);
+				tempAddress = "Multi-Poke";
 
 				if (_selectedIndices[row] == true)
 					_selectedIndices[row] = false;
@@ -1231,7 +1247,7 @@ void MungPlex::Search::drawResultsTableNew()
 				&& ImGui::IsItemClicked() //range-select
 				&& (GetAsyncKeyState(VK_LSHIFT) || GetAsyncKeyState(VK_RSHIFT)))
 			{
-				strncpy(tempAddress, "Multi-Poke", 17);
+				tempAddress = "Multi-Poke";
 				int rangeBegin = -1;
 				int rangeEnd;
 
@@ -1282,8 +1298,8 @@ void MungPlex::Search::drawResultsTableNew()
 
 		if (rowClicked)
 		{
-			std::memcpy(_pokeAddressText, tempAddress, 17);
-			std::memcpy(_pokeValueText, tempValue, 1024);
+			_pokeAddressText = tempAddress;
+			_pokeValueText = tempValue;
 		}
 	}
 
@@ -1369,8 +1385,8 @@ void MungPlex::Search::SetUpAndIterate()
 		subsidiaryDatatype = _currentPrimitiveTypeSelect;
 	}
 
-	std::string tempprimary(_knownValueText);
-	std::string tempsecondary(_secondaryKnownValueText);
+	std::string tempprimary(_knownValueText.CStr());
+	std::string tempsecondary(_secondaryKnownValueText.CStr());
 
 	if (MemoryCompare::MemCompare::GetSearchStats().second < 1)
 	{

@@ -452,6 +452,64 @@ namespace MungPlex
         ImGui::PopItemWidth();
     }
 
+    class FloorString
+    {
+    private:
+        std::string _str;
+        int _floor;
+
+    public: 
+        FloorString(const std::string& str, const int lowerLimit)
+        {
+            _str = str;
+            _floor = lowerLimit;
+
+            if (_str.size() < lowerLimit)
+                _str.resize(lowerLimit);
+        }
+
+        /*FloorString(const char* str, const int lowerLimit)
+        {
+            FloorString(str, lowerLimit);
+        }*/
+
+        std::string StdStr()
+        {
+            return _str;
+        }
+
+        const char* CStr()
+        {
+            return _str.c_str();
+        }
+
+        char* Data()
+        {
+            return _str.data();
+        }
+
+        int Size()
+        {
+            return _str.size();
+        }
+
+        void operator = (const std::string& other)
+        {
+            _str = other;
+
+            if (_str.size() < _floor)
+                _str.resize(_floor);
+        }
+
+        void operator = (const char* other)
+        {
+            _str = other;
+
+            if (_str.size() < _floor)
+                _str.resize(_floor);
+        }
+    };
+
     template<typename T> class SignalCombo //yes I know this is against the purpose of ImGui. But it makes my life easier here. Please don't call the code cops
     {
     public:
