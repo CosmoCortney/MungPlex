@@ -230,7 +230,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 
 	{
 		std::ifstream inFile;
-		inFile.open(SystemInfoJSON);
+		inFile.open(GetResourcesFilePath("systeminformation.json"));
 
 		if (inFile)
 			while (std::getline(inFile, buffer))
@@ -959,11 +959,6 @@ int32_t MungPlex::ProcessInformation::GetPID()
 bool MungPlex::ProcessInformation::IsX64()
 {
 	return GetInstance()._isX64;
-}
-
-void MungPlex::ProcessInformation::SetUnderlyingBigEndianFlag(const bool isBigEndian)
-{
-	GetInstance()._underlyingIsBigEndian = isBigEndian;
 }
 
 bool MungPlex::ProcessInformation::UnderlyingIsBigEndian()

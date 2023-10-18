@@ -130,7 +130,6 @@ namespace MungPlex
         static void SetPID(int32_t pid);
         static int32_t GetPID();
         static bool IsX64();
-        static void SetUnderlyingBigEndianFlag(bool isBigEndian);
         static bool UnderlyingIsBigEndian();
         static HANDLE GetHandle();
         static int32_t GetAddressWidth();

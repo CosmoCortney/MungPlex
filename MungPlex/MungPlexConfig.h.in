@@ -5,15 +5,6 @@
 #define MungPlex_VERSION_PATCH @MungPlex_VERSION_PATCH@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-#ifndef NDEBUG
-#define SystemInfoJSON "F:\\Workspace\\MungPlex\\MungPlex\\resources\\SystemInformation.json"
-#define SettingsJSON "F:\\Workspace\\MungPlex\\MungPlex\\resources\\Settings.json"
-#else
-#define SystemInfoJSON "resources\\SystemInformation.json"
-#define SettingsJSON "resources\\Settings.json"
-#endif
-
-
 namespace MungPlex
 {
     enum ValueType
