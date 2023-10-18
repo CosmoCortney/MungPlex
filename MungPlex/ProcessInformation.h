@@ -125,12 +125,10 @@ namespace MungPlex
         static bool ConnectToEmulator(int EmulatorIndex);
         static bool ConnectToProcess(int processIndex);
         static bool ConnectToApplicationProcess(int applicationProcessIndex);
-        static void SetProcessType(int32_t processType);
         static std::vector<EMUPAIR>& GetEmulatorList();
         static int32_t GetProcessType();
         static void SetPID(int32_t pid);
         static int32_t GetPID();
-        static void SetX64Flag(bool isX64);
         static bool IsX64();
         static void SetUnderlyingBigEndianFlag(bool isBigEndian);
         static bool UnderlyingIsBigEndian();

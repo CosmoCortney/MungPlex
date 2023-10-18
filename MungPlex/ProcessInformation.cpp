@@ -941,11 +941,6 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	return true; 
 }
 
-void MungPlex::ProcessInformation::SetProcessType(const int32_t processType)
-{
-	GetInstance()._processType = processType;
-}
-
 std::vector<EMUPAIR>& MungPlex::ProcessInformation::GetEmulatorList()
 {
 	return GetInstance()._emulators;
@@ -959,11 +954,6 @@ int32_t MungPlex::ProcessInformation::GetProcessType()
 int32_t MungPlex::ProcessInformation::GetPID()
 {
 	return GetInstance()._pid;
-}
-
-void MungPlex::ProcessInformation::SetX64Flag(const bool isX64)
-{
-	GetInstance()._isX64 = isX64;
 }
 
 bool MungPlex::ProcessInformation::IsX64()
