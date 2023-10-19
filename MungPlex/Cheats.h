@@ -51,25 +51,25 @@ namespace MungPlex
             GCN_AR, WII_GECKO, WIIU_CAFE
         };
 
-        enum  ButtonsGcnStandard
+        enum class ButtonsGcnController
         {
             DPAD_LEFT = 0x0001, DPAD_RIGHT = 0x0002, DPAD_DOWN = 0x0004, DPAD_UP = 0x0008, Z = 0x0010,
             R = 0x0020, L = 0x0040, A = 0x0100, B = 0x0200, X = 0x0400, Y = 0x8000, START = 0x1000
         };
 
-        enum  ButtonsGcnGba
+        enum class ButtonsGcnGba
         {
             A = 0x01, B = 0x02, START = 0x08, DPAD_RIGHT = 0x10, DPAD_LEFT = 0x20, DPAD_UP = 0x40, DPAD_DOWN = 0x80,
            // R , L ,
         };
 
-        enum ButtonsWiiRemoteNunchuck
+        enum class ButtonsWiiRemoteNunchuck
         {
             DPAD_LEFT = 0x0001, DPAD_RIGHT = 0x0002, DPAD_DOWN = 0x0004, DPAD_UP = 0x0008, PLUS = 0x0010, TWO = 0x0100,
-            ONE = 0x0200, B = 0x0400, A = 0x0800, MINUS = 0x1000, Z = 0x2000, C = 0x4000, HOME = 0x8000
+            ONE = 0x0200, B = 0x0400, A = 0x0800, MINUS = 0x1000, Z_NUNCHUCK = 0x2000, C = 0x4000, HOME = 0x8000
         };
 
-        enum ButtonsWiiClassicController
+        enum class ButtonsWiiClassicController
         {
             DPAD_UP = 0x0001, DPAD_LEFT = 0x0002, ZR = 0x0004, X = 0x0008, A = 0x0010, Y = 0x0020, B = 0x0040,
             ZL = 0x0080, R = 0x0200, PLUS = 0x0400, MINUS = 0x1000, L = 0x2000, DPAD_DOWN = 0x4000, DPAD_RIGHT = 0x8000
