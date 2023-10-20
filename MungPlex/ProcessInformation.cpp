@@ -786,21 +786,21 @@ bool MungPlex::ProcessInformation::initCemu()
 
 	for (const auto& region : _regions)
 	{
-		if (region.GetRegionSize() == 0x4E000000)
-		{
-			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
-			_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(region.GetBaseAddress<char*>() + 0x0E000000);
-			//return true;
-		}
-
-		if (!(region.GetRegionSize() == 0x1E000 && !titleIDFound))
+		if (region.GetRegionSize() != 0x4E000000)
 			continue;
-		
+
+		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+		_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(region.GetBaseAddress<char*>() + 0x0E000000);
+
+
+		//old title id fetch code, just leave it there in case it may be needed again
+		/*if (!(region.GetRegionSize() == 0x1E000 && !titleIDFound))
+			continue;
+
 		const int bufSize = 0x6000;
 		std::vector<char> buf(bufSize);
 		_process.ReadExRAM(buf.data(), region.GetBaseAddress<void*>(), bufSize);
 
-		//get title type id, title id and version
 		for (int offset = 0; offset < bufSize; offset += 4)
 		{
 			if (*reinterpret_cast<int*>(buf.data() + offset) != 0x746F6F52)
@@ -821,10 +821,39 @@ bool MungPlex::ProcessInformation::initCemu()
 
 				titleIDFound = true;
 			}
-		}
+		}*/
 	}
 
-	return titleIDFound;
+	//get title type id, title id and version
+	LPSTR str = new CHAR[128];
+	for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
+	{
+		GetWindowTextA(wHandle, str, 128);
+		std::string wTitle = str;
+
+		if (wTitle.find("Cemu") != 0)
+			continue;
+
+		int pos = wTitle.find("TitleId: ");
+
+		if (pos < 0)
+			continue;
+
+		wTitle = wTitle.substr(pos + 9);
+		_gameID = wTitle.substr(0, 17);
+		wTitle = wTitle.substr(19);
+		pos = wTitle.find("[");
+		_gameName = wTitle.substr(0, pos - 1);
+		wTitle = wTitle.substr(wTitle.find("v"));
+		_gameID.append("-" + wTitle.substr(0, wTitle.size() - 1));
+		std::cout << _gameID << std::endl;
+		std::cout << _gameName << std::endl;
+		delete[] str;
+		return true;
+	}
+
+	delete[] str;
+	return false;
 }
 
 bool MungPlex::ProcessInformation::initPPSSPP()
