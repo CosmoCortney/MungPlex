@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <string>
 #include "Log.h"
+#include "CheatConvert.h"
 
 static float scale = 2.0f;
 
@@ -111,7 +112,7 @@ MungPlex::Cheats::Cheats()
 	_perSecond = Settings::GetCheatsSettings().DefaultInterval;
 	_documentsPath = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath);
 
-	_cheatTypes.emplace_back("GameCuber ActionReplay", GCN_AR);
+	_cheatTypes.emplace_back("GameCube Action Replay", CheatConvert::GCN_AR);
 	//initCheatFile();
 }
 
@@ -725,8 +726,8 @@ void MungPlex::Cheats::DrawWindow()
 
 void MungPlex::Cheats::drawCheatConverter()
 {
-	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.8f };
-	static int cheatTypeSelect = GCN_AR;
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.7f };
+	static int cheatTypeSelect = CheatConvert::GCN_AR;
 
 	ImGui::BeginChild("Cheat Convert", childXY, true);
 	{
@@ -734,13 +735,23 @@ void MungPlex::Cheats::drawCheatConverter()
 
 		SetUpCombo("Cheat Format:", _cheatTypes, cheatTypeSelect, 1.0f, 0.333f);
 
+		SetUpInputTextMultiline("Cheat to be converted", CheatConvert::GetOldSchoolCheat().data(), CheatConvert::GetOldSchoolCheat().size(), 1.0f, 0.8f);
+
+		if (ImGui::Button("Convert to Lua"))
+		{
+			if (convertToLua())
+			{
+				_textCheatLua = CheatConvert::GetLuaCheat();
+				_textCheatLua.resize(CHEAT);
+			}
+		}
 	}
 	ImGui::EndChild();
 }
 
 void MungPlex::Cheats::DrawCheatList()
 {
-	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.8f /*0.333f*/ };
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.333f };
 	ImGui::BeginGroup();
 	{
 		ImGui::SeparatorText("Cheat List");
@@ -1221,6 +1232,15 @@ void MungPlex::Cheats::refreshModuleList()
 		lua_setfield(L, -2, MorphText::Utf16LE_To_Utf8(_processInfo.GetModuleList()[i].first).c_str());
 	}
 	lua_setglobal(L, "Modules");
+}
+
+bool MungPlex::Cheats::convertToLua()
+{
+	switch (_selectedCheatType)
+	{
+	case CheatConvert::GCN_AR:
+		return CheatConvert::GcnArToLua();
+	}
 }
 
 void MungPlex::Cheats::updateConnectionInfo()

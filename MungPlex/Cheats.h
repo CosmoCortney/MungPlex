@@ -46,11 +46,6 @@ namespace MungPlex
             DESCRIPTION = 1024 * 16
         };
 
-        enum CheatTypes
-        {
-            GCN_AR, WII_GECKO, WIIU_CAFE
-        };
-
         enum class ButtonsGcnController
         {
             DPAD_LEFT = 0x0001, DPAD_RIGHT = 0x0002, DPAD_DOWN = 0x0004, DPAD_UP = 0x0008, Z = 0x0010,
@@ -107,6 +102,7 @@ namespace MungPlex
         int _selectedID = -1;
         bool _disableEditButtons = false;
         std::stringstream _logStream;
+        int _selectedCheatType = 0;
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
         void copyCheatToInformationBox(int index);
@@ -121,6 +117,7 @@ namespace MungPlex
         void drawCheatConverter();
         int getRangeIndex(uint64_t address) const;
         void cheatRoutine();
+        bool convertToLua();
 
         static double readFromRAM(int type, uint64_t address); //legacy function to keep older cheats functioning
         static bool readBool(const uint64_t address);
