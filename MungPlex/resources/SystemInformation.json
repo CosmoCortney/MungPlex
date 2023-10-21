@@ -728,6 +728,23 @@
       "Entities": [
 
       ]
+    },
+    "Fusion": {
+      "Regions": [
+        {
+          "Label": "ROM",
+          "Base": "0",
+          "Size": "0"
+        },
+        {
+          "Label": "RAM",
+          "Base": "0",
+          "Size": "0"
+        }
+      ],
+      "Entities": [
+
+      ]
     }
   }
 }

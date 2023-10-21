@@ -318,6 +318,9 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	case RPCS3:
 		connected = initRpcs3();
 		break;
+	case FUSION:
+		connected = initFusion();
+		break;
 	}
 
 	setupSearch();
@@ -777,6 +780,73 @@ bool MungPlex::ProcessInformation::initDolphin()
 	return false;
 }
 
+bool MungPlex::ProcessInformation::initFusion()
+{
+	setMiscProcessInfo("Fusion", true, false, 4, 1);
+	bool titleIDFound = false;
+
+	for (Xertz::MemoryRegion& region : _regions)
+	{
+		uint32_t bufSize = region.GetRegionSize();
+		bool romFound = false;
+
+		if (bufSize < 0x10000 || bufSize > 0x200000)
+			continue;
+
+		std::vector<uint32_t> buf(bufSize / 4);
+		_process.ReadExRAM(buf.data(), region.GetBaseAddress<void*>(), bufSize);
+
+		uint32_t offsetRange4 = 0;
+
+		for (; offsetRange4 < buf.size(); ++offsetRange4)
+		{
+			if (buf[offsetRange4] == 0x41474553 && (buf[offsetRange4+0x20] & 0x00FFFFFF) == 0x00204D47)
+			{
+				romFound = true;
+				break;
+			}
+		}
+
+		if (!romFound)
+			continue;
+
+		_gameID = reinterpret_cast<char*>(&buf[offsetRange4 + 0x20]);
+		_gameID.resize(14);
+		_gameName = reinterpret_cast<char*>(&buf[offsetRange4 + 0x14]);
+		_gameName.resize(48);
+		std::string domesticName = reinterpret_cast<char*>(&buf[offsetRange4 + 0x08]);
+		domesticName.resize(48);
+
+		if (_gameName.compare(domesticName) != 0)
+			_gameName.append(" / " + domesticName);
+
+		if ((buf[offsetRange4 + 0x01] == 0x47454D20 && buf[offsetRange4 + 0x02] == 0x52442041)
+			|| (buf[offsetRange4 + 0x01] == 0x4E454720)) //mega drive
+		{
+			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + offsetRange4*4 - 0x100;
+			_systemRegions[0].Size = Xertz::SwapBytes<uint32_t>(buf[offsetRange4 + 0x29]) + 1;
+			_systemRegions[0].Base = 0x0;
+
+			uint32_t ramPTR;
+			_process.ReadExRAM(&ramPTR, reinterpret_cast<char*>(0x00759F14), 4);
+			_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(ramPTR);
+			_systemRegions[1].Size = 0x10000;
+			_systemRegions[1].Base = 0xFF0000;
+
+			return true;
+		}
+
+		
+
+			std::cout << std::hex << region.GetBaseAddress<uint64_t>() + 0x10 << std::endl;
+			//_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x1000000;
+			//break;
+		
+	}
+
+	return false;
+}
+
 bool MungPlex::ProcessInformation::initCemu()
 {
 	setMiscProcessInfo("Cemu", true, false, 4, 4);
@@ -863,7 +933,7 @@ bool MungPlex::ProcessInformation::initPPSSPP()
 	_platform = "PSP";
 	PointerSearch::SelectPreset(PSP);
 
-	for (Xertz::MemoryRegion region : _regions)
+	for (Xertz::MemoryRegion& region : _regions)
 	{
 		if (region.GetRegionSize() == 0x1f00000)
 		{

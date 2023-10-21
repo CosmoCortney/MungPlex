@@ -43,6 +43,7 @@ namespace MungPlex
             _emulators.emplace_back(L"pcsx2", PCSX2);
             _emulators.emplace_back(L"Rpcs3", RPCS3);
             _emulators.emplace_back(L"PPSSPP", PPSSPP);
+            _emulators.emplace_back(L"Fusion", FUSION);
         }
 
         ~ProcessInformation(){};
@@ -95,6 +96,7 @@ namespace MungPlex
         bool initNo$psx();
         bool initPcsx2();
         bool initRpcs3();
+        bool initFusion();
         void obtainGameEntities(void* baseLocation);
         void setupSearch();
         void setupCheats();
@@ -109,7 +111,7 @@ namespace MungPlex
 
         enum Emulators
         {
-            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, MELONDS, NO$PSX, PCSX2, RPCS3, PPSSPP
+            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, MELONDS, NO$PSX, PCSX2, RPCS3, PPSSPP, FUSION
         };
 
         enum Systems
