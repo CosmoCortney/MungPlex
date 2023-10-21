@@ -326,6 +326,26 @@ namespace MungPlex
         return result.substr(2);
     }
 
+    static std::string RemoveSpacePadding(const std::string& input)
+    {
+        bool found = false;
+        std::string output;
+
+        for(int i = 0; i < input.size()-1; ++i)
+        {
+            if (input[i] != 0x20 || (input[i] == 0x20 && input[i+1] != 0x20))
+            {
+                output += input[i];
+                continue;
+            }
+        }
+
+        if (output.back() == 0x20)
+            output.resize(output.size()-1);
+
+        return output;
+    }
+
     static void PrepareWidgetLabel(const std::string& name, const float paneWidth, const float labelPortion, bool printLabel, const char* helpText = nullptr)
     {
     	const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;

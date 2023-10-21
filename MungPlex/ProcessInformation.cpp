@@ -784,64 +784,85 @@ bool MungPlex::ProcessInformation::initFusion()
 {
 	setMiscProcessInfo("Fusion", true, false, 4, 1);
 	bool titleIDFound = false;
+	bool romFound = false;
+	uint64_t modAddr = _process.GetModuleAddress(L"Fusion.exe");
+	uint16_t headerSize = 0x200;
+	uint32_t romPTR = 0;
+	uint32_t ramPTR = 0;
+	const uint32_t AGES = 0x41474553;
+	std::vector<uint32_t> romHeader(headerSize / sizeof(uint32_t));
 
-	for (Xertz::MemoryRegion& region : _regions)
+	//look for SEGA CD BOOT ROM
+	_process.ReadExRAM(&romPTR, reinterpret_cast<void*>(modAddr + 0x001C33C4), 4);
+	_process.ReadExRAM(romHeader.data(), reinterpret_cast<void*>(romPTR), headerSize);
+
+	if (romHeader[0x4A] == 0x544F4F42) //if sega cd found
 	{
-		uint32_t bufSize = region.GetRegionSize();
-		bool romFound = false;
-
-		if (bufSize < 0x10000 || bufSize > 0x200000)
-			continue;
-
-		std::vector<uint32_t> buf(bufSize / 4);
-		_process.ReadExRAM(buf.data(), region.GetBaseAddress<void*>(), bufSize);
-
-		uint32_t offsetRange4 = 0;
-
-		for (; offsetRange4 < buf.size(); ++offsetRange4)
-		{
-			if (buf[offsetRange4] == 0x41474553 && (buf[offsetRange4+0x20] & 0x00FFFFFF) == 0x00204D47)
-			{
-				romFound = true;
-				break;
-			}
-		}
-
-		if (!romFound)
-			continue;
-
-		_gameID = reinterpret_cast<char*>(&buf[offsetRange4 + 0x20]);
+		_platform = "Mega-CD";
+		_gameID = std::string(reinterpret_cast<char*>(&romHeader[0x60]));
 		_gameID.resize(14);
-		_gameName = reinterpret_cast<char*>(&buf[offsetRange4 + 0x14]);
+		_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(romPTR);
+		_systemRegions[0].Size = Xertz::SwapBytes<uint32_t>(romHeader[0x69]) + 1;
+		_systemRegions[0].Base = 0x0;
+		_systemRegions[0].Label = "BOOT ROM";
+
+		ramPTR = 0x006A52D4;
 		_gameName.resize(48);
-		std::string domesticName = reinterpret_cast<char*>(&buf[offsetRange4 + 0x08]);
-		domesticName.resize(48);
+		_process.ReadExRAM(_gameName.data(), reinterpret_cast<void*>(ramPTR + 0x144), 48);
+		_gameName = RemoveSpacePadding(_gameName);
+		_process.ReadExRAM(&ramPTR, reinterpret_cast<void*>(ramPTR), 48);
+		_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(ramPTR);
+		_systemRegions[1].Size = 0x10000;
+		_systemRegions[1].Base = 0xFF0000;
+		_gameID = _gameName + " - " + _gameID;
 
-		if (_gameName.compare(domesticName) != 0)
-			_gameName.append(" / " + domesticName);
+		return true;
+	}
 
-		if ((buf[offsetRange4 + 0x01] == 0x47454D20 && buf[offsetRange4 + 0x02] == 0x52442041)
-			|| (buf[offsetRange4 + 0x01] == 0x4E454720)) //mega drive
-		{
-			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + offsetRange4*4 - 0x100;
-			_systemRegions[0].Size = Xertz::SwapBytes<uint32_t>(buf[offsetRange4 + 0x29]) + 1;
-			_systemRegions[0].Base = 0x0;
+	//look for Mega Drive or 32x ROM
+	romPTR = 0x007CFC00;
+	uint32_t test = 0;
+	_process.ReadExRAM(&test, reinterpret_cast<void*>(romPTR + 0x100), 4);
+	
+	if (test != AGES)//if not equal, fallback ROM header fetch
+	{
+		_process.ReadExRAM(&romPTR, reinterpret_cast<void*>(modAddr + 0x0005D8EC), 4);
+		romPTR += 0x14;
+	}
 
-			uint32_t ramPTR;
-			_process.ReadExRAM(&ramPTR, reinterpret_cast<char*>(0x00759F14), 4);
-			_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(ramPTR);
-			_systemRegions[1].Size = 0x10000;
-			_systemRegions[1].Base = 0xFF0000;
+	_process.ReadExRAM(romHeader.data(), reinterpret_cast<void*>(romPTR), headerSize);
 
-			return true;
-		}
+	if (romHeader[0x40] == AGES) //Mega Drive or 32x ROM found
+	{
+		if (romHeader[0x41] == 0x58323320) //32X ROM found
+			_platform = "32X";
+		else if ((romHeader[0x41] == 0x47454D20 && romHeader[0x42] == 0x52442041) || (romHeader[0x41] == 0x4E454720)) //mega drive ROM found
+			_platform = "Mega Drive";
+		else //something went wrong
+			return false; 
 
-		
+		_gameID = std::string(reinterpret_cast<char*>(&romHeader[0x60]));
+		_gameID.resize(14);
+		_gameName = std::string(reinterpret_cast<char*>(&romHeader[0x54]));
+		_gameName.resize(48);
+		_gameName = RemoveSpacePadding(_gameName);
+		std::string gameNameAlt = std::string(reinterpret_cast<char*>(&romHeader[0x48]));
+		gameNameAlt.resize(48);
+		gameNameAlt = RemoveSpacePadding(gameNameAlt);
 
-			std::cout << std::hex << region.GetBaseAddress<uint64_t>() + 0x10 << std::endl;
-			//_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x1000000;
-			//break;
-		
+		if (_gameName.compare(gameNameAlt) != 0)
+			_gameName.append(" / " + gameNameAlt);
+
+		_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(romPTR);
+		_systemRegions[0].Size = Xertz::SwapBytes<uint32_t>(romHeader[0x69]) + 1;
+		_systemRegions[0].Base = 0x0;
+
+		_process.ReadExRAM(&ramPTR, reinterpret_cast<char*>(0x00759F14), 4);
+		_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(ramPTR);
+		_systemRegions[1].Size = 0x10000;
+		_systemRegions[1].Base = 0xFF0000;
+
+		return true;
 	}
 
 	return false;

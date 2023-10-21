@@ -5,7 +5,9 @@ MungPlex is a cheat search tool and game enhancer for various emulators and PC g
 The following feature illustration also guides you through the general usage of MungPlex.
 
 ## Before You Proceed
-If the app looks off go to Settings and change the UI scale.
+If the app looks off go to Settings and change the UI scale.</br>
+It may happen for MungPlex to be unable to connect to a game. This might be due to changes to the emulator that make MungPlex incapable of finding the emulated RAM and game ID. If this is the case you can reach out to the MungPlex Discord Server and report any problems.</br>
+</br>
 Even though this tool should not cause any damage to your games or system, it is possible to corrupt save data and cause blue screens and therefore result in data loss. It is good to have a backup of your save data and have every opened document and project saved.
 It is also possible for flashing lights and sudden loud noises to appear when editing random values. Keep this in mind especially if you are easily startled or suffer from epilepsy.
 Also do not use this tool for cheating online in public sessions/rooms! Only losers do that and you may get banned from your game's network.
@@ -31,6 +33,11 @@ As of version 2.0.0 the following emulators and systems are supported:
 - PCSX2 (PS2)
 - RPCS3 (PS3)
 - PPSSPP (PSP)
+- Fusion (Mega Drive, Mega-CD)
+
+The choice for these emulators was made by considering factors like what other debugging features they offer and how easily the emulated RAM, loaded ROM (for older games) and game information can be found.
+Therefore an outdated emulator like Fusion has bullet-proof support where on the other hand support for frequently updated emulators like RPCS3 may need to be adjusted from time to time. Multi-platform emulators like 
+RetroArch also make it unnecessarily difficult to find everything needed since it's not only the emulator itself that experiences updates but also the underlying cores. 
 
 <img src="MungPlex\resources\img\manual\MungPlex_connection_01.png" width="256">
 
