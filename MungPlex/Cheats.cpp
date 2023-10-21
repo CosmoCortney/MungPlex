@@ -708,9 +708,9 @@ void MungPlex::Cheats::DrawWindow()
 			GetInstance().DrawCheatList();
 #ifndef NDEBUG
 			if (!Connection::IsConnected()) ImGui::EndDisabled();
-
+#endif
 			GetInstance().drawCheatConverter();
-
+#ifndef NDEBUG
 			if (!Connection::IsConnected()) ImGui::BeginDisabled();
 #endif
 		ImGui::EndGroup();
@@ -771,7 +771,7 @@ void MungPlex::Cheats::DrawCheatList()
 				if (ImGui::Selectable(_luaCheats[i].Title.c_str(), &marked))
 				{
 					_markedCheats.assign(_markedCheats.size(), false);
-					_markedCheats[i] = !marked;
+					_markedCheats[i] = marked;
 					_selectedID = i;
 					copyCheatToInformationBox(i);
 				}
