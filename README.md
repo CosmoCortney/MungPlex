@@ -33,7 +33,7 @@ As of version 2.0.0 the following emulators and systems are supported:
 - PCSX2 (PS2)
 - RPCS3 (PS3)
 - PPSSPP (PSP)
-- Fusion (Mega Drive, Mega-CD)
+- Fusion (Mega Drive, 32X, Mega-CD)
 
 The choice for these emulators was made by considering factors like what other debugging features they offer and how easily the emulated RAM, loaded ROM (for older games) and game information can be found.
 Therefore an outdated emulator like Fusion has bullet-proof support where on the other hand support for frequently updated emulators like RPCS3 may need to be adjusted from time to time. Multi-platform emulators like 
