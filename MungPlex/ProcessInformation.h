@@ -110,7 +110,7 @@ namespace MungPlex
     public:
         enum ProcessType
         {
-            EMULATOR, NATIVE, CONSOLE
+            NONE, EMULATOR, NATIVE, CONSOLE
         };
 
         enum Emulators
