@@ -815,15 +815,21 @@ void MungPlex::Cheats::DrawCheatInformation()
 				_unsavedChangesTextCheat = true;
 			}
 
+			static bool cheatCopyError = false;
+
 			if (ImGui::Button("Add to list"))
 			{
-				copyCheatToList(-1);
-				saveCheatList();
-				_unsavedChangesTextCheat = false;
-				_markedCheats.assign(_markedCheats.size(), false);
-				_markedCheats.emplace_back(true);
-				_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats.back().ID));
-				Log::LogInformation("Added Cheat to list");
+				cheatCopyError = !copyCheatToList(-1);
+
+				if (!cheatCopyError)
+				{
+					saveCheatList();
+					_unsavedChangesTextCheat = false;
+					_markedCheats.assign(_markedCheats.size(), false);
+					_markedCheats.emplace_back(true);
+					_checkBoxIDs.emplace_back("##cheat_" + std::to_string(_luaCheats.back().ID));
+					Log::LogInformation("Added Cheat to list");
+				}
 			}
 
 			ImGui::SameLine();
@@ -834,11 +840,15 @@ void MungPlex::Cheats::DrawCheatInformation()
 			if (_disableEditButtons) ImGui::BeginDisabled();
 			if (ImGui::Button("Update Entry"))
 			{
-				copyCheatToList(_selectedID);
-				saveCheatList();
-				_unsavedChangesTextCheat = false;
-				disableFlag = false;
-				Log::LogInformation((std::string("Updated Cheat ") + std::to_string(_selectedID)).c_str());
+				cheatCopyError = !copyCheatToList(_selectedID);
+
+				if (!cheatCopyError)
+				{
+					saveCheatList();
+					_unsavedChangesTextCheat = false;
+					disableFlag = false;
+					Log::LogInformation((std::string("Updated Cheat ") + std::to_string(_selectedID)).c_str());
+				}
 			}
 
 			ImGui::SameLine();
@@ -855,6 +865,22 @@ void MungPlex::Cheats::DrawCheatInformation()
 				Log::LogInformation((std::string("Deleted Cheat at ") + std::to_string(_selectedID)).c_str());
 			}
 			if (_disableEditButtons) ImGui::EndDisabled();
+
+			if (cheatCopyError)
+				ImGui::OpenPopup("Error saving cheat");
+
+			static bool closePopup = false;
+			if (ImGui::BeginPopupModal("Error saving cheat", &cheatCopyError))
+			{
+				ImGui::Text("Cheat names must be unique!");
+
+				if (ImGui::Button("Okay"))
+				{
+					cheatCopyError = false;
+				}
+
+				ImGui::EndPopup();
+			}
 		}
 		if (_executeCheats) ImGui::EndDisabled();
 
@@ -1145,19 +1171,16 @@ void MungPlex::Cheats::copyCheatToInformationBox(const int index)
 	_textCheatDescription.resize(DESCRIPTION);
 }
 
-void MungPlex::Cheats::copyCheatToList(const int index)
+bool MungPlex::Cheats::copyCheatToList(const int index)
 {
 	if (index == -1)
 	{
 		for (LuaCheat& cheat : _luaCheats)
 		{
-			static int count = 2;
+			if (cheat.Title.compare(_textCheatTitle) != 0)
+				continue;
 
-			if (cheat.Title.compare(_textCheatTitle) == 0)
-			{
-				_textCheatTitle.append(std::to_string(count));
-				++count;
-			}
+			return false;
 		}
 
 		_luaCheats.emplace_back(LuaCheat(!_luaCheats.empty() ? _luaCheats.back().ID + 1 : 0,
@@ -1169,11 +1192,24 @@ void MungPlex::Cheats::copyCheatToList(const int index)
 	}
 	else
 	{
+		for (int i = 0; i < _luaCheats.size(); ++i)
+		{
+			if (i == index)
+				continue;
+
+			if (_luaCheats[i].Title.compare(_textCheatTitle) != 0)
+				continue;
+
+			return false;
+		}
+
 		_luaCheats[index].Title = _textCheatTitle;
 		_luaCheats[index].Hacker = _textCheatHacker;
 		_luaCheats[index].Lua = _textCheatLua;
 		_luaCheats[index].Description = _textCheatDescription;
 	}
+
+	return true;
 }
 
 bool MungPlex::Cheats::saveCheatList() const

@@ -54,6 +54,7 @@ namespace MungPlex
     	ImVec4 TableRowBg = { 0.0f, 0.0f, 0.0f, 0.0f };
     	ImVec4 TableRowBgAlt = { 0.0f, 0.0f, 0.0f, 0.0f };
     	ImVec4 TextSelectedBg = { 0.0f, 0.0f, 0.0f, 0.0f };
+        ImVec4 WindowDim = { 0.0f, 0.0f, 0.0f, 0.0f };
     };
 
     struct GeneralSettings

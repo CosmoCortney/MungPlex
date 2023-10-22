@@ -53,9 +53,10 @@ MungPlex::Settings::Settings()
 		dark.TabUnfocusedActive = dark.TabActive;
 		dark.DockingPreview = topNormal;
 		dark.DockingEmptyBG = midNormal;
+		dark.WindowDim = { 0.10f, 0.08f, 0.2f, 0.5f };
 		return dark;
 	}()));
-	_styles.push_back(std::make_pair("Candy", []() -> ColorScheme
+	/*_styles.push_back(std::make_pair("Candy", []() -> ColorScheme
 	{
 		ColorScheme candy;
 		constexpr ImVec4 topNormal = { 0.93f, 0.63f, 0.69f, 1.0f }; 
@@ -100,8 +101,9 @@ MungPlex::Settings::Settings()
 		candy.DockingPreview = topNormal;
 		candy.DockingEmptyBG = candy.ScrollbarBg;
 		candy.TableHeaderBg = topNormal;
+		candy.WindowDim = { 0.0f, 0.0f, 0.8f, 0.5f };
 		return candy;
-	}()));
+	}()));*/
 
 	//_styles.emplace_back("Bright", BRIGHT);
 	//_styles.emplace_back("Pastell", IMGUIDEFAULT);

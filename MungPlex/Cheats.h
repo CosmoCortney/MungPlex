@@ -106,7 +106,7 @@ namespace MungPlex
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
         void copyCheatToInformationBox(int index);
-        void copyCheatToList(int index);
+        bool copyCheatToList(int index);
         bool saveCheatList() const;
         void deleteCheat(uint16_t index);
         void refreshModuleList();
