@@ -182,7 +182,7 @@ namespace MungPlex
                     switch (_currentTextTypeSelect)
                     {
                     case MorphText::ASCII:
-                        WriteTextEx(pid, pokeValue.GetASCII(), address);
+                        WriteTextEx(pid, pokeValue.GetASCII().c_str(), address);
                     break;
                     case MorphText::SHIFTJIS:
                         WriteTextEx(pid, pokeValue.GetShiftJis(), address);
@@ -225,7 +225,7 @@ namespace MungPlex
                     switch (_currentTextTypeSelect)
                     {
                     case MorphText::ASCII: {
-                        success = WriteTextEx(pid, pokeValue.GetASCII(), address);
+                        success = WriteTextEx(pid, pokeValue.GetASCII().c_str(), address);
                     } break;
                     case MorphText::SHIFTJIS: {
                         success = WriteTextEx(pid, pokeValue.GetShiftJis(), address);
