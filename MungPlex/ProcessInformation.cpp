@@ -280,6 +280,9 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 {
 	const EMUPAIR emulator = _emulators[emulatorIndex];
 	_gameID.clear();
+	_gameRegion.clear();
+	_gameID.clear();
+	_platform.clear();
 
 	if (!initProcess(emulator.first))
 		return false;
@@ -352,7 +355,7 @@ bool MungPlex::ProcessInformation::connectToProcessFR()
 	 RefreshRegionlistPC();
 	 setMiscProcessInfo(_process.GetProcessName(), false, false, _process.IsX64() ? 8 : 4, 4);
 	 GetInstance().setupSearch();
-	 GetInstance().GetInstance()._processType = NATIVE;
+	 GetInstance()._processType = NATIVE;
 	 Cheats::SetPlatform("PC");
 	 Cheats::SetGameID(GetInstance()._processName.c_str());
 	 Cheats::InitCheatFile();
@@ -388,16 +391,21 @@ bool MungPlex::ProcessInformation::initMelonDS()
 		char tempId[7] = "";
 		_process.ReadExRAM(tempId, region.GetBaseAddress<char*>() + 0x3FFA8C, 6);
 		_gameID = tempId;
+		_gameName.resize(12);
+		_process.ReadExRAM(_gameName.data(), region.GetBaseAddress<char*>() + 0x3FFA80, 12);
+
 
 		if (_gameID.size() != 6)
 		{
 			_process.ReadExRAM(tempId, region.GetBaseAddress<char*>() + 0x3FFE0C, 6);
 			_gameID = tempId;
+			_process.ReadExRAM(_gameName.data(), region.GetBaseAddress<char*>() + 0x3FFE00, 12);
 		}
 
 		if (_gameID.size() != 6)
 			continue;
 
+		_gameRegion = _gameID[3];
 		_platform = "NDS";
 		PointerSearch::SelectPreset(NDS);
 		return true;
@@ -521,6 +529,8 @@ bool MungPlex::ProcessInformation::initMesen()
 	_gameID = std::string(21, 0);
 	_process.ReadExRAM(_gameID.data(), RAM + 0x7FC0, 21);
 	_gameID = MorphText::JIS_X_0201_FullWidth_To_Utf8(_gameID.data());
+	_gameID = RemoveSpacePadding(_gameID);
+	_gameName = _gameID;
 	_gameID.append("-");
 	char tempByte = 0;
 	_process.ReadExRAM(&tempByte, RAM + 0x7FD9, 1);
@@ -579,6 +589,13 @@ bool MungPlex::ProcessInformation::initProject64()
 		char tempID[5] = "";
 		ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(tempID), region.GetBaseAddress<char*>() + 0x3B);
 		_gameID = std::string(tempID);
+		_gameName.resize(20);
+		_gameRegion = _gameID[3];
+
+		for (int i = 0; i <= 20; i+=4)
+			ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(_gameName.data() + i), region.GetBaseAddress<char*>() + 0x20 + i);
+
+		_gameName = RemoveSpacePadding(_gameName);
 		PointerSearch::SelectPreset(N64);
 		break;
 	}
@@ -715,6 +732,33 @@ bool MungPlex::ProcessInformation::initDolphin()
 	char discNo;
 	char discVer;
 
+
+	
+	for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
+	{
+		LPSTR str = new CHAR[256];
+		GetWindowTextA(wHandle, str, 256);
+		std::string wTitle = str;
+		delete[] str;
+
+		if (wTitle.find("Dolphin") != 0)
+			continue;
+
+		int posEnd = wTitle.find("(");
+		int posBeg = 0;
+
+		if (posEnd < 0)
+			continue;
+
+		for (int i = posEnd; wTitle[i] != '|'; --i)
+			posBeg = i;
+
+		_gameName = wTitle.substr(posBeg + 1, posEnd - posBeg - 2);
+
+		std::cout << _gameName << std::endl;
+		break;
+	}
+
 	for (const auto& _region : _regions)
 	{
 		if (_region.GetRegionSize() != 0x2000000)
@@ -737,6 +781,7 @@ bool MungPlex::ProcessInformation::initDolphin()
 	_gameID = tempID;
 	_gameID.append("-").append(std::to_string(discNo));
 	_gameID.append("-").append(std::to_string(discVer));
+	_gameRegion = _gameID[3];
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{
@@ -771,6 +816,7 @@ bool MungPlex::ProcessInformation::initDolphin()
 	{
 		memcpy_s(tempID, 7, &IDcopy, 4);
 		_gameID = tempID;
+		_gameRegion = _gameID[3];
 		return true;
 	}
 
@@ -934,6 +980,7 @@ bool MungPlex::ProcessInformation::initCemu()
 		_gameID = wTitle.substr(0, 17);
 		wTitle = wTitle.substr(19);
 		pos = wTitle.find("[");
+		_gameRegion = wTitle.substr(pos+1, 2);
 		_gameName = wTitle.substr(0, pos - 1);
 		wTitle = wTitle.substr(wTitle.find("v"));
 		_gameID.append("-" + wTitle.substr(0, wTitle.size() - 1));
@@ -1140,9 +1187,24 @@ void MungPlex::ProcessInformation::RefreshRegionlistPC()
 	}
 }
 
-std::string MungPlex::ProcessInformation::GetProcessName()
+std::string& MungPlex::ProcessInformation::GetProcessName()
 {
 	return GetInstance()._processName;
+}
+
+std::string& MungPlex::ProcessInformation::GetTitle()
+{
+	return GetInstance()._gameName;
+}
+
+std::string& MungPlex::ProcessInformation::GetRegion()
+{
+	return GetInstance()._gameRegion;
+}
+
+std::string& MungPlex::ProcessInformation::GetPlatform()
+{
+	return GetInstance()._platform;
 }
 
 bool* MungPlex::ProcessInformation::GetRangeFlagRead()

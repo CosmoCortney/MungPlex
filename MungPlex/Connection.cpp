@@ -120,11 +120,20 @@ void MungPlex::Connection::DrawConnectionSelect()
 	}
 
 	ImGui::Dummy(ImVec2(0.0f, 5.0f));
+	memoryViewerButton();
+	ImGui::Dummy(ImVec2(0.0f, 5.0f));
 	ImGui::Text(_connectionMessage);
-	drawAdditionalFeatureSelect();
+
+	if (ProcessInformation::GetProcessType() == ProcessInformation::EMULATOR)
+	{
+		SetUpLableText("Platform:", ProcessInformation::GetPlatform().c_str(), ProcessInformation::GetPlatform().size(), 1.0f, 0.333f);
+		SetUpLableText("Game Title:", ProcessInformation::GetTitle().c_str(), ProcessInformation::GetTitle().size(), 1.0f, 0.333f);
+		SetUpLableText("Game ID:", ProcessInformation::GetGameID().c_str(), ProcessInformation::GetGameID().size(), 1.0f, 0.333f);
+		SetUpLableText("Region:", ProcessInformation::GetRegion().c_str(), ProcessInformation::GetRegion().size(), 1.0f, 0.333f);
+	}
 }
 
-void MungPlex::Connection::drawAdditionalFeatureSelect()
+void MungPlex::Connection::memoryViewerButton()
 {
 	if (!_connected || _memoryViewers.size() >= 16) ImGui::BeginDisabled();
 	{

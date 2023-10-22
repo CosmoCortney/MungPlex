@@ -70,6 +70,7 @@ namespace MungPlex
         std::string _platform;
         std::string _processName;
         std::string _gameName;
+        std::string _gameRegion;
         int32_t _addressWidth;
         HANDLE _handle;
         std::vector<GameEntity> _gameEntities;
@@ -141,7 +142,10 @@ namespace MungPlex
         static bool GetRereorderFlag();
         static bool LoadSystemInformationJSON(int emulatorIndex);
         static std::vector<SystemRegion>& GetRegions();
-        static std::string GetProcessName();
+        static std::string& GetProcessName();
+        static std::string& GetTitle();
+        static std::string& GetRegion();
+        static std::string& GetPlatform();
         static bool* GetRangeFlagRead();
         static bool* GetRangeFlagWrite();
         static bool* GetRangeFlagExecute();

@@ -48,7 +48,7 @@ namespace MungPlex
         char _connectionMessage[256];
         std::vector<MemoryViewer> _memoryViewers;
         void DrawConnectionSelect();
-        void drawAdditionalFeatureSelect();
+        void memoryViewerButton();
 
     public:
         static void DrawWindow();
