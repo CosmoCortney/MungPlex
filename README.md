@@ -291,6 +291,15 @@ This can be used to edit an existing cheat or add a new one.
 - `Update Entry`: Updates the currently selected entry
 - `Delete Entry`: Deletes the selected cheat from the list
 
+### Old-School cheat to Lua Cheat Conversion
+This allows you to convert decrypted cheat codes to Lua. Note that some codes may not work because addresses may be shifted on emulators.
+
+<img src="MungPlex\resources\img\manual\MungPlex_cheats_04.png" width="666">
+
+- `Cheat Format`: Select the input cheat format
+- `Cheat to be converted`: The decrypted cheat code you wish to be converted
+- `Convert to Lua`: A button that does what it says
+
 ### Cheat Control
 Gives you further control of the cheat(s).
 
