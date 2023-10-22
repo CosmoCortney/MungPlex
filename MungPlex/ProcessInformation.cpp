@@ -1101,22 +1101,22 @@ bool MungPlex::ProcessInformation::GetRereorderFlag()
 	return GetInstance()._rereorderRegion;
 }
 
-void MungPlex::ProcessInformation::RefreshRegionlistPC(bool read, const bool write, const bool execute)
+void MungPlex::ProcessInformation::RefreshRegionlistPC()
 {
 	GetInstance()._systemRegions.clear();
 	GetInstance()._process = Xertz::SystemInfo::GetProcessInfo(GetInstance().GetInstance()._pid);
 	int flags = 0;
 
-	if (write || execute)
-		read = true;
+	if (GetInstance()._write || GetInstance()._execute)
+		GetInstance()._read = true;
 
-	if (read)
+	if (GetInstance()._read)
 		flags |= PAGE_READONLY;
-	if (write)
+	if (GetInstance()._write)
 		flags |= PAGE_READWRITE;
-	if(execute)
+	if(GetInstance()._execute)
 		flags |= PAGE_EXECUTE_READ;
-	if(write && execute)
+	if(GetInstance()._write && GetInstance()._execute)
 		flags |= PAGE_EXECUTE_READWRITE;
 
 	for (Xertz::MemoryRegion& region : GetInstance()._process.GetRegionList())
@@ -1143,4 +1143,19 @@ void MungPlex::ProcessInformation::RefreshRegionlistPC(bool read, const bool wri
 std::string MungPlex::ProcessInformation::GetProcessName()
 {
 	return GetInstance()._processName;
+}
+
+bool* MungPlex::ProcessInformation::GetRangeFlagRead()
+{
+	return &GetInstance()._read;
+}
+
+bool* MungPlex::ProcessInformation::GetRangeFlagWrite()
+{
+	return &GetInstance()._write;
+}
+
+bool* MungPlex::ProcessInformation::GetRangeFlagExecute()
+{
+	return &GetInstance()._execute;
 }

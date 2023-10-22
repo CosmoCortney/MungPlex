@@ -78,6 +78,9 @@ namespace MungPlex
         int32_t _currentEmulatorNumber;
         std::vector<EMUPAIR> _emulators;
         std::wstring _exePath;
+        bool _read = true;
+        bool _write = true;
+        bool _execute = true;
 
         void drawModuleList();
         void refreshData(int32_t PID);
@@ -123,7 +126,7 @@ namespace MungPlex
 
         static std::string& GetGameID();
         static void DrawWindow();
-        static void RefreshRegionlistPC(bool read = true, const bool write = true, const bool execute = true);
+        static void RefreshRegionlistPC();
         static bool ConnectToEmulator(int EmulatorIndex);
         static bool ConnectToProcess(int processIndex);
         static bool ConnectToApplicationProcess(int applicationProcessIndex);
@@ -139,5 +142,8 @@ namespace MungPlex
         static bool LoadSystemInformationJSON(int emulatorIndex);
         static std::vector<SystemRegion>& GetRegions();
         static std::string GetProcessName();
+        static bool* GetRangeFlagRead();
+        static bool* GetRangeFlagWrite();
+        static bool* GetRangeFlagExecute();
     };
 }

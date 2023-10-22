@@ -50,6 +50,18 @@ void MungPlex::MemoryViewer::drawControlPanel()
             setUpByRegionSelect(_regionSelect);
         }
 
+        static bool refresh = false;
+
+        if (ImGui::Checkbox("Write", ProcessInformation::GetRangeFlagWrite()))
+            refresh = true;
+
+        ImGui::SameLine();
+        if (ImGui::Checkbox("Execute", ProcessInformation::GetRangeFlagExecute()))
+            refresh = true;
+
+        if (refresh)
+            ProcessInformation::RefreshRegionlistPC();
+
         if (SetUpInputText("Jump to Address:", _bufAddress.data(), 17, 1.0f, 0.4f))
         {
             processBufferAddress();

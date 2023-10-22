@@ -256,15 +256,15 @@ void MungPlex::Search::DrawRangeOptions()
 				{
 					static bool refresh = false;
 
-					if (ImGui::Checkbox("Write", &_write))
+					if (ImGui::Checkbox("Write", ProcessInformation::GetRangeFlagWrite()))
 						refresh = true;
 
 					ImGui::SameLine();
-					if (ImGui::Checkbox("Exec.", &_execute))
+					if (ImGui::Checkbox("Exec.", ProcessInformation::GetRangeFlagExecute()))
 						refresh = true;
 
 					if(refresh)
-						ProcessInformation::RefreshRegionlistPC(_read, _write, _execute);
+						ProcessInformation::RefreshRegionlistPC();
 
 					ImGui::SameLine();
 					HelpMarker("If Write AND Exec. are unchecked, only read-only ranges are considered. Otherwise readable ranges are always considered.");
