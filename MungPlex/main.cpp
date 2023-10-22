@@ -140,7 +140,6 @@ int main()
 	ImGui_ImplOpenGL3_Init();
 	ImVec4 clear_color = ImVec4(0.2f, 0.2f, 0.2f, 1.00f);
 	ImFontConfig cfg;
-	static const ImWchar icons_ranges[] = { 0x0000, 0xf3ff, 0 };
 
 #ifndef NDEBUG
 	bool show_demo_window = true;
@@ -148,9 +147,8 @@ int main()
 	bool show_demo_window = false;
 #endif
 
-	const auto fontPath = MungPlex::GetResourcesFilePath("NotoSansJP-Black.ttf");
-	const bool fontLoaded = io.Fonts->AddFontFromFileTTF(fontPath.string().data(), MungPlex::Settings::GetGeneralSettings().Scale * 20.0f, &cfg, io.Fonts->GetGlyphRangesJapanese());
-	std::cout << "Font successfully loaded: " << fontLoaded << std::endl;
+	const bool fontsLoaded = MungPlex::LoadFonts(io, cfg, MungPlex::Settings::GetGeneralSettings().Scale * 20.0f);
+	std::cout << "Font successfully loaded: " << fontsLoaded << std::endl;
 
 	const auto version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 	std::cout << "OpenGL Version: " << version << std::endl;
