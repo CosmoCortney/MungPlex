@@ -1228,10 +1228,10 @@ bool MungPlex::Cheats::saveCheatList() const
 				nlohmann::json cheatJson;
 				cheatJson["ID"] = ID;
 				cheatJson["Checked"] = Checked;
-				cheatJson["Title"] = Title;
-				cheatJson["Hacker"] = Hacker;
-				cheatJson["Lua"] = Lua;
-				cheatJson["Description"] = Description;
+				cheatJson["Title"] = std::string(Title.c_str());
+				cheatJson["Hacker"] = std::string(Hacker.c_str());
+				cheatJson["Lua"] = std::string(Lua.c_str());
+				cheatJson["Description"] = std::string(Description.c_str());
 
 				jsonData["Cheats"].emplace_back(cheatJson);
 			}
