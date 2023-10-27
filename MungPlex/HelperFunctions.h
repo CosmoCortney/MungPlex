@@ -20,6 +20,8 @@
 
 namespace MungPlex
 {
+
+
     template<typename addressType> static addressType TranslatePtrTo4BytesReorderingPtr(addressType ptr)
     {
         uint64_t tempPtr;

@@ -42,6 +42,8 @@ add_executable (MungPlex
     DataConversion.cpp
     CheatConvert.h
     CheatConvert.cpp
+    WatchControl.cpp
+    WatchControl.h
     resources.rc
     ../include/imgui/imgui.cpp
     ../include/imgui/imgui_demo.cpp
@@ -69,7 +71,8 @@ add_executable (MungPlex
     ../include/Xertz/SystemInfo.cpp
     ../include/ImGuiFileDialog/ImGuiFileDialog.h
     ../include/ImGuiFileDialog/ImGuiFileDialog.cpp
-    ../include/ImGui_MemoryEditor/imgui_memory_editor/imgui_memory_editor.h "CheatConvert.cpp")
+    ../include/ImGui_MemoryEditor/imgui_memory_editor/imgui_memory_editor.h
+)
 
 # Link Icon
 target_sources(MungPlex PRIVATE resources.rc)

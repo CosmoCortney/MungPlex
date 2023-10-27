@@ -14,6 +14,7 @@
 #include "PointerSearch.h"
 #include"DataConversion.h"
 #include"HelperFunctions.h"
+#include"WatchControl.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include"stb/stb_image.h"
 
@@ -177,6 +178,7 @@ int main()
 		MungPlex::Log::DrawWindow();
 		MungPlex::PointerSearch::DrawWindow();
 		MungPlex::DataConversion::DrawWindow();
+		//MungPlex::WatchControl::DrawWindow();
 
 		static bool setWindowFocused = true;
 		if (setWindowFocused)

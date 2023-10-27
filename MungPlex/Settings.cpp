@@ -315,6 +315,7 @@ void MungPlex::Settings::createDocFolders()
 	validateDir(mungPlexDocsPath + "\\Search");
 	validateDir(mungPlexDocsPath + "\\Dumps");
 	validateDir(mungPlexDocsPath + "\\PointerSearch");
+	validateDir(mungPlexDocsPath + "\\WatchControl");
 	validateDir(mungPlexDocsPath + "\\Cheats");
 	validateDir(mungPlexDocsPath + "\\Cheats\\Nintendo 64");
 	validateDir(mungPlexDocsPath + "\\Cheats\\SNES");
@@ -331,6 +332,21 @@ void MungPlex::Settings::createDocFolders()
 	validateDir(mungPlexDocsPath + "\\Cheats\\Mega Drive");
 	validateDir(mungPlexDocsPath + "\\Cheats\\Mega-CD");
 	validateDir(mungPlexDocsPath + "\\Cheats\\32X");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\Nintendo 64");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\SNES");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\GameCube");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\Wii");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\Wii U");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\PC");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\NDS");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\Switch");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\PSP");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\PS1");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\PS2");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\PS3");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\Mega Drive");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\Mega-CD");
+	validateDir(mungPlexDocsPath + "\\WatchControl\\32X");
 }
 
 void MungPlex::Settings::validateDir(const std::string dir)
