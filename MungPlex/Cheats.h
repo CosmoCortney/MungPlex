@@ -115,7 +115,6 @@ namespace MungPlex
         void DrawControl(); //bottom left
         void updateConnectionInfo();
         void drawCheatConverter();
-        int getRangeIndex(uint64_t address) const;
         void cheatRoutine();
         bool convertToLua();
 

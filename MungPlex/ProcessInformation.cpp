@@ -1221,3 +1221,14 @@ bool* MungPlex::ProcessInformation::GetRangeFlagExecute()
 {
 	return &GetInstance()._execute;
 }
+
+int MungPlex::ProcessInformation::GetRegionIndex(const uint64_t baseAddress)
+{
+	for (size_t i = 0; i < GetInstance()._systemRegions.size(); ++i)
+	{
+		if (baseAddress >= GetInstance()._systemRegions[i].Base && baseAddress < GetInstance()._systemRegions[i].Base + GetInstance()._systemRegions[i].Size)
+			return i;
+	}
+
+	return -1;
+}

@@ -149,5 +149,6 @@ namespace MungPlex
         static bool* GetRangeFlagRead();
         static bool* GetRangeFlagWrite();
         static bool* GetRangeFlagExecute();
+        static int GetRegionIndex(const uint64_t baseAddress);
     };
 }

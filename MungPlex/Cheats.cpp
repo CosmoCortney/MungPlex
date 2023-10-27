@@ -175,7 +175,7 @@ uint32_t MungPlex::Cheats::readUInt32(const uint64_t address)
 int64_t MungPlex::Cheats::readInt64(const uint64_t address)
 {
 	int64_t readValue = 0;
-	const int rangeIndex = GetInstance().getRangeIndex(address);
+	const int rangeIndex = ProcessInformation::GetRegionIndex(address);
 
 	if (rangeIndex == -1)
 		return 0;
@@ -315,7 +315,7 @@ sol::table MungPlex::Cheats::readArrayDouble(const uint64_t address, const uint3
 void MungPlex::Cheats::writeToRAM(const int type, const uint64_t address, double value)
 {
 	uint64_t writeValue;
-	const int rangeIndex = GetInstance().getRangeIndex(address);
+	const int rangeIndex = ProcessInformation::GetRegionIndex(address);
 
 	if (rangeIndex == -1)
 		return;
@@ -368,7 +368,7 @@ void MungPlex::Cheats::writeBool(const uint64_t address, const bool value)
 
 void MungPlex::Cheats::writeInt8(const uint64_t address, int8_t value)
 {
-	const int rangeIndex = GetInstance().getRangeIndex(address);
+	const int rangeIndex = ProcessInformation::GetRegionIndex(address);
 
 	if (rangeIndex == -1)
 		return;
@@ -552,10 +552,10 @@ void MungPlex::Cheats::fillAndSlideDouble(const uint64_t address, const int64_t 
 
 void MungPlex::Cheats::copyMemory(const uint64_t source, const uint64_t destination, const uint32_t size)
 {
-	const int sourceIndex = GetInstance().getRangeIndex(source);
-	const int destinationIndex = GetInstance().getRangeIndex(destination);
+	const int sourceIndex = ProcessInformation::GetRegionIndex(source);
+	const int destinationIndex = ProcessInformation::GetRegionIndex(destination);
 
-	if (sourceIndex == -1 || GetInstance().getRangeIndex(destinationIndex + size) == -1)
+	if (sourceIndex == -1 || ProcessInformation::GetRegionIndex(destinationIndex + size) == -1)
 		return;
 
 	void* src = static_cast<char*>(GetInstance()._regions[sourceIndex].BaseLocationProcess) + source - GetInstance()._regions[sourceIndex].Base;
@@ -1005,7 +1005,7 @@ double MungPlex::Cheats::readFromRAM(const int type, const uint64_t address)
 {
 	int64_t readValue = 0;
 	double returnValue;
-	const int rangeIndex = GetInstance().getRangeIndex(address);
+	const int rangeIndex = ProcessInformation::GetRegionIndex(address);
 
 	if (rangeIndex == -1)
 		return returnValue = NAN;
@@ -1146,17 +1146,6 @@ int MungPlex::Cheats::luaExceptionHandler(lua_State* L, const sol::optional<cons
 	}
 
 	return sol::stack::push(L, description);
-}
-
-int MungPlex::Cheats::getRangeIndex(const uint64_t address) const
-{
-	for (size_t i = 0; i < _regions.size(); ++i)
-	{
-		if (address >= _regions[i].Base && address < _regions[i].Base + _regions[i].Size)
-			return i;
-	}
-
-	return -1;
 }
 
 void MungPlex::Cheats::copyCheatToInformationBox(const int index)

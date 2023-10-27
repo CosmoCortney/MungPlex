@@ -208,23 +208,17 @@ void* MungPlex::WatchControl::View::GetCurrentPointer()
 
 		if (ProcessInformation::GetProcessType() == ProcessInformation::EMULATOR)
 		{
-			bool regionFound = false;
+			int regionIndex = ProcessInformation::GetRegionIndex(ptr);
 
-			for (SystemRegion& region : ProcessInformation::GetRegions())
+			if (regionIndex > 0)
 			{
-				if (ptr >= region.Base && ptr < region.Base + region.Size)
-				{
-					s_Process.ReadExRAM(&ptr, reinterpret_cast<char*>(region.BaseLocationProcess) + ptr - region.Base, ProcessInformation::GetAddressWidth());
-					regionFound = true;
-					break;
-				}
+				SystemRegion& region = ProcessInformation::GetRegions()[regionIndex];
+				s_Process.ReadExRAM(&ptr, reinterpret_cast<char*>(region.BaseLocationProcess) + ptr - region.Base, ProcessInformation::GetAddressWidth());
 			}
-
-			if (!regionFound)
-			{
+			else
 				ptr = 0;
-				break;
-			}
+
+			break;
 		}
 		else
 		{
