@@ -173,10 +173,11 @@ namespace MungPlex
             {
                 if (GetRegionIndex(address) == -1)
                     return 0;
+
                 readAddress = reinterpret_cast<void*>(EmuAddrToProcessAddr<uint64_t>(address));
             }
             else
-                reinterpret_cast<void*>(address);
+                readAddress = reinterpret_cast<void*>(address);
 
             if constexpr (std::is_same_v<dataType, uint64_t> || std::is_same_v<dataType, int64_t>)
             {
@@ -231,6 +232,74 @@ namespace MungPlex
             }
 
             return readValue;
+        }
+
+        template<typename dataType> static void WriteValue(const uint64_t address, const dataType value)
+        {
+            void* writeAddress = nullptr;
+            dataType writeValue = value;
+
+            if (GetInstance()._processType == EMULATOR)
+            {
+                if (GetRegionIndex(address) == -1)
+                    return;
+
+                writeAddress = reinterpret_cast<void*>(EmuAddrToProcessAddr<uint64_t>(address));
+            }
+            else
+                writeAddress = reinterpret_cast<void*>(address);
+
+            if constexpr (std::is_same_v<dataType, uint64_t> || std::is_same_v<dataType, int64_t>)
+            {
+                if (GetInstance()._underlyingIsBigEndian)
+                    writeValue = Xertz::SwapBytes<int64_t>(writeValue);
+
+                if (GetInstance()._rereorderRegion)
+                    WriteToReorderedRangeEx<dataType>(GetInstance()._process, &writeValue, writeAddress);
+                else
+                    GetInstance()._process.WriteExRAM(reinterpret_cast<void*>(&writeValue), writeAddress, 8);
+            }
+            else if constexpr (std::is_same_v<dataType, uint32_t> || std::is_same_v<dataType, int32_t>)
+            {
+                if (GetInstance()._underlyingIsBigEndian)
+                    writeValue = Xertz::SwapBytes<int32_t>(writeValue);
+
+                if (GetInstance()._rereorderRegion)
+                    WriteToReorderedRangeEx<dataType>(GetInstance()._process, &writeValue, writeAddress);
+                else
+                    GetInstance()._process.WriteExRAM(reinterpret_cast<void*>(&writeValue), writeAddress, 4);
+            }
+            else if constexpr (std::is_same_v<dataType, uint16_t> || std::is_same_v<dataType, int16_t>)
+            {
+                if (GetInstance()._underlyingIsBigEndian)
+                    writeValue = Xertz::SwapBytes<int16_t>(writeValue);
+
+                if (GetInstance()._rereorderRegion)
+                    WriteToReorderedRangeEx<dataType>(GetInstance()._process, &writeValue, writeAddress);
+                else
+                    GetInstance()._process.WriteExRAM(reinterpret_cast<void*>(&writeValue), writeAddress, 2);
+            }
+            else if constexpr (std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, int8_t>)
+            {
+                if (GetInstance()._rereorderRegion)
+                    WriteToReorderedRangeEx<dataType>(GetInstance()._process, &writeValue, writeAddress);
+                else
+                    GetInstance()._process.WriteExRAM(reinterpret_cast<void*>(&writeValue), writeAddress, 1);
+            }
+            else if constexpr (std::is_same_v<dataType, double>)
+            {
+                int64_t temp = *reinterpret_cast<int64_t*>(&writeValue);
+                WriteValue<int64_t>(address, temp);
+            }
+            else if constexpr (std::is_same_v<dataType, float>)
+            {
+                int32_t temp = *reinterpret_cast<int32_t*>(&writeValue);
+                WriteValue<int32_t>(address, temp);
+            }
+            else if constexpr (std::is_same_v<dataType, bool>)
+            {
+                WriteValue<int8_t>(address, writeValue);
+            }
         }
     };
 }

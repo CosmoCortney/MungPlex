@@ -322,47 +322,37 @@ void MungPlex::Cheats::writeToRAM(const int type, const uint64_t address, double
 
 void MungPlex::Cheats::writeBool(const uint64_t address, const bool value)
 {
-	writeInt8(address, value);
+	ProcessInformation::WriteValue<bool>(address, value);
 }
 
 void MungPlex::Cheats::writeInt8(const uint64_t address, int8_t value)
 {
-	const int rangeIndex = ProcessInformation::GetRegionIndex(address);
-
-	if (rangeIndex == -1)
-		return;
-
-	void* writeAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	
-	if (GetInstance()._reorderedMemory)
-		WriteToReorderedRangeEx<int8_t>(GetInstance()._processInfo, &value, writeAddress);
-	else
-		GetInstance()._processInfo.WriteExRAM(&value, writeAddress, 1);
+	ProcessInformation::WriteValue<int8_t>(address, value);
 }
 
 void MungPlex::Cheats::writeInt16(const uint64_t address, int16_t value)
 {
-	GetInstance().writeValue<int16_t>(address, value);
+	ProcessInformation::WriteValue<int16_t>(address, value);
 }
 
 void MungPlex::Cheats::writeInt32(const uint64_t address, int32_t value)
 {
-	GetInstance().writeValue<int32_t>(address, value);
+	ProcessInformation::WriteValue<int32_t>(address, value);
 }
 
 void MungPlex::Cheats::writeInt64(const uint64_t address, int64_t value)
 {
-	GetInstance().writeValue<int64_t>(address, value);
+	ProcessInformation::WriteValue<int64_t>(address, value);
 }
 
 void MungPlex::Cheats::writeFloat(const uint64_t address, float value)
 {
-	GetInstance().writeValue<float>(address, value);
+	ProcessInformation::WriteValue<float>(address, value);
 }
 
 void MungPlex::Cheats::writeDouble(const uint64_t address, double value)
 {
-	GetInstance().writeValue<double>(address, value);
+	ProcessInformation::WriteValue<double>(address, value);
 }
 
 void MungPlex::Cheats::writeArrayInt8(const uint64_t address, const sol::table arr)
