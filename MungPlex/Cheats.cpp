@@ -118,98 +118,57 @@ MungPlex::Cheats::Cheats()
 
 bool MungPlex::Cheats::readBool(const uint64_t address)
 {
-	return readInt8(address) != 0;
+	return ProcessInformation::ReadValue<bool>(address);
 }
 
 int8_t MungPlex::Cheats::readInt8(const uint64_t address)
 {
-	int8_t temp = 0;
-
-	if (GetInstance()._reorderedMemory)
-		temp = !GetInstance()._isBigEndian ? readInt64(address) : readInt64(address) >> 56;
-	else
-		temp = GetInstance()._isBigEndian ? readInt64(address) >> 56 : readInt64(address);
-
-	return temp;
+	return ProcessInformation::ReadValue<int8_t>(address);
 }
 
 uint8_t MungPlex::Cheats::readUInt8(const uint64_t address)
 {
-	return readInt8(address);
+	return ProcessInformation::ReadValue<uint8_t>(address);
 }
 
 int16_t MungPlex::Cheats::readInt16(const uint64_t address)
 {
-	int16_t temp = 0;
-
-	if (GetInstance()._reorderedMemory)
-		temp = !GetInstance()._isBigEndian ? readInt64(address) : readInt64(address) >> 48;
-	else
-		temp = GetInstance()._isBigEndian ? readInt64(address) >> 48 : readInt64(address);
-
-	return temp;
+	return ProcessInformation::ReadValue<int16_t>(address);
 }
 
 uint16_t MungPlex::Cheats::readUInt16(const uint64_t address)
 {
-	return readInt16(address);
+	return ProcessInformation::ReadValue<uint16_t>(address);
 }
 
 int32_t MungPlex::Cheats::readInt32(const uint64_t address)
 {
-	int temp = 0;
-
-	if (GetInstance()._reorderedMemory)
-		temp = !GetInstance()._isBigEndian ? readInt64(address) : readInt64(address) >> 32;
-	else
-		temp = GetInstance()._isBigEndian ? readInt64(address) >> 32 : readInt64(address);
-
-	return temp;
+	return ProcessInformation::ReadValue<int32_t>(address);
 }
 
 uint32_t MungPlex::Cheats::readUInt32(const uint64_t address)
 {
-	return readInt32(address);
+	return ProcessInformation::ReadValue<uint32_t>(address);
 }
 
 int64_t MungPlex::Cheats::readInt64(const uint64_t address)
 {
-	int64_t readValue = 0;
-	const int rangeIndex = ProcessInformation::GetRegionIndex(address);
-
-	if (rangeIndex == -1)
-		return 0;
-
-	void* readAddress = static_cast<char*>(GetInstance()._regions[rangeIndex].BaseLocationProcess) + address - GetInstance()._regions[rangeIndex].Base;
-	
-	if (GetInstance()._reorderedMemory)
-		ReadFromReorderedRangeEx<int64_t>(GetInstance()._processInfo, &readValue, readAddress);
-	else
-		GetInstance()._processInfo.ReadExRAM(&readValue, readAddress, 8);
-	
-	if (GetInstance()._isBigEndian)
-		readValue = Xertz::SwapBytes<int64_t>(readValue);
-	
-	return readValue;
+	return ProcessInformation::ReadValue<int64_t>(address);
 }
 
 uint64_t MungPlex::Cheats::readUInt64(const uint64_t address)
 {
-	return readInt64(address);
+	return ProcessInformation::ReadValue<uint64_t>(address);
 }
 
 float MungPlex::Cheats::readFloat(const uint64_t address)
 {
-	int32_t temp = 0;
-	temp = readInt32(address);
-	return *(float*)&temp;
+	return ProcessInformation::ReadValue<float>(address);
 }
 
 double MungPlex::Cheats::readDouble(const uint64_t address)
 {
-	int64_t temp = 0;
-	temp = readInt64(address);
-	return *(double*)&temp;
+	return ProcessInformation::ReadValue<double>(address);
 }
 
 sol::table MungPlex::Cheats::readArrayInt8(const uint64_t address, const uint32_t size)
