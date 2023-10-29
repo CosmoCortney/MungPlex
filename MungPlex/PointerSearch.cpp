@@ -159,7 +159,7 @@ void MungPlex::PointerSearch::drawSettings()
 
         ImGui::Dummy(ImVec2(0.0f, ImGui::GetContentRegionAvail().y - 40.0f));
 
-        _regions = ProcessInformation::GetRegions();
+        _regions = ProcessInformation::GetSystemRegionList();
         SetUpCombo("Region:", _regions, _regionSelect, 0.5f, 0.4f);
         
         ImGui::SameLine();

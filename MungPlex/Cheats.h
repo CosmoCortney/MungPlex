@@ -78,19 +78,12 @@ namespace MungPlex
         std::string _textCheatDescription = std::string(DESCRIPTION, 0);
         std::wstring _cheatListPath;
         sol::state _lua{};
-        bool _isBigEndian = false;
-        bool _reorderedMemory = false;
-        int _pid = 0;
-        std::vector<SystemRegion> _regions{};
         int _perSecond = 60;
         bool _executeCheats = false;
         bool _cheatList = false;
         std::thread _cheatThread;
-        PROCESS_INFO _processInfo;
         bool _cheatError = false;
         std::wstring _documentsPath;
-        std::wstring _currentGameID;
-        std::wstring _currentPlatform;
         std::wstring _currentCheatFile;
         std::string _currentCheatListFile;
         std::string _placeholderCheatFile = "{\"Cheats\":[]}";
@@ -161,16 +154,6 @@ namespace MungPlex
         static void fillAndSlideInt64(const uint64_t address, const int64_t addressIncrement, const int64_t value, const int64_t valueIncrement, const uint32_t count);
         static void fillAndSlideFloat(const uint64_t address, const int64_t addressIncrement, const float value, const float valueIncrement, const uint32_t count);
         static void fillAndSlideDouble(const uint64_t address, const int64_t addressIncrement, const double value, const double valueIncrement, const uint32_t count);
-        template <typename dataType> void writeValue(uint64_t writeAddress, dataType writeValue)
-        {
-            if (_isBigEndian)
-                writeValue = Xertz::SwapBytes(writeValue);
-
-            int8_t* writeValAddr = reinterpret_cast<int8_t*>(&writeValue);
-
-            for (int i = 0; i < sizeof(dataType); ++i)
-                writeInt8(writeAddress + i, *(writeValAddr + i));
-        }
 
         static bool isInRange(const uint64_t ptr, const uint64_t start, const uint64_t end);
         static uint64_t getModuleAddress(const char* moduleName);
@@ -191,10 +174,6 @@ namespace MungPlex
 
     public:
         static void DrawWindow();
-        static void SetGameID(const char* ID);
-        static void SetPlatform(const char* platform);
-        static void SetBigEndian(const bool isBE);
-        static void SetReorderedMemory(const bool reordered);
         static void InitCheatFile();
 	};
 }

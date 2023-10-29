@@ -205,7 +205,7 @@ void MungPlex::Search::DrawRangeOptions()
 			ImGui::BeginGroup();
 			{
 				static std::stringstream stream;
-				_regions = ProcessInformation::GetRegions();
+				_regions = ProcessInformation::GetSystemRegionList();
 				_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.5f, 0.4f);
 
 				if(_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText.Data(), _rangeStartText.Size(), 0.5f, 0.4f))

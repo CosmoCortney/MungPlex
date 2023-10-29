@@ -58,11 +58,8 @@ namespace MungPlex
         }
 
         int32_t _processType;
-        DWORD _pid;
-        MODULE_LIST _modules;
-        REGION_LIST _regions;
-        Xertz::ProcessInfo _process;
-        bool _isX64;
+        PROCESS_INFO _process;
+        //bool _isX64;
         bool _underlyingIsBigEndian;
         bool _rereorderRegion;
         int _alignment;
@@ -72,7 +69,6 @@ namespace MungPlex
         std::string _gameName;
         std::string _gameRegion;
         int32_t _addressWidth;
-        HANDLE _handle;
         std::vector<GameEntity> _gameEntities;
         std::vector<SystemRegion> _systemRegions;
         std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
@@ -84,7 +80,7 @@ namespace MungPlex
         bool _execute = true;
 
         void drawModuleList();
-        void refreshData(int32_t PID);
+        //void refreshData(int32_t PID);
         void drawRegionList();
         void drawMiscInformation();
         void drawGameInformation();
@@ -104,6 +100,7 @@ namespace MungPlex
         void obtainGameEntities(void* baseLocation);
         void setupSearch();
         void setupCheats();
+        void refreshModuleList();
         bool connectToProcessFR();
         void setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth, const int alignment);
 
@@ -125,7 +122,6 @@ namespace MungPlex
             XBOXSERIES, X86, X64
         };
 
-        static std::string& GetGameID();
         static void DrawWindow();
         static void RefreshRegionlistPC();
         static bool ConnectToEmulator(int EmulatorIndex);
@@ -141,7 +137,7 @@ namespace MungPlex
         static int32_t GetAddressWidth();
         static bool GetRereorderFlag();
         static bool LoadSystemInformationJSON(int emulatorIndex);
-        static std::vector<SystemRegion>& GetRegions();
+        static std::string& GetGameID();
         static std::string& GetProcessName();
         static std::string& GetTitle();
         static std::string& GetRegion();
@@ -150,6 +146,10 @@ namespace MungPlex
         static bool* GetRangeFlagWrite();
         static bool* GetRangeFlagExecute();
         static int GetRegionIndex(const uint64_t baseAddress);
+        static PROCESS_INFO& GetProcess();
+        static MODULE_LIST& GetModuleList();
+        static REGION_LIST& GetRegionList();
+        static std::vector<SystemRegion>& GetSystemRegionList();
 
         template<typename addressType> static addressType EmuAddrToProcessAddr(addressType address)
         {

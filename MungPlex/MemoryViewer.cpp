@@ -45,7 +45,7 @@ void MungPlex::MemoryViewer::drawControlPanel()
 
     ImGui::BeginChild("child_MemoryViewerControlPanel", childXY);
     {
-        if (SetUpCombo("Region:", ProcessInformation::GetRegions(), _regionSelect, 1.0f, 0.4f))
+        if (SetUpCombo("Region:", ProcessInformation::GetSystemRegionList(), _regionSelect, 1.0f, 0.4f))
         {
             setUpByRegionSelect(_regionSelect);
         }
@@ -83,7 +83,7 @@ void MungPlex::MemoryViewer::drawHexEditor()
     ImGui::BeginChild("child_hexeditor");
     {
         if(_validAddress)
-            _memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, _handle, _readAddressEx, _rereorder);
+            _memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, ProcessInformation::GetHandle(), _readAddressEx, _rereorder);
         else
             _memEdit.DrawContents(_dummy.data(), _dummy.size(), 0, 0, 0);
     }
@@ -93,7 +93,7 @@ void MungPlex::MemoryViewer::drawHexEditor()
 void MungPlex::MemoryViewer::setUpByRegionSelect(const int index)
 {
     std::stringstream stream;
-    stream << std::hex << ProcessInformation::GetRegions()[index].Base;
+    stream << std::hex << ProcessInformation::GetSystemRegionList()[index].Base;
     stream >> _bufAddress;
     processBufferAddress();
 }
@@ -104,7 +104,7 @@ void MungPlex::MemoryViewer::processBufferAddress()
     stream << std::hex << _bufAddress.data();
     stream >> _viewAddress;
 
-    for (SystemRegion region : ProcessInformation::GetRegions())
+    for (SystemRegion& region : ProcessInformation::GetSystemRegionList())
     {
         if (_viewAddress >= region.Base && _viewAddress < (region.Base + region.Size))
         {

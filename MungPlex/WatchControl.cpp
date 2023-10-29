@@ -212,7 +212,7 @@ void* MungPlex::WatchControl::View::GetCurrentPointer()
 
 			if (regionIndex > 0)
 			{
-				SystemRegion& region = ProcessInformation::GetRegions()[regionIndex];
+				SystemRegion& region = ProcessInformation::GetSystemRegionList()[regionIndex];
 				s_Process.ReadExRAM(&ptr, reinterpret_cast<char*>(region.BaseLocationProcess) + ptr - region.Base, ProcessInformation::GetAddressWidth());
 			}
 			else
