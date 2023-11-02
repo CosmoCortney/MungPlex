@@ -290,7 +290,7 @@ void MungPlex::Search::DrawSearchOptions()
 		static std::string knownSecondaryValueLabel;
 		static bool disablePrimaryValueText = false;
 		static bool disableSecondaryValueText = true;
-		int iterationCount = MemoryCompare::MemCompare::GetSearchStats().second;
+		int iterationCount = MemoryCompare::MemCompare::GetIterationCount();
 
 		_diableBecauseUnknownAndNotRangebased = _currentComparisionTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
 
@@ -505,9 +505,9 @@ void MungPlex::Search::DrawResultsArea()
 		{
 			ImGui::SeparatorText("Value Poke");
 
-			if (MemoryCompare::MemCompare::GetSearchStats().first == 0) ImGui::BeginDisabled();
+			if (MemoryCompare::MemCompare::GetResultCount() == 0) ImGui::BeginDisabled();
 			{
-				SetUpLableText("Results:", std::to_string(MemoryCompare::MemCompare::GetSearchStats().first).c_str(), 32, 1.0f, 0.2f);
+				SetUpLableText("Results:", std::to_string(MemoryCompare::MemCompare::GetResultCount()).c_str(), 32, 1.0f, 0.2f);
 
 				ImGui::BeginGroup();
 				{
@@ -662,15 +662,15 @@ void MungPlex::Search::DrawResultsArea()
 					}
 				}
 			}
-			if (MemoryCompare::MemCompare::GetSearchStats().first == 0) ImGui::EndDisabled();
+			if (MemoryCompare::MemCompare::GetResultCount() == 0) ImGui::EndDisabled();
 
 			ImGui::Dummy(ImVec2(0.0f, ImGui::GetContentRegionAvail().y - 40.f));
 
-			if (MemoryCompare::MemCompare::GetSearchStats().second > 0) ImGui::BeginDisabled();
+			if (MemoryCompare::MemCompare::GetIterationCount() > 0) ImGui::BeginDisabled();
 			{
 				SetUpInputInt("Max. results per page:", &_maxResultsPerPage, 32, 128, 1.0f, 0.5f);
 			}
-			if (MemoryCompare::MemCompare::GetSearchStats().second > 0) ImGui::EndDisabled();
+			if (MemoryCompare::MemCompare::GetIterationCount() > 0) ImGui::EndDisabled();
 		}
 		ImGui::EndGroup();
 
@@ -680,7 +680,7 @@ void MungPlex::Search::DrawResultsArea()
 
 void MungPlex::Search::PerformSearch()
 {
-	Log::LogInformation("Search: Iteration " + std::to_string(_iterationCount + 1));
+	Log::LogInformation("Search: Iteration " + std::to_string(MemoryCompare::MemCompare::GetIterationCount() + 1));
 
 	switch (_currentValueTypeSelect)
 	{
@@ -702,17 +702,13 @@ void MungPlex::Search::PerformSearch()
 		_currentComparisionTypeSelect = MemoryCompare::KNOWN;
 
 	SetUpAndIterate();
-
-	_iterationCount = MemoryCompare::MemCompare::GetSearchStats().second;
-	_resultsCount = MemoryCompare::MemCompare::GetSearchStats().first;
-
 	setUpIterationSelect();
 	setUpResultPaging();
 }
 
 void MungPlex::Search::setUpIterationSelect()
 {
-	int iter = _iterationCount;
+	int iter = MemoryCompare::MemCompare::GetIterationCount();
 
 	if (iter < _iterations.size())
 		_iterations.erase(_iterations.begin() + iter - 1, _iterations.end());
@@ -724,9 +720,9 @@ void MungPlex::Search::setUpIterationSelect()
 
 void MungPlex::Search::setUpResultPaging()
 {
-	_pagesAmountValue = _resultsCount / _maxResultsPerPage;
+	_pagesAmountValue = MemoryCompare::MemCompare::GetResultCount() / _maxResultsPerPage;
 
-	if (_resultsCount % _maxResultsPerPage > 0)
+	if (MemoryCompare::MemCompare::GetResultCount() % _maxResultsPerPage > 0)
 		++_pagesAmountValue;
 
 	_pagesAmountText = std::to_string(_pagesAmountValue);
@@ -798,7 +794,7 @@ void MungPlex::Search::drawResultsTableNew()
 	if (!ImGui::BeginTable("Results", 4, flags, ImVec2(ImGui::GetContentRegionAvail().x * 0.666f, ImGui::GetContentRegionAvail().y)))
 		return;
 
-	const uint64_t resultCount = MemoryCompare::MemCompare::GetSearchStats().first;
+	const uint64_t resultCount = MemoryCompare::MemCompare::GetResultCount();
 	ImGui::TableSetupColumn("Address");
 	ImGui::TableSetupColumn("Value");
 	ImGui::TableSetupColumn("Previous");
@@ -864,7 +860,7 @@ void MungPlex::Search::drawResultsTableNew()
 		bool rowClicked = false;
 		uint64_t resultsIndex = (pageIndex + row);
 		ImGui::TableNextRow(selectableFlags);
-		uint16_t iterationCount = MemoryCompare::MemCompare::GetSearchStats().second;
+		uint16_t iterationCount = MemoryCompare::MemCompare::GetIterationCount();
 
 		for (int col = 0; col < 4; ++col)
 		{
@@ -1391,7 +1387,7 @@ void MungPlex::Search::SetUpAndIterate()
 	std::string tempprimary(_knownValueText.CStr());
 	std::string tempsecondary(_secondaryKnownValueText.CStr());
 
-	if (MemoryCompare::MemCompare::GetSearchStats().second < 1)
+	if (MemoryCompare::MemCompare::GetIterationCount() < 1)
 	{
 		uint32_t setupFlags = 0;
 

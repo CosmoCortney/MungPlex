@@ -109,8 +109,6 @@ namespace MungPlex
         int32_t _currentPageValue = 1;
         uint32_t _pagesAmount = 0;
         std::string _pagesAmountText = "0";
-        uint64_t _resultsCount = 0;
-        uint16_t _iterationCount = 0;
         std::vector<bool> _selectedIndices{};
         int _maxResultsPerPage = 256;
         bool _multiPoke = false;
@@ -437,7 +435,7 @@ namespace MungPlex
 
                     if (_pokePrevious)
                     {
-                        if (_iterationCount < 0)
+                        if (MemoryCompare::MemCompare::GetIterationCount() < 0)
                         {
                             uType* buf = new uType[itemCount];
                             std::fill(buf, buf + itemCount-1, 0);
@@ -534,7 +532,7 @@ namespace MungPlex
                         return false;
 
                     if (_pokePrevious)
-                        if (_iterationCount < 1)
+                        if (MemoryCompare::MemCompare::GetIterationCount() < 1)
                             *pokeValuePtr = 0;
                         else
                             *pokeValuePtr = MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<dataType>(resultIndex + index);
@@ -595,7 +593,7 @@ namespace MungPlex
                 value = MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<T>(index * itemCount);
             else if (col == 2)
             {
-                if (MemoryCompare::MemCompare::GetSearchStats().second > 2)
+                if (MemoryCompare::MemCompare::GetIterationCount() > 2)
                     value = MemoryCompare::MemCompare::GetResults().GetSpecificPreviousValuePtrAllRanges<T>(index * itemCount);
                 else
                 {
