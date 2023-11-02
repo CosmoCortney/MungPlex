@@ -1361,6 +1361,9 @@ void MungPlex::Search::emplaceDumpRegion(const uint16_t index)
 
 		if (_rangeEndValue > currentBaseAddress && _rangeEndValue < _regions[index].Base + _regions[index].Size - 1)
 			currentRegionSize = _rangeEndValue - currentBaseAddress;
+
+		if (_rangeStartValue > _regions[index].Base || _rangeEndValue < _regions[index].Base + _regions[index].Size - 1)
+			++currentRegionSize;
 	}
 
 	_dumpRegions.emplace_back(_regions[index].Label, currentBaseAddress, currentRegionSize, reinterpret_cast<void*>(currentBaseLocation));
