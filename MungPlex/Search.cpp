@@ -1421,15 +1421,14 @@ void MungPlex::Search::SetUpAndIterate()
 	for (SystemRegion& dumpRegion : _dumpRegions)
 	{
 		char* buf = new char[dumpRegion.Size];
-		Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).ReadExRAM(buf, dumpRegion.BaseLocationProcess, dumpRegion.Size, 0x1000);
-		{
-			if (_rereorderRegion)
-				Rereorder4BytesReorderedMemory(buf, dumpRegion.Size);
+		ProcessInformation::GetProcess().ReadExRAM(buf, dumpRegion.BaseLocationProcess, dumpRegion.Size, 0x1000);
+		
+		if (_rereorderRegion)
+			Rereorder4BytesReorderedMemory(buf, dumpRegion.Size);
 
-			MemoryCompare::MemDump dump(buf, dumpRegion.Base, dumpRegion.Size);
-			delete[] buf;
-			MemoryCompare::MemCompare::ProcessNextRange(&dump);
-		}
+		MemoryCompare::MemDump dump(buf, dumpRegion.Base, dumpRegion.Size);
+		delete[] buf;
+		MemoryCompare::MemCompare::ProcessNextRange(&dump);
 	}
 }
 
