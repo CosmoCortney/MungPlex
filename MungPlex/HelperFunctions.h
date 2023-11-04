@@ -17,6 +17,7 @@
 #include"MorphText.h"
 #include <stdlib.h>
 #include"OperativeArray.h"
+#include<algorithm>
 
 namespace MungPlex
 {
@@ -328,22 +329,39 @@ namespace MungPlex
         return result.substr(2);
     }
 
-    static std::string RemoveSpacePadding(const std::string& input)
+    static bool IsValidHexString(std::string input)
     {
-        bool found = false;
+        input = input.c_str();
+        return std::all_of(input.begin(), input.end(), ::isxdigit);
+    }
+
+    static std::string RemoveSpacePadding(const std::string& input, const bool removeAll = false)
+    {
         std::string output;
 
-        for(int i = 0; i < input.size()-1; ++i)
+        if (removeAll)
         {
-            if (input[i] != 0x20 || (input[i] == 0x20 && input[i+1] != 0x20))
+            for (int i = 0; i < input.size() - 1; ++i)
             {
-                output += input[i];
-                continue;
+                if(input[i] != 0x20)
+                    output += input[i];
             }
         }
+        else
+        {
+            for (int i = 0; i < input.size() - 1; ++i)
+            {
+                if (input[i] != 0x20 || (input[i] == 0x20 && input[i + 1] != 0x20))
+                {
+                    output += input[i];
+                    continue;
+                }
+            }
 
-        if (output.back() == 0x20)
-            output.resize(output.size()-1);
+            if (output.back() == 0x20)
+                output.resize(output.size() - 1);
+        }
+
 
         return output;
     }

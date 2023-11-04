@@ -13,6 +13,7 @@
 #include<utility>
 #include"MungPlexConfig.h"
 #include"Xertz.h"
+#include"nlohmann/json.hpp"
 
 namespace MungPlex
 {
@@ -51,37 +52,47 @@ namespace MungPlex
         {
         public:
             static Xertz::ProcessInfo s_Process;
-            std::wstring _moduleW = std::wstring(32, '\0');//
-            std::string _module = std::string(32, '\0');//
-            std::string _pointerPathText = std::string(128, '\0');//
-            std::vector<int64_t> _pointerPath;//
-            bool _useModulePath;//
-            bool _plotting;
-            bool _freeze;//
+            std::wstring _moduleW = std::wstring(32, '\0');
+            std::string _module = std::string(32, '\0');
+            std::string _pointerPathText = std::string(128, '\0');
+            std::string _label = std::string(128, '\0');
+            std::vector<int64_t> _pointerPath;
+            bool _useModulePath = false;
+            bool _freeze = false;
             bool _active = false;
-            bool _hideAdvancedSettings;
-            int _id;//
-            std::string _idText;//
+            int _id;
+            std::string _idText;
+            uint64_t _rangeMin = 0;
+            uint64_t _rangeMax = 0;
+            int _typeSelect = 0;
+            static const std::vector<std::pair<std::string, int>> s_IntTypes;
 
+            int GetID();
             void* GetCurrentPointer();
+            nlohmann::json GetBasicJSON();
+            void SetBasicMembers(const nlohmann::json elem);
+            void DrawSetup(const float itemWidth, const float itemHeight, const int tyoe);
         };
 
         class IntegralView : View
         {
-        public:
-            static const std::vector<std::pair<std::string, int>> s_IntTypes;
-
         private: 
-            int64_t _val;//
-            int _typeSelect = ImGuiDataType_S8;
-            bool _signed = false;//
-            bool _hex = false;//
-            int _plotCount = 64;
+            int64_t _val = 0;
+            bool _hex = false;
+            int _plotCount = 128;
             std::vector<float> _plotVals;
+            uint64_t _plotMin = 0;
+            uint64_t _plotMax = 255;
+            float _plotMinF = 0.0f;
+            float _plotMaxF = 0.0f;
+            std::string _plotBuf = std::string(64, '\0');
+            std::string _formatPlot;
 
         public:
-            IntegralView(const int id, const std::string& pointerPathText, const uint8_t subtype, const int64_t min, const int64_t max, const int64_t val = 0, const int32_t integralViewFlags = 0, const std::string& module = "", const Xertz::ProcessInfo* process = nullptr);
+            IntegralView(const int id);
+            IntegralView(const int id, const nlohmann::json elem);
             void Draw();
+            nlohmann::json GetJSON();
         };
 
         class FloatView : View
@@ -102,12 +113,15 @@ namespace MungPlex
         //void drawControl();
 
         std::vector<std::pair<int, std::variant<IntegralView, MousePiano>>> _views;
-
+        std::vector<int> _ids;
+        std::wstring _currentFile;
+        std::string _placeholderFile = "{\"Watchlist\":[]}";
 
         void drawList();
+        bool saveList();
 
     public:
         static void DrawWindow();
-       
+        static void InitWatchFile();
     };
 }

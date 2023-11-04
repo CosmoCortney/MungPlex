@@ -4,6 +4,7 @@
 #include"Cheats.h"
 #include "Log.h"
 #include"PointerSearch.h"
+#include"WatchControl.h"
 
 void MungPlex::ProcessInformation::DrawWindow()
 {
@@ -327,6 +328,7 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 
 	setupSearch();
 	setupCheats();
+	WatchControl::InitWatchFile();
 	obtainGameEntities(_systemRegions[0].BaseLocationProcess);
 	return connected;
 }
@@ -360,6 +362,7 @@ bool MungPlex::ProcessInformation::connectToProcessFR()
 	 GetInstance().setupSearch();
 	 GetInstance()._processType = NATIVE;
 	 Cheats::InitCheatFile();
+	 WatchControl::InitWatchFile();
 	 return connected;
  }
 

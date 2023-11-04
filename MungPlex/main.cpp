@@ -178,7 +178,7 @@ int main()
 		MungPlex::Log::DrawWindow();
 		MungPlex::PointerSearch::DrawWindow();
 		MungPlex::DataConversion::DrawWindow();
-		//MungPlex::WatchControl::DrawWindow();
+		MungPlex::WatchControl::DrawWindow();
 
 		static bool setWindowFocused = true;
 		if (setWindowFocused)
