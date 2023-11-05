@@ -15,6 +15,18 @@ const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_I
 	{ "UInt 64", ImGuiDataType_U64 }
 };
 
+const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_FloatTypes =
+{
+	{ "Float", ImGuiDataType_Float },
+	{ "Double", ImGuiDataType_Double }
+};
+
+const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_SuperiorTypes =
+{
+	{ "Integral", INTEGRAL },
+	{ "Floats", FLOAT }
+};
+
 Xertz::ProcessInfo MungPlex::WatchControl::View::s_Process;
 
 void MungPlex::WatchControl::DrawWindow()
@@ -22,7 +34,6 @@ void MungPlex::WatchControl::DrawWindow()
 	ImGui::Begin("Watch & Control");
 
 	GetInstance().drawList();
-
 
 	if (ImGui::Button("Save"))
 	{
@@ -49,9 +60,11 @@ bool MungPlex::WatchControl::saveList()
 
 				switch (_views[i].first)
 				{
-				case INTEGRAL:
-					jsonData["Watchlist"].emplace_back(std::get<IntegralView>(_views[i].second).GetJSON());
+				case FLOAT:
+					jsonData["Watchlist"].emplace_back(std::get<FloatView>(_views[i].second).GetJSON());
 					break;
+				default: //INTEGRAL
+					jsonData["Watchlist"].emplace_back(std::get<IntegralView>(_views[i].second).GetJSON());
 
 				}
 			}
@@ -115,9 +128,11 @@ void MungPlex::WatchControl::InitWatchFile()
 
 			switch (type)
 			{
-			case INTEGRAL:
-				GetInstance()._views.emplace_back(INTEGRAL, IntegralView(i, watchList[i]));
+			case FLOAT:
+				GetInstance()._views.emplace_back(FLOAT, FloatView(i, watchList[i]));
 				break;
+			default: //INTEGRAL
+				GetInstance()._views.emplace_back(INTEGRAL, IntegralView(i, watchList[i]));
 			}
 		}
 	}
@@ -131,6 +146,12 @@ void MungPlex::WatchControl::drawList()
 {
 	ImGui::BeginChild("Watch List");
 	{
+
+		static int typeSelect = 0;
+
+
+		SetUpCombo("Type", View::s_SuperiorTypes, typeSelect);
+
 		if (ImGui::Button("Test"))
 		{
 			_ids.push_back(_views.size());
@@ -144,20 +165,25 @@ void MungPlex::WatchControl::drawList()
 				}
 			}
 
-			_views.emplace_back(INTEGRAL, IntegralView(_ids.back()));
-			
-
-
-			//"801B96EC, 1E8"
+			switch (typeSelect)
+			{
+			case FLOAT:
+				_views.emplace_back(FLOAT, FloatView(_ids.back()));
+				break;
+			default: //INTEGRAL
+				_views.emplace_back(INTEGRAL, IntegralView(_ids.back()));
+			}
 		}
 
 		for (int i = 0; i < _views.size(); ++i)
 		{
 			switch (_views[i].first)
 			{
-			case INTEGRAL:
-				std::get<IntegralView>(_views[i].second).Draw();
+			case FLOAT:
+				std::get<FloatView>(_views[i].second).Draw();
 				break;
+			default: //INTEGRAL
+				std::get<IntegralView>(_views[i].second).Draw();
 			}
 		}
 	}
@@ -184,6 +210,7 @@ void MungPlex::WatchControl::View::DrawSetup(const float itemWidth, const float 
 			switch (type)
 			{
 			case FLOAT:
+				SetUpCombo("Float Type:", s_FloatTypes, _typeSelect, 1.0f, 0.5f);
 				break;
 			default: //INTEGRAL
 				SetUpCombo("Int Type:", s_IntTypes, _typeSelect, 1.0f, 0.5f);
@@ -314,6 +341,14 @@ MungPlex::WatchControl::IntegralView::IntegralView(const int id)
 	_plotVals.resize(_plotCount);
 }
 
+MungPlex::WatchControl::FloatView::FloatView(const int id)
+{
+	_id = id;
+	_idText = std::to_string(id);
+	//_formatPlot = "%lld/%lld";
+	_plotVals.resize(_plotCount);
+}
+
 MungPlex::WatchControl::IntegralView::IntegralView(const int id, const nlohmann::json elem)
 {
 	_id = id;
@@ -328,6 +363,19 @@ MungPlex::WatchControl::IntegralView::IntegralView(const int id, const nlohmann:
 	_plotMaxF = static_cast<float>(_plotMax);
 	_plotVals.resize(_plotCount);
 	_formatPlot = _hex ? "%llX/%llX" : "%lld/%lld";
+}
+
+MungPlex::WatchControl::FloatView::FloatView(const int id, const nlohmann::json elem)
+{
+	_id = id;
+	_idText = std::to_string(id);
+	SetBasicMembers(elem);
+	_val = elem["Value"];
+	_typeSelect = elem["FloatType"];
+	_plotMin = elem["PlotMin"];
+	_plotMax = elem["PlotMax"];
+	_plotVals.resize(_plotCount);
+	//_formatPlot = _hex ? "%llX/%llX" : "%lld/%lld";
 }
 
 void MungPlex::WatchControl::IntegralView::Draw()
@@ -458,7 +506,110 @@ void MungPlex::WatchControl::IntegralView::Draw()
 			}
 
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+
+			if (_freeze)
+				ImGui::SliderScalar("##writeval", _typeSelect, &_val, &_plotMin, &_plotMax, format.c_str());
+			else
 			ImGui::ProgressBar(progVal, ImVec2(0.0f, 0.0f), _plotBuf.data());
+		}
+		ImGui::EndChild();
+
+	}
+	ImGui::EndChild();
+}
+
+void MungPlex::WatchControl::FloatView::Draw()
+{
+	float itemWidth = ImGui::GetContentRegionAvail().x;
+	float itemHeight = 80.0f * Settings::GetGeneralSettings().Scale;
+
+	ImGui::Separator();
+
+	ImGui::BeginChild(std::string("child_floatView" + _idText).c_str(), ImVec2(itemWidth, itemHeight * 2.0f));
+	{
+		DrawSetup(itemWidth, itemHeight, FLOAT);
+
+		ImGui::SameLine();
+
+		ImGui::BeginChild("child_view", ImVec2(itemWidth * 0.5f, itemHeight * 1.5f), true);
+		{
+			std::string format(8, '\0');
+			if (_active)
+			{
+				uint64_t valptr = reinterpret_cast<uint64_t>(GetCurrentPointer());
+
+				if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
+				{
+					if (_freeze)
+					{
+						switch (s_FloatTypes[_typeSelect].second)
+						{
+						case ImGuiDataType_Double:
+							ProcessInformation::WriteValue<double>(valptr, _val);
+							break;
+						default: // float
+							ProcessInformation::WriteValue<float>(valptr, static_cast<float>(_val));
+						}
+					}
+					else
+					{
+						switch (s_FloatTypes[_typeSelect].second)
+						{
+						case ImGuiDataType_Double:
+							_val = ProcessInformation::ReadValue<double>(valptr);
+							break;
+						default: // float
+							_val = static_cast<double>(ProcessInformation::ReadValue<float>(valptr));
+						}
+					}
+				}
+
+				std::rotate(_plotVals.begin(), _plotVals.begin() + 1, _plotVals.end());
+				_plotVals.back() = static_cast<float>(_val);
+			}
+
+			ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(itemWidth * 0.15f);
+			ImGui::InputDouble("##value", &_val, NULL, NULL, "%.6f");
+
+			ImGui::SameLine();
+
+			ImGui::Text("Plot Range:");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(itemWidth * 0.1f);
+
+			if (ImGui::InputFloat("##plot range start", &_plotMin, NULL, NULL, "%.6f"))
+				_plotMin = _plotMin;
+
+			ImGui::SameLine();
+			ImGui::Text(" - ");
+			ImGui::SameLine();
+
+			if (ImGui::InputFloat("##plot range end", &_plotMax, NULL, NULL, "%.6f"))
+				_plotMax = _plotMax;
+
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::PlotLines("##Lines", _plotVals.data(), _plotCount, 0, NULL, _plotMin, _plotMax, ImVec2(0.0f, 40.0f));
+
+			float progVal = 0;
+
+			if (_active)
+			{
+				progVal = _val / _plotMax;
+				sprintf(_plotBuf.data(), "%.6f/%.6f", _val, _plotMax);
+			}
+
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+
+			if (_freeze)
+			{
+				float val = static_cast<float>(_val);
+				SetUpSliderFloat("writeval", &val, _plotMin, _plotMax, "%.6f", 1.0f, 0.0f, false);
+				_val = static_cast<double>(val);
+			}
+			else
+				ImGui::ProgressBar(progVal, ImVec2(0.0f, 0.0f), _plotBuf.data());
 		}
 		ImGui::EndChild();
 
@@ -528,3 +679,15 @@ nlohmann::json MungPlex::WatchControl::IntegralView::GetJSON()
 	return elemJson;
 }
 
+nlohmann::json MungPlex::WatchControl::FloatView::GetJSON()
+{
+	nlohmann::json elemJson = GetBasicJSON();
+
+	elemJson["Type"] = FLOAT;
+	elemJson["FloatType"] = _typeSelect;
+	elemJson["Value"] = _val;
+	elemJson["PlotMin"] = _plotMin;
+	elemJson["PlotMax"] = _plotMax;
+
+	return elemJson;
+}

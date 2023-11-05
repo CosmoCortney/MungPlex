@@ -66,6 +66,8 @@ namespace MungPlex
             uint64_t _rangeMax = 0;
             int _typeSelect = 0;
             static const std::vector<std::pair<std::string, int>> s_IntTypes;
+            static const std::vector<std::pair<std::string, int>> s_FloatTypes;
+            static const std::vector<std::pair<std::string, int>> s_SuperiorTypes;
 
             int GetID();
             void* GetCurrentPointer();
@@ -97,11 +99,23 @@ namespace MungPlex
 
         class FloatView : View
         {
-            double Val;
+        private:
+            double _val;
             bool DoublePrecision;
             bool _useSlider = false;
             int64_t _min;
             int64_t _max;
+            int _plotCount = 128;
+            std::vector<float> _plotVals;
+            float _plotMin = 0.0f;
+            float _plotMax = 0.0f;
+            std::string _plotBuf = std::string(64, '\0');
+
+        public:
+            FloatView(const int id);
+            FloatView(const int id, const nlohmann::json elem);
+            void Draw();
+            nlohmann::json GetJSON();
         };
 
         class MousePiano : View
@@ -110,9 +124,7 @@ namespace MungPlex
             std::vector<bool> Freeze;
         };
 
-        //void drawControl();
-
-        std::vector<std::pair<int, std::variant<IntegralView, MousePiano>>> _views;
+        std::vector<std::pair<int, std::variant<IntegralView, FloatView, MousePiano>>> _views;
         std::vector<int> _ids;
         std::wstring _currentFile;
         std::string _placeholderFile = "{\"Watchlist\":[]}";
