@@ -663,11 +663,11 @@ namespace MungPlex
 
     static bool LoadFonts(ImGuiIO& io, ImFontConfig& cfg, const float scale)
     {
-        const bool f1 = io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansSC-Black.ttf").string().data(), scale, nullptr, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
-        const bool f2 = io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansThai-Black.ttf").string().data(), scale, nullptr, io.Fonts->GetGlyphRangesThai());
-        const bool f3 = io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansKR-Black.ttf").string().data(), scale, nullptr, io.Fonts->GetGlyphRangesKorean());
+        //const bool f1 = io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansSC-Black.ttf").string().data(), scale, nullptr, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+        //const bool f2 = io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansThai-Black.ttf").string().data(), scale, nullptr, io.Fonts->GetGlyphRangesThai());
+        //const bool f3 = io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansKR-Black.ttf").string().data(), scale, nullptr, io.Fonts->GetGlyphRangesKorean());
         const bool f4 = io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansJP-Black.ttf").string().data(), scale, nullptr, io.Fonts->GetGlyphRangesJapanese());
-        return f1 && f2 && f3 && f4;
+        return /*f1 && f2 && f3 &&*/ f4;
     }
 }
 
