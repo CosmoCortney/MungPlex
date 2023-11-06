@@ -35,17 +35,7 @@ namespace MungPlex
 
         enum ViewTypes
         {
-            INTEGRAL, FLOAT, BOOL, MOUSEPIANO, COLOR, STRING
-        };
-
-        enum DefaultViewFlags
-        {
-            USE_MODULEPATH = 1, PLOTTING = 1 << 2, FREEZE = 1 << 3, ACTIVE = 1 << 4 
-        };
-
-        enum IntegralViewFlags
-        {
-           HEX = 1 << 5
+            INTEGRAL, FLOAT, BOOL, MOUSEPIANO, MAP2D, MAP3D, COLOR
         };
 
         class View
@@ -100,7 +90,7 @@ namespace MungPlex
         class FloatView : View
         {
         private:
-            double _val;
+            double _val = 0.0;
             bool DoublePrecision;
             bool _useSlider = false;
             int64_t _min;
@@ -118,13 +108,25 @@ namespace MungPlex
             nlohmann::json GetJSON();
         };
 
+        class BoolView : View
+        {
+        private:
+            bool _val = false;
+
+        public:
+            BoolView(const int id);
+            BoolView(const int id, const nlohmann::json elem);
+            void Draw();
+            nlohmann::json GetJSON();
+        };
+
         class MousePiano : View
         {
             std::vector<bool> Switches;
             std::vector<bool> Freeze;
         };
 
-        std::vector<std::pair<int, std::variant<IntegralView, FloatView, MousePiano>>> _views;
+        std::vector<std::pair<int, std::variant<IntegralView, FloatView, BoolView, MousePiano>>> _views;
         std::vector<int> _ids;
         std::wstring _currentFile;
         std::string _placeholderFile = "{\"Watchlist\":[]}";

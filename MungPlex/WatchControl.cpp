@@ -24,7 +24,8 @@ const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_F
 const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_SuperiorTypes =
 {
 	{ "Integral", INTEGRAL },
-	{ "Floats", FLOAT }
+	{ "Floats", FLOAT },
+	{ "Bool", BOOL }
 };
 
 Xertz::ProcessInfo MungPlex::WatchControl::View::s_Process;
@@ -62,7 +63,10 @@ bool MungPlex::WatchControl::saveList()
 				{
 				case FLOAT:
 					jsonData["Watchlist"].emplace_back(std::get<FloatView>(_views[i].second).GetJSON());
-					break;
+				break;
+				case BOOL:
+					jsonData["Watchlist"].emplace_back(std::get<BoolView>(_views[i].second).GetJSON());
+				break;
 				default: //INTEGRAL
 					jsonData["Watchlist"].emplace_back(std::get<IntegralView>(_views[i].second).GetJSON());
 
@@ -131,6 +135,9 @@ void MungPlex::WatchControl::InitWatchFile()
 			case FLOAT:
 				GetInstance()._views.emplace_back(FLOAT, FloatView(i, watchList[i]));
 				break;
+			case BOOL:
+				GetInstance()._views.emplace_back(BOOL, BoolView(i, watchList[i]));
+				break;
 			default: //INTEGRAL
 				GetInstance()._views.emplace_back(INTEGRAL, IntegralView(i, watchList[i]));
 			}
@@ -165,10 +172,13 @@ void MungPlex::WatchControl::drawList()
 				}
 			}
 
-			switch (typeSelect)
+			switch (View::s_SuperiorTypes[typeSelect].second)
 			{
 			case FLOAT:
 				_views.emplace_back(FLOAT, FloatView(_ids.back()));
+				break;
+			case BOOL:
+				_views.emplace_back(BOOL, BoolView(_ids.back()));
 				break;
 			default: //INTEGRAL
 				_views.emplace_back(INTEGRAL, IntegralView(_ids.back()));
@@ -181,6 +191,9 @@ void MungPlex::WatchControl::drawList()
 			{
 			case FLOAT:
 				std::get<FloatView>(_views[i].second).Draw();
+				break;
+			case BOOL:
+				std::get<BoolView>(_views[i].second).Draw();
 				break;
 			default: //INTEGRAL
 				std::get<IntegralView>(_views[i].second).Draw();
@@ -211,9 +224,10 @@ void MungPlex::WatchControl::View::DrawSetup(const float itemWidth, const float 
 			{
 			case FLOAT:
 				SetUpCombo("Float Type:", s_FloatTypes, _typeSelect, 1.0f, 0.5f);
-				break;
-			default: //INTEGRAL
+			break;
+			case INTEGRAL:
 				SetUpCombo("Int Type:", s_IntTypes, _typeSelect, 1.0f, 0.5f);
+			break;
 			}
 
 			ImGui::Button("Delete");
@@ -333,6 +347,53 @@ void MungPlex::WatchControl::View::SetBasicMembers(const nlohmann::json elem)
 	_pointerPathText.resize(128);
 }
 
+void* MungPlex::WatchControl::View::GetCurrentPointer()
+{
+	if (_pointerPath.empty())
+		return 0;
+
+	int64_t ptr = 0;
+
+	if (_useModulePath)
+		ptr = s_Process.GetModuleAddress(_moduleW);
+
+	for (int i = 0; i < _pointerPath.size() - 1; ++i)
+	{
+		ptr += _pointerPath[i];
+
+		if (ProcessInformation::GetProcessType() == ProcessInformation::EMULATOR)
+		{
+			int regionIndex = ProcessInformation::GetRegionIndex(ptr);
+
+			if (regionIndex >= 0)
+			{
+				switch (ProcessInformation::GetAddressWidth())
+				{
+				case 2:
+					ptr = ProcessInformation::ReadValue<uint8_t>(ptr);
+					break;
+				case 4:
+					ptr = ProcessInformation::ReadValue<uint32_t>(ptr);
+					break;
+				default://8
+					ptr = ProcessInformation::ReadValue<uint64_t>(ptr);
+				}
+			}
+			else
+			{
+				ptr = 0;
+				break;
+			}
+		}
+		else
+		{
+			ptr = ProcessInformation::ReadValue<uint64_t>(ptr);
+		}
+	}
+
+	return reinterpret_cast<void*>(ptr + _pointerPath.back());
+}
+
 MungPlex::WatchControl::IntegralView::IntegralView(const int id)
 {
 	_id = id;
@@ -345,8 +406,13 @@ MungPlex::WatchControl::FloatView::FloatView(const int id)
 {
 	_id = id;
 	_idText = std::to_string(id);
-	//_formatPlot = "%lld/%lld";
 	_plotVals.resize(_plotCount);
+}
+
+MungPlex::WatchControl::BoolView::BoolView(const int id)
+{
+	_id = id;
+	_idText = std::to_string(id);
 }
 
 MungPlex::WatchControl::IntegralView::IntegralView(const int id, const nlohmann::json elem)
@@ -375,7 +441,14 @@ MungPlex::WatchControl::FloatView::FloatView(const int id, const nlohmann::json 
 	_plotMin = elem["PlotMin"];
 	_plotMax = elem["PlotMax"];
 	_plotVals.resize(_plotCount);
-	//_formatPlot = _hex ? "%llX/%llX" : "%lld/%lld";
+}
+
+MungPlex::WatchControl::BoolView::BoolView(const int id, const nlohmann::json elem)
+{
+	_id = id;
+	_idText = std::to_string(id);
+	SetBasicMembers(elem);
+	_val = elem["Value"];
 }
 
 void MungPlex::WatchControl::IntegralView::Draw()
@@ -617,52 +690,44 @@ void MungPlex::WatchControl::FloatView::Draw()
 	ImGui::EndChild();
 }
 
-void* MungPlex::WatchControl::View::GetCurrentPointer()
+void MungPlex::WatchControl::BoolView::Draw()
 {
-	if (_pointerPath.empty())
-		return 0;
+	float itemWidth = ImGui::GetContentRegionAvail().x;
+	float itemHeight = 80.0f * Settings::GetGeneralSettings().Scale;
 
-	int64_t ptr = 0;
+	ImGui::Separator();
 
-	if (_useModulePath)
-		ptr = s_Process.GetModuleAddress(_moduleW);
-	
-	for (int i = 0; i < _pointerPath.size()-1; ++i)
+	ImGui::BeginChild(std::string("child_boolView" + _idText).c_str(), ImVec2(itemWidth, itemHeight * 2.0f));
 	{
-		ptr += _pointerPath[i];
+		DrawSetup(itemWidth, itemHeight, BOOL);
 
-		if (ProcessInformation::GetProcessType() == ProcessInformation::EMULATOR)
+		ImGui::SameLine();
+
+		ImGui::BeginChild("child_view", ImVec2(itemWidth * 0.5f, itemHeight * 1.5f), true);
 		{
-			int regionIndex = ProcessInformation::GetRegionIndex(ptr);
-
-			if (regionIndex >= 0)
+			std::string format(8, '\0');
+			if (_active)
 			{
-				switch (ProcessInformation::GetAddressWidth())
+				uint64_t valptr = reinterpret_cast<uint64_t>(GetCurrentPointer());
+
+				if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
 				{
-				case 2:
-					ptr = ProcessInformation::ReadValue<uint8_t>(ptr);
-				break;
-				case 4:
-					ptr = ProcessInformation::ReadValue<uint32_t>(ptr);
-				break;
-				default://8
-					ptr = ProcessInformation::ReadValue<uint64_t>(ptr);
+					if (_freeze)
+						ProcessInformation::WriteValue<bool>(valptr, _val);
+					else
+						_val = ProcessInformation::ReadValue<bool>(valptr);
 				}
 			}
-			else
-			{
-				ptr = 0;
-				break;
-			}
 
+			ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(itemWidth * 0.15f);
+			ImGui::Checkbox("Is Set", &_val);
 		}
-		else
-		{
-			ptr = ProcessInformation::ReadValue<uint64_t>(ptr);
-		}
+		ImGui::EndChild();
+
 	}
-	
-	return reinterpret_cast<void*>(ptr + _pointerPath.back());
+	ImGui::EndChild();
 }
 
 nlohmann::json MungPlex::WatchControl::IntegralView::GetJSON()
@@ -688,6 +753,16 @@ nlohmann::json MungPlex::WatchControl::FloatView::GetJSON()
 	elemJson["Value"] = _val;
 	elemJson["PlotMin"] = _plotMin;
 	elemJson["PlotMax"] = _plotMax;
+
+	return elemJson;
+}
+
+nlohmann::json MungPlex::WatchControl::BoolView::GetJSON()
+{
+	nlohmann::json elemJson = GetBasicJSON();
+
+	elemJson["Type"] = BOOL;
+	elemJson["Value"] = _val;
 
 	return elemJson;
 }
