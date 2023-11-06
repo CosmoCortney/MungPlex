@@ -154,7 +154,8 @@ void MungPlex::WatchControl::drawList()
 	{
 		static int typeSelect = 0;
 
-		SetUpCombo("Type", View::s_SuperiorTypes, typeSelect);
+		SetUpCombo("New Item's Type:", View::s_SuperiorTypes, typeSelect);
+		ImGui::SameLine();
 
 		if (ImGui::Button("Add Item"))
 		{
@@ -185,6 +186,11 @@ void MungPlex::WatchControl::drawList()
 			}
 		}
 
+		ImGui::SameLine();
+
+		if (ImGui::Button("Save List"))
+			GetInstance().saveList();
+
 		for (int i = 0; i < _views.size(); ++i)
 		{
 			switch (_views[i].first)
@@ -201,11 +207,6 @@ void MungPlex::WatchControl::drawList()
 			default: //INTEGRAL
 				std::get<IntegralView>(_views[i].second).Draw();
 			}
-		}
-
-		if (ImGui::Button("Save List"))
-		{
-			GetInstance().saveList();
 		}
 	}
 	ImGui::EndChild();
@@ -264,8 +265,6 @@ void MungPlex::WatchControl::View::DrawSetup(const float itemWidth, const float 
 		ImGui::BeginChild("child_setup", ImVec2(itemWidth * 0.15f, itemHeight * 1.5f), true);
 		{
 			ImGui::Checkbox("Active", &_active);
-			ImGui::SameLine();
-			ImGui::Button("Update");
 
 			switch (type)
 			{
