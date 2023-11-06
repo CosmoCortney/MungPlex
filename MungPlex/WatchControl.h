@@ -51,6 +51,7 @@ namespace MungPlex
             bool _freeze = false;
             bool _active = false;
             int _id;
+            bool _delete = false;
             std::string _idText;
             uint64_t _rangeMin = 0;
             uint64_t _rangeMax = 0;
@@ -63,10 +64,10 @@ namespace MungPlex
             void* GetCurrentPointer();
             nlohmann::json GetBasicJSON();
             void SetBasicMembers(const nlohmann::json elem);
-            void DrawSetup(const float itemWidth, const float itemHeight, const int tyoe);
+            void DrawSetup(const float itemWidth, const float itemHeight, const int type);
         };
 
-        class IntegralView : View
+        class IntegralView : public View
         {
         private: 
             int64_t _val = 0;
@@ -87,7 +88,7 @@ namespace MungPlex
             nlohmann::json GetJSON();
         };
 
-        class FloatView : View
+        class FloatView : public View
         {
         private:
             double _val = 0.0;
@@ -108,7 +109,7 @@ namespace MungPlex
             nlohmann::json GetJSON();
         };
 
-        class BoolView : View
+        class BoolView : public View
         {
         private:
             bool _val = false;
@@ -120,7 +121,7 @@ namespace MungPlex
             nlohmann::json GetJSON();
         };
 
-        class MousePiano : View
+        class MousePiano : public View
         {
         private: 
             std::vector<std::pair<std::string, bool>> _switches;
@@ -144,5 +145,6 @@ namespace MungPlex
     public:
         static void DrawWindow();
         static void InitWatchFile();
+        static void DeleteItem(const int id);
     };
 }

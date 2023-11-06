@@ -34,14 +34,7 @@ Xertz::ProcessInfo MungPlex::WatchControl::View::s_Process;
 void MungPlex::WatchControl::DrawWindow()
 {
 	ImGui::Begin("Watch & Control");
-
 	GetInstance().drawList();
-
-	if (ImGui::Button("Save"))
-	{
-		GetInstance().saveList();
-	}
-
 	ImGui::End();
 }
 
@@ -159,13 +152,11 @@ void MungPlex::WatchControl::drawList()
 {
 	ImGui::BeginChild("Watch List");
 	{
-
 		static int typeSelect = 0;
-
 
 		SetUpCombo("Type", View::s_SuperiorTypes, typeSelect);
 
-		if (ImGui::Button("Test"))
+		if (ImGui::Button("Add Item"))
 		{
 			_ids.push_back(_views.size());
 
@@ -211,8 +202,52 @@ void MungPlex::WatchControl::drawList()
 				std::get<IntegralView>(_views[i].second).Draw();
 			}
 		}
+
+		if (ImGui::Button("Save List"))
+		{
+			GetInstance().saveList();
+		}
 	}
 	ImGui::EndChild();
+}
+
+void MungPlex::WatchControl::DeleteItem(const int id)
+{
+	auto& views = GetInstance()._views;
+
+	for (int i = 0; i < views.size(); ++i)
+	{
+		switch (views[i].first)
+		{
+		case FLOAT:
+			if(std::get<FloatView>(views[i].second).GetID() == id)
+			{
+				views.erase(views.begin() + i);
+				return;
+			}
+			break;
+		case BOOL:
+			if (std::get<BoolView>(views[i].second).GetID() == id)
+			{
+				views.erase(views.begin() + i);
+				return;
+			}
+			break;
+		case MOUSEPIANO:
+			if (std::get<MousePiano>(views[i].second).GetID() == id)
+			{
+				views.erase(views.begin() + i);
+				return;
+			}
+			break;
+		default: //INTEGRAL
+			if (std::get<IntegralView>(views[i].second).GetID() == id)
+			{
+				views.erase(views.begin() + i);
+				return;
+			}
+		}
+	}
 }
 
 int MungPlex::WatchControl::View::GetID()
@@ -242,7 +277,11 @@ void MungPlex::WatchControl::View::DrawSetup(const float itemWidth, const float 
 			break;
 			}
 
-			ImGui::Button("Delete");
+			if (ImGui::Button("Delete"))
+			{
+				_delete = true;
+			}
+
 			ImGui::SameLine();
 			ImGui::Checkbox("Write", &_freeze);
 		}
@@ -626,6 +665,9 @@ void MungPlex::WatchControl::IntegralView::Draw()
 
 	}
 	ImGui::EndChild();
+
+	if(_delete)
+		WatchControl::DeleteItem(_id);
 }
 
 void MungPlex::WatchControl::FloatView::Draw()
@@ -725,6 +767,9 @@ void MungPlex::WatchControl::FloatView::Draw()
 
 	}
 	ImGui::EndChild();
+
+	if (_delete)
+		WatchControl::DeleteItem(_id);
 }
 
 void MungPlex::WatchControl::BoolView::Draw()
@@ -765,6 +810,9 @@ void MungPlex::WatchControl::BoolView::Draw()
 
 	}
 	ImGui::EndChild();
+
+	if (_delete)
+		WatchControl::DeleteItem(_id);
 }
 
 void MungPlex::WatchControl::MousePiano::Draw()
@@ -827,6 +875,9 @@ void MungPlex::WatchControl::MousePiano::Draw()
 
 	}
 	ImGui::EndChild();
+
+	if (_delete)
+		WatchControl::DeleteItem(_id);
 }
 
 nlohmann::json MungPlex::WatchControl::IntegralView::GetJSON()
