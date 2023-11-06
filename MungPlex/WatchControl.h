@@ -122,8 +122,15 @@ namespace MungPlex
 
         class MousePiano : View
         {
-            std::vector<bool> Switches;
-            std::vector<bool> Freeze;
+        private: 
+            std::vector<std::pair<std::string, bool>> _switches;
+            std::string _idText;
+
+        public:
+            MousePiano(const int id);
+            MousePiano(const int id, const nlohmann::json elem);
+            void Draw();
+            nlohmann::json GetJSON();
         };
 
         std::vector<std::pair<int, std::variant<IntegralView, FloatView, BoolView, MousePiano>>> _views;

@@ -25,7 +25,8 @@ const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_S
 {
 	{ "Integral", INTEGRAL },
 	{ "Floats", FLOAT },
-	{ "Bool", BOOL }
+	{ "Bool", BOOL },
+	{ "DIP Switch", MOUSEPIANO }
 };
 
 Xertz::ProcessInfo MungPlex::WatchControl::View::s_Process;
@@ -67,9 +68,11 @@ bool MungPlex::WatchControl::saveList()
 				case BOOL:
 					jsonData["Watchlist"].emplace_back(std::get<BoolView>(_views[i].second).GetJSON());
 				break;
+				case MOUSEPIANO:
+					jsonData["Watchlist"].emplace_back(std::get<MousePiano>(_views[i].second).GetJSON());
+					break;
 				default: //INTEGRAL
 					jsonData["Watchlist"].emplace_back(std::get<IntegralView>(_views[i].second).GetJSON());
-
 				}
 			}
 		}
@@ -138,6 +141,9 @@ void MungPlex::WatchControl::InitWatchFile()
 			case BOOL:
 				GetInstance()._views.emplace_back(BOOL, BoolView(i, watchList[i]));
 				break;
+			case MOUSEPIANO:
+				GetInstance()._views.emplace_back(MOUSEPIANO, MousePiano(i, watchList[i]));
+				break;
 			default: //INTEGRAL
 				GetInstance()._views.emplace_back(INTEGRAL, IntegralView(i, watchList[i]));
 			}
@@ -180,6 +186,9 @@ void MungPlex::WatchControl::drawList()
 			case BOOL:
 				_views.emplace_back(BOOL, BoolView(_ids.back()));
 				break;
+			case MOUSEPIANO:
+				_views.emplace_back(MOUSEPIANO, MousePiano(_ids.back()));
+				break;
 			default: //INTEGRAL
 				_views.emplace_back(INTEGRAL, IntegralView(_ids.back()));
 			}
@@ -194,6 +203,9 @@ void MungPlex::WatchControl::drawList()
 				break;
 			case BOOL:
 				std::get<BoolView>(_views[i].second).Draw();
+				break;
+			case MOUSEPIANO:
+				std::get<MousePiano>(_views[i].second).Draw();
 				break;
 			default: //INTEGRAL
 				std::get<IntegralView>(_views[i].second).Draw();
@@ -415,6 +427,16 @@ MungPlex::WatchControl::BoolView::BoolView(const int id)
 	_idText = std::to_string(id);
 }
 
+MungPlex::WatchControl::MousePiano::MousePiano(const int id)
+{
+	_id = id;
+	_idText = std::to_string(id);
+	_switches.resize(32);
+
+	for (auto& elem : _switches)
+		elem.first.resize(32);
+}
+
 MungPlex::WatchControl::IntegralView::IntegralView(const int id, const nlohmann::json elem)
 {
 	_id = id;
@@ -449,6 +471,21 @@ MungPlex::WatchControl::BoolView::BoolView(const int id, const nlohmann::json el
 	_idText = std::to_string(id);
 	SetBasicMembers(elem);
 	_val = elem["Value"];
+}
+
+MungPlex::WatchControl::MousePiano::MousePiano(const int id, const nlohmann::json elem)
+{
+	_id = id;
+	_idText = std::to_string(id);
+	SetBasicMembers(elem);
+
+	for (auto& entry : elem["Switches"])
+		_switches.emplace_back(entry[0], entry[1]);
+
+	_switches.resize(32);
+
+	for (auto& elem : _switches)
+		elem.first.resize(32);
 }
 
 void MungPlex::WatchControl::IntegralView::Draw()
@@ -730,6 +767,68 @@ void MungPlex::WatchControl::BoolView::Draw()
 	ImGui::EndChild();
 }
 
+void MungPlex::WatchControl::MousePiano::Draw()
+{
+	float itemWidth = ImGui::GetContentRegionAvail().x;
+	float itemHeight = 80.0f * Settings::GetGeneralSettings().Scale;
+
+	ImGui::Separator();
+
+	ImGui::BeginChild(std::string("child_boolView" + _idText).c_str(), ImVec2(itemWidth, itemHeight * 2.0f));
+	{
+		DrawSetup(itemWidth, itemHeight, MOUSEPIANO);
+
+		ImGui::SameLine();
+
+		ImGui::BeginChild("child_view", ImVec2(itemWidth * 0.5f, itemHeight * 1.5f), true);
+		{
+			std::string format(8, '\0');
+			if (_active)
+			{
+				uint64_t valptr = reinterpret_cast<uint64_t>(GetCurrentPointer());
+
+				if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
+				{
+					uint32_t val = 0;
+
+					if (_freeze)
+					{
+						for (int i = 0; i < 32; ++i)
+							val |= _switches[i].second << i;
+
+						ProcessInformation::WriteValue<uint32_t>(valptr, val);
+					}
+					else
+					{
+						val = ProcessInformation::ReadValue<uint32_t>(valptr);
+
+						for (int i = 0; i < 32; ++i)
+							_switches[i].second = static_cast<bool>((val >> i) & 1);
+					}
+				}
+			}
+
+			for (int i = 0; i < 32; ++i)
+			{
+				if (i & 0x3)
+					ImGui::SameLine();
+
+				_idText = "##" + std::to_string(i);
+				ImGui::Checkbox((_idText + "cb").c_str(), &_switches[i].second);
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(itemWidth * 0.1f);
+				ImGui::InputText((_idText).c_str(), _switches[i].first.data(), 32);
+				ImGui::SameLine();
+				ImGui::Dummy(ImVec2(5.0f, 0.0f));
+
+			}
+		}
+		ImGui::EndChild();
+
+	}
+	ImGui::EndChild();
+}
+
 nlohmann::json MungPlex::WatchControl::IntegralView::GetJSON()
 {
 	nlohmann::json elemJson = GetBasicJSON();
@@ -763,6 +862,18 @@ nlohmann::json MungPlex::WatchControl::BoolView::GetJSON()
 
 	elemJson["Type"] = BOOL;
 	elemJson["Value"] = _val;
+
+	return elemJson;
+}
+
+nlohmann::json MungPlex::WatchControl::MousePiano::GetJSON()
+{
+	nlohmann::json elemJson = GetBasicJSON();
+
+	elemJson["Type"] = MOUSEPIANO;
+
+	for(int i = 0; i < 32; ++i)
+		elemJson["Switches"].emplace_back(std::pair<std::string, bool>(_switches[i].first.c_str(), _switches[i].second));
 
 	return elemJson;
 }

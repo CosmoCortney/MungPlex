@@ -341,7 +341,7 @@ namespace MungPlex
 
         if (removeAll)
         {
-            for (int i = 0; i < input.size() - 1; ++i)
+            for (int i = 0; i < input.size(); ++i)
             {
                 if(input[i] != 0x20)
                     output += input[i];
