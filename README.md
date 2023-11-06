@@ -29,11 +29,11 @@ None of the contributors of this project bear any warranty or responsibility for
 - [To Do](#todo)
 - [Special Thanks](#kiitos)
 
-<a name="releases"/>
+<a name="releases"></a>
 ## Releases
 Find the latest release [here](https://github.com/CosmoCortney/MungPlex/releases/)
 
-<a name="connection"/>
+<a name="connection"></a>
 ## Connection
 The Connection frame allows you to connect to the supported emulators or any PC game. 
 
@@ -84,7 +84,7 @@ If a game crashes or MungPlex has been opened before it, click *Refresh List* to
 
 Once Connected you can use MungPlex and open the Memory Viewer down below.
 
-<a name="memoryviewer"/>
+<a name="memoryviewer"></a>
 ## Memory Viewer
 A simple memory viewer to view and edit any byte in real-time.
 To open click *Open Memory Viewer* in the *Connection* frame.
@@ -97,7 +97,7 @@ To open click *Open Memory Viewer* in the *Connection* frame.
 - `Options`: Change view options
 - `Editing`: Simply click the byte(s) you wanna edit and type the desired hex values.
 
-<a name="search"/>
+<a name="search"></a>
 ## Search
 This frame allows for scanning a game's memory for values of several types under any desired conditions.
 
@@ -209,7 +209,7 @@ Sadly there's some bug going on so you might need to click again if the selectio
 - `Poke`: Writes all selected values to the game.
 - `Max. results per page`: Specify how many results you want to have been drawn on each page.
 
-<a name="cheats"/>
+<a name="cheats"></a>
 ## Cheats
 This frame allows you to execute cheats of your search results as lua scripts. If you don't know the lua programming language you can check out the [official lua reference manual](https://www.lua.org/manual/5.4/). 
 
@@ -333,7 +333,7 @@ Gives you further control of the cheat(s).
 - `Interval`: How many times a secon the cheat(s) should be executed. If the game visibly overwrites your values you may move the slider to the right.
 - `Apply/Terminate Cheats`: Turns cheats on or off. If some syntactical error appears you will be notified bt the log window.
 
-<a name="pointersearch"/>
+<a name="pointersearch"></a>
 ## Pointer Search
 This frame allows scanning memory dumps for pointer paths. The used [pointer search engine](https://github.com/BullyWiiPlaza/Universal-Pointer-Searcher-Engine) was developed by BullyWiiPlaza. 
 
@@ -368,7 +368,7 @@ Opens a file dialog to add memory dumps to the list.
 - `Region`: Select region to be dumped
 - `Dump`: Dump selected region 
 
-<a name="watchcontrol"/>
+<a name="watchcontrol"></a>
 ## Watch & Control
 This window allows for viewing and controlling certain values of various types.
 
@@ -411,11 +411,11 @@ This window allows for viewing and controlling certain values of various types.
 ### DIP Switch View
 The top-left bit is the least significant bit of the 32-bit DIP. Each entry has a text field to describe what the flag represents
 
-<a name="processinformation"/>
+<a name="processinformation"></a>
 ## Process Information
 Displays various information about the connected game/process
 
-<a name="settings"/>
+<a name="settings"></a>
 ## Settings
 Define various settings and preferences.
 
@@ -436,7 +436,7 @@ Define various settings and preferences.
 - `Cheat List by default`
 - `Default Interval`
 
-<a name="dataconversion"/>
+<a name="dataconversion"></a>
 ## Data Conversion
 A small conversion utility
 
@@ -452,7 +452,7 @@ A small conversion utility
 ### Text Conversion
 - Convert UTF-8 Text to UTF-16 Little Endian, UTF-16 Big Endian, UTF-32 Little Endian, UTF-32 Big Endian, Shift-Jis, Jis x 0201 Full Width, Jis X 0201 Half Width, ASCII, ISO-8859-1 - 16 and vice versa
 
-<a name="compiling"/>
+<a name="compiling"></a>
 ## Compiling
 
 Open the project in Visual Studio as "Open as local folder".
@@ -464,7 +464,7 @@ Using `vcpkg`, make sure to install the following libraries (`vcpkg install xxx:
 
 To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item and build/debug as usual in Visual Studio.
 
-<a name="todo"/>
+<a name="todo"></a>
 ## TODO
 - General
   - Migrate `imgui` to using `vcpkg` (e.g. install `imgui[glfw-binding]`)
@@ -484,7 +484,7 @@ To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item 
   - Syntax Highlighting, more OS functionalities
 
 
-<a name="kiitos"/>
+<a name="kiitos"></a>
 ## Special Thanks
 - Lawn Meower: Idea, code, reverse engineering
 - [BullyWiiPlaza](https://github.com/BullyWiiPlaza/): Code, Creation of Pointer Search Engine
