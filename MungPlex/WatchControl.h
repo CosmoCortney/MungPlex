@@ -41,13 +41,13 @@ namespace MungPlex
         class View
         {
         public:
-            static Xertz::ProcessInfo s_Process;
             std::wstring _moduleW = std::wstring(32, '\0');
             std::string _module = std::string(32, '\0');
             std::string _pointerPathText = std::string(128, '\0');
             std::string _label = std::string(128, '\0');
             std::vector<int64_t> _pointerPath;
             bool _useModulePath = false;
+            uint64_t _moduleAddress = 0;
             bool _freeze = false;
             bool _active = false;
             int _id;

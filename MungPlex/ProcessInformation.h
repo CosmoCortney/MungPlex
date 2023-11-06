@@ -151,6 +151,11 @@ namespace MungPlex
         static REGION_LIST& GetRegionList();
         static std::vector<SystemRegion>& GetSystemRegionList();
 
+        template<typename addressType> static addressType GetModuleAddress(const std::wstring& moduleName)
+        {
+            return (addressType)GetInstance()._process.GetModuleAddress(moduleName);
+        }
+
         template<typename addressType> static addressType EmuAddrToProcessAddr(addressType address)
         {
             int regionIndex = GetRegionIndex(address);

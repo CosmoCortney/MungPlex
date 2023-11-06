@@ -29,8 +29,6 @@ const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_S
 	{ "DIP Switch", MOUSEPIANO }
 };
 
-Xertz::ProcessInfo MungPlex::WatchControl::View::s_Process;
-
 void MungPlex::WatchControl::DrawWindow()
 {
 	ImGui::Begin("Watch & Control");
@@ -264,7 +262,9 @@ void MungPlex::WatchControl::View::DrawSetup(const float itemWidth, const float 
 	{
 		ImGui::BeginChild("child_setup", ImVec2(itemWidth * 0.15f, itemHeight * 1.5f), true);
 		{
-			ImGui::Checkbox("Active", &_active);
+			if (ImGui::Checkbox("Active", &_active))
+				if (_active && _useModulePath)
+					_moduleAddress = ProcessInformation::GetModuleAddress<uint64_t>(_moduleW);
 
 			switch (type)
 			{
@@ -290,7 +290,10 @@ void MungPlex::WatchControl::View::DrawSetup(const float itemWidth, const float 
 
 		ImGui::BeginChild("child_pointer", ImVec2(itemWidth * 0.345f, itemHeight * 1.5f), true);
 		{
-			ImGui::Checkbox("Use Module", &_useModulePath);
+			if (ImGui::Checkbox("Use Module", &_useModulePath))
+				if(_useModulePath)
+					_moduleAddress = ProcessInformation::GetModuleAddress<uint64_t>(_moduleW);
+
 			ImGui::SameLine();
 			if (!_useModulePath) ImGui::BeginDisabled();
 			SetUpInputText("Module", _module.data(), _module.size(), 1.0f, 0.0f, false);
@@ -405,7 +408,7 @@ void* MungPlex::WatchControl::View::GetCurrentPointer()
 	int64_t ptr = 0;
 
 	if (_useModulePath)
-		ptr = s_Process.GetModuleAddress(_moduleW);
+		ptr = _moduleAddress;
 
 	for (int i = 0; i < _pointerPath.size() - 1; ++i)
 	{
