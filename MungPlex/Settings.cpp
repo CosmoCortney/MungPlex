@@ -181,22 +181,23 @@ MungPlex::ColorScheme& MungPlex::Settings::GetColorScheme(const int id)
 
 void MungPlex::Settings::DrawWindow()
 {
-	ImGui::Begin("Settings");
-	
-	GetInstance().drawGeneralSettings();
-	GetInstance().drawSearchSettings();
-	GetInstance().drawCheatSettings();
-	ImGui::Separator();
-
-	if (ImGui::Button("Save"))
+	if (ImGui::Begin("Settings"))
 	{
-		GetInstance().saveSettings();
-	}
+		GetInstance().drawGeneralSettings();
+		GetInstance().drawSearchSettings();
+		GetInstance().drawCheatSettings();
+		ImGui::Separator();
 
-	ImGui::SameLine();
-	ImGui::Button("Reset");
-	ImGui::SameLine();
-	ImGui::Text("Changes take effect after restarting MungPlex.");
+		if (ImGui::Button("Save"))
+		{
+			GetInstance().saveSettings();
+		}
+
+		ImGui::SameLine();
+		ImGui::Button("Reset");
+		ImGui::SameLine();
+		ImGui::Text("Changes take effect after restarting MungPlex.");
+	}
 	ImGui::End();
 }
 

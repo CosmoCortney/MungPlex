@@ -31,8 +31,16 @@ const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_S
 
 void MungPlex::WatchControl::DrawWindow()
 {
-	ImGui::Begin("Watch & Control");
-	GetInstance().drawList();
+	if (ImGui::Begin("Watch & Control"))
+	{
+		if (!Connection::IsConnected())
+			ImGui::BeginDisabled();
+
+		GetInstance().drawList();
+
+		if (!Connection::IsConnected())
+			ImGui::EndDisabled();
+	}
 	ImGui::End();
 }
 

@@ -86,26 +86,26 @@ MungPlex::Search::Search()
 
 void MungPlex::Search::DrawWindow()
 {
-	ImGui::Begin("Search");
-
-	if (!Connection::IsConnected())
-		ImGui::BeginDisabled();
-
-	ImGui::BeginGroup();
+	if (ImGui::Begin("Search"))
 	{
-		GetInstance().DrawValueTypeOptions();
-		GetInstance().DrawRangeOptions();
+		if (!Connection::IsConnected())
+			ImGui::BeginDisabled();
+
+		ImGui::BeginGroup();
+		{
+			GetInstance().DrawValueTypeOptions();
+			GetInstance().DrawRangeOptions();
+		}
+		ImGui::EndGroup();
+
+		ImGui::SameLine();
+
+		GetInstance().DrawSearchOptions();
+		GetInstance().DrawResultsArea();
+
+		if (!Connection::IsConnected())
+			ImGui::EndDisabled();
 	}
-	ImGui::EndGroup();
-
-	ImGui::SameLine();
-	
-	GetInstance().DrawSearchOptions();
-	GetInstance().DrawResultsArea();
-
-	if (!Connection::IsConnected())
-		ImGui::EndDisabled();
-
 	ImGui::End();
 }
 

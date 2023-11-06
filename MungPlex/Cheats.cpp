@@ -639,10 +639,11 @@ void MungPlex::Cheats::logBool(const bool value)
 
 void MungPlex::Cheats::DrawWindow()
 {
-	ImGui::Begin("Cheats");
-	if (!Connection::IsConnected()) ImGui::BeginDisabled();
+	if (ImGui::Begin("Cheats"))
 	{
-		ImGui::BeginGroup();
+		if (!Connection::IsConnected()) ImGui::BeginDisabled();
+		{
+			ImGui::BeginGroup();
 			GetInstance().DrawCheatList();
 #ifndef NDEBUG
 			if (!Connection::IsConnected()) ImGui::EndDisabled();
@@ -651,14 +652,15 @@ void MungPlex::Cheats::DrawWindow()
 #ifndef NDEBUG
 			if (!Connection::IsConnected()) ImGui::BeginDisabled();
 #endif
-		ImGui::EndGroup();
+			ImGui::EndGroup();
 
-		ImGui::SameLine();
+			ImGui::SameLine();
 
-		GetInstance().DrawCheatInformation();
-		GetInstance().DrawControl();
+			GetInstance().DrawCheatInformation();
+			GetInstance().DrawControl();
+		}
+		if (!Connection::IsConnected()) ImGui::EndDisabled();
 	}
-	if (!Connection::IsConnected()) ImGui::EndDisabled();
 	ImGui::End();
 }
 

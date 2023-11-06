@@ -2,8 +2,10 @@
 
 void MungPlex::Connection::DrawWindow()
 {
-	ImGui::Begin("Connection");
-	GetInstance().DrawConnectionSelect();
+	if (ImGui::Begin("Connection"))
+	{
+		GetInstance().DrawConnectionSelect();
+	}
 	ImGui::End();
 }
 

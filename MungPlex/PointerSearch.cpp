@@ -62,13 +62,13 @@ MungPlex::PointerSearch::PointerSearch()
 
 void MungPlex::PointerSearch::DrawWindow()
 {
-	ImGui::Begin("Pointer Search");
-
-    GetInstance().drawList();
-    GetInstance().drawSettings();
-    ImGui::SameLine();
-    GetInstance().drawResults();
-
+    if (ImGui::Begin("Pointer Search"))
+    {
+        GetInstance().drawList();
+        GetInstance().drawSettings();
+        ImGui::SameLine();
+        GetInstance().drawResults();
+    }
 	ImGui::End();
 }
 

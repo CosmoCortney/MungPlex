@@ -50,12 +50,13 @@ MungPlex::DataConversion::DataConversion()
 
 void MungPlex::DataConversion::DrawWindow()
 {
-	ImGui::Begin("Data Conversion");
-	
-	GetInstance().drawPrimitiveConversion();
-	ImGui::SameLine();
-	GetInstance().drawColorConversion();
-	GetInstance().drawTextConversion();
+	if (ImGui::Begin("Data Conversion"))
+	{
+		GetInstance().drawPrimitiveConversion();
+		ImGui::SameLine();
+		GetInstance().drawColorConversion();
+		GetInstance().drawTextConversion();
+	}
 	ImGui::End();
 }
 

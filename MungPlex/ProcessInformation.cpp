@@ -8,16 +8,16 @@
 
 void MungPlex::ProcessInformation::DrawWindow()
 {
-	ImGui::Begin("Process Information");
-	
-	GetInstance().drawMiscInformation();
-	ImGui::Separator();
-	GetInstance().drawGameInformation();
-	ImGui::Separator();
-	GetInstance().drawModuleList();
-	ImGui::Separator();
-	GetInstance().drawRegionList();
-
+	if (ImGui::Begin("Process Information"))
+	{
+		GetInstance().drawMiscInformation();
+		ImGui::Separator();
+		GetInstance().drawGameInformation();
+		ImGui::Separator();
+		GetInstance().drawModuleList();
+		ImGui::Separator();
+		GetInstance().drawRegionList();
+	}
 	ImGui::End();
 }
 
