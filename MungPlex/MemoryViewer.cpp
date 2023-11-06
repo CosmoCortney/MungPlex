@@ -52,6 +52,8 @@ void MungPlex::MemoryViewer::drawControlPanel()
 
         static bool refresh = false;
 
+        if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::BeginDisabled();
+
         if (ImGui::Checkbox("Write", ProcessInformation::GetRangeFlagWrite()))
             refresh = true;
 
@@ -61,6 +63,8 @@ void MungPlex::MemoryViewer::drawControlPanel()
 
         if (refresh)
             ProcessInformation::RefreshRegionlistPC();
+
+        if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::EndDisabled();
 
         if (SetUpInputText("Jump to Address:", _bufAddress.data(), 17, 1.0f, 0.4f))
         {
