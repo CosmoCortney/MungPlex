@@ -13,9 +13,27 @@ It is also possible for flashing lights and sudden loud noises to appear when ed
 Also do not use this tool for cheating online in public sessions/rooms! Only losers do that and you may get banned from your game's network.
 None of the contributors of this project bear any warranty or responsibility for any damage happening.
 
+
+## Table of contents
+- [Releases](#releases)
+- [Connection](#connection)
+- [Memory Viewer](#memoryviewer)
+- [Search](#search)
+- [Cheats](#cheats)
+- [Pointer Search](#pointersearch)
+- [Watch & Control](#watchcontrol)
+- [Process Information](#processinformation)
+- [Settings](#settings)
+- [Data Conversion](#dataconversion)
+- [Compiling](#compiling)
+- [To Do](#todo)
+- [Special Thanks](#kiitos)
+
+<a name="releases"/>
 ## Releases
 Find the latest release [here](https://github.com/CosmoCortney/MungPlex/releases/)
 
+<a name="connection"/>
 ## Connection
 The Connection frame allows you to connect to the supported emulators or any PC game. 
 
@@ -66,6 +84,7 @@ If a game crashes or MungPlex has been opened before it, click *Refresh List* to
 
 Once Connected you can use MungPlex and open the Memory Viewer down below.
 
+<a name="memoryviewer"/>
 ## Memory Viewer
 A simple memory viewer to view and edit any byte in real-time.
 To open click *Open Memory Viewer* in the *Connection* frame.
@@ -78,6 +97,7 @@ To open click *Open Memory Viewer* in the *Connection* frame.
 - `Options`: Change view options
 - `Editing`: Simply click the byte(s) you wanna edit and type the desired hex values.
 
+<a name="search"/>
 ## Search
 This frame allows for scanning a game's memory for values of several types under any desired conditions.
 
@@ -189,6 +209,7 @@ Sadly there's some bug going on so you might need to click again if the selectio
 - `Poke`: Writes all selected values to the game.
 - `Max. results per page`: Specify how many results you want to have been drawn on each page.
 
+<a name="cheats"/>
 ## Cheats
 This frame allows you to execute cheats of your search results as lua scripts. If you don't know the lua programming language you can check out the [official lua reference manual](https://www.lua.org/manual/5.4/). 
 
@@ -264,7 +285,7 @@ These functions consecutively write values and increment/decrement those alongsi
 
 #### Misc. Functions
 - bool `IsInRange(uint64_t value, uint64_t start, uint64_t end)`: Checks if value is >= start and < end. This can be used to verify pointers are within a valid range to prevent possible crashes during loading times
-- uint64_t `GetModuleAddress(char* moduleName)`: returns the address of a processe's module (e.g. GetModuleAddress("mono.dll"))
+<!- - uint64_t `GetModuleAddress(char* moduleName)`: returns the address of a processe's module (e.g. GetModuleAddress("mono.dll")) ->
 - `copyMemory(uint64_t source, uint64_t destination, uint32_t size)`: copies the `size` bytes of memory located at `source` ot `destination` 
 
 #### Registers
@@ -272,6 +293,9 @@ These variables can be used to store and keep values across execution cycles and
 - `INTREG00` - `INTREG31`: Integer registers
 - `NUMREG00` - `NUMREG31`: Float registers
 - `BOOLREG00` - `BOOLREG31`: Boolean registers
+
+#### Module Addresses
+Module addresses can be returned by calling the `Modules` field and the target module name in brackets. (Modules["mono.dll"])
 
 ### Cheat List
 A list of all saved cheats. Check each one you want to be active.
@@ -309,6 +333,7 @@ Gives you further control of the cheat(s).
 - `Interval`: How many times a secon the cheat(s) should be executed. If the game visibly overwrites your values you may move the slider to the right.
 - `Apply/Terminate Cheats`: Turns cheats on or off. If some syntactical error appears you will be notified bt the log window.
 
+<a name="pointersearch"/>
 ## Pointer Search
 This frame allows scanning memory dumps for pointer paths. The used [pointer search engine](https://github.com/BullyWiiPlaza/Universal-Pointer-Searcher-Engine) was developed by BullyWiiPlaza. 
 
@@ -322,7 +347,7 @@ Opens a file dialog to add memory dumps to the list.
 - `Target Address`: Where the value has been found within the memory dump.
 - `Correspondence`: The corresponding Search. 0 = initial, 1 = second, ...
 
-## Scan Options
+### Scan Options
 <img src="MungPlex\resources\img\manual\MungPlex_pointersearch_02.png" height="440">
 
 - `System Preset`: Auto-selects certain settings depending on the selected system.
@@ -343,15 +368,60 @@ Opens a file dialog to add memory dumps to the list.
 - `Region`: Select region to be dumped
 - `Dump`: Dump selected region 
 
+<a name="watchcontrol"/>
+## Watch & Control
+This window allows for viewing and controlling certain values of various types.
+
+<img src="MungPlex\resources\img\manual\MungPlex_Watch&Control_01.png" height="520">
+
+### List Settings
+- `New Item's Type`: Select the generic type of value watch
+  - `Integral`: Integer types
+  - `Floats`: Floating point types
+  - `Bool`: Boolean value
+  - `DIP Switch`: 32-bit DIP Switch
+
+- `Add Item`: Adds a new item of the selected type to the list
+- `Save List`: Saves list
+
+### View Settings (All Types)
+- `Title`: Name of the entry
+- `Active`: Whether the view is active or not
+- `Int/Float Type`: Subsidiary type (not applicable for bools and DIP switches) 
+- `Delete`: Deletes the entry
+- `Write`: Writes the defined value to the game instead of reading it
+- `Use Module`: Use the given module for pointer path
+- `Pointer Path`: The Address/Pointer path expression where the target value is located
+- `Target Addr Range`: Range the pointer path's final address must be within. Ignored if the path only consists of a single address
+
+### Integral View
+- `Hex`: Whether to view the value as hex
+- `Value (no label)`: The current value as either hex or decimal
+- `Plot Range`: Minimum and Maximum values to be represented by the histogram
+- `Progress Bar/Slider`: If the View is in read mode a Progress bar will be displayed. In Write more a Slider will be available for quick value adjustment
+
+### Float View
+- `Value (no label)`: Current value
+- `Plot Range`: Minimum and Maximum values to be represented by the histogram
+- `Progress Bar/Slider`: If the View is in read mode a Progress bar will be displayed. In Write more a Slider will be available for quick value adjustment
+
+### Bool View
+- `Is Set`: Whether the current boolean value is set
+
+### DIP Switch View
+The top-left bit is the least significant bit of the 32-bit DIP. Each entry has a text field to describe what the flag represents
+
+<a name="processinformation"/>
 ## Process Information
 Displays various information about the connected game/process
 
+<a name="settings"/>
 ## Settings
 Define various settings and preferences.
 
 ### General Settings
 - `Documents Path`: Where MungPlex saves everything. It is recommended picking a place that is on an SSD for better performance since this tool may handle large files
-- `UI-Scale`: Scale of the app. Change this if it looks off.
+- `UI-Scale`: Scale of the app. Change this if it looks off
 - `Default Active Window`
 - `Color Theme`
 
@@ -366,6 +436,7 @@ Define various settings and preferences.
 - `Cheat List by default`
 - `Default Interval`
 
+<a name="dataconversion"/>
 ## Data Conversion
 A small conversion utility
 
@@ -381,6 +452,7 @@ A small conversion utility
 ### Text Conversion
 - Convert UTF-8 Text to UTF-16 Little Endian, UTF-16 Big Endian, UTF-32 Little Endian, UTF-32 Big Endian, Shift-Jis, Jis x 0201 Full Width, Jis X 0201 Half Width, ASCII, ISO-8859-1 - 16 and vice versa
 
+<a name="compiling"/>
 ## Compiling
 
 Open the project in Visual Studio as "Open as local folder".
@@ -392,6 +464,7 @@ Using `vcpkg`, make sure to install the following libraries (`vcpkg install xxx:
 
 To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item and build/debug as usual in Visual Studio.
 
+<a name="todo"/>
 ## TODO
 - General
   - Migrate `imgui` to using `vcpkg` (e.g. install `imgui[glfw-binding]`)
@@ -411,7 +484,7 @@ To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item 
   - Syntax Highlighting, more OS functionalities
 
 
-
+<a name="kiitos"/>
 ## Special Thanks
 - Lawn Meower: Idea, code, reverse engineering
 - [BullyWiiPlaza](https://github.com/BullyWiiPlaza/): Code, Creation of Pointer Search Engine
