@@ -118,6 +118,10 @@ int main()
 			style.Colors[ImGuiCol_DockingEmptyBg] = colors.DockingEmptyBG;
 			style.Colors[ImGuiCol_TableHeaderBg] = colors.TableHeaderBg;
 			style.Colors[ImGuiCol_ModalWindowDimBg] = colors.WindowDim;
+			style.Colors[ImGuiCol_PlotLines] = colors.PlotLines;
+			style.Colors[ImGuiCol_PlotLinesHovered] = colors.PlotLinesHovered;
+			style.Colors[ImGuiCol_PlotHistogram] = colors.PlotHistogram;
+			style.Colors[ImGuiCol_PlotHistogramHovered] = colors.PlotHistogramHovered;
 		}
 	}
 

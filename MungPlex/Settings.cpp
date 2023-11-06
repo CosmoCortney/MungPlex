@@ -54,6 +54,10 @@ MungPlex::Settings::Settings()
 		dark.DockingPreview = topNormal;
 		dark.DockingEmptyBG = midNormal;
 		dark.WindowDim = { 0.10f, 0.08f, 0.2f, 0.5f };
+		dark.PlotLines = { 0.0f, 0.7f, 0.9f, 1.0f};
+		dark.PlotLinesHovered = { 0.0f, 0.9f, 0.75f, 1.0f };
+		dark.PlotHistogram = dark.PlotLines;
+		dark.PlotHistogramHovered = dark.PlotLinesHovered;
 		return dark;
 	}()));
 	/*_styles.push_back(std::make_pair("Candy", []() -> ColorScheme
