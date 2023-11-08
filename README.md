@@ -6,9 +6,9 @@ The following feature illustration also guides you through the general usage of 
 
 ## Before You Proceed
 If the app looks off go to Settings and change the UI scale.</br>
-It may happen for MungPlex to be unable to connect to a game. This might be due to changes to the emulator that make MungPlex incapable of finding the emulated RAM and game ID. If this is the case you can reach out to the MungPlex Discord Server and report any problems.</br>
+It may happen for MungPlex to be unable to connect to a game. This might be due to changes to the emulator that make MungPlex incapable of finding the emulated RAM and/or game ID. If this is the case you can reach out to the MungPlex Discord Server and report any problems.</br>
 </br>
-Even though this tool should not cause any damage to your games or system, it is possible to corrupt save data and cause blue screens and therefore result in data loss. It is good to have a backup of your save data and have every opened document and project saved.
+Even though this tool should not cause any damage to your games or system, it is possible to corrupt savegames and cause bluescreens and therefore result in data loss. It is always good to have a backup of your savegames and have every opened document and project saved.
 It is also possible for flashing lights and sudden loud noises to appear when editing random values. Keep this in mind especially if you are easily startled or suffer from epilepsy.
 Also do not use this tool for cheating online in public sessions/rooms! Only losers do that and you may get banned from your game's network.
 None of the contributors of this project bear any warranty or responsibility for any damage happening.
@@ -35,12 +35,12 @@ Find the latest release [here](https://github.com/CosmoCortney/MungPlex/releases
 
 <a name="connection"></a>
 ## Connection
-The Connection frame allows you to connect to the supported emulators or any PC game. 
+The Connection frame features an emulator select and process select for PC games and programs. 
 
 ### Connect To An Emulator
-On the top-left you will find the tab item *Emulator*.
+On the top-left you will find the *Emulator* tab item.
 Below you can select the target emulator from the drop-down menu.
-As of version 2.0.0 the following emulators and systems are supported:
+As of version 2.3.0 the following emulators and systems are supported:
 - Mesen (SNES)
 - Project64 (Nintendo 64)
 - Dolphin (GameCube, Triforce, Wii, WiiWare)
@@ -53,7 +53,7 @@ As of version 2.0.0 the following emulators and systems are supported:
 - PPSSPP (PSP)
 - Fusion (Mega Drive, 32X, Mega-CD)
 
-The choice for these emulators was made by considering factors like what other debugging features they offer and how easily the emulated RAM, loaded ROM (for older games) and game information can be found.
+The choice of these emulators was made by considering factors like what other debugging features they offer and how easily the emulated RAM, loaded ROM (for older games) and game information can be found.
 Therefore an outdated emulator like Fusion has bullet-proof support where on the other hand support for frequently updated emulators like RPCS3 may need to be adjusted from time to time. Multi-platform emulators like 
 RetroArch also make it unnecessarily difficult to find everything needed since it's not only the emulator itself that experiences updates but also the underlying cores. 
 
@@ -67,13 +67,13 @@ Some emulators need special requirements in order to be connected to.
 ##### Mesen
 Open Mesen and disable rewind by going to `Settings/Preferences/Advanced/` and uncheck `Allow rewind to use up to...`. Also apply the contained lua script `MungPlex/resources/setMesenMungPlexFlag.lua`: In Mesen navigate to `Debug/Script Window/Open Script` and open `setMesenMungPlexFlag.lua`. Click the little gear and change the selection of `When a script window is opened` to `Load the previous script` (needs to be done only once).
 Click the play button (arrow pointing to the right) to execute. 
-Run this script every time you want to connect to Mesen.
+Run this script every time you want to connect to Mesen if it is not executed automatically.
 
 ##### Yuzu
-The Nintendo Switch uses [ASLR (Address space layout randomization)](https://en.wikipedia.org/wiki/Address_space_layout_randomization) which causes base addresses to be randomized. Therefore no base can be determined and cheats have to be search again every time you start a game. But this should become easier if we find a way to figure out the base address each time.
+The Nintendo Switch uses [ASLR (Address space layout randomization)](https://en.wikipedia.org/wiki/Address_space_layout_randomization) which causes base addresses to be randomized. Therefore no base can be determined and cheats have to be search again every time you restart the game. A lot of research has to be done here.
 
 ### Connect To A PC Game
-On the tab bar click the tab labeled *Native Application*. Under the sub-tab of *Application* you can select from all windowed applications. There you should find any PC game that is currently running. Alternatively you can select from any process of your PC by clicking the *Process* tab instead. 
+On the tab bar click the *Native Application* tab. Under the sub-tab of *Application* you can select from all windowed applications. There you should find any PC game that is currently running. Alternatively you can select from any process of your PC by clicking the *Processes* tab instead. 
 
 
 <img src="MungPlex\resources\img\manual\MungPlex_connection_03.png" width="256">
@@ -87,12 +87,12 @@ Once Connected you can use MungPlex and open the Memory Viewer down below.
 <a name="memoryviewer"></a>
 ## Memory Viewer
 A simple memory viewer to view and edit any byte in real-time.
-To open click *Open Memory Viewer* in the *Connection* frame.
+To open click *Open Memory Viewer* on the *Connection* frame.
 
 <img src="MungPlex\resources\img\manual\MungPlex_memoryviewer_01.png" width="256">
 
 - `Region`: Select the desired memory region
-- `Jump to Address`: Jump to Address (d'uh)
+- `Jump to Address`: Jumps to the target Address (d'uh)
 - `Read Size`: Change the size of the viewed memory by either typing any hexadecimal value or using the +/- buttons.
 - `Options`: Change view options
 - `Editing`: Simply click the byte(s) you wanna edit and type the desired hex values.
@@ -108,8 +108,8 @@ Here you can specify all value-related configurations.
 
 - `Value Type`: Select the major value type.
   - `Primitive`: This covers all common primitive value types (signed/unsigned integers of 1, 2, 4 and 8 bytes, as well as floating point values of single and double precision)
-  - `Array`: Allows you to specify an array of any length of unsigned integers (1, 2, 4 and 8 bytes). Additionally you can define wildcards (indices to ignore) by simply typing a # for the corresponding index. The hex check-box won't affect the numeral base so you have to prepend *0x* for hex values. Example (unsigned int16 array): ´0x1337, 069, 420, #´. 0x1337 (hex), 069 (oct), 420 (dec), # (wildcard)
-  - `Text`: Allows you to search for text values (strings) of different types of encodings.
+  - `Array`: Allows you to specify an array of any length of unsigned integers (1, 2, 4 and 8 bytes). Additionally you can define wildcards (indices to be ignored) by simply typing a # for the corresponding index. The hex check-box won't affect the numeral base so you have to prepend *0x* for hex values. Example (unsigned int16 array): `0x1337, 069, 420, #` (0x1337 (hex), 069 (oct), 420 (dec), # (wildcard))
+  - `Text`: Allows for searching text values (strings) of different types of encodings.
 Currently supported encodings: 
     - `ASCII`
     - `UTF-8`
@@ -120,13 +120,13 @@ Currently supported encodings:
     - `Shift-Jis`
     - `Jis X 0201 Full Width`
     - `Jis X 0201 Half Width`
-    - `ISO-8859-1` to `ISO-8859-16`
-  - `Color`: Allows you to search for color values. If you don't know what color type certain objects or textures use you may need to try different types.
-    - `RGB888`: Common 24-bit color value commonly used in 3D games
-    - `RGBA8888`: Same as above but with an additional alpha channel
+    - `ISO-8859-1` - `ISO-8859-16`
+  - `Color`: Allows for searching color values. If you don't know what color type certain objects or textures use you may need to try different types.
+    - `RGB888`: 24-bit color value commonly used in 3D games
+    - `RGBA8888`: Same as above but with an additional 8-bit alpha channel
     - `RGB565`: 16-bit color value commonly used in textures of GameCube/Wii games
     - `RGB5A3`: 16-bit color value with alpha flag commonly used in textures of GameCube/Wii games
-    - `RGBF`: Floating point/HDR variant of RGB888. Commonly used of colors may do smooth transitions like the engine flames in F-Zero GX or ink in Splatoon
+    - `RGBF`: Floating point/HDR variant of RGB888. Commonly used for colors that require smooth transitions like the engine flames in F-Zero GX or ink in Splatoon
     - `RGBAF`: Same as RGBF but with an additional alpha channel
 
 - `Primitive/Array/Text/Color Type `: 
@@ -139,7 +139,7 @@ Check this if the values should be treated as big endian (reversed byte order). 
 Check this if primitive integral types should be signed.
 
 - `Force Alpha `: 
-Some Color types (RGB5A3) feature a color flag and have no dedicate type with its own alpha channel. Therefore forcing the alpha flag might come in handy.
+Some Color types (RGB5A3) feature a color bit flag instead of a dedicated variant with alpha channel. Therefore forcing the alpha flag might come in handy.
 
 ### Range Options
 Here you can select the memory ranges to be scanned.
@@ -149,18 +149,18 @@ Here you can select the memory ranges to be scanned.
 - `Region`: Select a specific region.
 - `Start at (hex)`: Define the address of where the memory scan should start.
 - `End at (hex)`: Define the address of where the memory scan should end.
-- `Cross-Region`: Checking this will consider scanning all available memory regions. By altering *Start at* and *End at* you can skip certain regions. 
-- `Re-reorder Region`: Some emulators and memory areas may be reordered in 4-byte chunks of the opposite endiannes. If this is the case you may check this. The best option is auto-selected but you can change if needed.
-- `Write`: Only accessible when connected to a PC game. This ensures all regions also have write permissions.
-- `Exec. `: Only accessible when connected to a PC game. This adds regions with execute permissions to the region list.
+- `Cross-Region`: Checking this will consider scanning all available memory regions. By altering *Start at* and *End at* you can bypass certain regions. 
+- `Re-reorder Region`: Some emulators and memory areas may be reordered in 4-byte chunks of the opposite endiannes. If this is the case you may check this. The best option is auto-selected but you can change it if desired.
+- `Write`: Only available when connected to a PC game. This ensures all regions also have write permissions.
+- `Exec. `: Only available when connected to a PC game. This adds regions with execute permissions to the region list.
 
 ### Search Options
 Here you can control the memory scan.
 
 <img src="MungPlex\resources\img\manual\MungPlex_search_03.png" height="240">
 
-- `Counter Iteration`: Select the counter iteration you want to compare against. The last one is always auto-selected so if you happen to make an error during search you can always jump back.
-- `Alignment`: Specifies the byte alignment of each scanned value. An alignment of 4 is usually the best for any kind of value. Values of type int8 and int16 may use an alignment of 1 or 2 respectively.
+- `Counter Iteration`: Select the counter iteration you want to compare against. The last one is always auto-selected so if you happen to make an mistake during the search process you can always jump back.
+- `Alignment`: Specifies the byte alignment of each scanned value. An alignment of 4 is usually the best for big-endian systems and generally any kind of value bigger than 2 bytes. Values of type int8 and int16 may use an alignment of 1 and 2 respectively.
 
 - `Comparision Type`: 
   - Unknown Value: Compares the following iteration's values against the current/counter iteration ones.
@@ -168,11 +168,11 @@ Here you can control the memory scan.
 
 - `Condition Type`: 
   - `Equal`: Scans for equality
-  - `Unequal`: Scans for changed values
-  - `Greater`: Scan for values greater than the current or known value
-  - `Greater or Equal`: Scan for values greater than or equal to the current or known value
-  - `Lower`: Scan for values lower than the current or known value
-  - `Lower or Equal`: Scan for values lower than or equal to the current or known value
+  - `Unequal`: Scans for changed values/inequality
+  - `Greater`: Scans for values greater than the current or known value
+  - `Greater or Equal`: Scans for values greater than or equal to the current or known value
+  - `Lower`: Scans for values lower than the current or known value
+  - `Lower or Equal`: Scans for values lower than or equal to the current or known value
   - `Increased by`: Scans for values increased by a specific amount
   - `Decreased by`: Scans for values decreased by a specific amount
   - `Value Between`: Scans for values between 2 specific values
@@ -184,11 +184,11 @@ Here you can control the memory scan.
 - `Secondary Value`: Range end for range-based seraches.
 - `Precision (%)`: Accuracy for floating point and color searches. Best is a value of 90 - 100%.
 - `Cached`: Check if you want previous search results to be held in RAM (not recommended). This may speed up your search but also increases memory usage.
-- `Values are hex`: Interprets input integral values as hexadecimal. Do not prepend *0x*. Results of integrals and arrays are also affected. Arrays to be scanned for are not.
-- `Case Sensitive`: Whether strings to be searched for should be case sensitive (recommended). Case insensitive searches are slow.
+- `Values are hex`: Interprets input integral values as hexadecimal. Do not prepend *0x* to the known value. Results of integrals and arrays are also affected. Arrays to be scanned for are not.
+- `Case Sensitive`: Whether strings to be searched for should be case sensitive (recommended). Case insensitive searches are slower but may deliver more results.
 - `Color Select`: Use this to select the target color value.
-- `Color Wheel`: Use color wheel instead of square.
-- `Pick color from screen`: Allows you to pick any color of the screen by click.
+- `Color Wheel`: Use color picker wheel instead of square.
+- `Pick color from screen`: Allows for picking any color off the screen by click.
 - `Search`: Performs a new search or new iteration.
 - `Reset`: Resets current search.
 
@@ -211,14 +211,14 @@ Sadly there's some bug going on so you might need to click again if the selectio
 
 <a name="cheats"></a>
 ## Cheats
-This frame allows you to execute cheats of your search results as lua scripts. If you don't know the lua programming language you can check out the [official lua reference manual](https://www.lua.org/manual/5.4/). 
+This frame allows you to execute cheats of your search results as lua scripts. If you are unfamiliar with the lua programming language you can check out the [official lua reference manual](https://www.lua.org/manual/5.4/). Not deep understand of Lua is required to create simple cheats.
 
 ### MungPlex Custom Lua Functions and Variables
 In order to interact with games it is necessary to have custom functionalities.
 In the following you will learn about all additional features required to create MungPlex cheat codes.
 
 #### Read Functions
-The following functions can be used to read data from game memory:
+The following functions can be used to read data from memory:
 
 - `bool ReadBool(uint64 address)`: returns the boolean value located at `address` of the game's memory
 - `int8 ReadInt8(uint64 address)`: returns the signed 8-bit value located at `address` of the game's memory
@@ -262,12 +262,12 @@ The following functions can be used to write data to game memory:
 #### RAM Fill and Slide
 These functions consecutively write values and increment/decrement those alongside the address as many times as defined by `count`. Note that an address increment does not consider the value size. For instance, to consecutively write int32 values the minimum desired address increment would be 4 or -4. Increment values are signed(!). The first write does not apply any increment. If you don't want a value increment just pass a valueIncrement of 0.
 
-`fillAndSlideInt8(uint64_t address, int64_t addressIncrement, int8_t value, int8_t valueIncrement, uint8_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
-`fillAndSlideInt16(uint64_t address, int64_t addressIncrement, int16_t value, int16_t valueIncrement, uint16_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
-`fillAndSlideInt32(uint64_t address, int64_t addressIncrement, int32_t value, int32_t valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
-`fillAndSlideInt64(uint64_t address, int64_t addressIncrement, int64_t value, int64_t valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
-`fillAndSlideFloat(uint64_t address, int64_t addressIncrement, float value, float valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
-`fillAndSlideDouble(uint64_t address, int64_t addressIncrement, double value, double valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `fillAndSlideInt8(uint64_t address, int64_t addressIncrement, int8_t value, int8_t valueIncrement, uint8_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `fillAndSlideInt16(uint64_t address, int64_t addressIncrement, int16_t value, int16_t valueIncrement, uint16_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `fillAndSlideInt32(uint64_t address, int64_t addressIncrement, int32_t value, int32_t valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `fillAndSlideInt64(uint64_t address, int64_t addressIncrement, int64_t value, int64_t valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `fillAndSlideFloat(uint64_t address, int64_t addressIncrement, float value, float valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `fillAndSlideDouble(uint64_t address, int64_t addressIncrement, double value, double valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
 
 #### Log Functions
 - `LogText(const char* text)`: Logs the given `text` to the log frame
@@ -285,7 +285,7 @@ These functions consecutively write values and increment/decrement those alongsi
 
 #### Misc. Functions
 - bool `IsInRange(uint64_t value, uint64_t start, uint64_t end)`: Checks if value is >= start and < end. This can be used to verify pointers are within a valid range to prevent possible crashes during loading times
-<!- - uint64_t `GetModuleAddress(char* moduleName)`: returns the address of a processe's module (e.g. GetModuleAddress("mono.dll")) ->
+<!-- uint64_t `GetModuleAddress(char* moduleName)`: returns the address of a processe's module (e.g. GetModuleAddress("mono.dll")) -->
 - `copyMemory(uint64_t source, uint64_t destination, uint32_t size)`: copies the `size` bytes of memory located at `source` ot `destination` 
 
 #### Registers
@@ -315,7 +315,7 @@ This can be used to edit an existing cheat or add a new one.
 - `Update Entry`: Updates the currently selected entry
 - `Delete Entry`: Deletes the selected cheat from the list
 
-### Old-School cheat to Lua Cheat Conversion
+### Old-School Cheat to Lua Cheat Conversion
 This allows you to convert decrypted cheat codes to Lua. Note that some codes may not work because addresses may be shifted on emulators.
 
 <img src="MungPlex\resources\img\manual\MungPlex_cheats_04.png" width="666">
