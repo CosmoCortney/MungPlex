@@ -257,7 +257,6 @@ namespace MungPlex
 
         template<typename addressType> bool PokeColor()
         {
-            const int pid = ProcessInformation::GetPID();
             const std::string colorString = _pokeValueText.StdStr();
             LitColor pokeValue(colorString);
             const int pokeValueWidth = pokeValue.GetSelectedType() == LitColor::RGB888 ? 3 : 4;
@@ -272,39 +271,13 @@ namespace MungPlex
                         continue;
 
                     uint64_t address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<addressType>(resultIndex + index);
-                    int regionIndex = -1;
 
-                    for (int i = 0; i < _regions.size(); ++i)
+                    switch (pokeValue.GetSelectedType()) //RGB888, RGBA8888
                     {
-                        if (address >= _regions[i].Base && address <= _regions[i].Base + _regions[i].Size)
-                        {
-                            regionIndex = i;
-                            break;
-                        }
-                    }
-
-                    if (regionIndex == -1)
-                        return false;
-
-                    address -= _regions[regionIndex].Base;
-                    address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
-
-                    if (pokeValue.GetSelectedType() < LitColor::RGBF) //RGB888, RGBA8888
-                    {
-                        uint32_t val = _pokePrevious ? MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint32_t>(resultIndex + index) : pokeValue.GetRGBA();
-
-                        if (_underlyingBigEndian)
-                            val = Xertz::SwapBytes<uint32_t>(val);
-
-                        if (_rereorderRegion)
-                            WriteToReorderedRangeEx<uint32_t>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address));
-                        else
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
-                    }
-                    else if (pokeValue.GetSelectedType() == LitColor::RGB565 || pokeValue.GetSelectedType() == LitColor::RGB565)
+                    case LitColor::RGB565: case LitColor::RGB5A3:
                     {
                         uint16_t val;
-                        
+
                         if (_pokePrevious)
                             val = MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint16_t>(resultIndex + index);
                         else
@@ -315,28 +288,21 @@ namespace MungPlex
                                 val = pokeValue.GetRGB5A3();
                         }
 
-                        if (_underlyingBigEndian)
-                            val = Xertz::SwapBytes<uint16_t>(val);
-
-                        if (_rereorderRegion)
-                            WriteToReorderedRangeEx<uint16_t>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address));
-                        else
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), sizeof(uint16_t));
-                    }
-                    else //RGBF, RGBAF
+                        ProcessInformation::WriteValue<uint16_t>(address, val);
+                    }break;
+                    case LitColor::RGBF: case LitColor::RGBAF:
                     {
                         for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
                         {
                             float val = _pokePrevious ? MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<float>(resultIndex + index + item) : pokeValue.GetColorValue<float>(item);
-
-                            if (_underlyingBigEndian)
-                                val = Xertz::SwapBytes<float>(val);
-
-                            if (_rereorderRegion)
-                                WriteToReorderedRangeEx<float>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address + item * sizeof(float)));
-                            else
-                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
+                            ProcessInformation::WriteValue<float>(address + item * sizeof(float), val);
                         }
+                    } break;
+                    default: //LitColor::RGB888: LitColor::RGBA8888: 
+                    {
+                        uint32_t val = _pokePrevious ? MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint32_t>(resultIndex + index) : pokeValue.GetRGBA();
+                        ProcessInformation::WriteValue<uint32_t>(address, val);
+                    } break;
                     }
                 }
 
@@ -344,70 +310,43 @@ namespace MungPlex
                 return true;
             }
 
-            uint64_t address = _pokeAddress;
-
-            for (int i = 0; i < _regions.size(); ++i)
+            switch (pokeValue.GetSelectedType()) //RGB888, RGBA8888
             {
-                if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
+            case LitColor::RGB565: case LitColor::RGB5A3:
+            {
+                uint16_t val;
+
+                if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                    val = pokeValue.GetRGB565();
+                else
+                    val = pokeValue.GetRGB5A3();
+                
+                ProcessInformation::WriteValue<uint16_t>(_pokeAddress, val);
+            }break;
+            case LitColor::RGBF: case LitColor::RGBAF:
+            {
+                for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
                 {
-                    address -= _regions[i].Base;
-                    address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
-
-                    if (pokeValue.GetSelectedType() < LitColor::RGBF) //RGB888, RGBA8888
-                    {
-                        uint32_t val = pokeValue.GetRGBA();
-
-                        if (_underlyingBigEndian)
-                            val = Xertz::SwapBytes<uint32_t>(val);
-
-                        if (_rereorderRegion)
-                            WriteToReorderedRangeEx<uint32_t>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address));
-                        else
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), pokeValueWidth);//todo check if LE pokes work too!
-                    }
-                    else if (pokeValue.GetSelectedType() == LitColor::RGB565 || pokeValue.GetSelectedType() == LitColor::RGB565)
-                    {
-                        uint16_t val = pokeValue.GetRGB565();
-
-                        if (_underlyingBigEndian)
-                            val = Xertz::SwapBytes<uint16_t>(val);
-
-                        if (_rereorderRegion)
-                            WriteToReorderedRangeEx<uint16_t>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address));
-                        else
-                            Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address), sizeof(uint16_t));
-                    }
-                    else //RGBF, RGBAF
-                    {
-                        for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
-                        {
-                            float val = pokeValue.GetColorValue<float>(item);
-
-                            if (_underlyingBigEndian)
-                                val = Xertz::SwapBytes<float>(val);
-
-                            if (_rereorderRegion)
-                                WriteToReorderedRangeEx<float>(Xertz::SystemInfo::GetProcessInfo(pid), &val, reinterpret_cast<void*>(address + item * sizeof(float)));
-                            else
-                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&val, reinterpret_cast<void*>(address + item * sizeof(float)), sizeof(float));
-                        }
-                    }
-
-                    Log::LogInformation((std::string("Poked ") + _searchColorTypes[_currentColorTypeSelect].first + " color value").c_str());
-                    return true;
+                    float val = pokeValue.GetColorValue<float>(item);
+                    ProcessInformation::WriteValue<float>(_pokeAddress + item * sizeof(float), val);
                 }
+            } break;
+            default: //LitColor::RGB888: LitColor::RGBA8888: 
+            {
+                uint32_t val = pokeValue.GetRGBA();
+                ProcessInformation::WriteValue<uint32_t>(_pokeAddress, val);
+            } break;
             }
-            
-            return false;
+
+            return true;
         }
 
         template<typename uType, typename addressType> bool PokeArray()
         {
             uint64_t itemCount = OperativeArray<uType>(_knownValueText.StdStr()).ItemCount();
-            const int pid = ProcessInformation::GetPID();
             std::string arrayString = _pokeValueText.StdStr();
             OperativeArray<uType> pokeArray(arrayString);
-               
+            
             if (_multiPoke)
             {
                 int regionIndex = -1;
@@ -420,18 +359,6 @@ namespace MungPlex
                         continue;
 
                     uint64_t address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<addressType>(resultIndex + index);
-
-                    for (int i = 0; i < _regions.size(); ++i)
-                    {
-                        if (address >= _regions[i].Base && address <= _regions[i].Base + _regions[i].Size)
-                        {
-                            regionIndex = i;
-                            break;
-                        }
-                    }
-
-                    if(regionIndex == -1)
-                        return false;
 
                     if (_pokePrevious)
                     {
@@ -446,69 +373,29 @@ namespace MungPlex
                             pokeArray = OperativeArray<uType>(MemoryCompare::MemCompare::GetResults().GetSpecificPreviousValuePtrAllRanges<uType>(resultIndex + index), itemCount);
                     }
                     
-                    if (_underlyingBigEndian && (swapBytes || _pokePrevious))
-                    {
-                        MungPlex::SwapBytesArray<uType>(pokeArray);
-                        swapBytes = false;
-                    }
-
-                    address -= _regions[regionIndex].Base;
-                    address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
-
                     for (int i = 0; i < itemCount; ++i)
-                    {
                         if (!pokeArray.IsIgnoredIndex(i))
-                        {
-                            if (_rereorderRegion)
-                                WriteToReorderedRangeEx<uType>(Xertz::SystemInfo::GetProcessInfo(pid), &pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i));
-                            else
-                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
-                        }
-                    }
+                            ProcessInformation::WriteValue<uType>(address + sizeof(uType) * i, pokeArray[i]);
                 }
 
                 Log::LogInformation((std::string("Multi-poked ") + _searchArrayTypes[_currentArrayTypeSelect].first + " array values").c_str());
                 return true;
             }
-
-            if (_underlyingBigEndian)
-                MungPlex::SwapBytesArray<uType>(pokeArray);
-
-            uint64_t address = _pokeAddress;
-            for (int i = 0; i < _regions.size(); ++i)
-            {
-                if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
-                {
-                    address -= _regions[i].Base;
-                    address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
-                    
-                    for (int i = 0; i < itemCount; ++i)
-                    {
-                        if (!pokeArray.IsIgnoredIndex(i))
-                        {
-                            if (_rereorderRegion)
-                                WriteToReorderedRangeEx<uType>(Xertz::SystemInfo::GetProcessInfo(pid), &pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i));
-                            else
-                                Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(&pokeArray[i], reinterpret_cast<void*>(address + sizeof(uType) * i), sizeof(uType));
-                        }
-                    }
-
-                    Log::LogInformation((std::string("Poked ") + _searchArrayTypes[_currentArrayTypeSelect].first + " array value").c_str());
-                    return true;
-                }
-            }
             
-            return false;
+            for (int i = 0; i < itemCount; ++i)
+                if (!pokeArray.IsIgnoredIndex(i))
+                    ProcessInformation::WriteValue<uType>(_pokeAddress + sizeof(uType) * i, pokeArray[i]);
+
+            Log::LogInformation((std::string("Poked ") + _searchArrayTypes[_currentArrayTypeSelect].first + " array value").c_str());
+            return true;
         }
 
         template<typename dataType, typename addressType> bool PokeValue()
         {
-            const int pid = ProcessInformation::GetPID();
             dataType* pokeValuePtr = (dataType*)&_pokeValue[0];
 
             if (_multiPoke)
             {
-                int regionIndex = -1;
                 bool swapBytes = _underlyingBigEndian;
                 uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
@@ -519,68 +406,22 @@ namespace MungPlex
 
                     uint64_t address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<addressType>(resultIndex + index);
 
-                    for (int i = 0; i < _regions.size(); ++i)
-                    {
-                        if (address >= _regions[i].Base && address <= _regions[i].Base + _regions[i].Size)
-                        {
-                            regionIndex = i;
-                            break;
-                        }
-                    }
-
-                    if(regionIndex == -1)
-                        return false;
-
                     if (_pokePrevious)
                         if (MemoryCompare::MemCompare::GetIterationCount() < 1)
                             *pokeValuePtr = 0;
                         else
                             *pokeValuePtr = MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<dataType>(resultIndex + index);
 
-
-                    if (_underlyingBigEndian && (swapBytes || _pokePrevious))
-                    {
-                        *pokeValuePtr = Xertz::SwapBytes<dataType>(*pokeValuePtr);
-                        swapBytes = false;
-                    }
-
-
-                    address -= _regions[regionIndex].Base;
-                    address += reinterpret_cast<uint64_t>(_regions[regionIndex].BaseLocationProcess);
-
-                    if (_rereorderRegion)
-                        WriteToReorderedRangeEx<dataType>(Xertz::SystemInfo::GetProcessInfo(pid), pokeValuePtr, reinterpret_cast<void*>(address));
-                    else
-                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeValuePtr, reinterpret_cast<void*>(address), sizeof(dataType));
+                    ProcessInformation::WriteValue<dataType>(address, *reinterpret_cast<dataType*>(pokeValuePtr));
                 }
 
                 Log::LogInformation((std::string("Multi-poked ") + _searchPrimitiveTypes[_currentPrimitiveTypeSelect].first + " values").c_str());
                 return true;
             }
 
-            if (_underlyingBigEndian)
-                *pokeValuePtr = Xertz::SwapBytes<dataType>(*pokeValuePtr);
-
-            uint64_t address = _pokeAddress;
-
-            for (int i = 0; i < _regions.size(); ++i)
-            {
-                if (_pokeAddress >= _regions[i].Base && _pokeAddress <= _regions[i].Base + _regions[i].Size)
-                {
-                    address -= _regions[i].Base;
-                    address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
-
-                    if (_rereorderRegion)
-                        WriteToReorderedRangeEx<dataType>(Xertz::SystemInfo::GetProcessInfo(pid), pokeValuePtr, reinterpret_cast<void*>(address));
-                    else
-                        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(pokeValuePtr, reinterpret_cast<void*>(address), sizeof(dataType));
-                    
-                    Log::LogInformation((std::string("Poked ") + _searchPrimitiveTypes[_currentPrimitiveTypeSelect].first + " value").c_str());
-                	return true;
-                }
-            }
-            
-            return false;
+            ProcessInformation::WriteValue<dataType>(_pokeAddress, *reinterpret_cast<dataType*>(_pokeValue.data()));
+            Log::LogInformation((std::string("Poked ") + _searchPrimitiveTypes[_currentPrimitiveTypeSelect].first + " value").c_str());
+            return true;
         }
 
         template<typename T> void DrawArrayValues(const int col, const uint16_t itemCount, const uint64_t index, char* buf, char* tempValue, const char* literal)
