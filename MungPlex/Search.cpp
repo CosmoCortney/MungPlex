@@ -551,13 +551,13 @@ void MungPlex::Search::DrawResultsArea()
 				if (ImGui::Button("Poke"))
 				{
 					_pokeValue.clear();
-					static std::stringstream stream;
+					std::stringstream stream;
 
 					if (!_multiPoke)
 					{
-						stream << std::hex << std::string(_pokeAddressText.CStr());
+						std::string test = std::string(_pokeAddressText.CStr());
+						stream << std::hex << test;
 						stream >> _pokeAddress;
-						stream.str(std::string());
 					}
 
 					switch (_currentValueTypeSelect)
@@ -833,7 +833,7 @@ void MungPlex::Search::drawResultsTableNew()
 			_deselectedIllegalSelection = false;
 		}
 
-		static FloorString tempAddress("", 18);
+		static FloorString tempAddress("", 17);
 		static FloorString tempValue("", 256);
 		static FloorString buf("", 256);
 		static int addressTextWidth = ProcessInformation::GetAddressWidth() > 4 ? 16 : 8;
@@ -1209,7 +1209,7 @@ void MungPlex::Search::drawResultsTableNew()
 			else
 			{
 				sprintf(buf.Data(), addressTextWidth == 16 ? "%016llX" : "%08X", address);
-				tempAddress = buf;
+				tempAddress = buf.CStr();
 			}
 
 			if (_selectedIndices[row])
