@@ -20,6 +20,13 @@ namespace MungPlex
 {
     class MemoryViewer
     {
+    public:
+        MemoryViewer(const uint32_t id);
+        void DrawWindow();
+        void SetIndex(const uint32_t id);
+        bool IsOpen();
+        void SetUpByRegionSelect(const int index);
+
     private:
         uint32_t _id = 0;
         std::string _windowTitle;
@@ -40,13 +47,6 @@ namespace MungPlex
 
         void drawControlPanel();
         void drawHexEditor();
-
-    public:
-        MemoryViewer(const uint32_t id);
-        void DrawWindow();
-        void SetIndex(const uint32_t id);
-        bool IsOpen();
-        void setUpByRegionSelect(const int index);
         void processBufferAddress();
     };
 }

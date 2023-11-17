@@ -87,6 +87,14 @@ namespace MungPlex
 
 	class Settings
 	{
+    public:
+        static void DrawWindow();
+        static GeneralSettings& GetGeneralSettings();
+        static SearchSettings& GetSearchSettings();
+        static CheatsSettings& GetCheatsSettings();
+        static ColorScheme& GetColorScheme(const int id);
+
+    private:
         Settings();
         ~Settings(){}
         Settings(const Settings&) = delete;
@@ -115,12 +123,5 @@ namespace MungPlex
         {
 	        IMGUIDEFAULT, DARK, BRIGHT, CANDY, PASTELL
         };
-
-    public:
-        static void DrawWindow();
-        static GeneralSettings& GetGeneralSettings();
-        static SearchSettings& GetSearchSettings();
-        static CheatsSettings& GetCheatsSettings();
-        static ColorScheme& GetColorScheme(const int id);
 	};
 }

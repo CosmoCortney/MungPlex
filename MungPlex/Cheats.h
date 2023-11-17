@@ -24,10 +24,13 @@ namespace MungPlex
 
     class Cheats
 	{
+    public:
+        static void DrawWindow();
+        static void InitCheatFile();
+
+    private:
         Cheats();
-
         ~Cheats(){}
-
         Cheats(const Cheats&) = delete;
         Cheats(Cheats&&) = delete;
         void operator=(const Cheats&) = delete;
@@ -171,9 +174,5 @@ namespace MungPlex
         static void logFloat(const float value);
         static void logDouble(const double value);
         static void logBool(const bool value);
-
-    public:
-        static void DrawWindow();
-        static void InitCheatFile();
 	};
 }

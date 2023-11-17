@@ -20,6 +20,11 @@ namespace MungPlex
 
     class WatchControl
     {
+    public:
+        static void DrawWindow();
+        static void InitWatchFile();
+        static void DeleteItem(const int id);
+
     private:
         WatchControl() {}
         ~WatchControl() {}
@@ -141,10 +146,5 @@ namespace MungPlex
 
         void drawList();
         bool saveList();
-
-    public:
-        static void DrawWindow();
-        static void InitWatchFile();
-        static void DeleteItem(const int id);
     };
 }

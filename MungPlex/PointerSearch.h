@@ -9,6 +9,10 @@ namespace MungPlex
 {
     class PointerSearch
     {
+    public:
+        static void DrawWindow();
+        static void SelectPreset(int presetIndex);
+
         PointerSearch();
         ~PointerSearch()
         {
@@ -64,9 +68,5 @@ namespace MungPlex
         const std::vector<std::string> _inputTypeSelect = { "Memory Dump", "Pointer Map" };
         std::vector<SystemRegion> _regions{};
         int _regionSelect = 0;
-
-    public:
-        static void DrawWindow();
-        static void SelectPreset(int presetIndex);
     };
 }

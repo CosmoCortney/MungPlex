@@ -33,9 +33,49 @@ namespace MungPlex
 {
     class Search
     {
+    public:
+        static void DrawWindow();
+        static void SetUnderlyingBigEndianFlag(const bool isBigEndian);
+        static void SetRereorderRegion(const bool rereorder);
+        static void SetAlignment(const int alignment);
+
+        SignalCombo<SystemRegion> _RegionSelectSignalCombo;
+        SignalInputText _SignalInputTextRangeStart;
+        SignalInputText _SignalInputTextRangeEnd;
+
+        std::function<void(const char*, uint64_t&)> Slot_RangeTextChanged = [](const char* in, uint64_t& out)
+            {
+                /*if (in == nullptr)
+                    return;
+
+                std::stringstream stream;
+                stream << std::hex << std::string(in);
+                stream >> out;
+                std::cout << in << std::endl;*/
+            };
+
+        std::function<void()> Slot_IndexChanged = []()
+            {
+
+            };
+
+        std::function<void()> Slot_ItemCountChanged = []()
+            {
+
+            };
+
+        std::function<void()> Slot_TextChanged = []()
+            {
+                std::stringstream stream;
+                stream << std::hex << GetInstance()._regions[GetInstance()._currentRegionSelect].Base;
+                const std::string hexBegStr = stream.str();
+                GetInstance()._rangeStartText = hexBegStr;
+                const std::string hexEndStr = ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size - 1, 0);
+                GetInstance()._rangeEndText = hexEndStr;
+            };
+
     private:
         Search();
-
         ~Search() {};
         Search(const Search&) = delete;
         Search(Search&&) = delete;
@@ -120,18 +160,15 @@ namespace MungPlex
         std::tuple<uint64_t, int> _searchStats;
         bool _underlyingBigEndian = false;
         bool _deselectedIllegalSelection = false;
-
-        //uint32_t _maxRegionSizeMB = 256;
-        //uint64_t _maxRegionSize = _maxRegionSizeMB * 1024 * 1024;
         std::vector<MemoryCompare::MemDump> _currentMemoryDumps{};
         bool _scanAllRegions = false;
 
-        void SetUpAndIterate();
-        void DrawValueTypeOptions();
-        void DrawRangeOptions();
-        void DrawSearchOptions();
-        void DrawResultsArea();
-        void PerformSearch();
+        void setUpAndIterate();
+        void drawValueTypeOptions();
+        void drawRangeOptions();
+        void drawSearchOptions();
+        void drawResultsArea();
+        void performSearch();
         void primitiveTypeSearchLog();
         void arrayTypeSearchLog();
         void textTypeSearchLog();
@@ -143,7 +180,7 @@ namespace MungPlex
         void setUpIterationSelect();
         void setUpResultPaging();
 
-        template<typename addressType> bool PokeText()
+        template<typename addressType> bool pokeText()
         {
             const int pid = ProcessInformation::GetPID();
             const std::string pokeTextp = _pokeValueText.StdStr();
@@ -255,7 +292,7 @@ namespace MungPlex
             return false;
         }
 
-        template<typename addressType> bool PokeColor()
+        template<typename addressType> bool pokeColor()
         {
             const std::string colorString = _pokeValueText.StdStr();
             LitColor pokeValue(colorString);
@@ -341,7 +378,7 @@ namespace MungPlex
             return true;
         }
 
-        template<typename uType, typename addressType> bool PokeArray()
+        template<typename uType, typename addressType> bool pokeArray()
         {
             uint64_t itemCount = OperativeArray<uType>(_knownValueText.StdStr()).ItemCount();
             std::string arrayString = _pokeValueText.StdStr();
@@ -390,7 +427,7 @@ namespace MungPlex
             return true;
         }
 
-        template<typename dataType, typename addressType> bool PokeValue()
+        template<typename dataType, typename addressType> bool pokeValue()
         {
             dataType* pokeValuePtr = (dataType*)&_pokeValue[0];
 
@@ -424,7 +461,7 @@ namespace MungPlex
             return true;
         }
 
-        template<typename T> void DrawArrayValues(const int col, const uint16_t itemCount, const uint64_t index, char* buf, char* tempValue, const char* literal)
+        template<typename T> void drawArrayValues(const int col, const uint16_t itemCount, const uint64_t index, char* buf, char* tempValue, const char* literal)
         {
             //const int iterationIndex = MemoryCompare::MemCompare::GetSearchStats().second-1;
             T* value = nullptr;
@@ -448,13 +485,13 @@ namespace MungPlex
                 return;
             }
 
-            PrintTableArray<T>(buf, literal, itemCount, value);
+            printTableArray<T>(buf, literal, itemCount, value);
 
             if(copyTempValue)
                 std::memcpy(tempValue, buf, 1024);
         }
 
-        template<typename T> void PrintTableArray(char* buf, const char* literal, const uint32_t itemCount, const T* vals)
+        template<typename T> void printTableArray(char* buf, const char* literal, const uint32_t itemCount, const T* vals)
         {
             if (vals == nullptr)
                 return; 
@@ -475,45 +512,5 @@ namespace MungPlex
             //std::puts(buf);
         }
 
-    public:
-        static void DrawWindow();
-        static void SetUnderlyingBigEndianFlag(const bool isBigEndian);
-        static void SetRereorderRegion(const bool rereorder);
-        static void SetAlignment(const int alignment);
-
-        SignalCombo<SystemRegion> _RegionSelectSignalCombo;
-        SignalInputText _SignalInputTextRangeStart;
-        SignalInputText _SignalInputTextRangeEnd;
-
-        std::function<void(const char*, uint64_t&)> Slot_RangeTextChanged = [](const char* in, uint64_t& out)
-        {
-            /*if (in == nullptr)
-                return;
-
-            std::stringstream stream;
-            stream << std::hex << std::string(in);
-            stream >> out;
-            std::cout << in << std::endl;*/
-        };
-
-        std::function<void()> Slot_IndexChanged = []()
-        {
-            
-        };
-
-        std::function<void()> Slot_ItemCountChanged = []()
-        {
-            
-        };
-
-        std::function<void()> Slot_TextChanged = []()
-        {
-            std::stringstream stream;
-            stream << std::hex << GetInstance()._regions[GetInstance()._currentRegionSelect].Base;
-            const std::string hexBegStr = stream.str();
-            GetInstance()._rangeStartText = hexBegStr;
-            const std::string hexEndStr = ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size -1, 0);
-            GetInstance()._rangeEndText = hexEndStr;
-        };
     };
 }

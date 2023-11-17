@@ -22,6 +22,10 @@ namespace MungPlex
 
     class Connection
     {
+    public:
+        static void DrawWindow();
+        static bool IsConnected();
+
     private:
         Connection()
         {
@@ -49,9 +53,5 @@ namespace MungPlex
         std::vector<MemoryViewer> _memoryViewers;
         void DrawConnectionSelect();
         void memoryViewerButton();
-
-    public:
-        static void DrawWindow();
-        static bool IsConnected();
     };
 }

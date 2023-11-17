@@ -8,7 +8,7 @@ MungPlex::MemoryViewer::MemoryViewer(const uint32_t id)
     _bufAddress = std::string("00000000\0", 17);
     _hexView = std::string("", _readSize);
     _dummy = std::string("Invalid Memory Region");
-    setUpByRegionSelect(0);
+    SetUpByRegionSelect(0);
 }
 
 void MungPlex::MemoryViewer::SetIndex(const uint32_t id)
@@ -47,7 +47,7 @@ void MungPlex::MemoryViewer::drawControlPanel()
     {
         if (SetUpCombo("Region:", ProcessInformation::GetSystemRegionList(), _regionSelect, 1.0f, 0.4f))
         {
-            setUpByRegionSelect(_regionSelect);
+            SetUpByRegionSelect(_regionSelect);
         }
 
         static bool refresh = false;
@@ -94,7 +94,7 @@ void MungPlex::MemoryViewer::drawHexEditor()
     ImGui::EndChild();
 }
 
-void MungPlex::MemoryViewer::setUpByRegionSelect(const int index)
+void MungPlex::MemoryViewer::SetUpByRegionSelect(const int index)
 {
     std::stringstream stream;
     stream << std::hex << ProcessInformation::GetSystemRegionList()[index].Base;

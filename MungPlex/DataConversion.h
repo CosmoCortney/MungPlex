@@ -16,6 +16,9 @@ namespace MungPlex
 {
     class DataConversion
     {
+    public:
+        static void DrawWindow();
+
     private:
         DataConversion();
         ~DataConversion() {}
@@ -53,8 +56,5 @@ namespace MungPlex
         void drawTextConversion();
         void convertText(std::string& in, std::string& out, const int textTypeSelect);
         void convertHexText(std::string& in, std::string& out, const int textTypeSelect);
-
-    public:
-        static void DrawWindow();
     };
 }

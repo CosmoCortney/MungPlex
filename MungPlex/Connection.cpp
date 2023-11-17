@@ -98,7 +98,6 @@ void MungPlex::Connection::DrawConnectionSelect()
 				if(_connected)
 					strcpy_s(_connectionMessage, "Connected to Process: ");
 					strcat_s(_connectionMessage, ProcessInformation::GetProcessName().c_str());
-
 			}
 
 			ImGui::SameLine();

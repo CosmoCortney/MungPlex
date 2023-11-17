@@ -14,6 +14,17 @@ namespace MungPlex
 {
 	class CheatConvert
 	{
+	public:
+		static bool GcnArToLua();
+		static bool DissectCheat();
+		static std::string& GetOldSchoolCheat();
+		static std::string GetLuaCheat();
+
+		enum CheatTypes
+		{
+			GCN_AR, WII_GECKO, WIIU_CAFE
+		};
+
 	private:
 		CheatConvert() {}
 		~CheatConvert() {}
@@ -103,16 +114,5 @@ namespace MungPlex
 
 		void logConversionError(const int lineCount, const std::string& line);
 		static std::string generateIndent();
-
-	public:
-		static bool GcnArToLua();
-		static bool DissectCheat();
-		static std::string& GetOldSchoolCheat();
-		static std::string GetLuaCheat();
-
-		enum CheatTypes
-		{
-			GCN_AR, WII_GECKO, WIIU_CAFE
-		};
 	};
 }

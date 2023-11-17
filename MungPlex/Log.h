@@ -13,6 +13,11 @@ namespace MungPlex
 {
     class Log
     {
+    public:
+        static void DrawWindow();
+        static void LogInformation(const char* text, const bool appendToLast = false, const int indentation = 0);
+        static void LogInformation(const std::string& text, const bool appendToLast = false, const int indentation = 0);
+
     private:
         Log() {}
         ~Log();
@@ -34,10 +39,5 @@ namespace MungPlex
 
         bool init();
         void clear(const bool deleteFileOnly = false);
-
-    public:
-        static void DrawWindow();
-        static void LogInformation(const char* text, const bool appendToLast = false, const int indentation = 0);
-        static void LogInformation(const std::string& text, const bool appendToLast = false, const int indentation = 0);
     };
 }
