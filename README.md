@@ -8,7 +8,7 @@ The following feature illustration also guides you through the general usage of 
 If the app looks off go to Settings and change the UI scale.</br>
 It may happen for MungPlex to be unable to connect to a game. This might be due to changes to the emulator that make MungPlex incapable of finding the emulated RAM and/or game ID. If this is the case you can reach out to the MungPlex Discord Server and report any problems.</br>
 </br>
-Even though this tool should not cause any damage to your games or system, it is possible to corrupt savegames and cause bluescreens and therefore result in data loss. It is always good to have a backup of your savegames and have every opened document and project saved.
+Even though this tool should not cause any damage to your games or system, it is possible to corrupt savegames and cause bluescreens when messing with PC games and therefore result in data loss. It is always good to have a backup of your savegames and have every opened document and project saved.
 It is also possible for flashing lights and sudden loud noises to appear when editing random values. Keep this in mind especially if you are easily startled or suffer from epilepsy.
 Also do not use this tool for cheating online in public sessions/rooms! Only losers do that and you may get banned from your game's network.
 None of the contributors of this project bear any warranty or responsibility for any damage happening.
@@ -262,26 +262,26 @@ The following functions can be used to write data to game memory:
 #### RAM Fill and Slide
 These functions consecutively write values and increment/decrement those alongside the address as many times as defined by `count`. Note that an address increment does not consider the value size. For instance, to consecutively write int32 values the minimum desired address increment would be 4 or -4. Increment values are signed(!). The first write does not apply any increment. If you don't want a value increment just pass a valueIncrement of 0.
 
-- `fillAndSlideInt8(uint64_t address, int64_t addressIncrement, int8_t value, int8_t valueIncrement, uint8_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
-- `fillAndSlideInt16(uint64_t address, int64_t addressIncrement, int16_t value, int16_t valueIncrement, uint16_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
-- `fillAndSlideInt32(uint64_t address, int64_t addressIncrement, int32_t value, int32_t valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
-- `fillAndSlideInt64(uint64_t address, int64_t addressIncrement, int64_t value, int64_t valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
-- `fillAndSlideFloat(uint64_t address, int64_t addressIncrement, float value, float valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
-- `fillAndSlideDouble(uint64_t address, int64_t addressIncrement, double value, double valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `FillAndSlideInt8(uint64_t address, int64_t addressIncrement, int8_t value, int8_t valueIncrement, uint8_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `FillAndSlideInt16(uint64_t address, int64_t addressIncrement, int16_t value, int16_t valueIncrement, uint16_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `FillAndSlideInt32(uint64_t address, int64_t addressIncrement, int32_t value, int32_t valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `FillAndSlideInt64(uint64_t address, int64_t addressIncrement, int64_t value, int64_t valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `FillAndSlideFloat(uint64_t address, int64_t addressIncrement, float value, float valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
+- `FillAndSlideDouble(uint64_t address, int64_t addressIncrement, double value, double valueIncrement, uint32_t count)`: consecutively writes `value` + `valueIncrement` to `address` + `addressIncrement` `count` times 
 
 #### Log Functions
 - `LogText(const char* text)`: Logs the given `text` to the log frame
 - `LogUInt8(const uint8_t value, bool hex)`: Logs the given uint8 `value` to the log frame. if `hex` is *true* printed value will be hex
-- `LogUInt16(const uint16_t value, bool hex)`: Logs the given uint16 `value` to the log frame. if `hex` is *true* printed value will be hex
-- `LogUInt32(const uint32_t value, bool hex)`: Logs the given uint32 `value` to the log frame. if `hex` is *true* printed value will be hex
-- `LogUInt64(const uint64_t value, bool hex)`: Logs the given uint64 `value` to the log frame. if `hex` is *true* printed value will be hex
-- `LogInt8(const int8_t value, bool hex)`: Logs the given int8 `value` to the log frame. if `hex` is *true* printed value will be hex
-- `LogInt16(const int16_t value, bool hex)`: Logs the given int16 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogUInt16(uint16_t value, bool hex)`: Logs the given uint16 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogUInt32(uint32_t value, bool hex)`: Logs the given uint32 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogUInt64(uint64_t value, bool hex)`: Logs the given uint64 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogInt8(int8_t value, bool hex)`: Logs the given int8 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogInt16(int16_t value, bool hex)`: Logs the given int16 `value` to the log frame. if `hex` is *true* printed value will be hex
 - `LogInt32(const int32_t value, bool hex)`: Logs the given int32 `value` to the log frame. if `hex` is *true* printed value will be hex
-- `LogInt64(const int64_t value, bool hex)`: Logs the given int64 `value` to the log frame. if `hex` is *true* printed value will be hex
-- `LogFloat(const float value)`: Logs the given float `value` to the log frame
-- `LogDouble(const double value)`: Logs the given double `value` to the log frame
-- `LogBool(const bool value)`: Logs the given bool `value` to the log frame
+- `LogInt64(int64_t value, bool hex)`: Logs the given int64 `value` to the log frame. if `hex` is *true* printed value will be hex
+- `LogFloat(float value)`: Logs the given float `value` to the log frame
+- `LogDouble(double value)`: Logs the given double `value` to the log frame
+- `LogBool(bool value)`: Logs the given bool `value` to the log frame
 
 #### Misc. Functions
 - bool `IsInRange(uint64_t value, uint64_t start, uint64_t end)`: Checks if value is >= start and < end. This can be used to verify pointers are within a valid range to prevent possible crashes during loading times
