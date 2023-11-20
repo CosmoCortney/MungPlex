@@ -381,31 +381,121 @@ void MungPlex::ProcessInformation::setupCheats()
 bool MungPlex::ProcessInformation::initMelonDS()
 {
 	setMiscProcessInfo("melonDS", false, false, 4, 4);
+	bool romFound = false;
 
+	//find ROM
+	for (const auto& region : GetRegionList())
+	{
+		if (region.GetRegionSize() < 0x800000 || (region.GetProtect() & PAGE_READWRITE) != PAGE_READWRITE)
+			continue;
+
+		std::vector<uint8_t> buf(region.GetRegionSize());
+		_process.ReadExRAM(buf.data(), region.GetBaseAddress<void*>(), region.GetRegionSize());
+
+		for (int i = 0; i < 0x200; i+=8)
+		{
+			if (*reinterpret_cast<uint64_t*>(&buf[i]) != 0x21A29A6951AEFF24)
+				continue;
+
+			const uint32_t romBase = i - 0xC0;
+			_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[romBase + 0xC]);
+			
+			switch (_gameID[3])
+			{
+			case 'A':
+				_gameRegion = "Any";
+				break;
+			case 'C':
+				_gameRegion = "China";
+				break;
+			case 'D':
+				_gameRegion = "Germany";
+				break;
+			case 'E':
+				_gameRegion = "USA";
+				break;
+			case 'F':
+				_gameRegion = "France";
+				break;
+			case 'H':
+				_gameRegion = "Netherlands";
+				break;
+			case 'I':
+				_gameRegion = "Italy";
+				break;
+			case 'J':
+				_gameRegion = "Japan";
+				break;
+			case 'K':
+				_gameRegion = "Korea";
+				break;
+			case 'L':
+				_gameRegion = "JPN-PAL";
+				break;
+			case 'M':
+				_gameRegion = "USA-PAL";
+				break;
+			case 'N':
+				_gameRegion = "JPN-USA";
+				break;
+			case 'P': case 'X': case 'Y': case 'Z':
+				_gameRegion = "Europe";
+				break;
+			case 'Q':
+				_gameRegion = "JPN-KOR";
+				break;
+			case 'R':
+				_gameRegion = "Russia";
+				break;
+			case 'S':
+				_gameRegion = "Spain";
+				break;
+			case 'T':
+				_gameRegion = "USA-KOR";
+				break;
+			case 'U':
+				_gameRegion = "Australia";
+				break;
+			case 'V':
+				_gameRegion = "Scandinavia";
+				break;
+			case 'W':
+				_gameRegion = "Taiwan/Hong Kong/Macau";
+				break;
+			default://
+				_gameRegion = "Unknown";
+			}
+
+			uint32_t titleOffset = *reinterpret_cast<uint32_t*>(&buf[romBase + 0x68]);
+
+			if (_gameID[3] == 'J')
+				titleOffset += 0x240;
+			else
+				titleOffset += 0x340;
+
+			std::wstring tempTitle;
+
+			for (int ch = 0; *reinterpret_cast<wchar_t*>(&buf[romBase + titleOffset + ch]) != 0x000A; ch += 2)
+			{
+				tempTitle += *reinterpret_cast<wchar_t*>(&buf[romBase + titleOffset + ch]);
+			}
+
+			_gameName = MorphText::Utf16LE_To_Utf8(tempTitle);
+			romFound = true;
+			break;
+		}
+
+		if (romFound)
+			break;
+	}
+
+	//find RAM
 	for (const auto& region : GetRegionList())
 	{
 		if (region.GetRegionSize() != 0x10F0000)
 			continue;
 
 		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
-		char tempId[7] = "";
-		_process.ReadExRAM(tempId, region.GetBaseAddress<char*>() + 0x3FFA8C, 6);
-		_gameID = tempId;
-		_gameName.resize(12);
-		_process.ReadExRAM(_gameName.data(), region.GetBaseAddress<char*>() + 0x3FFA80, 12);
-
-
-		if (_gameID.size() != 6)
-		{
-			_process.ReadExRAM(tempId, region.GetBaseAddress<char*>() + 0x3FFE0C, 6);
-			_gameID = tempId;
-			_process.ReadExRAM(_gameName.data(), region.GetBaseAddress<char*>() + 0x3FFE00, 12);
-		}
-
-		if (_gameID.size() != 6)
-			continue;
-
-		_gameRegion = _gameID[3];
 		_platform = "NDS";
 		PointerSearch::SelectPreset(NDS);
 		return true;
