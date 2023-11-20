@@ -821,19 +821,17 @@ bool MungPlex::ProcessInformation::initDolphin()
 	char discNo;
 	char discVer;
 
-
-	
 	for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
 	{
-		LPSTR str = new CHAR[256];
-		GetWindowTextA(wHandle, str, 256);
-		std::string wTitle = str;
+		LPWSTR str = new WCHAR[256];
+		GetWindowTextW(wHandle, str, 256);
+		std::wstring wTitle = str;
 		delete[] str;
 
-		if (wTitle.find("Dolphin") != 0)
+		if (wTitle.find(L"Dolphin") != 0)
 			continue;
 
-		int posEnd = wTitle.find("(");
+		int posEnd = wTitle.find(L"(");
 		int posBeg = 0;
 
 		if (posEnd < 0)
@@ -842,7 +840,7 @@ bool MungPlex::ProcessInformation::initDolphin()
 		for (int i = posEnd; wTitle[i] != '|'; --i)
 			posBeg = i;
 
-		_gameName = wTitle.substr(posBeg + 1, posEnd - posBeg - 2);
+		_gameName = MorphText::Utf16LE_To_Utf8(wTitle.substr(posBeg + 1, posEnd - posBeg - 2));
 
 		std::cout << _gameName << std::endl;
 		break;
@@ -867,10 +865,76 @@ bool MungPlex::ProcessInformation::initDolphin()
 	_process.ReadExRAM(tempID, _systemRegions[0].BaseLocationProcess, 6);
 	_process.ReadExRAM(&discNo, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 6, 1);
 	_process.ReadExRAM(&discVer, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 7, 1);
-	_gameID = tempID;
+	_gameID = _rpcGameID = tempID;
 	_gameID.append("-").append(std::to_string(discNo));
 	_gameID.append("-").append(std::to_string(discVer));
-	_gameRegion = _gameID[3];
+
+	switch (_gameID[3])
+	{
+	case 'A':
+		_gameRegion = "Any";
+		break;
+	case 'C':
+		_gameRegion = "China";
+		break;
+	case 'D':
+		_gameRegion = "Germany";
+		break;
+	case 'E':
+		_gameRegion = "USA";
+		break;
+	case 'F':
+		_gameRegion = "France";
+		break;
+	case 'H':
+		_gameRegion = "Netherlands";
+		break;
+	case 'I':
+		_gameRegion = "Italy";
+		break;
+	case 'J':
+		_gameRegion = "Japan";
+		break;
+	case 'K':
+		_gameRegion = "Korea";
+		break;
+	case 'L':
+		_gameRegion = "JPN-PAL";
+		break;
+	case 'M':
+		_gameRegion = "USA-PAL";
+		break;
+	case 'N':
+		_gameRegion = "JPN-USA";
+		break;
+	case 'P': case 'X': case 'Y': case 'Z':
+		_gameRegion = "Europe";
+		break;
+	case 'Q':
+		_gameRegion = "JPN-KOR";
+		break;
+	case 'R':
+		_gameRegion = "Russia";
+		break;
+	case 'S':
+		_gameRegion = "Spain";
+		break;
+	case 'T':
+		_gameRegion = "USA-KOR";
+		break;
+	case 'U':
+		_gameRegion = "Australia";
+		break;
+	case 'V':
+		_gameRegion = "Scandinavia";
+		break;
+	case 'W':
+		_gameRegion = "Taiwan/Hong Kong/Macau";
+		break;
+	default://
+		_gameRegion = "Unknown";
+	}
+
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{
