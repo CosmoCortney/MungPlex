@@ -1036,10 +1036,10 @@ std::string& MungPlex::ProcessInformation::GetGameID()
 	return GetInstance()._gameID;
 }
 
-//std::vector<MungPlex::SystemRegion>& MungPlex::ProcessInformation::GetRegions()
-//{
-//	return GetInstance()._systemRegions;
-//}
+std::string& MungPlex::ProcessInformation::GetRpcGameID()
+{
+	return GetInstance()._rpcGameID;
+}
 
 void MungPlex::ProcessInformation::obtainGameEntities(void* baseLocation)
 {

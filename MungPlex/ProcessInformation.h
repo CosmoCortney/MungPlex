@@ -65,6 +65,7 @@ namespace MungPlex
         static bool GetRereorderFlag();
         static bool LoadSystemInformationJSON(int emulatorIndex);
         static std::string& GetGameID();
+        static std::string& GetRpcGameID();
         static std::string& GetProcessName();
         static std::string& GetTitle();
         static std::string& GetRegion();
@@ -267,6 +268,7 @@ namespace MungPlex
         bool _rereorderRegion;
         int _alignment;
         std::string _gameID;
+        std::string _rpcGameID;
         std::string _platform;
         std::string _processName;
         std::string _gameName;
