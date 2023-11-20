@@ -507,7 +507,97 @@ bool MungPlex::ProcessInformation::initMelonDS()
 bool MungPlex::ProcessInformation::initYuzu()
 {
 	setMiscProcessInfo("Yuzu", false, false, 8, 4);
+	std::wstring wTitle;
+	std::wstring gTitle;
+	std::wstring version;
 
+	//get title
+	for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
+	{
+		LPWSTR str = new WCHAR[512];
+		GetWindowTextW(wHandle, str, 512);
+		wTitle = str;
+		delete[] str;
+
+		if (wTitle.find(L"yuzu") != 0)
+			continue;
+
+		if (std::ranges::count(wTitle, '|') < 2)
+			continue;
+
+		int posStart = wTitle.find(L"|");
+		wTitle = wTitle.substr(posStart+1);
+		int posEnd = wTitle.find(L"(");
+		gTitle = wTitle.substr(0, posEnd);
+
+		while (gTitle.front() == 0x0020)
+			gTitle = gTitle.substr(1, gTitle.size());
+
+		while (gTitle.back() == 0x0020)
+			gTitle = gTitle.substr(0, gTitle.size()-1);
+
+		_gameName = MorphText::Utf16LE_To_Utf8(gTitle);
+		//std::cout << _gameName << std::endl;
+
+		posStart = wTitle.find(L"|");
+		version = wTitle.substr(posStart + 1);
+		posEnd = version.find(L"|");
+		version = version.substr(0, posEnd);
+
+		while (version.front() == 0x0020)
+			version = version.substr(1, version.size());
+
+		while (version.back() == 0x0020)
+			version = version.substr(0, version.size() - 1);
+
+		break;
+	}
+
+	//get title id
+	bool idFound = false;
+	for (const auto& region : GetRegionList())
+	{
+		uint64_t regionSize = region.GetRegionSize();
+		if (regionSize < 0x20000 || regionSize >= 0x100000)
+			continue;
+
+		std::vector<uint8_t> buf(regionSize);
+		_process.ReadExRAM(buf.data(), region.GetBaseAddress<void*>(), regionSize);
+
+		for (int i = 0; i < regionSize; i += 4)
+		{
+			if (*reinterpret_cast<uint64_t*>(&buf[i]) != *reinterpret_cast<uint64_t*>(gTitle.data()))
+				continue;
+
+			for (int prefixOffset = 0; prefixOffset < 0x100; ++prefixOffset)
+			{
+				if (buf.size() <= i + prefixOffset + 4)
+					continue;
+
+				if (*reinterpret_cast<uint32_t*>(&buf[i + prefixOffset]) != 0x00780030)
+					continue;
+
+				std::wstring tempID = reinterpret_cast<wchar_t*>(&buf[i + prefixOffset + 4]);
+
+				if (tempID.size() != 16)
+					continue;
+
+				idFound = true;
+				_rpcGameID = _gameID = MorphText::Utf16LE_To_Utf8(tempID + L"-" + version);
+				break;
+			}
+
+			if (!idFound)
+				continue;
+
+			break;
+		}
+
+		if (idFound)
+			break;
+	}
+
+	//get RAM
 	for (const auto& region : GetRegionList())
 	{
 		const uint64_t rSize = region.GetRegionSize();
@@ -516,25 +606,9 @@ bool MungPlex::ProcessInformation::initYuzu()
 			continue;
 		
 		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
-		std::vector<uint64_t> dump(0x1000000/8);
-		_process.ReadExRAM(dump.data(), _systemRegions[0].BaseLocationProcess, 0x1000000);
-
-		//get title id
-		//todo: append patch number to id
-		//when games are closed and others are started IDs of previous games will remain in memory and cause retreival of wrong IDs
-		for (int i = 0; i < 0x1000000 / 8; ++i)
-		{
-			if (dump[i] != 0xFFFFFFFF0000000)
-				continue;
-
-			if (dump[i - 1] != 7)
-				continue;
-				
-			_gameID = ToHexString(dump[i - 25], 16, false);
-			_platform = "Switch";
-			PointerSearch::SelectPreset(SWITCH);
-			return true;
-		}
+		_platform = "Switch";
+		PointerSearch::SelectPreset(SWITCH);
+		return true;
 	}
 
 	return false;
