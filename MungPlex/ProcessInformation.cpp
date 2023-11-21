@@ -831,6 +831,7 @@ bool MungPlex::ProcessInformation::initPcsx2()
 	_platform = "PS2";
 	PointerSearch::SelectPreset(PS2);
 	REGION_LIST& regions = GetRegionList();
+	bool idFound = false;
 
 	for (int i = 0; i < regions.size(); ++i)
 	{
@@ -862,9 +863,28 @@ bool MungPlex::ProcessInformation::initPcsx2()
 			if (buf[offset] != 0x6461655256413F2E)
 				continue;
 
-			_gameID = reinterpret_cast<char*>(&buf[offset + 7]);
-			return true;
+			_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[offset + 7]);
+			idFound = true;
 		}
+	}
+
+	if (!idFound)
+		return false;
+
+	//get title
+	DWORD pid;
+	std::wstring wTitleBuf(512, L'\0');
+
+	for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
+	{
+		GetWindowThreadProcessId(wHandle, &pid);
+
+		if (pid != _process.GetPID())
+			continue;
+
+		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
+		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.c_str());
+		return true;
 	}
 
 	return false;
