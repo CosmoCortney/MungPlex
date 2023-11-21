@@ -442,28 +442,25 @@ bool MungPlex::ProcessInformation::initMelonDS()
 bool MungPlex::ProcessInformation::initYuzu()
 {
 	setMiscProcessInfo("Yuzu", false, false, 8, 4);
-	std::wstring wTitle;
+	std::wstring wTitleBuf(512, L'\0');
 	std::wstring gTitle;
 	std::wstring version;
 
 	//get title
 	for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
 	{
-		LPWSTR str = new WCHAR[512];
-		GetWindowTextW(wHandle, str, 512);
-		wTitle = str;
-		delete[] str;
+		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
 
-		if (wTitle.find(L"yuzu") != 0)
+		if (wTitleBuf.find(L"yuzu") == std::wstring::npos)
 			continue;
 
-		if (std::ranges::count(wTitle, '|') < 2)
+		if (std::ranges::count(wTitleBuf, '|') < 2)
 			continue;
 
-		int posStart = wTitle.find(L"|");
-		wTitle = wTitle.substr(posStart+1);
-		int posEnd = wTitle.find(L"(");
-		gTitle = wTitle.substr(0, posEnd);
+		int posStart = wTitleBuf.find(L"|");
+		wTitleBuf = wTitleBuf.substr(posStart+1);
+		int posEnd = wTitleBuf.find(L"(");
+		gTitle = wTitleBuf.substr(0, posEnd);
 
 		while (gTitle.front() == 0x0020)
 			gTitle = gTitle.substr(1, gTitle.size());
@@ -474,8 +471,8 @@ bool MungPlex::ProcessInformation::initYuzu()
 		_gameName = MorphText::Utf16LE_To_Utf8(gTitle);
 		//std::cout << _gameName << std::endl;
 
-		posStart = wTitle.find(L"|");
-		version = wTitle.substr(posStart + 1);
+		posStart = wTitleBuf.find(L"|");
+		version = wTitleBuf.substr(posStart + 1);
 		posEnd = version.find(L"|");
 		version = version.substr(0, posEnd);
 
@@ -493,7 +490,7 @@ bool MungPlex::ProcessInformation::initYuzu()
 	for (const auto& region : GetRegionList())
 	{
 		uint64_t regionSize = region.GetRegionSize();
-		if (regionSize < 0x20000 || regionSize >= 0x100000)
+		if (regionSize < 0x20000 || regionSize >= 0x200000)
 			continue;
 
 		std::vector<uint8_t> buf(regionSize);
@@ -507,12 +504,21 @@ bool MungPlex::ProcessInformation::initYuzu()
 			for (int prefixOffset = 0; prefixOffset < 0x100; ++prefixOffset)
 			{
 				if (buf.size() <= i + prefixOffset + 4)
+					break;
+
+				static int prependSize = 0;
+
+				if (*reinterpret_cast<uint32_t*>(&buf[i + prefixOffset]) == 0x00780030)
+					prependSize = 4;
+				else if(*reinterpret_cast<uint16_t*>(&buf[i + prefixOffset]) == 0x0028)
+					prependSize = 2;
+				else
 					continue;
 
-				if (*reinterpret_cast<uint32_t*>(&buf[i + prefixOffset]) != 0x00780030)
-					continue;
+				std::wstring tempID = reinterpret_cast<wchar_t*>(&buf[i + prefixOffset + prependSize]);
 
-				std::wstring tempID = reinterpret_cast<wchar_t*>(&buf[i + prefixOffset + 4]);
+				if (prependSize == 2)
+					tempID = tempID.substr(0, tempID.find(L')'));
 
 				if (tempID.size() != 16)
 					continue;
@@ -776,6 +782,7 @@ bool MungPlex::ProcessInformation::initRpcs3()
 	char* exeAddr = reinterpret_cast<char*>(_process.GetModuleAddress(L"rpcs3.exe")+0x2000000);
 	std::vector<char> buf(bufSize);
 	_process.ReadExRAM(buf.data(), exeAddr, bufSize);
+	bool gameIdFound = false;
 
 	for (int offset = 0; offset < bufSize; ++offset)
 	{
@@ -784,6 +791,34 @@ bool MungPlex::ProcessInformation::initRpcs3()
 
 		_gameID = reinterpret_cast<char*>(&buf[offset + 16]);
 		_gameID.resize(9);
+		gameIdFound = true;
+	}
+
+	if (!gameIdFound)
+		return false;
+
+	std::wstring gTitle;
+	std::wstring wTitleBuf(512, L'\0');
+	//get title
+	for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
+	{
+		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
+
+		if (wTitleBuf.find(MorphText::Utf8_To_Utf16LE(_gameID)) == std::wstring::npos)
+			continue;
+
+		int posStart = wTitleBuf.find_last_of(L"|");
+		wTitleBuf = wTitleBuf.substr(posStart + 1);
+		int posEnd = wTitleBuf.find(L"[");
+		gTitle = wTitleBuf.substr(0, posEnd);
+
+		while (gTitle.front() == 0x0020)
+			gTitle = gTitle.substr(1, gTitle.size());
+
+		while (gTitle.back() == 0x0020)
+			gTitle = gTitle.substr(0, gTitle.size() - 1);
+
+		_gameName = MorphText::Utf16LE_To_Utf8(gTitle);
 		return true;
 	}
 
@@ -848,27 +883,25 @@ bool MungPlex::ProcessInformation::initDolphin()
 	char tempID[7] = "";
 	char discNo;
 	char discVer;
+	std::wstring wTitleBuf(512, L'\0');
 
 	for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
 	{
-		LPWSTR str = new WCHAR[256];
-		GetWindowTextW(wHandle, str, 256);
-		std::wstring wTitle = str;
-		delete[] str;
+		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
 
-		if (wTitle.find(L"Dolphin") != 0)
+		if (wTitleBuf.find(L"Dolphin") != 0)
 			continue;
 
-		int posEnd = wTitle.find(L"(");
+		int posEnd = wTitleBuf.find(L"(");
 		int posBeg = 0;
 
 		if (posEnd < 0)
 			continue;
 
-		for (int i = posEnd; wTitle[i] != '|'; --i)
+		for (int i = posEnd; wTitleBuf[i] != '|'; --i)
 			posBeg = i;
 
-		_gameName = MorphText::Utf16LE_To_Utf8(wTitle.substr(posBeg + 1, posEnd - posBeg - 2));
+		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.substr(posBeg + 1, posEnd - posBeg - 2));
 
 		std::cout << _gameName << std::endl;
 		break;
