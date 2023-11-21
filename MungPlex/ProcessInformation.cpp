@@ -736,6 +736,7 @@ bool MungPlex::ProcessInformation::initNo$psx()
 		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x30100;
 		_gameID = std::string(12, 0);
 		_process.ReadExRAM(_gameID.data(), region.GetBaseAddress<char*>() + 0x30100 + 0x00003A49, 11);
+		_rpcGameID = _gameID = _gameID.c_str();
 		char tempRegion[32];
 		_process.ReadExRAM(tempRegion, region.GetBaseAddress<char*>() + 0x30100 + 0x00003BE5, 32);
 		_gameRegion = tempRegion;
