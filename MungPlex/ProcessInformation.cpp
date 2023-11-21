@@ -1028,8 +1028,8 @@ bool MungPlex::ProcessInformation::initFusion()
 		_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(ramPTR);
 		_systemRegions[1].Size = 0x10000;
 		_systemRegions[1].Base = 0xFF0000;
+		_rpcGameID = "#";
 		_gameID = _gameName + " - " + _gameID;
-
 		return true;
 	}
 
@@ -1057,6 +1057,7 @@ bool MungPlex::ProcessInformation::initFusion()
 
 		_gameID = std::string(reinterpret_cast<char*>(&romHeader[0x60]));
 		_gameID.resize(14);
+		_rpcGameID = _gameID;
 		_gameName = std::string(reinterpret_cast<char*>(&romHeader[0x54]));
 		_gameName.resize(48);
 		_gameName = RemoveSpacePadding(_gameName);
@@ -1130,35 +1131,33 @@ bool MungPlex::ProcessInformation::initCemu()
 	}
 
 	//get title type id, title id and version
-	LPSTR str = new CHAR[128];
+	std::wstring wTitleBuf(512, L'\0');
+
 	for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
 	{
-		GetWindowTextA(wHandle, str, 128);
-		std::string wTitle = str;
+		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
 
-		if (wTitle.find("Cemu") != 0)
+		if (wTitleBuf.find(L"Cemu") == std::wstring::npos)
 			continue;
 
-		int pos = wTitle.find("TitleId: ");
+		int pos = wTitleBuf.find(L"TitleId: ");
 
-		if (pos < 0)
+		if (pos == std::wstring::npos)
 			continue;
 
-		wTitle = wTitle.substr(pos + 9);
-		_gameID = wTitle.substr(0, 17);
+		std::wstring wTitle = wTitleBuf.substr(pos + 9);
+		_gameID = MorphText::Utf16LE_To_Utf8(wTitle.substr(0, 17));
 		wTitle = wTitle.substr(19);
-		pos = wTitle.find("[");
-		_gameRegion = wTitle.substr(pos+1, 2);
-		_gameName = wTitle.substr(0, pos - 1);
-		wTitle = wTitle.substr(wTitle.find("v"));
-		_gameID.append("-" + wTitle.substr(0, wTitle.size() - 1));
-		std::cout << _gameID << std::endl;
-		std::cout << _gameName << std::endl;
-		delete[] str;
+		pos = wTitle.find(L"[");
+		_gameRegion = MorphText::Utf16LE_To_Utf8(wTitle.substr(pos+1, 2));
+		_gameName = MorphText::Utf16LE_To_Utf8(wTitle.substr(0, pos - 1));
+		wTitle = wTitle.substr(wTitle.find(L"v"));
+		_rpcGameID = _gameID.append("-" + MorphText::Utf16LE_To_Utf8(wTitle.substr(0, wTitle.find(L"]"))));
+		//std::cout << _gameID << std::endl;
+		//std::cout << _gameName << std::endl;
 		return true;
 	}
 
-	delete[] str;
 	return false;
 }
 
