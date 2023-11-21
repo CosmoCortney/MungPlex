@@ -1177,25 +1177,22 @@ bool MungPlex::ProcessInformation::initPPSSPP()
 		}
 	}
 
-	LPSTR str = new CHAR[64];
+	std::wstring wTitleBuf(512, L'\0');
 	for (HWND wHandle: Xertz::SystemInfo::GetWindowHandleList())
 	{
-		GetWindowTextA(wHandle, str, 64);
-		std::string wTitle = str;
+		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
 
-		if (wTitle.find("PPSSPP") != 0)
+		if (wTitleBuf.find(L"PPSSPP") == std::wstring::npos)
 			continue;
 
-		int pos = wTitle.find("-");
-		_gameID = wTitle.substr(pos+2, 9);
-		_gameName = wTitle.substr(pos + 14);
+		int pos = wTitleBuf.find(L"-");
+		_rpcGameID = _gameID = MorphText::Utf16LE_To_Utf8(wTitleBuf.substr(pos+2, 9)).c_str();
+		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.substr(pos + 14)).c_str();
 		//std::cout << _gameID << std::endl;
 		//std::cout << _gameName << std::endl;
-		delete[] str;
 		return true;
 	}
 
-	delete[] str;
 	return false;
 }
 
