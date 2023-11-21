@@ -283,6 +283,7 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	_gameRegion.clear();
 	_gameID.clear();
 	_platform.clear();
+	_rpcGameID.clear();
 
 	if (!initProcess(emulator.first))
 		return false;
@@ -399,73 +400,7 @@ bool MungPlex::ProcessInformation::initMelonDS()
 
 			const uint32_t romBase = i - 0xC0;
 			_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[romBase + 0xC]);
-			
-			switch (_gameID[3])
-			{
-			case 'A':
-				_gameRegion = "Any";
-				break;
-			case 'C':
-				_gameRegion = "China";
-				break;
-			case 'D':
-				_gameRegion = "Germany";
-				break;
-			case 'E':
-				_gameRegion = "USA";
-				break;
-			case 'F':
-				_gameRegion = "France";
-				break;
-			case 'H':
-				_gameRegion = "Netherlands";
-				break;
-			case 'I':
-				_gameRegion = "Italy";
-				break;
-			case 'J':
-				_gameRegion = "Japan";
-				break;
-			case 'K':
-				_gameRegion = "Korea";
-				break;
-			case 'L':
-				_gameRegion = "JPN-PAL";
-				break;
-			case 'M':
-				_gameRegion = "USA-PAL";
-				break;
-			case 'N':
-				_gameRegion = "JPN-USA";
-				break;
-			case 'P': case 'X': case 'Y': case 'Z':
-				_gameRegion = "Europe";
-				break;
-			case 'Q':
-				_gameRegion = "JPN-KOR";
-				break;
-			case 'R':
-				_gameRegion = "Russia";
-				break;
-			case 'S':
-				_gameRegion = "Spain";
-				break;
-			case 'T':
-				_gameRegion = "USA-KOR";
-				break;
-			case 'U':
-				_gameRegion = "Australia";
-				break;
-			case 'V':
-				_gameRegion = "Scandinavia";
-				break;
-			case 'W':
-				_gameRegion = "Taiwan/Hong Kong/Macau";
-				break;
-			default://
-				_gameRegion = "Unknown";
-			}
-
+			_gameRegion = getRegionFromNintendoRegionCode(_gameID[3]);
 			uint32_t titleOffset = *reinterpret_cast<uint32_t*>(&buf[romBase + 0x68]);
 
 			if (_gameID[3] == 'J')
@@ -752,9 +687,9 @@ bool MungPlex::ProcessInformation::initProject64()
 		_platform = "Nintendo 64";
 		char tempID[5] = "";
 		ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(tempID), region.GetBaseAddress<char*>() + 0x3B);
-		_gameID = std::string(tempID);
+		_rpcGameID = _gameID = std::string(tempID);
 		_gameName.resize(20);
-		_gameRegion = _gameID[3];
+		_gameRegion = getRegionFromNintendoRegionCode(_gameID[3]);
 
 		for (int i = 0; i <= 20; i+=4)
 			ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(_gameName.data() + i), region.GetBaseAddress<char*>() + 0x20 + i);
@@ -801,6 +736,24 @@ bool MungPlex::ProcessInformation::initNo$psx()
 		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x30100;
 		_gameID = std::string(12, 0);
 		_process.ReadExRAM(_gameID.data(), region.GetBaseAddress<char*>() + 0x30100 + 0x00003A49, 11);
+		char tempRegion[32];
+		_process.ReadExRAM(tempRegion, region.GetBaseAddress<char*>() + 0x30100 + 0x00003BE5, 32);
+		_gameRegion = tempRegion;
+		_gameRegion = _gameRegion.substr(0, _gameRegion.find(" area"));
+		void* exeAddr = reinterpret_cast<void*>(_process.GetModuleAddress(L"NO$PSX.EXE"));
+		std::vector<char> buf(0x100000);
+		_process.ReadExRAM(buf.data(), exeAddr, 0x100000);
+
+		for (int i = 0; i < 0x100000; i += 4)
+		{
+			if (*reinterpret_cast<uint64_t*>(&buf[i]) != 0x696C6F626D795300)
+				continue;
+
+			_gameName = &buf[i - 0x10C];
+			break;
+		}
+
+		_gameName = _gameName.substr(0, _gameName.find(".SYM"));
 		return true;
 	}
 
@@ -942,73 +895,7 @@ bool MungPlex::ProcessInformation::initDolphin()
 	_gameID = _rpcGameID = tempID;
 	_gameID.append("-").append(std::to_string(discNo));
 	_gameID.append("-").append(std::to_string(discVer));
-
-	switch (_gameID[3])
-	{
-	case 'A':
-		_gameRegion = "Any";
-		break;
-	case 'C':
-		_gameRegion = "China";
-		break;
-	case 'D':
-		_gameRegion = "Germany";
-		break;
-	case 'E':
-		_gameRegion = "USA";
-		break;
-	case 'F':
-		_gameRegion = "France";
-		break;
-	case 'H':
-		_gameRegion = "Netherlands";
-		break;
-	case 'I':
-		_gameRegion = "Italy";
-		break;
-	case 'J':
-		_gameRegion = "Japan";
-		break;
-	case 'K':
-		_gameRegion = "Korea";
-		break;
-	case 'L':
-		_gameRegion = "JPN-PAL";
-		break;
-	case 'M':
-		_gameRegion = "USA-PAL";
-		break;
-	case 'N':
-		_gameRegion = "JPN-USA";
-		break;
-	case 'P': case 'X': case 'Y': case 'Z':
-		_gameRegion = "Europe";
-		break;
-	case 'Q':
-		_gameRegion = "JPN-KOR";
-		break;
-	case 'R':
-		_gameRegion = "Russia";
-		break;
-	case 'S':
-		_gameRegion = "Spain";
-		break;
-	case 'T':
-		_gameRegion = "USA-KOR";
-		break;
-	case 'U':
-		_gameRegion = "Australia";
-		break;
-	case 'V':
-		_gameRegion = "Scandinavia";
-		break;
-	case 'W':
-		_gameRegion = "Taiwan/Hong Kong/Macau";
-		break;
-	default://
-		_gameRegion = "Unknown";
-	}
-
+	_gameRegion = getRegionFromNintendoRegionCode(_gameID[3]);
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{
@@ -1476,4 +1363,53 @@ REGION_LIST& MungPlex::ProcessInformation::GetRegionList()
 std::vector<MungPlex::SystemRegion>& MungPlex::ProcessInformation::GetSystemRegionList()
 {
 	return GetInstance()._systemRegions;
+}
+
+std::string MungPlex::ProcessInformation::getRegionFromNintendoRegionCode(const char code) const
+{
+	switch (code)
+	{
+	case 'A':
+		return "Any";
+	case 'C':
+		return "China";
+	case 'D':
+		return "Germany";
+	case 'E':
+		return "USA";
+	case 'F':
+		return "France";
+	case 'H':
+		return "Netherlands";
+	case 'I':
+		return "Italy";
+	case 'J':
+		return "Japan";
+	case 'K':
+		return "Korea";
+	case 'L':
+		return "JPN-PAL";
+	case 'M':
+		return "USA-PAL";
+	case 'N':
+		return "JPN-USA";
+	case 'P': case 'X': case 'Y': case 'Z':
+		return "Europe";
+	case 'Q':
+		return "JPN-KOR";
+	case 'R':
+		return "Russia";
+	case 'S':
+		return "Spain";
+	case 'T':
+		return "USA-KOR";
+	case 'U':
+		return "Australia";
+	case 'V':
+		return "Scandinavia";
+	case 'W':
+		return "Taiwan/Hong Kong/Macau";
+	default://
+		return "Unknown";
+	}
 }

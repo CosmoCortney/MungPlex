@@ -234,6 +234,7 @@ namespace MungPlex
             }
         }
 
+    private:
         ProcessInformation()
         {
             _emulators.emplace_back(L"Mesen", MESEN);
@@ -307,5 +308,6 @@ namespace MungPlex
         void refreshModuleList();
         bool connectToProcessFR();
         void setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth, const int alignment);
+        std::string getRegionFromNintendoRegionCode(const char code) const;
     };
 }
