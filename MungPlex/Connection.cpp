@@ -4,14 +4,15 @@ void MungPlex::Connection::DrawWindow()
 {
 	if (ImGui::Begin("Connection"))
 	{
-		GetInstance().DrawConnectionSelect();
+		GetInstance().drawConnectionSelect();
 	}
 	ImGui::End();
 }
 
-void MungPlex::Connection::DrawConnectionSelect()
+void MungPlex::Connection::drawConnectionSelect()
 {
 	static ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+
 	if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
 	{
 		static std::string emuSelect;
@@ -29,8 +30,19 @@ void MungPlex::Connection::DrawConnectionSelect()
 
 				if (_connected)
 				{
-					strcpy_s(_connectionMessage, "Connected to emulator: ");
-					strcat_s(_connectionMessage, MorphText::Utf16LE_To_Utf8(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first).c_str());
+					_connectionMessage = "Connected to emulator: " + MorphText::Utf16LE_To_Utf8(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first);
+					_richPresenceDetails = std::string("Messing with "
+						+ ProcessInformation::GetTitle()
+						+ " (" + ProcessInformation::GetPlatform() + ", "
+						+ ProcessInformation::GetGameID() + ", "
+						+ ProcessInformation::GetRegion() + ") "
+						+ "running on " + ProcessInformation::GetProcessName());
+
+					if (_core != nullptr)
+						_core->~Core();
+
+					if (Settings::GetGeneralSettings().EnableRichPresence)
+						InitRichPresence();
 				}
 			}
 
@@ -53,7 +65,6 @@ void MungPlex::Connection::DrawConnectionSelect()
 					break;
 				}
 			}
-
 
 			ImGui::EndTabItem();
 		}
@@ -95,9 +106,17 @@ void MungPlex::Connection::DrawConnectionSelect()
 				else
 					_connected = MungPlex::ProcessInformation::ConnectToProcess(_selectedProcessIndex);
 
-				if(_connected)
-					strcpy_s(_connectionMessage, "Connected to Process: ");
-					strcat_s(_connectionMessage, ProcessInformation::GetProcessName().c_str());
+				if (_connected)
+				{
+					_connectionMessage = "Connected to Process: " + ProcessInformation::GetProcessName();
+					_richPresenceDetails = "Messing with " + ProcessInformation::GetProcessName();
+
+					if (_core != nullptr)
+						_core->~Core();
+
+					if (Settings::GetGeneralSettings().EnableRichPresence)
+						InitRichPresence();
+				}
 			}
 
 			ImGui::SameLine();
@@ -110,7 +129,7 @@ void MungPlex::Connection::DrawConnectionSelect()
 
 			ImGui::EndTabItem();
 		}
-		
+
 		/*if (ImGui::BeginTabItem("Remote Device"))
 		{
 			ImGui::Text("Select Console.");
@@ -118,18 +137,31 @@ void MungPlex::Connection::DrawConnectionSelect()
 			ImGui::EndTabItem();
 		}*/
 		ImGui::EndTabBar();
+
+		if (Settings::GetGeneralSettings().EnableRichPresence)
+		{
+			if (_connected && _core != nullptr)
+			{
+				if (_core->RunCallbacks() != discord::Result::Ok)
+					_core->~Core();
+			}
+			else if (_core != nullptr)
+			{
+				_core->~Core();
+			}
+		}
 	}
 
 	ImGui::Dummy(ImVec2(0.0f, 5.0f));
 	memoryViewerButton();
 	ImGui::Dummy(ImVec2(0.0f, 5.0f));
-	ImGui::Text(_connectionMessage);
+	ImGui::Text(_connectionMessage.c_str());
 
 	if (ProcessInformation::GetProcessType() == ProcessInformation::EMULATOR)
 	{
 		SetUpLableText("Platform:", ProcessInformation::GetPlatform().c_str(), ProcessInformation::GetPlatform().size(), 1.0f, 0.333f);
 		SetUpLableText("Game Title:", ProcessInformation::GetTitle().c_str(), ProcessInformation::GetTitle().size(), 1.0f, 0.333f);
-		SetUpLableText("Game ID:", ProcessInformation::GetGameID().c_str(), ProcessInformation::GetGameID().size(), 1.0f, 0.333f);
+		SetUpLableText("Game ID:", ProcessInformation::GetRpcGameID().c_str(), ProcessInformation::GetGameID().size(), 1.0f, 0.333f);
 		SetUpLableText("Region:", ProcessInformation::GetRegion().c_str(), ProcessInformation::GetRegion().size(), 1.0f, 0.333f);
 	}
 }
@@ -160,4 +192,30 @@ void MungPlex::Connection::memoryViewerButton()
 bool MungPlex::Connection::IsConnected()
 {
 	return GetInstance()._connected;
+}
+
+void MungPlex::Connection::SetRichPresenceState(const std::string& action)
+{
+	GetInstance()._activity.SetState(action.c_str());
+	GetInstance()._core->ActivityManager().UpdateActivity(GetInstance()._activity, GetDiscordActivityResult);
+}
+
+void MungPlex::Connection::InitRichPresence()
+{
+	discord::Core::Create(1175421760892567552, DiscordCreateFlags_Default, &GetInstance()._core);
+	GetInstance()._core->SetLogHook(discord::LogLevel::Debug, LogDiscordProblem);
+	GetInstance()._activity.SetApplicationId(1175421760892567552);
+	//_activity.SetName("Test Name");
+	GetInstance()._activity.SetDetails(GetInstance()._richPresenceDetails.c_str());
+	GetInstance()._activity.SetType(discord::ActivityType::Playing);
+	GetInstance()._activity.SetInstance(true);
+	GetInstance()._activity.GetTimestamps().SetStart(time(NULL));
+	GetInstance()._activity.GetAssets().SetLargeImage("icon1024");
+	GetInstance()._core->ActivityManager().UpdateActivity(GetInstance()._activity, GetDiscordActivityResult);
+}
+
+void MungPlex::Connection::StopRichPresence()
+{
+	if(GetInstance()._core != nullptr)
+		GetInstance()._core->~Core();
 }

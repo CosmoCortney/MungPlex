@@ -31,16 +31,29 @@ const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_S
 
 void MungPlex::WatchControl::DrawWindow()
 {
+	static bool stateSet = false;
+
 	if (ImGui::Begin("Watch & Control"))
 	{
 		if (!Connection::IsConnected())
 			ImGui::BeginDisabled();
+		else
+		{
+			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence)
+			{
+				Connection::SetRichPresenceState("Value Watch & Control");
+				stateSet = true;
+			}
+		}
 
 		GetInstance().drawList();
 
 		if (!Connection::IsConnected())
 			ImGui::EndDisabled();
 	}
+	else
+		stateSet = false;
+
 	ImGui::End();
 }
 

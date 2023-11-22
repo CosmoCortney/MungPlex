@@ -639,9 +639,22 @@ void MungPlex::Cheats::logBool(const bool value)
 
 void MungPlex::Cheats::DrawWindow()
 {
+	static bool stateSet = false;
+
 	if (ImGui::Begin("Cheats"))
 	{
-		if (!Connection::IsConnected()) ImGui::BeginDisabled();
+		if (!Connection::IsConnected())
+			ImGui::BeginDisabled();
+		else
+		{
+			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence)
+			{
+				Connection::SetRichPresenceState("Operating Lua Cheats");
+				stateSet = true;
+			}
+		}
+
+
 		{
 			ImGui::BeginGroup();
 			GetInstance().DrawCheatList();
@@ -659,8 +672,13 @@ void MungPlex::Cheats::DrawWindow()
 			GetInstance().DrawCheatInformation();
 			GetInstance().DrawControl();
 		}
-		if (!Connection::IsConnected()) ImGui::EndDisabled();
+
+		if (!Connection::IsConnected())
+			ImGui::EndDisabled();
 	}
+	else
+		stateSet = false;
+
 	ImGui::End();
 }
 

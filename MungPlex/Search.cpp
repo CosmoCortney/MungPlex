@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include"Search.h"
 #include <Windows.h>
 
@@ -86,10 +86,20 @@ MungPlex::Search::Search()
 
 void MungPlex::Search::DrawWindow()
 {
+	static bool stateSet = false;
+
 	if (ImGui::Begin("Search"))
 	{
 		if (!Connection::IsConnected())
 			ImGui::BeginDisabled();
+		else
+		{
+			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence)
+			{
+				Connection::SetRichPresenceState("Memory Search");
+				stateSet = true;
+			}
+		}
 
 		ImGui::BeginGroup();
 		{
@@ -106,6 +116,9 @@ void MungPlex::Search::DrawWindow()
 		if (!Connection::IsConnected())
 			ImGui::EndDisabled();
 	}
+	else
+		stateSet = false;
+
 	ImGui::End();
 }
 

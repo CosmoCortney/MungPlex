@@ -62,13 +62,24 @@ MungPlex::PointerSearch::PointerSearch()
 
 void MungPlex::PointerSearch::DrawWindow()
 {
+    static bool stateSet = false;
+
     if (ImGui::Begin("Pointer Search"))
     {
+        if (Connection::IsConnected() && Settings::GetGeneralSettings().EnableRichPresence && !stateSet)
+        {
+            Connection::SetRichPresenceState("Scanning for Pointers");
+            stateSet = true;
+        }
+
         GetInstance().drawList();
         GetInstance().drawSettings();
         ImGui::SameLine();
         GetInstance().drawResults();
     }
+    else
+        stateSet = false;
+
 	ImGui::End();
 }
 

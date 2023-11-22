@@ -133,6 +133,11 @@ MungPlex::Settings::Settings()
 		_generalSettings.DefaultWindowSelect = settings["General"]["DefaultWindowSelect"].get<int>();
 		_generalSettings.Style = settings["General"]["ColorScheme"].get<int>();
 
+		if (settings["General"].contains("EnableRichPresence"))
+			_generalSettings.EnableRichPresence = settings["General"]["EnableRichPresence"].get<bool>();
+		else
+			_generalSettings.EnableRichPresence = false;
+
 		if(std::filesystem::is_directory(_generalSettings.DocumentsPath))
 			createDocFolders(); //ensure changes to docfolder also become updated
 		else
@@ -212,6 +217,12 @@ void MungPlex::Settings::drawGeneralSettings()
 		SetUpSliderFloat("UI Scale:", &_generalSettings.Scale, 0.65f, 2.0f, "%3f", 1.0f, 0.2f, true, "If the UI looks off you can change the scale. Changes take after after restarting.");
 		SetUpCombo("Default Active Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect, 1.0f, 0.2f, true, "Window to be active on startup (Search, Cheats, ...). Changes take after after restarting.");
 		SetUpCombo("Color Theme:", _styles, _generalSettings.Style, 1.0f, 0.2f, true, "Select UI Color Theme. Changes take after after restarting.");
+		
+		if (ImGui::Checkbox("Enable Discord Rich Presence", &_generalSettings.EnableRichPresence))
+			if (Connection::IsConnected() && _generalSettings.EnableRichPresence)
+				Connection::InitRichPresence();
+			else
+				Connection::StopRichPresence();
 	}
 	ImGui::EndChild();
 }
@@ -288,6 +299,7 @@ bool MungPlex::Settings::saveSettings()
 		jsonChunk["Scale"] = _generalSettings.Scale;
 		jsonChunk["DefaultWindowSelect"] = _generalSettings.DefaultWindowSelect;
 		jsonChunk["ColorScheme"] = _generalSettings.Style;
+		jsonChunk["EnableRichPresence"] = _generalSettings.EnableRichPresence;
 		jsonData["Settings"]["General"] = jsonChunk;
 		jsonChunk.clear();
 

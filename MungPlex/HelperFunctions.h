@@ -18,6 +18,9 @@
 #include <stdlib.h>
 #include"OperativeArray.h"
 #include<algorithm>
+#include"discord-game-sdk/discord.h"
+#include"discord-game-sdk/discord_game_sdk.h"
+#include"Log.h"
 
 namespace MungPlex
 {
@@ -668,6 +671,21 @@ namespace MungPlex
         //const bool f3 = io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansKR-Black.ttf").string().data(), scale, nullptr, io.Fonts->GetGlyphRangesKorean());
         const bool f4 = io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansJP-Black.ttf").string().data(), scale, nullptr, io.Fonts->GetGlyphRangesJapanese());
         return /*f1 && f2 && f3 &&*/ f4;
+    }
+
+    static void LogDiscordProblem(const discord::LogLevel level, const std::string message)
+    {
+        std::cout << "discord error level: " << (int)level << " - " << message << std::endl;
+    }
+
+    static void GetDiscordActivityResult(discord::Result result)
+    {
+        if (result != discord::Result::Ok)
+        {
+            std::string err = "Error handling Discord Rich PResence (err-code: " + std::to_string((int)result) + ")";
+            std::cout << err << std::endl;
+            Log::LogInformation(err);
+        }
     }
 }
 

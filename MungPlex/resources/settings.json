@@ -7,8 +7,9 @@
     "General": {
       "ColorScheme": 1,
       "DefaultWindowSelect": 0,
-      "DocumentsPath": "C:\\Users\\s_sch\\Documents",
-      "Scale": 1.0004849433898926
+      "DocumentsPath": "",
+      "EnableRichPresence": true,
+      "Scale": 1.0
     },
     "Search": {
       "DefaultAlignment": 4,

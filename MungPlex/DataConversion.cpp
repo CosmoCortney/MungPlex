@@ -50,13 +50,24 @@ MungPlex::DataConversion::DataConversion()
 
 void MungPlex::DataConversion::DrawWindow()
 {
+	static bool stateSet = false;
+
 	if (ImGui::Begin("Data Conversion"))
 	{
+		if (Connection::IsConnected() && Settings::GetGeneralSettings().EnableRichPresence && !stateSet)
+		{
+			Connection::SetRichPresenceState("Data Conversion");
+			stateSet = true;
+		}
+
 		GetInstance().drawPrimitiveConversion();
 		ImGui::SameLine();
 		GetInstance().drawColorConversion();
 		GetInstance().drawTextConversion();
 	}
+	else
+		stateSet = false;
+
 	ImGui::End();
 }
 

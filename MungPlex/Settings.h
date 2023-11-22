@@ -68,6 +68,7 @@ namespace MungPlex
         std::vector<std::string> Windows;
         int DefaultWindowSelect = 0;
         int Style = 0;
+        bool EnableRichPresence = false;
     };
 
     struct SearchSettings

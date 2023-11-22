@@ -1,4 +1,5 @@
 #include "MemoryViewer.h"
+#include "Connection.h"
 
 MungPlex::MemoryViewer::MemoryViewer(const uint32_t id)
 {
@@ -20,8 +21,20 @@ void MungPlex::MemoryViewer::SetIndex(const uint32_t id)
 
 void MungPlex::MemoryViewer::DrawWindow()
 {
+    static bool stateSet = false;
+
     if (_id < 1)
         return;
+
+    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_None))
+    {
+        if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence)
+            Connection::SetRichPresenceState("Memory Viewer");
+
+        stateSet = true;
+    }
+    else
+        stateSet = false;
 
     ImGui::Begin(_windowTitle.c_str(), &_isOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
     {

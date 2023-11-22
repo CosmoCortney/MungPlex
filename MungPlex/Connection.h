@@ -1,4 +1,6 @@
 #pragma once
+#include "discord-game-sdk/discord_game_sdk.h"
+#include "discord-game-sdk/discord.h"
 #include <iostream>
 #include <stdio.h>
 #include "GLFW/glfw3.h"
@@ -25,14 +27,12 @@ namespace MungPlex
     public:
         static void DrawWindow();
         static bool IsConnected();
+        static void SetRichPresenceState(const std::string& action);
+        static void InitRichPresence();
+        static void StopRichPresence();
 
     private:
-        Connection()
-        {
-            _memoryViewers.reserve(16);
-            strcpy_s(_connectionMessage, "Not connected...");
-        }
-
+        Connection() {}
         ~Connection() {}
         Connection(const Connection&) = delete;
         Connection(Connection&&) = delete;
@@ -49,9 +49,14 @@ namespace MungPlex
         int _selectedEmulatorIndex = 0;
         int _selectedProcessIndex = 0;
         int _selectedApplicationProcessIndex = 0;
-        char _connectionMessage[256];
+        std::string _connectionMessage = "Not connected...";
         std::vector<MemoryViewer> _memoryViewers;
-        void DrawConnectionSelect();
+        discord::Core* _core;
+        discord::Result _result;
+        discord::Activity _activity;
+        std::string _richPresenceDetails;
+
+        void drawConnectionSelect();
         void memoryViewerButton();
     };
 }
