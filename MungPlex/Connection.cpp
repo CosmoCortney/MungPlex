@@ -34,7 +34,7 @@ void MungPlex::Connection::drawConnectionSelect()
 					_richPresenceDetails = std::string("Messing with "
 						+ ProcessInformation::GetTitle()
 						+ " (" + ProcessInformation::GetPlatform() + ", "
-						+ ProcessInformation::GetGameID() + ", "
+						+ ProcessInformation::GetRpcGameID() + ", "
 						+ ProcessInformation::GetRegion() + ") "
 						+ "running on " + ProcessInformation::GetProcessName());
 
@@ -161,7 +161,7 @@ void MungPlex::Connection::drawConnectionSelect()
 	{
 		SetUpLableText("Platform:", ProcessInformation::GetPlatform().c_str(), ProcessInformation::GetPlatform().size(), 1.0f, 0.333f);
 		SetUpLableText("Game Title:", ProcessInformation::GetTitle().c_str(), ProcessInformation::GetTitle().size(), 1.0f, 0.333f);
-		SetUpLableText("Game ID:", ProcessInformation::GetRpcGameID().c_str(), ProcessInformation::GetGameID().size(), 1.0f, 0.333f);
+		SetUpLableText("Game ID:", ProcessInformation::GetRpcGameID().c_str(), ProcessInformation::GetRpcGameID().size(), 1.0f, 0.333f);
 		SetUpLableText("Region:", ProcessInformation::GetRegion().c_str(), ProcessInformation::GetRegion().size(), 1.0f, 0.333f);
 	}
 }
@@ -196,6 +196,9 @@ bool MungPlex::Connection::IsConnected()
 
 void MungPlex::Connection::SetRichPresenceState(const std::string& action)
 {
+	if(GetInstance()._core == nullptr)
+	    return;
+
 	GetInstance()._activity.SetState(action.c_str());
 	GetInstance()._core->ActivityManager().UpdateActivity(GetInstance()._activity, GetDiscordActivityResult);
 }
