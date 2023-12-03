@@ -54,7 +54,7 @@ void MungPlex::DataConversion::DrawWindow()
 
 	if (ImGui::Begin("Data Conversion"))
 	{
-		if (Connection::IsConnected() && Settings::GetGeneralSettings().EnableRichPresence && !stateSet)
+		if (!stateSet && Connection::IsConnected() && Settings::GetGeneralSettings().EnableRichPresence && ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 		{
 			Connection::SetRichPresenceState("Data Conversion");
 			stateSet = true;
@@ -66,6 +66,9 @@ void MungPlex::DataConversion::DrawWindow()
 		GetInstance().drawTextConversion();
 	}
 	else
+		stateSet = false;
+
+	if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 		stateSet = false;
 
 	ImGui::End();

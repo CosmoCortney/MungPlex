@@ -39,7 +39,7 @@ void MungPlex::WatchControl::DrawWindow()
 			ImGui::BeginDisabled();
 		else
 		{
-			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence)
+			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence && ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 			{
 				Connection::SetRichPresenceState("Value Watch & Control");
 				stateSet = true;
@@ -52,6 +52,9 @@ void MungPlex::WatchControl::DrawWindow()
 			ImGui::EndDisabled();
 	}
 	else
+		stateSet = false;
+
+	if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 		stateSet = false;
 
 	ImGui::End();

@@ -184,6 +184,11 @@ int main()
 		MungPlex::DataConversion::DrawWindow();
 		MungPlex::WatchControl::DrawWindow();
 
+		for (int i = 0; i < MungPlex::Connection::GetMemoryViews().size(); ++i)
+		{
+			MungPlex::Connection::GetMemoryViews()[i].DrawWindow();
+		}
+
 		static bool setWindowFocused = true;
 		if (setWindowFocused)
 		{

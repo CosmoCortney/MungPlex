@@ -30,6 +30,7 @@ namespace MungPlex
         static void SetRichPresenceState(const std::string& action);
         static void InitRichPresence();
         static void StopRichPresence();
+        static std::vector<MemoryViewer>& GetMemoryViews();
 
     private:
         Connection() {}

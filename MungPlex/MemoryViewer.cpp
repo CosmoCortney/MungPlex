@@ -26,18 +26,18 @@ void MungPlex::MemoryViewer::DrawWindow()
     if (_id < 1)
         return;
 
-    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_None))
+    ImGui::Begin(_windowTitle.c_str(), &_isOpen, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing);
     {
-        if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence)
-            Connection::SetRichPresenceState("Memory Viewer");
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
+        {
+            if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence)
+                Connection::SetRichPresenceState("Memory Viewer");
 
-        stateSet = true;
-    }
-    else
-        stateSet = false;
+            stateSet = true;
+        }
+        else
+            stateSet = false;
 
-    ImGui::Begin(_windowTitle.c_str(), &_isOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
-    {
         ImGui::SetWindowSize(ImVec2(1280.0f, 720.0f));
         drawControlPanel();
         ImGui::SameLine();

@@ -182,11 +182,6 @@ void MungPlex::Connection::memoryViewerButton()
 		if (!_memoryViewers[i].IsOpen())
 			_memoryViewers.erase(_memoryViewers.begin() + i);
 	}
-
-	for (int i = 0; i < _memoryViewers.size(); ++i)
-	{
-		_memoryViewers[i].DrawWindow();
-	}
 }
 
 bool MungPlex::Connection::IsConnected()
@@ -221,4 +216,9 @@ void MungPlex::Connection::StopRichPresence()
 {
 	if(GetInstance()._core != nullptr)
 		GetInstance()._core->~Core();
+}
+
+std::vector<MungPlex::MemoryViewer>& MungPlex::Connection::GetMemoryViews()
+{
+	return GetInstance()._memoryViewers;
 }

@@ -94,7 +94,7 @@ void MungPlex::Search::DrawWindow()
 			ImGui::BeginDisabled();
 		else
 		{
-			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence)
+			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence && ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 			{
 				Connection::SetRichPresenceState("Memory Search");
 				stateSet = true;
@@ -117,6 +117,9 @@ void MungPlex::Search::DrawWindow()
 			ImGui::EndDisabled();
 	}
 	else
+		stateSet = false;
+
+	if(!ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 		stateSet = false;
 
 	ImGui::End();
