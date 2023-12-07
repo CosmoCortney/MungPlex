@@ -327,11 +327,14 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 		break;
 	}
 
+	if (!connected)
+		return false;
+
 	setupSearch();
 	setupCheats();
 	WatchControl::InitWatchFile();
 	obtainGameEntities(_systemRegions[0].BaseLocationProcess);
-	return connected;
+	return true;
 }
 
 void MungPlex::ProcessInformation::refreshModuleList()
@@ -923,15 +926,18 @@ bool MungPlex::ProcessInformation::initDolphin()
 
 		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.substr(posBeg + 1, posEnd - posBeg - 2));
 
-		std::cout << _gameName << std::endl;
+		//std::cout << _gameName << std::endl;
 		break;
 	}
+
+	bool memoryFound = false;
 
 	for (const auto& _region : GetRegionList())
 	{
 		if (_region.GetRegionSize() != 0x2000000)
 			continue;
 
+		memoryFound = true;
 		_process.ReadExRAM(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x28), 4);
 		_process.ReadExRAM(&flagGCN, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x18), 4);
 		_process.ReadExRAM(&flagWii, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x1C), 4);
@@ -942,6 +948,9 @@ bool MungPlex::ProcessInformation::initDolphin()
 		_systemRegions[0].BaseLocationProcess = _region.GetBaseAddress<void*>();
 		break;
 	}
+
+	if (!memoryFound)
+		return false;
 
 	_process.ReadExRAM(tempID, _systemRegions[0].BaseLocationProcess, 6);
 	_process.ReadExRAM(&discNo, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 6, 1);
