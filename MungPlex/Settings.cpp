@@ -5,120 +5,109 @@
 
 MungPlex::Settings::Settings()
 {
-	_styles.emplace_back("ImGui Default", ColorScheme());
-	_styles.push_back(std::make_pair("Dark", []() -> ColorScheme
+	_colorSettings =
 	{
-		ColorScheme dark;
-		constexpr ImVec4 topNormal = { 0.40f, 0.2f, 0.8f, 1.0f };
-		constexpr ImVec4 topHovered = { 0.5f, 0.25f, 0.85f, 1.0f };
-		constexpr ImVec4 topActive = { 0.6f, 0.3f, 0.9f, 1.0f };
-		constexpr ImVec4 midNormal = { 0.2f, 0.17f, 0.35f, 1.0f };
-		constexpr ImVec4 midHovered = { 0.25f, 0.19f, 0.4f, 1.0f };
-		constexpr ImVec4 midActive = { 0.3f, 0.2f, 0.45f, 1.0f };
+		{ ImGuiCol_Text, { "Text", "Text" }},
+		{ ImGuiCol_TextDisabled, { "TextDisabled", "Text Disabled" }},
+		{ ImGuiCol_TextSelectedBg, { "TextSelectedBg", "Selected Text Background" }},
+		{ ImGuiCol_WindowBg, { "Background", "Background" }},
+		{ ImGuiCol_ChildBg, { "ChildBG", "Panel Background" }},
+		{ ImGuiCol_PopupBg, { "PopupBG", "Popup Background" }},
+		{ ImGuiCol_FrameBg, { "FrameBG", "Frame Background" }},
+		{ ImGuiCol_FrameBgHovered, { "FrameBGHovered", "Frame Background Hovered" }},
+		{ ImGuiCol_FrameBgActive, { "FrameBGActive", "Frame Background Active" }},
+		{ ImGuiCol_TitleBg, { "TitleBG", "Title Bar Background" }},
+		{ ImGuiCol_TitleBgActive, { "TitleBGActive", "Title Bar Background Active" }},
+		{ ImGuiCol_TitleBgCollapsed, { "TitleBGCollapsed", "Title Bar Background Collapsed" }},
+		{ ImGuiCol_ScrollbarBg, { "ScrollbarBg", "Scrollbar Background" }},
+		{ ImGuiCol_ScrollbarGrab, { "ScrollbarGrab", "Scrollbar Grab" }},
+		{ ImGuiCol_ScrollbarGrabHovered, { "ScrollbarGrabHovered", "Scrollbar Grab Hovered" }},
+		{ ImGuiCol_ScrollbarGrabActive, { "ScrollbarGrabActive", "Scrollbar Grab Active" }},
+		{ ImGuiCol_CheckMark, { "CheckMark", "Check Mark" }},
+		{ ImGuiCol_SliderGrab, { "SliderGrab", "Slider Grab" }},
+		{ ImGuiCol_SliderGrabActive, { "SliderGrabActive", "Slider Grab Active" }},
+		{ ImGuiCol_Button, { "Button", "Button" }},
+		{ ImGuiCol_ButtonHovered, { "ButtonHovered", "Button Hovered" }},
+		{ ImGuiCol_ButtonActive, { "ButtonActive", "Button Active" }},
+		{ ImGuiCol_Header, { "Header", "Header" }},
+		{ ImGuiCol_HeaderHovered, { "HeaderHovered", "Header Hovered" }},
+		{ ImGuiCol_HeaderActive, { "HeaderActive", "Header Active" }},
+		{ ImGuiCol_Separator, { "Separator", "Separator" }},
+		{ ImGuiCol_SeparatorHovered, { "SeparatorHovered", "Separator Hovered" }},
+		{ ImGuiCol_SeparatorActive, { "SeparatorActive", "Separator Active" }},
+		{ ImGuiCol_ResizeGrip, { "ResizeGrip", "Resize Grip" }},
+		{ ImGuiCol_ResizeGripHovered, { "ResizeGripHovered", "Resize Grip Hovered" }},
+		{ ImGuiCol_ResizeGripActive, { "ResizeGripActive", "Resize Grip Active" }},
+		{ ImGuiCol_Tab, { "Tab", "Tab" }},
+		{ ImGuiCol_TabHovered, { "TabHovered", "Tab Hovered" }},
+		{ ImGuiCol_TabActive, { "TabActive", "Tab Active" }},
+		{ ImGuiCol_TabUnfocused, { "TabUnfocused", "Tab Unfocused" }},
+		{ ImGuiCol_TabUnfocusedActive, { "TabUnfocusedActive", "Tab Unfocused Active" }},
+		{ ImGuiCol_DockingPreview, { "DockingPreview", "Docking Preview" }},
+		{ ImGuiCol_DockingEmptyBg, { "DockingEmptyBG", "Docking Empty Background" }},
+		{ ImGuiCol_TableHeaderBg, { "TableHeaderBg", "Table Header Background" }},
+		{ ImGuiCol_TableBorderStrong, { "TableBorderStrong", "Table Border Strong" }},
+		{ ImGuiCol_TableBorderLight, { "TableBorderLight", "Table Border Light" }},
+		{ ImGuiCol_TableRowBg, { "TableRowBg", "Table Row Background" }},
+		{ ImGuiCol_TableRowBgAlt, { "TableRowBgAlt", "Table Row Background Alternate" }},
+		{ ImGuiCol_ModalWindowDimBg, { "WindowDim", "Window Dim" }},
+		{ ImGuiCol_PlotLines, { "PlotLines", "Plot Lines" }},
+		{ ImGuiCol_PlotLinesHovered, { "PlotLinesHovered", "Plot Line sHovered" }},
+		{ ImGuiCol_PlotHistogram, { "PlotHistogram", "Plot Histogram" }},
+		{ ImGuiCol_PlotHistogramHovered, { "PlotHistogramHovered", "Plot Histogram Hovered" }}
+	};
 
-		dark.Background = { 0.1f, 0.1f, 0.1f, 1.0f };
-		dark.Text = { 1.0f, 1.0f, 1.0f, 1.0f };
-		dark.TextDisabled = { 0.5f, 0.5f, 0.5f, 1.0f };
-		dark.ChildBG = { 0.12f, 0.12f, 0.12f, 1.0f };
-		dark.PopUpBG = { 0.15f, 0.15f, 0.15f, 1.0f };
-		dark.FrameBG = midNormal;
-		dark.FrameBGHovered = midHovered;
-		dark.FrameBGActive = midActive;
-		dark.TitleBG = topNormal;
-		dark.TitleBGActive = topActive;
-		dark.TitleBGCollapsed = midNormal;
-		dark.ScrollbarBg = midNormal;
-		dark.ScrollbarGrab = topNormal;
-		dark.ScrollbarGrabHovered = topHovered;
-		dark.ScrollbarGrabActive = topActive;
-		dark.CheckMark = { 0.8f, 0.8f, 0.8f, 1.0f };
-		dark.SliderGrab = topNormal;
-		dark.SliderGrabActive = topActive;
-		dark.Button = dark.TitleBG;
-		dark.ButtonHovered = topHovered;
-		dark.ButtonActive = topActive;
-		dark.Header = topNormal;
-		dark.HeaderHovered = topHovered;
-		dark.HeaderActive = topActive;
-		dark.Separator = { 0.3f, 0.3f, 0.3f, 1.0f };
-		dark.SeparatorHovered = { 0.4f, 0.4f, 0.4f, 1.0f };
-		dark.SeparatorActive = { 0.5f, 0.5f, 0.5f, 1.0f };
-		dark.ResizeGrip = topNormal;
-		dark.ResizeGripHovered = topHovered;
-		dark.ResizeGripActive = topActive;
-		dark.Tab = { 0.15f, 0.15f, 0.3f, 1.0f };
-		dark.TabHovered = { 0.25f, 0.25f, 0.4f, 1.0f };
-		dark.TabActive = { 0.35f, 0.35f, 0.5f, 1.0f };
-		dark.TabUnfocused = dark.Tab;
-		dark.TabUnfocusedActive = dark.TabActive;
-		dark.DockingPreview = topNormal;
-		dark.DockingEmptyBG = midNormal;
-		dark.WindowDim = { 0.10f, 0.08f, 0.2f, 0.5f };
-		dark.PlotLines = { 0.0f, 0.7f, 0.9f, 1.0f};
-		dark.PlotLinesHovered = { 0.0f, 0.9f, 0.75f, 1.0f };
-		dark.PlotHistogram = dark.PlotLines;
-		dark.PlotHistogramHovered = dark.PlotLinesHovered;
-		return dark;
-	}()));
-	/*_styles.push_back(std::make_pair("Candy", []() -> ColorScheme
-	{
-		ColorScheme candy;
-		constexpr ImVec4 topNormal = { 0.93f, 0.63f, 0.69f, 1.0f }; 
-		constexpr ImVec4 topHovered = { 0.97f, 0.67f, 0.75f, 1.0f };
-		constexpr ImVec4 topActive = topHovered;
+	_defaultStyle.Colors[ImGuiCol_WindowBg] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_Text] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_TextDisabled] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_ChildBg] = { 0.12f, 0.12f, 0.12f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_TableHeaderBg] = _defaultStyle.Colors[ImGuiCol_PopupBg] = { 0.15f, 0.15f, 0.15f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_TitleBgCollapsed] = _defaultStyle.Colors[ImGuiCol_FrameBg] = { 0.2f, 0.17f, 0.35f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_FrameBgHovered] = { 0.25f, 0.19f, 0.4f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_FrameBgActive] = { 0.3f, 0.2f, 0.45f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_ScrollbarGrab] =
+		_defaultStyle.Colors[ImGuiCol_DockingPreview] =
+		_defaultStyle.Colors[ImGuiCol_ResizeGrip] =
+		_defaultStyle.Colors[ImGuiCol_Header] =
+		_defaultStyle.Colors[ImGuiCol_SliderGrab] =
+		_defaultStyle.Colors[ImGuiCol_Button] = 
+		_defaultStyle.Colors[ImGuiCol_TitleBg] = { 0.40f, 0.2f, 0.8f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_HeaderActive] =
+		_defaultStyle.Colors[ImGuiCol_ScrollbarGrabActive] =
+		_defaultStyle.Colors[ImGuiCol_ResizeGripActive] =
+		_defaultStyle.Colors[ImGuiCol_ButtonActive] =
+		_defaultStyle.Colors[ImGuiCol_SliderGrabActive] =
+		_defaultStyle.Colors[ImGuiCol_TitleBgActive] = { 0.6f, 0.3f, 0.9f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_ScrollbarBg] = _defaultStyle.Colors[ImGuiCol_FrameBg];
+	_defaultStyle.Colors[ImGuiCol_ResizeGripHovered] =
+		_defaultStyle.Colors[ImGuiCol_HeaderHovered] =
+		_defaultStyle.Colors[ImGuiCol_ScrollbarGrabHovered] =
+		_defaultStyle.Colors[ImGuiCol_ButtonHovered] = { 0.5f, 0.25f, 0.85f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_CheckMark] = { 0.8f, 0.8f, 0.8f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_Separator] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_SeparatorHovered] = { 0.4f, 0.4f, 0.4f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_SeparatorActive] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_TabUnfocused] = _defaultStyle.Colors[ImGuiCol_Tab] = { 0.15f, 0.15f, 0.3f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_TabHovered] = { 0.25f, 0.25f, 0.4f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_TabUnfocusedActive] = _defaultStyle.Colors[ImGuiCol_TabActive] = { 0.35f, 0.35f, 0.5f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_DockingEmptyBg] = _defaultStyle.Colors[ImGuiCol_FrameBg];
+	_defaultStyle.Colors[ImGuiCol_ModalWindowDimBg] = { 0.10f, 0.08f, 0.2f, 0.5f };
+	_defaultStyle.Colors[ImGuiCol_PlotHistogram] = _defaultStyle.Colors[ImGuiCol_PlotLines] = { 0.0f, 0.7f, 0.9f, 1.0f };
+	_defaultStyle.Colors[ImGuiCol_PlotHistogramHovered] = _defaultStyle.Colors[ImGuiCol_PlotLinesHovered] = { 0.0f, 0.9f, 0.75f, 1.0f };
+}
 
-		candy.Background = { 0.35f, 0.8f, 0.98f, 1.0f };
-		candy.Text = { 0.0f, 0.0f, 0.0f, 1.0f };
-		candy.TextDisabled = { 0.5f, 0.5f, 0.5f, 1.0f };
-		candy.ChildBG = { 0.27f, 0.72f, 0.93f, 1.0f };
-		candy.PopUpBG = topNormal;
-		candy.FrameBG = { 0.95f, 0.95f, 0.95f, 1.0f };
-		candy.FrameBGHovered = { 1.0f, 1.0f, 1.0f, 1.0f };;
-		candy.FrameBGActive = candy.FrameBGHovered;
-		candy.TitleBG = topNormal;
-		candy.TitleBGActive = topActive;
-		candy.TitleBGCollapsed = { 0.5f, 0.5f, 0.5f, 1.0f };
-		candy.ScrollbarBg = { 0.5f, 0.3f, 0.4f, 1.0f };
-		candy.ScrollbarGrab = topNormal;
-		candy.ScrollbarGrabHovered = topHovered;
-		candy.ScrollbarGrabActive = topActive;
-		candy.CheckMark = candy.Text;
-		candy.SliderGrab = topNormal;
-		candy.SliderGrabActive = topActive;
-		candy.Button = topNormal;
-		candy.ButtonHovered = topHovered;
-		candy.ButtonActive = topActive;
-		candy.Header = topNormal;
-		candy.HeaderHovered = topHovered;
-		candy.HeaderActive = topActive;
-		candy.Separator = { 1.0f, 0.0f, 0.0f, 1.0f };
-		candy.SeparatorHovered = { 0.0f, 1.0f, 0.0f, 1.0f };
-		candy.SeparatorActive = { 0.0f, 0.0f, 1.0f, 1.0f };
-		candy.ResizeGrip = topNormal;
-		candy.ResizeGripHovered = topHovered;
-		candy.ResizeGripActive = topActive;
-		candy.Tab = topNormal;
-		candy.TabHovered = candy.FrameBGHovered;
-		candy.TabActive = candy.FrameBGHovered;
-		candy.TabUnfocused = candy.Tab;
-		candy.TabUnfocusedActive = candy.FrameBGHovered;
-		candy.DockingPreview = topNormal;
-		candy.DockingEmptyBG = candy.ScrollbarBg;
-		candy.TableHeaderBg = topNormal;
-		candy.WindowDim = { 0.0f, 0.0f, 0.8f, 0.5f };
-		return candy;
-	}()));*/
-
-	//_styles.emplace_back("Bright", BRIGHT);
-	//_styles.emplace_back("Pastell", IMGUIDEFAULT);
-
-
+void MungPlex::Settings::InitSettings()
+{
 	bool save = false;
-	_generalSettings.Windows.emplace_back("Search");
-	_generalSettings.Windows.emplace_back("Cheats");
-	_generalSettings.Windows.emplace_back("Pointer Search");
-	_generalSettings.Windows.emplace_back("Process Information");
-	_generalSettings.Windows.emplace_back("Settings");
+	GeneralSettings& generalSettings = GetInstance()._generalSettings;
+	SearchSettings& searchSettings = GetInstance()._searchSettings;
+	CheatsSettings& cheatsSettings = GetInstance()._cheatsSettings;
+
+	generalSettings.Windows.emplace_back("Search");
+	generalSettings.Windows.emplace_back("Cheats");
+	generalSettings.Windows.emplace_back("Pointer Search");
+	generalSettings.Windows.emplace_back("Process Information");
+	generalSettings.Windows.emplace_back("Settings");
 
 	try
 	{
@@ -128,60 +117,58 @@ MungPlex::Settings::Settings()
 		auto& settings = doc["Settings"];
 
 		//set general settings
-		strcpy_s(_generalSettings.DocumentsPath, settings["General"]["DocumentsPath"].get<std::string>().c_str());
-		_generalSettings.Scale = settings["General"]["Scale"].get<float>();
-		_generalSettings.DefaultWindowSelect = settings["General"]["DefaultWindowSelect"].get<int>();
-		_generalSettings.Style = settings["General"]["ColorScheme"].get<int>();
+		strcpy_s(generalSettings.DocumentsPath, settings["General"]["DocumentsPath"].get<std::string>().c_str());
+		generalSettings.Scale = settings["General"]["Scale"].get<float>();
+		generalSettings.DefaultWindowSelect = settings["General"]["DefaultWindowSelect"].get<int>();
 
 		if (settings["General"].contains("EnableRichPresence"))
-			_generalSettings.EnableRichPresence = settings["General"]["EnableRichPresence"].get<bool>();
+			generalSettings.EnableRichPresence = settings["General"]["EnableRichPresence"].get<bool>();
 		else
-			_generalSettings.EnableRichPresence = false;
+			generalSettings.EnableRichPresence = false;
 
-		if(std::filesystem::is_directory(_generalSettings.DocumentsPath))
-			createDocFolders(); //ensure changes to docfolder also become updated
+
+		GetInstance().setUi(settings["General"]);
+
+
+		if (std::filesystem::is_directory(generalSettings.DocumentsPath))
+			GetInstance().createDocFolders(); //ensure changes to docfolder also become updated
 		else
 		{
 			auto tmp = new wchar_t[512];
 			SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &tmp);
-			strcpy_s(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(tmp).c_str());
+			strcpy_s(generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(tmp).c_str());
 			CoTaskMemFree(tmp);
-			createDocFolders();
+			GetInstance().createDocFolders();
 			save = true;
 		}
 
 		//set search defaults
-		_searchSettings.DefaultCaseSensitive = settings["Search"]["DefaultCaseSensitive"].get<bool>();
-		_searchSettings.DefaultColorWheel = settings["Search"]["DefaultColorWheel"].get<bool>();
-		_searchSettings.DefaultValuesHex = settings["Search"]["DefaultValuesHex"].get<bool>();
-		_searchSettings.DefaultCached = settings["Search"]["DefaultCached"].get<bool>();
-		_searchSettings.DefaultAlignment = settings["Search"]["DefaultAlignment"].get<int>();
+		searchSettings.DefaultCaseSensitive = settings["Search"]["DefaultCaseSensitive"].get<bool>();
+		searchSettings.DefaultColorWheel = settings["Search"]["DefaultColorWheel"].get<bool>();
+		searchSettings.DefaultValuesHex = settings["Search"]["DefaultValuesHex"].get<bool>();
+		searchSettings.DefaultCached = settings["Search"]["DefaultCached"].get<bool>();
+		searchSettings.DefaultAlignment = settings["Search"]["DefaultAlignment"].get<int>();
 
-		if (_searchSettings.DefaultAlignment < 1)
-			_searchSettings.DefaultAlignment = 1;
+		if (searchSettings.DefaultAlignment < 1)
+			searchSettings.DefaultAlignment = 1;
 		
 		//set cheats defaults
-		_cheatsSettings.DefaultCheatList = settings["Cheats"]["DefaultCheatList"].get<bool>();
-		_cheatsSettings.DefaultInterval = settings["Cheats"]["DefaultInterval"].get<int>();
+		cheatsSettings.DefaultCheatList = settings["Cheats"]["DefaultCheatList"].get<bool>();
+		cheatsSettings.DefaultInterval = settings["Cheats"]["DefaultInterval"].get<int>();
 
-		if (_cheatsSettings.DefaultInterval < 1)
-			_cheatsSettings.DefaultInterval = 1;
-		else if (_cheatsSettings.DefaultInterval > 240)
-			_cheatsSettings.DefaultInterval = 240;
+		if (cheatsSettings.DefaultInterval < 1)
+			cheatsSettings.DefaultInterval = 1;
+		else if (cheatsSettings.DefaultInterval > 240)
+			cheatsSettings.DefaultInterval = 240;
 
 		if (save)
-			saveSettings();
+			GetInstance().saveSettings();
 	}
 	catch (const nlohmann::json::parse_error& exception)
 	{
 		Log::LogInformation((std::string("Failed parsing settings file: ") + exception.what()).c_str());
 		return;
 	}
-}
-
-MungPlex::ColorScheme& MungPlex::Settings::GetColorScheme(const int id)
-{
-	return GetInstance()._styles[id].second;
 }
 
 void MungPlex::Settings::DrawWindow()
@@ -199,9 +186,12 @@ void MungPlex::Settings::DrawWindow()
 		}
 
 		ImGui::SameLine();
-		ImGui::Button("Reset");
+
+		if (ImGui::Button("Reset"))
+			GetInstance().resetSettings();
+
 		ImGui::SameLine();
-		ImGui::Text("Changes take effect after restarting MungPlex.");
+		ImGui::Text("Some changes take effect after restarting MungPlex (check (?))");
 	}
 	ImGui::End();
 }
@@ -212,17 +202,46 @@ void MungPlex::Settings::drawGeneralSettings()
 	ImGui::BeginChild("child", childYX);
 	{
 		ImGui::SeparatorText("General Settings");
-		
-		SetUpInputText("Documents Path:", _generalSettings.DocumentsPath, 512, 1.0f, 0.2f, true, "Where you want MungPlex to save data. An SSD is recommended for fast memory dump streeaming. Changes take after after restarting.");
-		SetUpSliderFloat("UI Scale:", &_generalSettings.Scale, 0.65f, 2.0f, "%3f", 1.0f, 0.2f, true, "If the UI looks off you can change the scale. Changes take after after restarting.");
-		SetUpCombo("Default Active Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect, 1.0f, 0.2f, true, "Window to be active on startup (Search, Cheats, ...). Changes take after after restarting.");
-		SetUpCombo("Color Theme:", _styles, _generalSettings.Style, 1.0f, 0.2f, true, "Select UI Color Theme. Changes take after after restarting.");
+		static ImGuiStyle& style = ImGui::GetStyle();
+
+		ImGui::BeginGroup();
+		{
+			static ImVec4 color = style.Colors[ImGuiCol_Text];
+			static int colorSelect = ImGuiCol_Text;
+
+			if (SetUpCombo("Set Color:", _colorSettings, colorSelect, 0.2f, 0.5f))
+				color = style.Colors[_colorSettings[colorSelect].first];
+
+			ImGui::PushItemWidth(childYX.x * 0.2f);
+			ImGui::ColorPicker4("##ColorPickerUi", (float*)&color, ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview);
+			style.Colors[_colorSettings[colorSelect].first] = color;
+		}
+		ImGui::EndGroup();
+
+		ImGui::SameLine();
+		ImGui::Dummy(ImVec2(5.0f, 0.0f));
+		ImGui::SameLine();
+
+		ImGui::BeginGroup();
+		{
+			SetUpInputText("Documents Path:", _generalSettings.DocumentsPath, 512, 1.0f, 0.2f, true, "Where you want MungPlex to save data. An SSD is recommended for fast memory dump streeaming. Changes take effect after restarting!");
+			SetUpSliderFloat("UI Scale:", &_generalSettings.Scale, 0.65f, 2.0f, "%3f", 1.0f, 0.2f, true, "If the UI looks off you can change the scale. Changes take effect after restarting!");
+
+			//ImGui::SameLine();
+			
+			//ImGui::PushItemWidth(childYX.x * 0.1f);
+			//if (ImGui::Button("Apply Scale"))
+			//	style.ScaleAllSizes(_generalSettings.Scale);
+
+			SetUpCombo("Default Active Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect, 1.0f, 0.2f, true, "Window to be active on startup (Search, Cheats, ...).");
 		
 		if (ImGui::Checkbox("Enable Discord Rich Presence", &_generalSettings.EnableRichPresence))
 			if (Connection::IsConnected() && _generalSettings.EnableRichPresence)
 				Connection::InitRichPresence();
 			else
 				Connection::StopRichPresence();
+		}
+		ImGui::EndGroup();
 	}
 	ImGui::EndChild();
 }
@@ -298,7 +317,8 @@ bool MungPlex::Settings::saveSettings()
 
 		jsonChunk["Scale"] = _generalSettings.Scale;
 		jsonChunk["DefaultWindowSelect"] = _generalSettings.DefaultWindowSelect;
-		jsonChunk["ColorScheme"] = _generalSettings.Style;
+		//jsonChunk["Colors"] = nlohmann::json::array();
+		jsonChunk["Colors"] = generateColorsJson();
 		jsonChunk["EnableRichPresence"] = _generalSettings.EnableRichPresence;
 		jsonData["Settings"]["General"] = jsonChunk;
 		jsonChunk.clear();
@@ -385,4 +405,81 @@ MungPlex::SearchSettings& MungPlex::Settings::GetSearchSettings()
 MungPlex::CheatsSettings& MungPlex::Settings::GetCheatsSettings()
 {
 	return GetInstance()._cheatsSettings;
+}
+
+void MungPlex::Settings::setUi(const nlohmann::json& uiJson)
+{
+	ImGuiStyle& style = ImGui::GetStyle();
+
+	if (!uiJson.contains("Colors"))
+	{
+		style = _defaultStyle;
+		return;
+	}
+
+	if(uiJson["Colors"].size() < _colorSettings.size())
+	{
+		style = _defaultStyle;
+		return;
+	}
+
+	for (const auto& colorSetting : _colorSettings)
+	{
+		if (uiJson["Colors"].contains(colorSetting.second.first))
+		{
+			style.Colors[colorSetting.first] = getColorVec(uiJson["Colors"][colorSetting.second.first][0]);
+		}
+	}
+}
+
+void MungPlex::Settings::resetSettings()
+{
+	ImGuiStyle& style = ImGui::GetStyle();
+	style = _defaultStyle;
+	auto path = new wchar_t[256];
+	wcscpy(path, MorphText::Utf8_To_Utf16LE(_generalSettings.DocumentsPath).c_str());
+	strcpy_s(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(path).c_str());
+	_generalSettings.Scale = 1.2f;
+	_generalSettings.DefaultWindowSelect = 0;
+	_generalSettings.EnableRichPresence = false;
+	saveSettings();
+}
+
+ImVec4 MungPlex::Settings::getColorVec(const nlohmann::json& colorJson) const
+{
+	ImVec4 color;
+
+	color.x = colorJson[0].get<float>();
+	color.y = colorJson[1].get<float>();
+	color.z = colorJson[2].get<float>();
+	color.w = colorJson[3].get<float>();
+
+	return color;
+}
+
+nlohmann::json MungPlex::Settings::generateColorsJson() const
+{
+	nlohmann::json colors;
+	ImGuiStyle& style = ImGui::GetStyle();
+
+	for (auto& colorSetting : _colorSettings)
+	{
+		const std::string& identifier = colorSetting.second.first;
+		const ImVec4& color = style.Colors[colorSetting.first];
+		nlohmann::json colorArray = { imVec4ToStdVector(color) };
+		colors[identifier] = colorArray;
+	}
+
+	return colors;
+}
+
+
+std::vector<float> MungPlex::Settings::imVec4ToStdVector(const ImVec4 imVec) const
+{
+	std::vector<float> vec;
+	vec.push_back(imVec.x);
+	vec.push_back(imVec.y);
+	vec.push_back(imVec.z);
+	vec.push_back(imVec.w);
+	return vec;
 }

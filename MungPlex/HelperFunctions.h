@@ -403,6 +403,8 @@ namespace MungPlex
                 items_str.emplace_back(item);
             else if constexpr (std::is_same_v<T, std::pair<std::string, int>>)
                 items_str.emplace_back(item.first.c_str());
+            else if constexpr (std::is_same_v<T, std::pair<int, std::pair<std::string, std::string>>>)
+                items_str.emplace_back(item.second.second.c_str());
             else if constexpr (std::is_same_v<T, std::pair<std::string, ColorScheme>>)
                 items_str.emplace_back(item.first.c_str());
             else if constexpr (std::is_same_v<T, std::wstring>)

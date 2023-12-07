@@ -71,59 +71,7 @@ int main()
 	glfwSwapInterval(1);
 
 	ImGuiStyle& style = ImGui::GetStyle();
-	//if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		style.WindowRounding = 0.0f;
-		const int styleID = MungPlex::Settings::GetGeneralSettings().Style;
-
-		if (styleID)
-		{
-			MungPlex::ColorScheme colors = MungPlex::Settings::GetColorScheme(styleID);
-			style.Colors[ImGuiCol_WindowBg] = colors.Background;
-			style.Colors[ImGuiCol_Text] = colors.Text;
-			style.Colors[ImGuiCol_TextDisabled] = colors.TextDisabled;
-			style.Colors[ImGuiCol_ChildBg] = colors.ChildBG;
-			style.Colors[ImGuiCol_PopupBg] = colors.PopUpBG;
-			style.Colors[ImGuiCol_FrameBg] = colors.FrameBG;
-			style.Colors[ImGuiCol_FrameBgHovered] = colors.FrameBGHovered;
-			style.Colors[ImGuiCol_FrameBgActive] = colors.FrameBGActive;
-			style.Colors[ImGuiCol_TitleBg] = colors.TitleBG;
-			style.Colors[ImGuiCol_TitleBgActive] = colors.TitleBGActive;
-			style.Colors[ImGuiCol_TitleBgCollapsed] = colors.TitleBGCollapsed;
-			style.Colors[ImGuiCol_ScrollbarBg] = colors.ScrollbarBg;
-			style.Colors[ImGuiCol_ScrollbarGrab] = colors.ScrollbarGrab;
-			style.Colors[ImGuiCol_ScrollbarGrabHovered] = colors.ScrollbarGrabHovered;
-			style.Colors[ImGuiCol_ScrollbarGrabActive] = colors.ScrollbarGrabActive;
-			style.Colors[ImGuiCol_CheckMark] = colors.CheckMark;
-			style.Colors[ImGuiCol_SliderGrab] = colors.SliderGrab;
-			style.Colors[ImGuiCol_SliderGrabActive] = colors.SliderGrabActive;
-			style.Colors[ImGuiCol_Button] = colors.Button;
-			style.Colors[ImGuiCol_ButtonHovered] = colors.ButtonHovered;
-			style.Colors[ImGuiCol_ButtonActive] = colors.ButtonActive;
-			style.Colors[ImGuiCol_Header] = colors.Header;
-			style.Colors[ImGuiCol_HeaderHovered] = colors.HeaderHovered;
-			style.Colors[ImGuiCol_HeaderActive] = colors.HeaderActive;
-			style.Colors[ImGuiCol_Separator] = colors.Separator;
-			style.Colors[ImGuiCol_SeparatorHovered] = colors.SeparatorHovered;
-			style.Colors[ImGuiCol_SeparatorActive] = colors.SeparatorActive;
-			style.Colors[ImGuiCol_ResizeGrip] = colors.ResizeGrip;
-			style.Colors[ImGuiCol_ResizeGripHovered] = colors.ResizeGripHovered;
-			style.Colors[ImGuiCol_ResizeGripActive] = colors.ResizeGripActive;
-			style.Colors[ImGuiCol_Tab] = colors.Tab;
-			style.Colors[ImGuiCol_TabHovered] = colors.TabHovered;
-			style.Colors[ImGuiCol_TabActive] = colors.TabActive;
-			style.Colors[ImGuiCol_TabUnfocused] = colors.TabUnfocused;
-			style.Colors[ImGuiCol_TabUnfocusedActive] = colors.TabUnfocusedActive;
-			style.Colors[ImGuiCol_DockingPreview] = colors.DockingPreview;
-			style.Colors[ImGuiCol_DockingEmptyBg] = colors.DockingEmptyBG;
-			style.Colors[ImGuiCol_TableHeaderBg] = colors.TableHeaderBg;
-			style.Colors[ImGuiCol_ModalWindowDimBg] = colors.WindowDim;
-			style.Colors[ImGuiCol_PlotLines] = colors.PlotLines;
-			style.Colors[ImGuiCol_PlotLinesHovered] = colors.PlotLinesHovered;
-			style.Colors[ImGuiCol_PlotHistogram] = colors.PlotHistogram;
-			style.Colors[ImGuiCol_PlotHistogramHovered] = colors.PlotHistogramHovered;
-		}
-	}
+	MungPlex::Settings::InitSettings();
 
 	int channels;
 
