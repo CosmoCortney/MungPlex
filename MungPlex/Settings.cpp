@@ -52,7 +52,7 @@ MungPlex::Settings::Settings()
 		{ ImGuiCol_TableRowBgAlt, { "TableRowBgAlt", "Table Row Background Alternate" }},
 		{ ImGuiCol_ModalWindowDimBg, { "WindowDim", "Window Dim" }},
 		{ ImGuiCol_PlotLines, { "PlotLines", "Plot Lines" }},
-		{ ImGuiCol_PlotLinesHovered, { "PlotLinesHovered", "Plot Line sHovered" }},
+		{ ImGuiCol_PlotLinesHovered, { "PlotLinesHovered", "Plot Lines Hovered" }},
 		{ ImGuiCol_PlotHistogram, { "PlotHistogram", "Plot Histogram" }},
 		{ ImGuiCol_PlotHistogramHovered, { "PlotHistogramHovered", "Plot Histogram Hovered" }}
 	};
