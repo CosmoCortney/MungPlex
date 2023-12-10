@@ -21,14 +21,6 @@ void MungPlex::ProcessInformation::DrawWindow()
 	ImGui::End();
 }
 
-/*void MungPlex::ProcessInformation::refreshData(const int pid)
-{
-	_pid = pid;
-	_process = Xertz::SystemInfo::GetProcessInfo(pid);
-	_handle = _process.GetHandle();
-	Log::LogInformation("Refreshed Process Information");
-}*/
-
 void MungPlex::ProcessInformation::drawModuleList()
 {
 	if (!ImGui::CollapsingHeader("Modules"))
@@ -51,22 +43,21 @@ void MungPlex::ProcessInformation::drawModuleList()
 		for (int column = 0; column < 2; ++column)
 		{
 			ImGui::TableSetColumnIndex(column);
-			// TODO No C buffers usage, replace it with a std::string/std::stringstream usage
-			char buf[256];
+			static std::string buf(256, '\0');
 
 			if (column == 0)
 			{
-				sprintf(buf, std::string(currentModule.begin(), currentModule.end()).c_str());
+				sprintf(buf.data(), std::string(currentModule.begin(), currentModule.end()).c_str());
 			}
 			else
 			{
-				sprintf(buf, "%llX", moduleAddress);
+				sprintf(buf.data(), "%llX", moduleAddress);
 			}
 
 			if (contents_type == CT_Text)
-				ImGui::TextUnformatted(buf);
+				ImGui::TextUnformatted(buf.data());
 			else if (contents_type == CT_FillButton)
-				ImGui::Button(buf, ImVec2(-FLT_MIN, 0.0f));
+				ImGui::Button(buf.data(), ImVec2(-FLT_MIN, 0.0f));
 		}
 	}
 
@@ -386,7 +377,7 @@ bool MungPlex::ProcessInformation::initMelonDS()
 {
 	setMiscProcessInfo("melonDS", false, false, 4, 4);
 	bool romFound = false;
-
+	static const uint64_t romFlag = 0x21A29A6951AEFF24;
 	//find ROM
 	for (const auto& region : GetRegionList())
 	{
@@ -398,9 +389,11 @@ bool MungPlex::ProcessInformation::initMelonDS()
 
 		for (int i = 0; i < 0x200; i+=8)
 		{
-			if (*reinterpret_cast<uint64_t*>(&buf[i]) != 0x21A29A6951AEFF24)
+			if (*reinterpret_cast<uint64_t*>(&buf[i]) != romFlag)
 				continue;
 
+			_connectionCheckPtr = reinterpret_cast<void*>(region.GetBaseAddress<char*>() + i);
+			_connectionCheckValue = romFlag;
 			const uint32_t romBase = i - 0xC0;
 			_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[romBase + 0xC]);
 			_gameRegion = getRegionFromNintendoRegionCode(_gameID[3]);
@@ -436,6 +429,7 @@ bool MungPlex::ProcessInformation::initMelonDS()
 		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
 		_platform = "NDS";
 		PointerSearch::SelectPreset(NDS);
+		_platformID = NDS;
 		return true;
 	}
 
@@ -519,6 +513,8 @@ bool MungPlex::ProcessInformation::initYuzu()
 					continue;
 
 				std::wstring tempID = reinterpret_cast<wchar_t*>(&buf[i + prefixOffset + prependSize]);
+				_connectionCheckValue = *reinterpret_cast<int*>(tempID.data());
+				_connectionCheckPtr = region.GetBaseAddress<char*>() + i + prefixOffset + prependSize;
 
 				if (prependSize == 2)
 					tempID = tempID.substr(0, tempID.find(L')'));
@@ -552,6 +548,7 @@ bool MungPlex::ProcessInformation::initYuzu()
 		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
 		_platform = "Switch";
 		PointerSearch::SelectPreset(SWITCH);
+		_platformID = SWITCH;
 		return true;
 	}
 
@@ -566,6 +563,7 @@ bool MungPlex::ProcessInformation::initMesen()
 	bool romFound = false;
 	char* RAM;
 	uint64_t ROMflag = 0;
+	static const uint64_t ramFlag = 0x78656C50676E754D;
 
 	for (Xertz::MemoryRegion& region : GetRegionList())
 	{
@@ -577,7 +575,7 @@ bool MungPlex::ProcessInformation::initMesen()
 
 		int regionSize = region.GetRegionSize();
 
-		if (regionSize < 0x100000 || regionSize > 0x1000000)
+		if (regionSize < 0x10000 || regionSize > 0x1000000)
 			continue;
 
 		std::vector<uint64_t> buf(regionSize/8);
@@ -585,7 +583,7 @@ bool MungPlex::ProcessInformation::initMesen()
 
 		for (int i = 0; i < regionSize/8; i += 2)
 		{
-			if (buf[i] != 0x78656C50676E754D)
+			if (buf[i] != ramFlag)
 				continue;
 			
 			//std::cout << "ram found!\n";
@@ -593,6 +591,8 @@ bool MungPlex::ProcessInformation::initMesen()
 			ROMflag = buf[i + 1];
 			ramFound = true;
 			_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(RAM);
+			_connectionCheckValue = ramFlag;
+			_connectionCheckPtr = region.GetBaseAddress<char*>() + i * 8;
 			break;
 		}
 	}
@@ -637,7 +637,7 @@ bool MungPlex::ProcessInformation::initMesen()
 	_gameID = std::string(21, 0);
 	_process.ReadExRAM(_gameID.data(), RAM + 0x7FC0, 21);
 	_gameID = MorphText::JIS_X_0201_FullWidth_To_Utf8(_gameID.data());
-	_gameID = RemoveSpacePadding(_gameID);
+	_gameID = RemoveSpacePadding(_gameID, false);
 	_gameName = _gameID;
 	_gameID.append("-");
 	char tempByte = 0;
@@ -646,6 +646,7 @@ bool MungPlex::ProcessInformation::initMesen()
 	_process.ReadExRAM(&tempByte, RAM + 0x7FDB, 1);
 	_gameID.append(std::to_string(tempByte));
 	PointerSearch::SelectPreset(SNES);
+	_platformID = SNES;
 
 	return true;
 }
@@ -654,6 +655,7 @@ bool MungPlex::ProcessInformation::initProject64()
 {
 	setMiscProcessInfo("Project64", true, true, 4, 4);
 	bool found = false;
+	static const uint64_t romFlag = 0x0000000F80371240;
 
 	for (const auto& region : GetRegionList())
 	{
@@ -686,9 +688,11 @@ bool MungPlex::ProcessInformation::initProject64()
 		uint64_t temp;
 		_process.ReadExRAM(&temp, region.GetBaseAddress<char*>(), 8);
 
-		if (temp != 0x0000000F80371240)
+		if (temp != romFlag)
 			continue;
 		
+		_connectionCheckValue = romFlag;
+		_connectionCheckPtr = region.GetBaseAddress<void*>();
 		region.SetProtect(GetHandle(), PAGE_EXECUTE_READWRITE);
 		_systemRegions[1].BaseLocationProcess = region.GetBaseAddress<void*>();
 		_systemRegions[1].Size = rSize;
@@ -705,6 +709,7 @@ bool MungPlex::ProcessInformation::initProject64()
 
 		_gameName = RemoveSpacePadding(_gameName);
 		PointerSearch::SelectPreset(N64);
+		_platformID = N64;
 		break;
 	}
 	
@@ -735,7 +740,7 @@ bool MungPlex::ProcessInformation::initNo$psx()
 {
 	setMiscProcessInfo("No$psx", false, false, 4, 1);
 	_platform = "PS1";
-	PointerSearch::SelectPreset(PS1);
+	static const uint64_t ramFlag = 0x696C6F626D795300;
 
 	for (const Xertz::MemoryRegion& region : GetRegionList())
 	{
@@ -756,14 +761,18 @@ bool MungPlex::ProcessInformation::initNo$psx()
 
 		for (int i = 0; i < 0x100000; i += 4)
 		{
-			if (*reinterpret_cast<uint64_t*>(&buf[i]) != 0x696C6F626D795300)
+			if (*reinterpret_cast<uint64_t*>(&buf[i]) != ramFlag)
 				continue;
 
 			_gameName = &buf[i - 0x10C];
+			_connectionCheckValue = *reinterpret_cast<int*>(&buf[i - 0x10C]);
+			_connectionCheckPtr = reinterpret_cast<char*>(exeAddr) + i - 0x10C;
 			break;
 		}
 
 		_gameName = _gameName.substr(0, _gameName.find(".SYM"));
+		PointerSearch::SelectPreset(PS1);
+		_platformID = PS1;
 		return true;
 	}
 
@@ -773,28 +782,31 @@ bool MungPlex::ProcessInformation::initNo$psx()
 bool MungPlex::ProcessInformation::initRpcs3()
 {
 	setMiscProcessInfo("Rpcs3", true, false, 4, 4);
-	_platform = "PS3";
-	PointerSearch::SelectPreset(PS3);
 
 	_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(0x300010000);
 	_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(0x330000000);
 	_systemRegions[2].BaseLocationProcess = reinterpret_cast<void*>(0x340000000);
 	_systemRegions[3].BaseLocationProcess = reinterpret_cast<void*>(0x350000000);
 
-	uint32_t bufSize = 0x2000000;
-	char* exeAddr = reinterpret_cast<char*>(_process.GetModuleAddress(L"rpcs3.exe")+0x2000000);
+	uint32_t bufSize = 0x1000000;
+	char* exeAddr = reinterpret_cast<char*>(_process.GetModuleAddress(L"rpcs3.exe")+0x5000000);
 	std::vector<char> buf(bufSize);
 	_process.ReadExRAM(buf.data(), exeAddr, bufSize);
 	bool gameIdFound = false;
+	std::wstring gIdWindow;
 
-	for (int offset = 0; offset < bufSize; ++offset)
+	for (int offset = 0; offset < bufSize; offset += 4)
 	{
-		if (*reinterpret_cast<uint64_t*>(&buf[offset]) != 0x227B3A2279746976)
+		if (*reinterpret_cast<uint64_t*>(&buf[offset]) != 0x454D41475F335350)
 			continue;
 
-		_gameID = reinterpret_cast<char*>(&buf[offset + 16]);
+		_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[offset - 0xE0]);
 		_gameID.resize(9);
+		gIdWindow = MorphText::Utf8_To_Utf16LE(_gameID);
+		_rpcGameID = _gameID.append("-[" + std::string(reinterpret_cast<char*>(&buf[offset - 0xA0])) + "]");
 		gameIdFound = true;
+		_connectionCheckValue = *reinterpret_cast<int*>(&buf[offset - 0xDC]);
+		_connectionCheckPtr = exeAddr + offset - 0xDC;
 	}
 
 	if (!gameIdFound)
@@ -807,7 +819,7 @@ bool MungPlex::ProcessInformation::initRpcs3()
 	{
 		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
 
-		if (wTitleBuf.find(MorphText::Utf8_To_Utf16LE(_gameID)) == std::wstring::npos)
+		if (wTitleBuf.find(gIdWindow) == std::wstring::npos)
 			continue;
 
 		int posStart = wTitleBuf.find_last_of(L"|");
@@ -822,6 +834,9 @@ bool MungPlex::ProcessInformation::initRpcs3()
 			gTitle = gTitle.substr(0, gTitle.size() - 1);
 
 		_gameName = MorphText::Utf16LE_To_Utf8(gTitle);
+		_platform = "PS3";
+		PointerSearch::SelectPreset(PS3);
+		_platformID = PS3;
 		return true;
 	}
 
@@ -831,10 +846,9 @@ bool MungPlex::ProcessInformation::initRpcs3()
 bool MungPlex::ProcessInformation::initPcsx2()
 {
 	setMiscProcessInfo("Pcsx2", false, false, 4, 4);
-	_platform = "PS2";
-	PointerSearch::SelectPreset(PS2);
 	REGION_LIST& regions = GetRegionList();
 	bool idFound = false;
+	static const uint64_t ramFlag = 0x6461655256413F2E;
 
 	for (int i = 0; i < regions.size(); ++i)
 	{
@@ -863,11 +877,13 @@ bool MungPlex::ProcessInformation::initPcsx2()
 
 		for (int offset = 0; offset < bufSize / sizeof(uint64_t); ++offset)
 		{
-			if (buf[offset] != 0x6461655256413F2E)
+			if (buf[offset] != ramFlag)
 				continue;
 
 			_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[offset + 7]);
 			idFound = true;
+			_connectionCheckValue = *reinterpret_cast<int*>(&buf[offset + 7]);
+			_connectionCheckPtr = exeAddr + offset + 7;
 		}
 	}
 
@@ -887,6 +903,9 @@ bool MungPlex::ProcessInformation::initPcsx2()
 
 		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
 		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.c_str());
+		_platform = "PS2";
+		PointerSearch::SelectPreset(PS2);
+		_platformID = PS2;
 		return true;
 	}
 
@@ -946,6 +965,8 @@ bool MungPlex::ProcessInformation::initDolphin()
 			continue;
 
 		_systemRegions[0].BaseLocationProcess = _region.GetBaseAddress<void*>();
+		_connectionCheckPtr = _region.GetBaseAddress<void*>();
+		_process.ReadExRAM(&_connectionCheckValue, _connectionCheckPtr, 4);
 		break;
 	}
 
@@ -964,6 +985,7 @@ bool MungPlex::ProcessInformation::initDolphin()
 	{
 		_platform = "GameCube";
 		PointerSearch::SelectPreset(GAMECUBE);
+		_platformID = GAMECUBE;
 		_systemRegions.erase(_systemRegions.begin() + 1);
 		return true;
 	}
@@ -988,11 +1010,12 @@ bool MungPlex::ProcessInformation::initDolphin()
 	_process.ReadExRAM(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
 	_platform = "Wii";
 	PointerSearch::SelectPreset(WII);
+	_platformID = WII;
 
 	if (temp == 0 && IDcopy != 0)
 	{
 		memcpy_s(tempID, 7, &IDcopy, 4);
-		_gameID = tempID;
+		_rpcGameID = _gameID = tempID;
 		_gameRegion = _gameID[3];
 		return true;
 	}
@@ -1012,7 +1035,7 @@ bool MungPlex::ProcessInformation::initFusion()
 	uint16_t headerSize = 0x200;
 	uint32_t romPTR = 0;
 	uint32_t ramPTR = 0;
-	const uint32_t AGES = 0x41474553;
+	static const uint32_t AGES = 0x41474553;
 	std::vector<uint32_t> romHeader(headerSize / sizeof(uint32_t));
 
 	//look for SEGA CD BOOT ROM
@@ -1021,7 +1044,8 @@ bool MungPlex::ProcessInformation::initFusion()
 
 	if (romHeader[0x4A] == 0x544F4F42) //if sega cd found
 	{
-		_platform = "Mega-CD";
+		_connectionCheckValue = 0x544F4F42;
+		_connectionCheckPtr = reinterpret_cast<char*>(romPTR) + 0x4A * 4;
 		_gameID = std::string(reinterpret_cast<char*>(&romHeader[0x60]));
 		_gameID.resize(14);
 		_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(romPTR);
@@ -1033,12 +1057,15 @@ bool MungPlex::ProcessInformation::initFusion()
 		_gameName.resize(48);
 		_process.ReadExRAM(_gameName.data(), reinterpret_cast<void*>(ramPTR + 0x144), 48);
 		_gameName = RemoveSpacePadding(_gameName);
-		_process.ReadExRAM(&ramPTR, reinterpret_cast<void*>(ramPTR), 48);
+		_process.ReadExRAM(&ramPTR, reinterpret_cast<void*>(ramPTR), 4);
 		_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(ramPTR);
 		_systemRegions[1].Size = 0x10000;
 		_systemRegions[1].Base = 0xFF0000;
 		_rpcGameID = "#";
 		_gameID = _gameName + " - " + _gameID;
+		_platform = "Mega-CD";
+		PointerSearch::SelectPreset(SMCD);
+		_platformID = SMCD;
 		return true;
 	}
 
@@ -1058,12 +1085,20 @@ bool MungPlex::ProcessInformation::initFusion()
 	if (romHeader[0x40] == AGES) //Mega Drive or 32x ROM found
 	{
 		if (romHeader[0x41] == 0x58323320) //32X ROM found
+		{
 			_platform = "32X";
+			_platformID = S32X;
+		}
 		else if ((romHeader[0x41] == 0x47454D20 && romHeader[0x42] == 0x52442041) || (romHeader[0x41] == 0x4E454720)) //mega drive ROM found
+		{
 			_platform = "Mega Drive";
+			_platformID = GENESIS;
+		}
 		else //something went wrong
 			return false; 
 
+		_connectionCheckValue = *reinterpret_cast<int*>(&romHeader[0x41]);
+		_connectionCheckPtr = reinterpret_cast<char*>(romPTR) + 0x41*4;
 		_gameID = std::string(reinterpret_cast<char*>(&romHeader[0x60]));
 		_gameID.resize(14);
 		_rpcGameID = _gameID;
@@ -1085,7 +1120,7 @@ bool MungPlex::ProcessInformation::initFusion()
 		_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(ramPTR);
 		_systemRegions[1].Size = 0x10000;
 		_systemRegions[1].Base = 0xFF0000;
-
+		PointerSearch::SelectPreset(_platformID);
 		return true;
 	}
 
@@ -1096,8 +1131,6 @@ bool MungPlex::ProcessInformation::initCemu()
 {
 	setMiscProcessInfo("Cemu", true, false, 4, 4);
 	bool titleIDFound = false;
-	_platform = "Wii U";
-	PointerSearch::SelectPreset(WIIU);
 
 	for (const auto& region : GetRegionList())
 	{
@@ -1164,6 +1197,9 @@ bool MungPlex::ProcessInformation::initCemu()
 		_rpcGameID = _gameID.append("-" + MorphText::Utf16LE_To_Utf8(wTitle.substr(0, wTitle.find(L"]"))));
 		//std::cout << _gameID << std::endl;
 		//std::cout << _gameName << std::endl;
+		_platform = "Wii U";
+		PointerSearch::SelectPreset(WIIU);
+		_platformID = WIIU;
 		return true;
 	}
 
@@ -1174,8 +1210,6 @@ bool MungPlex::ProcessInformation::initPPSSPP()
 {
 	setMiscProcessInfo("PPSSPP", false, false, 4, 4);
 	bool titleIDFound = false;
-	_platform = "PSP";
-	PointerSearch::SelectPreset(PSP);
 
 	for (Xertz::MemoryRegion& region : GetRegionList())
 	{
@@ -1199,6 +1233,9 @@ bool MungPlex::ProcessInformation::initPPSSPP()
 		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.substr(pos + 14)).c_str();
 		//std::cout << _gameID << std::endl;
 		//std::cout << _gameName << std::endl;
+		_platform = "PSP";
+		PointerSearch::SelectPreset(PSP);
+		_platformID = PSP;
 		return true;
 	}
 
@@ -1470,5 +1507,67 @@ std::string MungPlex::ProcessInformation::getRegionFromNintendoRegionCode(const 
 		return "Taiwan/Hong Kong/Macau";
 	default://
 		return "Unknown";
+	}
+}
+
+bool MungPlex::ProcessInformation::IsConnectionValid()
+{
+	const bool processOK = GetInstance()._process.GetPID() > 0 && GetInstance()._process.IsRunning();
+
+	if (!processOK)
+		return false;
+
+	switch (GetInstance()._processType)
+	{
+	case EMULATOR: {
+
+		switch (GetInstance()._platformID)
+		{
+		case PSP: {
+			std::wstring wTitleBuf(512, L'\0');
+
+			for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
+			{
+				GetWindowTextW(wHandle, wTitleBuf.data(), 512);
+
+				if (wTitleBuf.find(MorphText::Utf8_To_Utf16LE(GetInstance()._gameID)) == std::wstring::npos)
+					continue;
+
+				int pos = wTitleBuf.find(L"-");
+
+				if (pos == std::wstring::npos)
+					continue;
+				else
+					return true;
+			}
+		}return false;
+		case WIIU: {
+			std::wstring wTitleBuf(512, L'\0');
+
+			for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
+			{
+				GetWindowTextW(wHandle, wTitleBuf.data(), 512);
+
+				if (wTitleBuf.find(L"Cemu") == std::wstring::npos)
+					continue;
+
+				int pos = wTitleBuf.find(L"TitleId");
+
+				if (pos == std::wstring::npos)
+					continue;
+				else
+					return true;
+			}
+		}return false;
+		default: { //all other
+			int temp = 0;
+			GetInstance()._process.ReadExRAM(&temp, GetInstance()._connectionCheckPtr, 4);
+			return temp == GetInstance()._connectionCheckValue;
+		}
+		}
+
+	}break;
+	default: //PC
+		return true;
 	}
 }

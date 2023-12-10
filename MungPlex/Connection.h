@@ -59,5 +59,7 @@ namespace MungPlex
 
         void drawConnectionSelect();
         void memoryViewerButton();
+        void startConnectionCheck();
+        void checkConnection();
     };
 }

@@ -46,7 +46,7 @@ namespace MungPlex
         {
             NES, SNES, N64, GAMECUBE, TRIFORCE, WII, WIIU, SWITCH, GB, GBC, GBA, NDS, N3DS, PS1, PS2, PS3,
             PS4, PS5, PSP, PSV, SMS, GENESIS, S32X, SMCD, SATURN, DREAMCAST, GG, XBOX, XBOX360, XBOXONE,
-            XBOXSERIES, X86, X64
+            XBOXSERIES, X86, X64, UNK = -1
         };
 
         static void DrawWindow();
@@ -77,6 +77,7 @@ namespace MungPlex
         static MODULE_LIST& GetModuleList();
         static REGION_LIST& GetRegionList();
         static std::vector<SystemRegion>& GetSystemRegionList();
+        static bool IsConnectionValid();
 
         template<typename addressType> static addressType GetModuleAddress(const std::wstring& moduleName)
         {
@@ -263,7 +264,6 @@ namespace MungPlex
 
         int32_t _processType;
         PROCESS_INFO _process;
-        //bool _isX64;
         bool _underlyingIsBigEndian;
         bool _rereorderRegion;
         int _alignment;
@@ -283,9 +283,11 @@ namespace MungPlex
         bool _read = true;
         bool _write = true;
         bool _execute = true;
+        int _platformID = UNK;
+        int _connectionCheckValue = 0;
+        void* _connectionCheckPtr = nullptr;
 
         void drawModuleList();
-        //void refreshData(int32_t PID);
         void drawRegionList();
         void drawMiscInformation();
         void drawGameInformation();

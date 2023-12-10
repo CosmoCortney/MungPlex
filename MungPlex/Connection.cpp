@@ -1,4 +1,7 @@
 #include "Connection.h"
+#include <chrono>
+#include <thread>
+#include <future>
 
 void MungPlex::Connection::DrawWindow()
 {
@@ -43,6 +46,8 @@ void MungPlex::Connection::drawConnectionSelect()
 
 					if (Settings::GetGeneralSettings().EnableRichPresence)
 						InitRichPresence();
+
+					startConnectionCheck();
 				}
 			}
 
@@ -117,6 +122,8 @@ void MungPlex::Connection::drawConnectionSelect()
 					if (Settings::GetGeneralSettings().EnableRichPresence)
 						InitRichPresence();
 				}
+
+				startConnectionCheck();
 			}
 
 			ImGui::SameLine();
@@ -221,4 +228,21 @@ void MungPlex::Connection::StopRichPresence()
 std::vector<MungPlex::MemoryViewer>& MungPlex::Connection::GetMemoryViews()
 {
 	return GetInstance()._memoryViewers;
+}
+
+void MungPlex::Connection::startConnectionCheck()
+{
+	std::thread waitNcheck(&MungPlex::Connection::checkConnection, this);
+	waitNcheck.detach();
+}
+
+void MungPlex::Connection::checkConnection()
+{
+	static const auto millisecondsToWait = std::chrono::seconds(1);
+
+	while (_connected)
+	{
+		std::this_thread::sleep_for(millisecondsToWait);
+		_connected = ProcessInformation::IsConnectionValid();
+	}
 }
