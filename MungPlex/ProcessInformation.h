@@ -182,56 +182,26 @@ namespace MungPlex
             else
                 writeAddress = reinterpret_cast<void*>(address);
 
-            if constexpr (std::is_same_v<dataType, uint64_t> || std::is_same_v<dataType, int64_t>)
+            if constexpr (std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, int8_t>)
+            {
+                if (GetInstance()._rereorderRegion)
+                    WriteToReorderedRangeEx<dataType>(GetInstance()._process, &writeValue, writeAddress);
+                else
+                    GetInstance()._process.WriteMemoryFast(&writeValue, writeAddress, sizeof(dataType));
+            }
+            else if constexpr (std::is_integral_v<dataType> || std::is_floating_point_v<dataType>)
             {
                 if (GetInstance()._underlyingIsBigEndian)
-                    writeValue = Xertz::SwapBytes<int64_t>(writeValue);
+                    writeValue = Xertz::SwapBytes<dataType>(writeValue);
 
                 if (GetInstance()._rereorderRegion)
                     WriteToReorderedRangeEx<dataType>(GetInstance()._process, &writeValue, writeAddress);
                 else
-                    GetInstance()._process.WriteExRAM(reinterpret_cast<void*>(&writeValue), writeAddress, 8);
-            }
-            else if constexpr (std::is_same_v<dataType, uint32_t> || std::is_same_v<dataType, int32_t>)
-            {
-                if (GetInstance()._underlyingIsBigEndian)
-                    writeValue = Xertz::SwapBytes<int32_t>(writeValue);
-
-                if (GetInstance()._rereorderRegion)
-                    WriteToReorderedRangeEx<dataType>(GetInstance()._process, &writeValue, writeAddress);
-                else
-                    GetInstance()._process.WriteExRAM(reinterpret_cast<void*>(&writeValue), writeAddress, 4);
-            }
-            else if constexpr (std::is_same_v<dataType, uint16_t> || std::is_same_v<dataType, int16_t>)
-            {
-                if (GetInstance()._underlyingIsBigEndian)
-                    writeValue = Xertz::SwapBytes<int16_t>(writeValue);
-
-                if (GetInstance()._rereorderRegion)
-                    WriteToReorderedRangeEx<dataType>(GetInstance()._process, &writeValue, writeAddress);
-                else
-                    GetInstance()._process.WriteExRAM(reinterpret_cast<void*>(&writeValue), writeAddress, 2);
-            }
-            else if constexpr (std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, int8_t>)
-            {
-                if (GetInstance()._rereorderRegion)
-                    WriteToReorderedRangeEx<dataType>(GetInstance()._process, &writeValue, writeAddress);
-                else
-                    GetInstance()._process.WriteExRAM(reinterpret_cast<void*>(&writeValue), writeAddress, 1);
-            }
-            else if constexpr (std::is_same_v<dataType, double>)
-            {
-                int64_t temp = *reinterpret_cast<int64_t*>(&writeValue);
-                WriteValue<int64_t>(address, temp);
-            }
-            else if constexpr (std::is_same_v<dataType, float>)
-            {
-                int32_t temp = *reinterpret_cast<int32_t*>(&writeValue);
-                WriteValue<int32_t>(address, temp);
+                    GetInstance()._process.WriteMemoryFast(&writeValue, writeAddress, sizeof(dataType));
             }
             else if constexpr (std::is_same_v<dataType, bool>)
             {
-                WriteValue<int8_t>(address, writeValue);
+                WriteValueInternal(address, static_cast<int8_t>(value), 1);
             }
         }
 

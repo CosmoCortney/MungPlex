@@ -78,7 +78,7 @@ namespace MungPlex
         for (int i = 0; i < sizeof(dataType); ++i)
         {
             char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
-            process.WriteExRAM(dest + i, reorderedAddress, 1);
+            process.WriteMemoryFast(dest + i, reorderedAddress, 1);
         }
 
         return;
@@ -103,36 +103,36 @@ namespace MungPlex
         return (tmpPair != pairs.end()) ? tmpPair->first : L"";
     }
 
-    static bool WriteTextEx(const uint32_t pid, const char* text, const uint64_t address)
+    static bool WriteTextEx(const uint32_t pid, char* text, const uint64_t address)
     {
         uint32_t textLength = strlen(text);
 
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(text, reinterpret_cast<void*>(address), textLength);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteMemoryFast(text, reinterpret_cast<void*>(address), textLength);
         return true;
     }
 
-    static bool WriteTextEx(const uint32_t pid, const wchar_t* text, const uint64_t address)
+    static bool WriteTextEx(const uint32_t pid, wchar_t* text, const uint64_t address)
     {
         uint32_t textLength = wcslen(text);
 
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(text, reinterpret_cast<void*>(address), textLength*2);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteMemoryFast(text, reinterpret_cast<void*>(address), textLength*2);
         return true;
     }
 
-    static bool WriteTextEx(const uint32_t pid, const char32_t* text, const uint64_t address)
+    static bool WriteTextEx(const uint32_t pid, char32_t* text, const uint64_t address)
     {
         uint32_t textLength = std::char_traits<char32_t>::length(text);
 
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteExRAM(text, reinterpret_cast<void*>(address), textLength * 4);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteMemoryFast(text, reinterpret_cast<void*>(address), textLength * 4);
         return true;
     }
 

@@ -185,18 +185,18 @@ namespace MungPlex
             const int pid = ProcessInformation::GetPID();
             const std::string pokeTextp = _pokeValueText.StdStr();
             MorphText pokeValue(pokeTextp);
+            auto& results = MemoryCompare::MemCompare::GetResults();
 
             if (_multiPoke)
             {
-               
-                uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+                const uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
                 {
                     if (_selectedIndices[index] == false)
                         continue;
 
-                    uint64_t address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<addressType>(resultIndex + index);
+                    uint64_t address = results.GetAddressAllRanges<addressType>(resultIndex + index);
                     int regionIndex = -1;
 
                     for (int i = 0; i < _regions.size(); ++i)
@@ -217,7 +217,7 @@ namespace MungPlex
                     switch (_currentTextTypeSelect)
                     {
                     case MorphText::ASCII:
-                        WriteTextEx(pid, pokeValue.GetASCII().c_str(), address);
+                        WriteTextEx(pid, pokeValue.GetASCII().data(), address);
                     break;
                     case MorphText::SHIFTJIS:
                         WriteTextEx(pid, pokeValue.GetShiftJis(), address);
@@ -229,13 +229,13 @@ namespace MungPlex
                         WriteTextEx(pid, pokeValue.GetJisX0201HalfWidth(), address);
                     break;
                     case MorphText::UTF8:
-                        WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
+                        WriteTextEx(pid, pokeValue.GetUTF8().data(), address);
                     break;
                     case MorphText::UTF16LE: case MorphText::UTF16BE:
-                        WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
+                        WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).data(), address);
                         break;
                     case MorphText::UTF32LE: case MorphText::UTF32BE:
-                        WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
+                        WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).data(), address);
                         break;
                     default: //ISO-8859-X
                         WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
@@ -260,7 +260,7 @@ namespace MungPlex
                     switch (_currentTextTypeSelect)
                     {
                     case MorphText::ASCII: {
-                        success = WriteTextEx(pid, pokeValue.GetASCII().c_str(), address);
+                        success = WriteTextEx(pid, pokeValue.GetASCII().data(), address);
                     } break;
                     case MorphText::SHIFTJIS: {
                         success = WriteTextEx(pid, pokeValue.GetShiftJis(), address);
@@ -272,13 +272,13 @@ namespace MungPlex
                         success = WriteTextEx(pid, pokeValue.GetJisX0201HalfWidth(), address);
                     } break;
                     case MorphText::UTF8: {
-                        success = WriteTextEx(pid, pokeValue.GetUTF8().c_str(), address);
+                        success = WriteTextEx(pid, pokeValue.GetUTF8().data(), address);
                     } break;
                     case MorphText::UTF16LE: case MorphText::UTF16BE: {
-                        success = WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).c_str(), address);
+                        success = WriteTextEx(pid, pokeValue.GetUTF16(_currentTextTypeSelect == MorphText::UTF16BE ? true : false).data(), address);
                     } break;
                     case MorphText::UTF32LE: case MorphText::UTF32BE: {
-                        success = WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).c_str(), address);
+                        success = WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).data(), address);
                     } break;
                     default: //ISO-8859-X
                         success = WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
@@ -296,30 +296,31 @@ namespace MungPlex
         {
             const std::string colorString = _pokeValueText.StdStr();
             LitColor pokeValue(colorString);
-            const int pokeValueWidth = pokeValue.GetSelectedType() == LitColor::RGB888 ? 3 : 4;
+            const int selectedType = pokeValue.GetSelectedType();
+            auto& results = MemoryCompare::MemCompare::GetResults();
 
             if (_multiPoke)
             {
-                uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+                const uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
                 {
                     if (_selectedIndices[index] == false)
                         continue;
 
-                    uint64_t address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<addressType>(resultIndex + index);
+                    uint64_t address = results.GetAddressAllRanges<addressType>(resultIndex + index);
 
-                    switch (pokeValue.GetSelectedType()) //RGB888, RGBA8888
+                    switch (selectedType) //RGB888, RGBA8888
                     {
                     case LitColor::RGB565: case LitColor::RGB5A3:
                     {
                         uint16_t val;
 
                         if (_pokePrevious)
-                            val = MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint16_t>(resultIndex + index);
+                            val = results.GetPreviousValueAllRanges<uint16_t>(resultIndex + index);
                         else
                         {
-                            if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                            if (selectedType == LitColor::RGB565)
                                 val = pokeValue.GetRGB565();
                             else
                                 val = pokeValue.GetRGB5A3();
@@ -329,15 +330,15 @@ namespace MungPlex
                     }break;
                     case LitColor::RGBF: case LitColor::RGBAF:
                     {
-                        for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
+                        for (int item = 0; item < (selectedType == LitColor::RGBF ? 3 : 4); ++item)
                         {
-                            float val = _pokePrevious ? MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<float>(resultIndex + index + item) : pokeValue.GetColorValue<float>(item);
+                            float val = _pokePrevious ? results.GetPreviousValueAllRanges<float>(resultIndex + index + item) : pokeValue.GetColorValue<float>(item);
                             ProcessInformation::WriteValue<float>(address + item * sizeof(float), val);
                         }
                     } break;
                     default: //LitColor::RGB888: LitColor::RGBA8888: 
                     {
-                        uint32_t val = _pokePrevious ? MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint32_t>(resultIndex + index) : pokeValue.GetRGBA();
+                        uint32_t val = _pokePrevious ? results.GetPreviousValueAllRanges<uint32_t>(resultIndex + index) : pokeValue.GetRGBA();
                         ProcessInformation::WriteValue<uint32_t>(address, val);
                     } break;
                     }
@@ -347,13 +348,13 @@ namespace MungPlex
                 return true;
             }
 
-            switch (pokeValue.GetSelectedType()) //RGB888, RGBA8888
+            switch (selectedType) //RGB888, RGBA8888
             {
             case LitColor::RGB565: case LitColor::RGB5A3:
             {
                 uint16_t val;
 
-                if (pokeValue.GetSelectedType() == LitColor::RGB565)
+                if (selectedType == LitColor::RGB565)
                     val = pokeValue.GetRGB565();
                 else
                     val = pokeValue.GetRGB5A3();
@@ -362,7 +363,7 @@ namespace MungPlex
             }break;
             case LitColor::RGBF: case LitColor::RGBAF:
             {
-                for (int item = 0; item < (pokeValue.GetSelectedType() == LitColor::RGBF ? 3 : 4); ++item)
+                for (int item = 0; item < (selectedType == LitColor::RGBF ? 3 : 4); ++item)
                 {
                     float val = pokeValue.GetColorValue<float>(item);
                     ProcessInformation::WriteValue<float>(_pokeAddress + item * sizeof(float), val);
@@ -380,22 +381,23 @@ namespace MungPlex
 
         template<typename uType, typename addressType> bool pokeArray()
         {
-            uint64_t itemCount = OperativeArray<uType>(_knownValueText.StdStr()).ItemCount();
+            const uint64_t itemCount = OperativeArray<uType>(_knownValueText.StdStr()).ItemCount();
             std::string arrayString = _pokeValueText.StdStr();
             OperativeArray<uType> pokeArray(arrayString);
+            auto& results = MemoryCompare::MemCompare::GetResults();
             
             if (_multiPoke)
             {
                 int regionIndex = -1;
                 bool swapBytes = _underlyingBigEndian;
-                uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+                const uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
                 {
                     if (_selectedIndices[index] == false)
                         continue;
 
-                    uint64_t address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<addressType>(resultIndex + index);
+                    uint64_t address = results.GetAddressAllRanges<addressType>(resultIndex + index);
 
                     if (_pokePrevious)
                     {
@@ -407,7 +409,7 @@ namespace MungPlex
                             delete[] buf;
                         }
                         else
-                            pokeArray = OperativeArray<uType>(MemoryCompare::MemCompare::GetResults().GetSpecificPreviousValuePtrAllRanges<uType>(resultIndex + index), itemCount);
+                            pokeArray = OperativeArray<uType>(results.GetSpecificPreviousValuePtrAllRanges<uType>(resultIndex + index), itemCount);
                     }
                     
                     for (int i = 0; i < itemCount; ++i)
@@ -430,24 +432,25 @@ namespace MungPlex
         template<typename dataType, typename addressType> bool pokeValue()
         {
             dataType* pokeValuePtr = (dataType*)&_pokeValue[0];
+            auto& results = MemoryCompare::MemCompare::GetResults();
 
             if (_multiPoke)
             {
                 bool swapBytes = _underlyingBigEndian;
-                uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+                const uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
                 {
                     if (_selectedIndices[index] == false)
                         continue;
 
-                    uint64_t address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<addressType>(resultIndex + index);
+                    uint64_t address = results.GetAddressAllRanges<addressType>(resultIndex + index);
 
                     if (_pokePrevious)
                         if (MemoryCompare::MemCompare::GetIterationCount() < 1)
                             *pokeValuePtr = 0;
                         else
-                            *pokeValuePtr = MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<dataType>(resultIndex + index);
+                            *pokeValuePtr = results.GetPreviousValueAllRanges<dataType>(resultIndex + index);
 
                     ProcessInformation::WriteValue<dataType>(address, *reinterpret_cast<dataType*>(pokeValuePtr));
                 }

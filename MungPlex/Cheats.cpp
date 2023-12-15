@@ -501,7 +501,7 @@ void MungPlex::Cheats::copyMemory(const uint64_t source, const uint64_t destinat
 	
 	char* buf = new char[size];
 	ProcessInformation::GetProcess().ReadExRAM(buf, src, size);
-	ProcessInformation::GetProcess().WriteExRAM(buf, dest, size);
+	ProcessInformation::GetProcess().WriteMemoryFast(buf, dest, size);
 	delete[] buf;
 }
 
