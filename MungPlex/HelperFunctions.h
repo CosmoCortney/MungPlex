@@ -64,7 +64,7 @@ namespace MungPlex
         for (int i = 0; i < sizeof(dataType); ++i)
         {
             char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
-            process.ReadExRAM(dest + i, reorderedAddress, 1);
+            process.ReadMemoryFast(dest + i, reorderedAddress, 1);
         }
         
         return;

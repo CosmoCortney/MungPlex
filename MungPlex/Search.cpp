@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include"Search.h"
 #include <Windows.h>
 
@@ -1438,7 +1438,7 @@ void MungPlex::Search::setUpAndIterate()
 	for (SystemRegion& dumpRegion : _dumpRegions)
 	{
 		char* buf = new char[dumpRegion.Size];
-		ProcessInformation::GetProcess().ReadExRAM(buf, dumpRegion.BaseLocationProcess, dumpRegion.Size, 0x1000);
+		ProcessInformation::GetProcess().ReadMemoryFast(buf, dumpRegion.BaseLocationProcess, dumpRegion.Size, 0x1000);
 		
 		if (_rereorderRegion)
 			Rereorder4BytesReorderedMemory(buf, dumpRegion.Size);

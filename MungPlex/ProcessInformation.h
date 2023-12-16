@@ -112,52 +112,22 @@ namespace MungPlex
             else
                 readAddress = reinterpret_cast<void*>(address);
 
-            if constexpr (std::is_same_v<dataType, uint64_t> || std::is_same_v<dataType, int64_t>)
+            if constexpr (std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, int8_t>)
             {
                 if (GetInstance()._rereorderRegion)
                     ReadFromReorderedRangeEx<dataType>(GetInstance()._process, &readValue, readAddress);
                 else
-                    GetInstance()._process.ReadExRAM(reinterpret_cast<void*>(&readValue), readAddress, 8);
+                    GetInstance()._process.ReadMemoryFast(reinterpret_cast<void*>(&readValue), readAddress, 1);
+            }
+            else if constexpr (std::is_integral_v<dataType> || std::is_floating_point_v<dataType>)
+            {
+                if (GetInstance()._rereorderRegion)
+                    ReadFromReorderedRangeEx<dataType>(GetInstance()._process, &readValue, readAddress);
+                else
+                    GetInstance()._process.ReadMemoryFast(reinterpret_cast<void*>(&readValue), readAddress, sizeof(dataType));
 
                 if (GetInstance()._underlyingIsBigEndian)
                     readValue = Xertz::SwapBytes<int64_t>(readValue);
-            }
-            else if constexpr (std::is_same_v<dataType, uint32_t> || std::is_same_v<dataType, int32_t>)
-            {
-                if (GetInstance()._rereorderRegion)
-                    ReadFromReorderedRangeEx<dataType>(GetInstance()._process, &readValue, readAddress);
-                else
-                    GetInstance()._process.ReadExRAM(reinterpret_cast<void*>(&readValue), readAddress, 4);
-
-                if (GetInstance()._underlyingIsBigEndian)
-                    readValue = Xertz::SwapBytes<int32_t>(readValue);
-            }
-            else if constexpr (std::is_same_v<dataType, uint16_t> || std::is_same_v<dataType, int16_t>)
-            {
-                if (GetInstance()._rereorderRegion)
-                    ReadFromReorderedRangeEx<dataType>(GetInstance()._process, &readValue, readAddress);
-                else
-                    GetInstance()._process.ReadExRAM(reinterpret_cast<void*>(&readValue), readAddress, 2);
-
-                if (GetInstance()._underlyingIsBigEndian)
-                    readValue = Xertz::SwapBytes<int16_t>(readValue);
-            }
-            else if constexpr (std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, int8_t>)
-            {
-                if (GetInstance()._rereorderRegion)
-                    ReadFromReorderedRangeEx<dataType>(GetInstance()._process, &readValue, readAddress);
-                else
-                    GetInstance()._process.ReadExRAM(reinterpret_cast<void*>(&readValue), readAddress, 1);
-            }
-            else if constexpr (std::is_same_v<dataType, double>)
-            {
-                int64_t temp = ReadValue<int64_t>(address);
-                readValue = *reinterpret_cast<dataType*>(&temp);
-            }
-            else if constexpr (std::is_same_v<dataType, float>)
-            {
-                int32_t temp = ReadValue<int32_t>(address);
-                readValue = *reinterpret_cast<dataType*>(&temp);
             }
             else if constexpr (std::is_same_v<dataType, bool>)
             {
