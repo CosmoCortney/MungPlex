@@ -127,7 +127,7 @@ namespace MungPlex
                     GetInstance()._process.ReadMemoryFast(reinterpret_cast<void*>(&readValue), readAddress, sizeof(dataType));
 
                 if (GetInstance()._underlyingIsBigEndian)
-                    readValue = Xertz::SwapBytes<int64_t>(readValue);
+                    readValue = Xertz::SwapBytes<dataType>(readValue);
             }
             else if constexpr (std::is_same_v<dataType, bool>)
             {
