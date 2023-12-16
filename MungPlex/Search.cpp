@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include"Search.h"
 #include <Windows.h>
 
@@ -633,11 +633,12 @@ void MungPlex::Search::drawResultsArea()
 					} break;
 					default: { //PRIMITIVE
 						int64_t tempVal;
+						std::stringstream streamV;
 
 						if (_hex && _currentPrimitiveTypeSelect < FLOAT)
 						{
-							stream << std::hex << _pokeValueText.CStr();
-							stream >> tempVal;
+							streamV << std::hex << _pokeValueText.CStr();
+							streamV >> tempVal;
 						}
 						else
 							tempVal = std::stoll(_pokeValueText.CStr());
