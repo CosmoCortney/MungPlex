@@ -37,7 +37,11 @@ Find the latest release [here](https://github.com/CosmoCortney/MungPlex/releases
 ## Connection
 The Connection frame features an emulator select and process select for PC games and programs. 
 
-### Connect To An Emulator
+## Discord Rich Presence
+You can show what you're doing with MungPlex via Discord Rich Presence. To prevent games and emulators from surpressing MungPlex from the Rich Presence disable Rich Presence in the game/emulator settings.
+If you don't want to have this enabled you can leave this option disabled in the settings.
+
+### Connecting To An Emulator
 On the top-left you will find the *Emulator* tab item.
 Below you can select the target emulator from the drop-down menu.
 As of version 2.3.0 the following emulators and systems are supported:
@@ -70,9 +74,10 @@ Click the play button (arrow pointing to the right) to execute.
 Run this script every time you want to connect to Mesen if it is not executed automatically.
 
 ##### Yuzu
-The Nintendo Switch uses [ASLR (Address space layout randomization)](https://en.wikipedia.org/wiki/Address_space_layout_randomization) which causes base addresses to be randomized. Therefore no base can be determined and cheats have to be search again every time you restart the game. A lot of research has to be done here.
+Before connecting to Yuzu go to Yuzu's menu, then `Emulation/General/UI` and set for `Row 1 Text:` *Title Name*, and for `Row 2 Text:` *Title ID*. MungPlex requires this to be able to find Title IDs once the Game Name has been detected. If the Title ID could not be found restart the game or emulator entirely and retry.<br>
+The Nintendo Switch uses [ASLR (Address space layout randomization)](https://en.wikipedia.org/wiki/Address_space_layout_randomization) which causes base addresses to be randomized. Therefore no base can be determined yet and therefore cheats have to be searched again every time you restart the game. A lot of research has to be done here.
 
-### Connect To A PC Game
+### Connecting To A PC Game
 On the tab bar click the *Native Application* tab. Under the sub-tab of *Application* you can select from all windowed applications. There you should find any PC game that is currently running. Alternatively you can select from any process of your PC by clicking the *Processes* tab instead. 
 
 
@@ -420,15 +425,14 @@ Displays various information about the connected game/process
 Define various settings and preferences.
 
 ### General Settings
+- `Set Color`: Define each widget type's color
 - `Documents Path`: Where MungPlex saves everything. It is recommended picking a place that is on an SSD for better performance since this tool may handle large files
 - `UI-Scale`: Scale of the app. Change this if it looks off
 - `Default Active Window`
-- `Color Theme`
 
 ### Search Settings
 - `Case Sensitive by default`
 - `Color Wheel by default`
-- `Default Alignment`
 - `Values are hex by default`
 - `Cached Searches by default`
 
