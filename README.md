@@ -37,7 +37,7 @@ Find the latest release [here](https://github.com/CosmoCortney/MungPlex/releases
 ## Connection
 The Connection frame features an emulator select and process select for PC games and programs. 
 
-## Discord Rich Presence
+### Discord Rich Presence
 <img src="MungPlex\resources\img\manual\MungPlex_DiscordRichPresence.png" width="512">
 
 You can show what you're doing with MungPlex via Discord Rich Presence. To prevent games and emulators from surpressing MungPlex from the Rich Presence disable Rich Presence in the game/emulator settings.
