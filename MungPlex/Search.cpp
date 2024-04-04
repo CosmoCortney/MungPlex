@@ -150,7 +150,7 @@ void MungPlex::Search::drawValueTypeOptions()
 					|| !_disableBecauseNoText;
 
 				if (_currentValueTypeSelect == TEXT || _currentValueTypeSelect == COLOR)
-					_currentComparisionTypeSelect = MemoryCompare::KNOWN;
+					_currentcomparisonTypeSelect = MemoryCompare::KNOWN;
 
 				ImGui::SameLine();
 
@@ -308,7 +308,7 @@ void MungPlex::Search::drawSearchOptions()
 		static bool disableSecondaryValueText = true;
 		int iterationCount = MemoryCompare::MemCompare::GetIterationCount();
 
-		_diableBecauseUnknownAndNotRangebased = _currentComparisionTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
+		_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
 
 		if (_updateLabels)
 		{
@@ -372,7 +372,7 @@ void MungPlex::Search::drawSearchOptions()
 
 		if(!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::BeginDisabled();
 		{
-			if (MungPlex::SetUpCombo("Comparision Type:", _searchComparasionType, _currentComparisionTypeSelect, 0.5f, 0.4f))
+			if (MungPlex::SetUpCombo("comparison Type:", _searchComparasionType, _currentcomparisonTypeSelect, 0.5f, 0.4f))
 				_updateLabels = true;
 		}
 		if (!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::EndDisabled();
@@ -716,7 +716,7 @@ void MungPlex::Search::performSearch()
 	}
 
 	if(_currentValueTypeSelect != PRIMITIVE)
-		_currentComparisionTypeSelect = MemoryCompare::KNOWN;
+		_currentcomparisonTypeSelect = MemoryCompare::KNOWN;
 
 	setUpAndIterate();
 	setUpIterationSelect();
@@ -778,9 +778,9 @@ void MungPlex::Search::primitiveTypeSearchLog()
 		Log::LogInformation("int 32.", true);
 	}
 
-	Log::LogInformation("Comparision Type:", true, 4);
+	Log::LogInformation("comparison Type:", true, 4);
 
-	if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
+	if (_currentcomparisonTypeSelect == MemoryCompare::KNOWN)
 	{
 		Log::LogInformation("Known: " + _knownValueText.StdStr() + ", " + _secondaryKnownValueText.StdStr(), true);
 	}
@@ -1425,7 +1425,7 @@ void MungPlex::Search::setUpAndIterate()
 
 	uint32_t iterationFlags = 0;
 
-	if (_currentComparisionTypeSelect == MemoryCompare::KNOWN)
+	if (_currentcomparisonTypeSelect == MemoryCompare::KNOWN)
 		iterationFlags |= MemoryCompare::KNOWN;
 
 	if (_hex)

@@ -98,7 +98,7 @@ namespace MungPlex
         std::vector<std::pair<std::string, int>> _searchConditionTypesColor{};
         std::vector<std::pair<std::string, int>> _searchConditionTypesText{};
         std::vector<std::pair<std::string, int>> _searchComparasionType{};
-        int _currentComparisionTypeSelect = 0;
+        int _currentcomparisonTypeSelect = 0;
         int _currentConditionTypeSelect = 0;
         ImVec4 _colorVec;
 
