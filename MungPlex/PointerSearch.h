@@ -14,15 +14,6 @@ namespace MungPlex
         static void SelectPreset(int presetIndex);
 
         PointerSearch();
-        ~PointerSearch()
-        {
-	        for(int i = 0; i < _memDumps.size(); ++i)
-            {
-                delete[] _memDumps[i].first;
-                delete[] _bufStartingAddress[i];
-                delete[] _bufTargetAddress[i];
-            }
-        }
         PointerSearch(const PointerSearch&) = delete;
         PointerSearch(PointerSearch&&) = delete;
         void operator=(const PointerSearch&) = delete;
