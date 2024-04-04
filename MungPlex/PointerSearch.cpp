@@ -12,7 +12,7 @@
 MungPlex::PointerSearch::PointerSearch()
 {
     _systemPresets.emplace_back("Nintendo Entertainment Systen / Famicom", 1, false);
-    _systemPresets.emplace_back("Super Nintendo Entertainment Systen / Famicom", 1, false);
+    _systemPresets.emplace_back("Super Nintendo Entertainment Systen / Super Famicom", 1, false);
     _systemPresets.emplace_back("Nintendo 64", 2, true);
     _systemPresets.emplace_back("Nintendo GameCube", 2, true);
     _systemPresets.emplace_back("Triforce Arcade", 2, true);
@@ -48,16 +48,14 @@ MungPlex::PointerSearch::PointerSearch()
     _defaultPath = Settings::GetGeneralSettings().DocumentsPath;
     std::replace(_defaultPath.begin(), _defaultPath.end(), '\\', '/');
     _defaultPath.append("/MungPlex/Dumps/");
-    _minOffset = new char[17];
-    strcpy_s(_minOffset, 17, "0");
-    _maxOffset = new char[17];
-    strcpy_s(_maxOffset, 17, "1000");
-    _resultsPath = new char[512];
+    _minOffset = "0";
+    _minOffset.resize(17);
+    _maxOffset = "1000";
+    _maxOffset.resize(17);
     const auto temporary_directory_path = std::filesystem::temp_directory_path();
     const auto pointers_output_file_path = temporary_directory_path / "Pointers.txt";
-    strcpy_s(_resultsPath, 512, pointers_output_file_path.string().c_str());
-    _results = new char[4];
-    *_results = 0;
+    _resultsPath = pointers_output_file_path.string();
+    _resultsPath.resize(512);
 }
 
 void MungPlex::PointerSearch::DrawWindow()
@@ -100,8 +98,8 @@ void MungPlex::PointerSearch::drawSettings()
         ImGui::Checkbox("Print Visited Addresses", &_printVisitedAddresses); ImGui::SameLine(); HelpMarker("Additionally print visited addresses.");
         ImGui::SameLine();
         ImGui::Checkbox("Print Module Names", &_printModuleNames); ImGui::SameLine(); HelpMarker("Whether to print file/module name instead of initial address.");
-        SetUpInputText("Minimum Offset:", _minOffset, 17, 1.0f, 0.3f, true, "Smallest offset value to be considered. Negative values allowed. A lower value may increase results count but also the scan time.");
-    	SetUpInputText("Maximum Offset:", _maxOffset, 17, 1.0f, 0.3f, true, "Biggest offset value to be considered. A bigger value may increase results count but also increase scan time.");
+        SetUpInputText("Minimum Offset:", _minOffset.data(), _minOffset.size(), 1.0f, 0.3f, true, "Smallest offset value to be considered. Negative values allowed. A lower value may increase results count but also the scan time.");
+    	SetUpInputText("Maximum Offset:", _maxOffset.data(), _maxOffset.size(), 1.0f, 0.3f, true, "Biggest offset value to be considered. A bigger value may increase results count but also increase scan time.");
 
         if (SetUpInputInt("Min. Pointer Depth:", &_minPointerDepth, 1, 1, 1.0f, 0.3f, 0, true, "Minimum pointer depth level. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value is usually always 1."))
         {
@@ -125,7 +123,7 @@ void MungPlex::PointerSearch::drawSettings()
         if (SetUpCombo("Address Width:", addressWidthSelect, _addressWidthIndex, 1.0f, 0.3f, true, "Address width of the dump's system."))
             _addressWidth = 1 << _addressWidthIndex;
 
-        SetUpInputText("Results File:", _resultsPath, 512, 1.0f, 0.3f, true, "Where to save the results file.");
+        SetUpInputText("Results File:", _resultsPath.data(), _resultsPath.size(), 1.0f, 0.3f, true, "Where to save the results file.");
         SetUpSliderFloat("Max. Memory Utilization Fraction:", &_maxMemUtilizationFraction, 0.1f, 0.95f, "%2f", 1.0f, 0.5f);
         SetUpInputInt("Max. Pointer Count:", &_maxPointerCount, 100, 1000, 1.0f, 0.3f, 0, true, "Maximum amount of pointers to be generated. Smaller values may decrease scan time and but also the likeability to find working pointer paths.");
 
@@ -140,12 +138,12 @@ void MungPlex::PointerSearch::drawSettings()
             if (ImGuiFileDialog::Instance()->IsOk())
             {
                 std::string filePathName = std::string("\"") + ImGuiFileDialog::Instance()->GetFilePathName() + "\"";
-                _memDumps.emplace_back(new char[512], std::array<uint64_t, 4>());
-                strcpy_s(GetInstance()._memDumps.back().first, 512, filePathName.c_str());
-                _bufStartingAddress.emplace_back(new char[17]);
-                strcpy_s(_bufStartingAddress.back(), 17, "0");
-                _bufTargetAddress.emplace_back(new char[17]);
-                strcpy_s(_bufTargetAddress.back(), 17, "0");
+                _memDumps.emplace_back(filePathName, std::array<uint64_t, 4>());
+                _memDumps.back().first.resize(512);
+                _bufStartingAddress.emplace_back("0");
+                _bufStartingAddress.back().resize(17);
+                _bufTargetAddress.emplace_back("0");
+                _bufTargetAddress.back().resize(17);
             }
 
             ImGuiFileDialog::Instance()->Close();
@@ -280,7 +278,7 @@ void MungPlex::PointerSearch::drawResults()
 {
     ImGui::BeginChild("PointerSearchResults");
     {
-        SetUpInputTextMultiline("Results", _results, IM_ARRAYSIZE(_results), 1.0f, 0.925f, ImGuiInputTextFlags_ReadOnly);
+        SetUpInputTextMultiline("Results", _results.data(), _results.size(), 1.0f, 0.925f, ImGuiInputTextFlags_ReadOnly);
     }
     ImGui::EndChild();
 }
@@ -477,10 +475,7 @@ bool MungPlex::PointerSearch::loadResults()
 
     std::stringstream buffer;
     buffer << resultsFile.rdbuf();
-    delete[] _results;
-    int strLength = buffer.str().size();
-    _results = new char[++strLength];
-    strcpy_s(_results, strLength, buffer.str().c_str());
+    _results = buffer.str();
     Log::LogInformation("Pointer Scan results loaded");
-    return static_cast<bool>(strLength);
+    return static_cast<bool>(_results.size());
 }

@@ -16,9 +16,7 @@ namespace MungPlex
         PointerSearch();
         ~PointerSearch()
         {
-	        delete[] _results;
-
-            for(int i = 0; i < _memDumps.size(); ++i)
+	        for(int i = 0; i < _memDumps.size(); ++i)
             {
                 delete[] _memDumps[i].first;
                 delete[] _bufStartingAddress[i];
@@ -35,6 +33,7 @@ namespace MungPlex
             return Instance;
         }
 
+    private:
         void drawList();
         void drawSettings();
         void drawResults();
@@ -45,15 +44,14 @@ namespace MungPlex
 
         std::string _arg;
         std::string _defaultPath;
-        char* _results = nullptr;
-        std::vector<std::pair<char*, std::array<uint64_t, 4>>> _memDumps{};
-        std::vector<char*> _bufStartingAddress{};
-        std::vector<char*> _bufTargetAddress{};
+        std::string _results;
+        std::vector<std::pair<std::string, std::array<uint64_t, 4>>> _memDumps{}; //0: starting address, 1: target address, 2: reserved, 3: correspondence
+        std::vector<std::string> _bufStartingAddress{};
+        std::vector<std::string> _bufTargetAddress{};
         bool _isBigEndian = false;
-        char* _minOffset = nullptr;
-        char* _maxOffset = nullptr;
-        // TODO Always use std::string instead of char*, it's possible to pre-allocate std::strings as well!
-        char* _resultsPath = nullptr;
+        std::string _minOffset;
+        std::string _maxOffset;
+        std::string _resultsPath;
         int _minPointerDepth = 1;
         int _maxPointerDepth = 1;
         int _addressWidth = 4;
