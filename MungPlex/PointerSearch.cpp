@@ -221,7 +221,7 @@ void MungPlex::PointerSearch::drawList()
             ImGui::TableSetupColumn("Dump File");
             ImGui::TableSetupColumn("Starting Address");
             ImGui::TableSetupColumn("Target Address");
-            ImGui::TableSetupColumn("Correspondence");
+            ImGui::TableSetupColumn("Correspondence (0 = initial, 1 = 1st comp, 2 = 2nd comp, ...)");
             //ImGui::TableSetColumnWidth(0, ImGui::GetContentRegionAvail().x * 0.5f);
             ImGui::TableHeadersRow();
             
@@ -236,23 +236,23 @@ void MungPlex::PointerSearch::drawList()
                     switch(col)
                     {
                     case 0:
-                        if (SetUpInputText((label + std::to_string(row)).c_str(), _memDumps[row].first, 512, 1.0f, 0.0f, false))
+                        if (SetUpInputText((label + std::to_string(row)).c_str(), _memDumps[row].first.data(), _memDumps[row].first.size(), 1.0f, 0.0f, false))
                         {
                         }
                         break;
                     case 1:
-                        if (SetUpInputText((label + "s" + std::to_string(row)).c_str(), _bufStartingAddress[row], 17, 1.0f, 0.0f, false))
+                        if (SetUpInputText((label + "s" + std::to_string(row)).c_str(), _bufStartingAddress[row].data(), _bufStartingAddress[row].size(), 1.0f, 0.0f, false))
                         {
                             std::stringstream stream;
-                            stream << std::hex << std::string(_bufStartingAddress[row]);
+                            stream << std::hex << _bufStartingAddress[row];
                             stream >> _memDumps[row].second[0];
                         }
                         break;
                     case 2:
-                        if (SetUpInputText((label + "t" + std::to_string(row)).c_str(), _bufTargetAddress[row], 17, 1.0f, 0.0f, false))
+                        if (SetUpInputText((label + "t" + std::to_string(row)).c_str(), _bufTargetAddress[row].data(), _bufTargetAddress[row].size(), 1.0f, 0.0f, false))
                         {
                             std::stringstream stream;
-                            stream << std::hex << std::string(_bufTargetAddress[row]);
+                            stream << std::hex << _bufTargetAddress[row];
                             stream >> _memDumps[row].second[1];
                         }
                         break;
@@ -344,8 +344,8 @@ void MungPlex::PointerSearch::generateArgument()
 {
     std::stringstream stream;
     _arg = "--pointer-offset-range ";
-    _arg.append(_minOffset).append(",");
-    _arg.append(_maxOffset).append(" ");
+    _arg.append(_minOffset.c_str()).append(",");
+    _arg.append(_maxOffset.c_str()).append(" ");
 
     _arg.append("--pointer-depth-range " + 
         std::to_string(_minPointerDepth) + "," + 
@@ -356,12 +356,12 @@ void MungPlex::PointerSearch::generateArgument()
     std::string readPointermapsFilePaths("--read-pointer-maps-file-paths ");
     std::string writePointermapsFilePaths("--write-pointer-maps-file-paths ");
     std::string targetPointermaps("--target-pointer-maps ");
-    std::string comparisionFilePaths("--comparison-file-path ");
+    std::string comparisonFilePaths("--comparison-file-path ");
     std::string initialStartingAddresses("--initial-starting-address ");
-    std::string comparisionStartingAddresses("--comparison-starting-address ");
+    std::string comparisonStartingAddresses("--comparison-starting-address ");
     std::string targetAdresses("--target-address ");
 
-    for (std::pair<char*, std::array<uint64_t, 4>> memDump: _memDumps)
+    for (auto memDump : _memDumps)
         if (memDump.second[3] > highestCorrespondence)
             highestCorrespondence = memDump.second[3];
 
@@ -371,7 +371,7 @@ void MungPlex::PointerSearch::generateArgument()
     {
         separator = true;
 
-    	for (std::pair<char*, std::array<uint64_t, 4>> memDump : _memDumps)
+    	for (auto memDump : _memDumps)
         {
             stream.str(std::string());
 
@@ -388,18 +388,16 @@ void MungPlex::PointerSearch::generateArgument()
             {
                 if (memDump.second[3] == currentCorrespondence && currentCorrespondence == 0)
                 {
-                    // TODO When passing in file paths, make sure they are surrounded by quotes because of potential spaces!
-                    initialFilePaths.append(memDump.first).append(" "); //file path
-
+                    initialFilePaths.append(memDump.first.c_str()).append(" "); //file path
                     stream << std::hex << memDump.second[0]; //starting address
                     initialStartingAddresses.append("0x").append(stream.str()).append(" ");
                 }
                 else if (memDump.second[3] == currentCorrespondence && currentCorrespondence > 0)
                 {
-                    comparisionFilePaths.append(memDump.first).append(" "); //file path
+                    comparisonFilePaths.append(memDump.first.c_str()).append(" "); //file path
 
                     stream << std::hex << memDump.second[0]; //starting address
-                    comparisionStartingAddresses.append("0x").append(stream.str()).append(" ");
+                    comparisonStartingAddresses.append("0x").append(stream.str()).append(" ");
                 }
             }
             
@@ -413,8 +411,8 @@ void MungPlex::PointerSearch::generateArgument()
 
             if(currentCorrespondence > 1 && currentCorrespondence <= highestCorrespondence && separator)
             {
-                comparisionFilePaths.append("%% ");
-                comparisionStartingAddresses.append("%% ");
+                comparisonFilePaths.append("%% ");
+                comparisonStartingAddresses.append("%% ");
                 separator = false;
             }
         }
@@ -430,11 +428,10 @@ void MungPlex::PointerSearch::generateArgument()
     }
     else
     {
-        // TODO This is wrong, we cannot pass the file path argument without specifying the file paths afterwards!
         _arg.append(initialFilePaths);
         _arg.append(initialStartingAddresses);
-        // _arg.append(comparisionFilePaths);
-        // _arg.append(comparisionStartingAddresses);
+        _arg.append(comparisonFilePaths);
+        _arg.append(comparisonStartingAddresses);
     }
 
     _arg.append(targetAdresses);
@@ -442,7 +439,7 @@ void MungPlex::PointerSearch::generateArgument()
     _arg.append("--address-size ").append(std::to_string(_addressWidth) + " ");
     _arg.append("--store-memory-pointers-file-path \"").append(_resultsPath).append("\" ");
     _arg.append("--maximum-memory-utilization-fraction ").append(std::to_string(_maxMemUtilizationFraction) + " ");
-    _arg.append("--file-extensions .dmp .bin .raw ");
+    _arg.append("--file-extensions .bin .raw .dmp");
     _arg.append("--maximum-pointer-count ").append(std::to_string(_maxPointerCount) + " ");
     _arg.append("--maximum-pointers-printed-count ").append(std::to_string(_maxPointerCount) + " ");
     _arg.append("--disable-printing-memory-pointers-to-console ");
@@ -453,7 +450,11 @@ void MungPlex::PointerSearch::generateArgument()
     if(_printVisitedAddresses)
 		_arg.append("--print-visited-addresses ");
 
-    std::cout << _arg << "\n";
+    Log::LogInformation("Pointer scan arguments: " + _arg);
+
+#ifndef NDEBUG
+    std::cout << "pointer scan args:\n" << _arg << "\n";
+#endif
 }
 
 void MungPlex::PointerSearch::SelectPreset(const int presetIndex)
