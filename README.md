@@ -1,12 +1,12 @@
 # MungPlex
 
-MungPlex is a cheat search tool and game enhancer for various emulators and PC games. It allows you to experience and mung up your favorite games in multiple ways - hence the name MungPlex. Version 2.0.0 has re-implemented all features of the depricated repository and comes with some new features. You can also join the affiliated [Discord Server](https://discord.gg/wU62ZTvQRj) (may be renamed).
+MungPlex is a cheat search tool and game enhancer for various emulators and PC games. It allows you to experience and mung up your favorite games in multiple ways - hence the name MungPlex. Version 2.0.0 has re-implemented all features of the deprecated repository and comes with some new features. You can also join the affiliated [Discord Server](https://discord.gg/wU62ZTvQRj) (may be renamed).
 
-The following feature illustration also guides you through the general usage of MungPlex.
+The following feature illustration guides you through the general usage of MungPlex.
 
 ## Before You Proceed
-If the app looks off go to Settings and change the UI scale.</br>
-It may happen for MungPlex to be unable to connect to a game. This might be due to changes to the emulator that make MungPlex incapable of finding the emulated RAM and/or game ID. If this is the case you can reach out to the MungPlex Discord Server and report any problems.</br>
+If the app looks off go to Settings, change the UI scale and restart MungPlex.</br>
+It might happen for MungPlex to be unable to connect to a game. This may be due to changes to the emulator that make MungPlex incapable of finding the emulated RAM and/or game ID. If this is the case you can reach out to the MungPlex Discord Server and report any problems.</br>
 </br>
 Even though this tool should not cause any damage to your games or system, it is possible to corrupt savegames and cause bluescreens when messing with PC games and therefore result in data loss. It is always good to have a backup of your savegames and have every opened document and project saved.
 It is also possible for flashing lights and sudden loud noises to appear when editing random values. Keep this in mind especially if you are easily startled or suffer from epilepsy.
@@ -40,12 +40,12 @@ The Connection frame features an emulator select and process select for PC games
 ### Discord Rich Presence
 <img src="MungPlex\resources\img\manual\MungPlex_DiscordRichPresence.png" width="512">
 
-You can show what you're doing with MungPlex via Discord Rich Presence. To prevent games and emulators from surpressing MungPlex from the Rich Presence disable Rich Presence in the game/emulator settings.
-If you don't want to have this enabled you can leave this option disabled in the settings.
+You can show what you're doing with MungPlex via Discord Rich Presence. To prevent games and emulators from surpressing MungPlex from the Rich Presence, disable Rich Presence in the game/emulator in the configuration.
+If you don't want to have this enabled at all you can leave this option disabled in the settings.
 
 ### Connecting To An Emulator
 On the top-left you will find the *Emulator* tab item.
-Below you can select the target emulator from the drop-down menu.
+Below you can select the target emulator from a drop-down menu.
 As of version 2.3.0 the following emulators and systems are supported:
 - Mesen (SNES)
 - Project64 (Nintendo 64)
@@ -59,7 +59,7 @@ As of version 2.3.0 the following emulators and systems are supported:
 - PPSSPP (PSP)
 - Fusion (Mega Drive, 32X, Mega-CD)
 
-The choice of these emulators was made by considering factors like what other debugging features they offer and how easily the emulated RAM, loaded ROM (for older games) and game information can be found.
+The choice for these emulators was made by considering factors like what other debugging features they offer and how easily the emulated RAM, loaded ROM (for older games) and game information can be found.
 Therefore an outdated emulator like Fusion has bullet-proof support where on the other hand support for frequently updated emulators like RPCS3 may need to be adjusted from time to time. Multi-platform emulators like 
 RetroArch also make it unnecessarily difficult to find everything needed since it's not only the emulator itself that experiences updates but also the underlying cores. 
 
@@ -89,17 +89,17 @@ If a game crashes or MungPlex has been opened before it, click *Refresh List* to
 
 <img src="MungPlex\resources\img\manual\MungPlex_connection_02.png" width="256">
 
-Once Connected you can use MungPlex and open the Memory Viewer down below.
+Once Connected you can use MungPlex to its full power.
 
 <a name="memoryviewer"></a>
 ## Memory Viewer
 A simple memory viewer to view and edit any byte in real-time.
-To open click *Open Memory Viewer* on the *Connection* frame.
+To open click *Open Memory Viewer* in the *Connection* frame.
 
 <img src="MungPlex\resources\img\manual\MungPlex_memoryviewer_01.png" width="256">
 
 - `Region`: Select the desired memory region
-- `Jump to Address`: Jumps to the target Address (d'uh)
+- `Jump to Address`: Jumps to the target Address
 - `Read Size`: Change the size of the viewed memory by either typing any hexadecimal value or using the +/- buttons.
 - `Options`: Change view options
 - `Editing`: Simply click the byte(s) you wanna edit and type the desired hex values.
@@ -113,7 +113,7 @@ Here you can specify all value-related configurations.
 
 <img src="MungPlex\resources\img\manual\MungPlex_search_01.png" height="180">
 
-- `Value Type`: Select the major value type.
+- `Value Type`: Select the superior value type.
   - `Primitive`: This covers all common primitive value types (signed/unsigned integers of 1, 2, 4 and 8 bytes, as well as floating point values of single and double precision)
   - `Array`: Allows you to specify an array of any length of unsigned integers (1, 2, 4 and 8 bytes). Additionally you can define wildcards (indices to be ignored) by simply typing a # for the corresponding index. The hex check-box won't affect the numeral base so you have to prepend *0x* for hex values. Example (unsigned int16 array): `0x1337, 069, 420, #` (0x1337 (hex), 069 (oct), 420 (dec), # (wildcard))
   - `Text`: Allows for searching text values (strings) of different types of encodings.
@@ -169,7 +169,7 @@ Here you can control the memory scan.
 - `Counter Iteration`: Select the counter iteration you want to compare against. The last one is always auto-selected so if you happen to make an mistake during the search process you can always jump back.
 - `Alignment`: Specifies the byte alignment of each scanned value. An alignment of 4 is usually the best for big-endian systems and generally any kind of value bigger than 2 bytes. Values of type int8 and int16 may use an alignment of 1 and 2 respectively.
 
-- `Comparision Type`: 
+- `comparison Type`: 
   - Unknown Value: Compares the following iteration's values against the current/counter iteration ones.
   - Known Value: Scans the memory against a specific value
 
@@ -352,7 +352,7 @@ Opens a file dialog to add memory dumps to the list.
 
 - `Starting Address`: The memory dump's virtual starting address.
 - `Target Address`: Where the value has been found within the memory dump.
-- `Correspondence`: The corresponding Search. 0 = initial, 1 = second, ...
+- `Correspondence`: The corresponding Search. 0 = initial, 1 = first comparison, 2 = second comparison, ...
 
 ### Scan Options
 <img src="MungPlex\resources\img\manual\MungPlex_pointersearch_02.png" height="440">
