@@ -77,7 +77,7 @@ This is a command line application. You have to pass the respective information 
 >UniversalPointerSearcher.exe --help
 [2023-09-06 20:09:35.276] [42640] [info] Windows C++ Universal Pointer Searcher Engine v3.8
 Release Build
-Copyright (C) 2018 - 2023 BullyWiiPlaza Productions
+Copyright (C) 2018 - 2024 BullyWiiPlaza Productions
 [2023-09-06 20:09:35.277] [42640] [info] Command line arguments:
 [2023-09-06 20:09:35.277] [42640] [info] [0]: UniversalPointerSearcher.exe
 [2023-09-06 20:09:35.277] [42640] [info] [1]: --help
@@ -154,7 +154,7 @@ The following command line options can be used to perform different use cases. O
 * Performing a pointer search using 1 initial memory dump and 3 comparison memory dumps:
 
   ```
-  --initial-file-path D:\Cpp\PointerSearcher\test_memory_dumps\mario_kart_8\39CEB148.bin --initial-starting-address 0x30000000 --address-size 4 --comparison-file-path D:\Cpp\PointerSearcher\test_memory_dumps\mario_kart_8\39CF14D8.bin %% D:\Cpp\PointerSearcher\test_memory_dumps\mario_kart_8\39CF14D8.bin %% D:\Cpp\PointerSearcher\test_memory_dumps\mario_kart_8\39CF14D8.bin --comparison-starting-address 0x30000000 %% 0x30000000 %% 0x30000000 --endian big --target-address 39CEB148 39CF14D8 39CF14D8 39CF14D8
+  --working-directory D:\Cpp\PointerSearcher\test_memory_dumps\mario_kart_8 --initial-file-path 39CEB148.bin --initial-starting-address 0x30000000 --address-size 4 --comparison-file-path 39CF14D8.bin %% 39CF14D8.bin %% 39CF14D8.bin --comparison-starting-address 0x30000000 %% 0x30000000 %% 0x30000000 --endian big --target-address 0x39CEB148 0x39CF14D8 0x39CF14D8 0x39CF14D8
   ```
 
   Note that the `%%` signs separate the memory snapshot file groups respectively. If you don't use them, the pointer searcher will assume you mean 1 memory snapshot with 3 memory snapshot files which would probably yield an error.
@@ -162,7 +162,7 @@ The following command line options can be used to perform different use cases. O
 * Validating existing pointers against an initial memory dump and a comparison memory dump, also find pointers with (an) additional depth level(s) and write them to a file:
 
   ```
-  --input-memory-pointers-file-path D:\Cpp\PointerSearcher\test_memory_dumps\mario_kart_8\MemoryPointers.txt --initial-file-path D:\Cpp\PointerSearcher\test_memory_dumps\mario_kart_8\39CF14D8.bin --comparison-file-path D:\Cpp\PointerSearcher\test_memory_dumps\mario_kart_8\39CF14D8.bin --comparison-starting-address 0x30000000 --target-address 0x39CF14D8 0x39CF14D8 --initial-starting-address 0x30000000 --address-size 4 --endian big --scan-deeper-by 2 --store-memory-pointers-file-path D:\Cpp\PointerSearcher\test_memory_dumps\mario_kart_8\MemoryPointersUpdated.txt
+  --working-directory D:\Cpp\PointerSearcher\test_memory_dumps\mario_kart_8 --input-memory-pointers-file-path MemoryPointers.txt --initial-file-path 39CF14D8.bin --comparison-file-path 39CF14D8.bin --comparison-starting-address 0x30000000 --target-address 0x39CF14D8 0x39CF14D8 --initial-starting-address 0x30000000 --address-size 4 --endian big --scan-deeper-by 2 --store-memory-pointers-file-path MemoryPointersUpdated.txt
   ```
 
   Note that the `MemoryPointers.txt` is a text file containing memory pointers, one per line. An example of such a text file would look like the following:
@@ -178,7 +178,7 @@ The following command line options can be used to perform different use cases. O
 * Performing a pointer search by parsing an entire folder:
 
   ```
-  --initial-file-path D:\Cpp\PointerSearcher\test_memory_dumps\smash_switch_2\Dump1 --file-extensions bin --target-address 0x5FDF030420 --address-size 8 --endian little
+  --working-directory D:\Cpp\PointerSearcher\test_memory_dumps\smash_switch_2 -initial-file-path Dump1 --file-extensions bin --target-address 0x5FDF030420 --address-size 8 --endian little
   ```
 
   The preconditions for this to work are that all memory snapshot files/modules have to be named by the module name (optional), an underscore (`_`) and the starting address of that memory snapshot. For example: `Heap0000_5F3E000000.bin` or `5F3E000000.bin`. If you want to specify a different file extension, you may use the respective command line option to do so.
@@ -186,19 +186,19 @@ The following command line options can be used to perform different use cases. O
 * Performing a pointer search with multiple memory snapshot files:
 
   ```
-  --initial-file-path "D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2\SB4E01_DUMP80.bin" "D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2\SB4E01_DUMP90.bin" --initial-starting-address 0x80000000 0x90000000 --address-size 4 --target-address 0x81458EEC 0x81458EEC --comparison-file-path "D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2\SB4E01_DUMP80.bin" "D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2\SB4E01_DUMP90.bin" --comparison-starting-address 0x80000000 0x90000000 --endian big --pointer-offset-range 0x0,0x400 --pointer-depth-range 1,3 --maximum-pointers-printed-count 1000
+  --working-directory D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2 --initial-file-path SB4E01_DUMP80.bin SB4E01_DUMP90.bin --initial-starting-address 0x80000000 0x90000000 --address-size 4 --target-address 0x81458EEC 0x81458EEC --comparison-file-path SB4E01_DUMP80.bin SB4E01_DUMP90.bin --comparison-starting-address 0x80000000 0x90000000 --endian big --pointer-offset-range 0x0,0x400 --pointer-depth-range 1,3 --maximum-pointers-printed-count 1000
   ```
 
 * Writing (compressed) pointer maps:
 
   ```
-  --initial-file-path "D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2\SB4E01_DUMP80.bin" "D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2\SB4E01_DUMP90.bin" --initial-starting-address 0x80000000 0x90000000 --address-size 4 --target-address 0x81458EEC --endian big --write-pointer-maps-file-paths "D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2\PointerMap.bin"
+  --working-directory D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2 --initial-file-path SB4E01_DUMP80.bin SB4E01_DUMP90.bin --initial-starting-address 0x80000000 0x90000000 --address-size 4 --target-address 0x81458EEC --endian big --write-pointer-maps-file-paths PointerMap.bin
   ```
 
 * Reading/Using (compressed) pointer maps for a pointer search:
 
   ```
-  --address-size 4 --target-address 0x81458EEC --read-pointer-maps-file-paths "D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2\PointerMap.bin"
+  --working-directory D:\Cpp\PointerSearcher\test_memory_dumps\super_mario_galaxy_2 --address-size 4 --target-address 0x81458EEC --read-pointer-maps-file-paths PointerMap.bin
   ```
 
 ### Saving/Re-running Searches
