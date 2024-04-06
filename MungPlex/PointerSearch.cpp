@@ -8,6 +8,7 @@
 #include <chrono>
 #include <thread>
 #include <future>
+#include <algorithm>
 
 MungPlex::PointerSearch::PointerSearch()
 {
@@ -126,8 +127,6 @@ void MungPlex::PointerSearch::drawSettings()
         SetUpInputText("Results File:", _resultsPath.data(), _resultsPath.size(), 1.0f, 0.3f, true, "Where to save the results file.");
         SetUpSliderFloat("Max. Memory Utilization Fraction:", &_maxMemUtilizationFraction, 0.1f, 0.95f, "%2f", 1.0f, 0.5f);
         SetUpInputInt("Max. Pointer Count:", &_maxPointerCount, 100, 1000, 1.0f, 0.3f, 0, true, "Maximum amount of pointers to be generated. Smaller values may decrease scan time and but also the likeability to find working pointer paths.");
-
-        
         SetUpCombo("Input Filetype:", _inputTypeSelect, _selectedInputType, 1.0f, 0.3f);
 
         if (ImGui::Button("Add File"))
@@ -346,11 +345,13 @@ void MungPlex::PointerSearch::waitAndLoadResults(PROCESS_INFORMATION pi)
 
 void MungPlex::PointerSearch::generateArgument()
 {
+    auto memDumpsSorted = _memDumps; //this is needed because sorting _memDumps would result in the table being messed up
+    std::sort(memDumpsSorted.begin(), memDumpsSorted.end(), comparePairs);
+
     std::stringstream stream;
     _arg = "--pointer-offset-range ";
     _arg.append(_minOffset.c_str()).append(",");
     _arg.append(_maxOffset.c_str()).append(" ");
-
     _arg.append("--pointer-depth-range " + 
         std::to_string(_minPointerDepth) + "," + 
         std::to_string(_maxPointerDepth) + " ");
@@ -365,7 +366,7 @@ void MungPlex::PointerSearch::generateArgument()
     std::string comparisonStartingAddresses("--comparison-starting-address ");
     std::string targetAdresses("--target-address ");
 
-    for (auto memDump : _memDumps)
+    for (auto memDump : memDumpsSorted)
         if (memDump.second[3] > highestCorrespondence)
             highestCorrespondence = memDump.second[3];
 
@@ -375,7 +376,7 @@ void MungPlex::PointerSearch::generateArgument()
     {
         separator = true;
 
-    	for (auto memDump : _memDumps)
+    	for (auto memDump : memDumpsSorted)
         {
             stream.str(std::string());
 
@@ -399,7 +400,6 @@ void MungPlex::PointerSearch::generateArgument()
                 else if (memDump.second[3] == currentCorrespondence && currentCorrespondence > 0)
                 {
                     comparisonFilePaths.append(memDump.first.c_str()).append(" "); //file path
-
                     stream << std::hex << memDump.second[0]; //starting address
                     comparisonStartingAddresses.append("0x").append(stream.str()).append(" ");
                 }
@@ -443,7 +443,7 @@ void MungPlex::PointerSearch::generateArgument()
     _arg.append("--address-size ").append(std::to_string(_addressWidth) + " ");
     _arg.append("--store-memory-pointers-file-path \"").append(_resultsPath).append("\" ");
     _arg.append("--maximum-memory-utilization-fraction ").append(std::to_string(_maxMemUtilizationFraction) + " ");
-    _arg.append("--file-extensions .bin .raw .dmp");
+    _arg.append("--file-extensions .bin .raw .dmp .dat ");
     _arg.append("--maximum-pointer-count ").append(std::to_string(_maxPointerCount) + " ");
     _arg.append("--maximum-pointers-printed-count ").append(std::to_string(_maxPointerCount) + " ");
     _arg.append("--disable-printing-memory-pointers-to-console ");
@@ -483,4 +483,12 @@ bool MungPlex::PointerSearch::loadResults()
     _results = buffer.str();
     Log::LogInformation("Pointer Scan results loaded");
     return static_cast<bool>(_results.size());
+}
+
+bool MungPlex::PointerSearch::comparePairs(std::pair<std::string, std::array<uint64_t, 4>>& a, std::pair<std::string, std::array<uint64_t, 4>>& b)
+{
+    if (a.second[3] != b.second[3])
+        return a.second[3] < b.second[3];
+    else
+        return a.second[0] < b.second[0];
 }

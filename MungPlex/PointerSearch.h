@@ -32,6 +32,7 @@ namespace MungPlex
         void generateArgument();
         void waitAndLoadResults(PROCESS_INFORMATION pi);
         bool loadResults();
+        static bool comparePairs(std::pair<std::string, std::array<uint64_t, 4>>& a, std::pair<std::string, std::array<uint64_t, 4>>& b);
 
         std::string _arg;
         std::string _defaultPath;
