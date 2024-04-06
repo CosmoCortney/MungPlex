@@ -131,7 +131,11 @@ void MungPlex::PointerSearch::drawSettings()
         SetUpCombo("Input Filetype:", _inputTypeSelect, _selectedInputType, 1.0f, 0.3f);
 
         if (ImGui::Button("Add File"))
-            ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Add File", ".bin,.raw,.dmp,.pointermap", GetInstance()._defaultPath.c_str());
+        {
+            IGFD::FileDialogConfig config;
+            config.path = GetInstance()._defaultPath;
+            ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Add File", ".bin,.raw,.dmp,.pointermap", config);
+        }
 
         if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
         {
