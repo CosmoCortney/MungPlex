@@ -730,7 +730,9 @@ void MungPlex::Search::setUpIterationSelect()
 	if (iter < _iterations.size())
 		_iterations.erase(_iterations.begin() + iter - 1, _iterations.end());
 
-	_iterations.emplace_back(std::to_string(iter).c_str());
+	_iterations.emplace_back(std::to_string(iter) + ": " 
+		+ _searchComparasionType[_currentcomparisonTypeSelect].first
+		+ (iter < 2 && _currentcomparisonTypeSelect == 0 ? "" : ", " + _searchConditionTypes[_currentConditionTypeSelect].first));
 	_iterationIndex = --iter;
 	_selectedIndices.resize(_maxResultsPerPage);
 }
