@@ -291,8 +291,8 @@ bool MungPlex::PointerSearch::performScan()
 {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
-    std::promise<PROCESS_INFORMATION> piPromise;
-    std::future<PROCESS_INFORMATION> piFuture = piPromise.get_future();
+    //std::promise<PROCESS_INFORMATION> piPromise;
+    //std::future<PROCESS_INFORMATION> piFuture = piPromise.get_future();
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
@@ -306,16 +306,24 @@ bool MungPlex::PointerSearch::performScan()
 
     if (success) 
     {
-        std::thread waitNload = std::thread([&](std::future<PROCESS_INFORMATION> future)
+        //piPromise.set_value(pi);
+        CloseHandle(pi.hThread);
+
+        std::async(std::launch::async, [&](PROCESS_INFORMATION pi)
+            {
+                waitAndLoadResults(pi);
+            }, pi);
+
+        
+        /*std::thread waitNload = std::thread([&](std::future<PROCESS_INFORMATION> future)
             {
             PROCESS_INFORMATION pi = future.get();
 			waitAndLoadResults(pi);
             }, std::move(piFuture));
-
-    	piPromise.set_value(pi);
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-        waitNload.join();
+        */
+        //CloseHandle(pi.hProcess);
+       // CloseHandle(pi.hThread);
+        //waitNload.join();
     }
     else
     {
@@ -328,15 +336,15 @@ bool MungPlex::PointerSearch::performScan()
 void MungPlex::PointerSearch::waitAndLoadResults(PROCESS_INFORMATION pi)
 {
     bool stillActive = true;
-    DWORD exitCode;
+    DWORD execCode;
     const auto millisecondsToWait = std::chrono::seconds(1);
     
     while(stillActive)
     {
         std::this_thread::sleep_for(millisecondsToWait);
-        WaitForSingleObject(pi.hProcess, 0);
-        GetExitCodeProcess(pi.hProcess, &exitCode);
-        stillActive = exitCode == STILL_ACTIVE;
+        //WaitForSingleObject(pi.hProcess, 0);
+        GetExitCodeProcess(pi.hProcess, &execCode);
+        stillActive = execCode == STILL_ACTIVE;
     }
 
     Log::LogInformation("Finished Pointer Scan");
