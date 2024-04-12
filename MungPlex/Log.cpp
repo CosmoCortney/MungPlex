@@ -1,5 +1,4 @@
 #include "Log.h"
-#include"HelperFunctions.h"
 #include <ctime> 
 #include "Settings.h"
 #include <fstream>

@@ -2,6 +2,7 @@
 #include"Helperfunctions.h"
 #include"ProcessInformation.h"
 #include<algorithm>
+#include"Settings.h"
 
 const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_IntTypes = 
 {

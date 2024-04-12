@@ -13,7 +13,6 @@
 #include<fstream>
 #include <iomanip>
 #include "Xertz.h"
-#include <Windows.h>
 #include "MungPlexConfig.h"
 #include"ProcessInformation.h"
 #include"MemoryViewer.h"
@@ -61,5 +60,7 @@ namespace MungPlex
         void memoryViewerButton();
         void startConnectionCheck();
         void checkConnection();
+        static void getDiscordActivityResult(discord::Result result);
+        static void logDiscordProblem(const discord::LogLevel level, const std::string message);
     };
 }

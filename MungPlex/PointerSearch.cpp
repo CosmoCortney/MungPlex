@@ -2,12 +2,8 @@
 #include"ImGuiFileDialog.h"
 #include"Log.h"
 #include "Settings.h"
-#include"HelperFunctions.h"
-#include<Windows.h>
 #include <fstream>
 #include <chrono>
-#include <thread>
-#include <future>
 #include <algorithm>
 
 MungPlex::PointerSearch::PointerSearch()

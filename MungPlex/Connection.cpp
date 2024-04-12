@@ -1,4 +1,6 @@
 #include "Connection.h"
+#include"Settings.h"
+#include"Log.h"
 #include <chrono>
 #include <thread>
 #include <future>
@@ -202,13 +204,13 @@ void MungPlex::Connection::SetRichPresenceState(const std::string& action)
 	    return;
 
 	GetInstance()._activity.SetState(action.c_str());
-	GetInstance()._core->ActivityManager().UpdateActivity(GetInstance()._activity, GetDiscordActivityResult);
+	GetInstance()._core->ActivityManager().UpdateActivity(GetInstance()._activity, getDiscordActivityResult);
 }
 
 void MungPlex::Connection::InitRichPresence()
 {
 	discord::Core::Create(1175421760892567552, DiscordCreateFlags_Default, &GetInstance()._core);
-	GetInstance()._core->SetLogHook(discord::LogLevel::Debug, LogDiscordProblem);
+	GetInstance()._core->SetLogHook(discord::LogLevel::Debug, logDiscordProblem);
 	GetInstance()._activity.SetApplicationId(1175421760892567552);
 	//_activity.SetName("Test Name");
 	GetInstance()._activity.SetDetails(GetInstance()._richPresenceDetails.c_str());
@@ -216,7 +218,7 @@ void MungPlex::Connection::InitRichPresence()
 	GetInstance()._activity.SetInstance(true);
 	GetInstance()._activity.GetTimestamps().SetStart(time(NULL));
 	GetInstance()._activity.GetAssets().SetLargeImage("icon1024");
-	GetInstance()._core->ActivityManager().UpdateActivity(GetInstance()._activity, GetDiscordActivityResult);
+	GetInstance()._core->ActivityManager().UpdateActivity(GetInstance()._activity, getDiscordActivityResult);
 }
 
 void MungPlex::Connection::StopRichPresence()
@@ -245,4 +247,19 @@ void MungPlex::Connection::checkConnection()
 		std::this_thread::sleep_for(millisecondsToWait);
 		_connected = ProcessInformation::IsConnectionValid();
 	}
+}
+
+void MungPlex::Connection::getDiscordActivityResult(discord::Result result)
+{
+	if (result != discord::Result::Ok)
+	{
+		std::string err = "Error handling Discord Rich PResence (err-code: " + std::to_string((int)result) + ")";
+		std::cout << err << std::endl;
+		Log::LogInformation(err);
+	}
+}
+
+void MungPlex::Connection::logDiscordProblem(const discord::LogLevel level, const std::string message)
+{
+	std::cout << "discord error level: " << (int)level << " - " << message << std::endl;
 }

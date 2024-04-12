@@ -1,9 +1,7 @@
 #pragma once
 
 #include <string>
-#include <Windows.h>
-#include <string>
-#include "HelperFunctions.h"
+#include "ProcessInformation.h"
 
 namespace MungPlex
 {
