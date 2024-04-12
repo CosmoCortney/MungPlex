@@ -1,6 +1,5 @@
 #include "Cheats.h"
 #include "Settings.h"
-#include <Windows.h>
 #include <string>
 #include "Log.h"
 #include "CheatConvert.h"

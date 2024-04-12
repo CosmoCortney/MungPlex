@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include"Search.h"
-#include <Windows.h>
 
 MungPlex::Search::Search()
 {

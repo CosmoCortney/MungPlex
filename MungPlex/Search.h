@@ -8,7 +8,6 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include<string>
-#include "Xertz.h"
 #include "MungPlexConfig.h"
 #include "Connection.h"
 #include"HelperFunctions.h"
@@ -16,7 +15,6 @@
 #include <thread>
 #include<functional>
 #include<algorithm>
-#include"MemCompareResult.h"
 #include <cstdio>
 #include"Settings.h"
 #include"Log.h"
@@ -24,9 +22,6 @@
 #include"MorphText.h"
 #include"OperativeArray.h"
 #include"MemDump.h"
-#include"LitColor.h"
-#include"MorphText.h"
-#include"OperativeArray.h"
 #include"MemCompare.h"
 
 namespace MungPlex

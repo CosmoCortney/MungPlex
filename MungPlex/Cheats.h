@@ -8,7 +8,6 @@
 #include <thread>
 #include <future>
 #include "Connection.h"
-#include "ProcessInformation.h"
 
 namespace MungPlex
 {

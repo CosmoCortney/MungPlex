@@ -11,7 +11,6 @@
 #include<fstream>
 #include <iomanip>
 #include "Xertz.h"
-#include <Windows.h>
 #include "MungPlexConfig.h"
 #include"ProcessInformation.h"
 #include"imgui_memory_editor.h"
