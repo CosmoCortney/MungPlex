@@ -110,9 +110,7 @@ void MungPlex::DataConversion::drawTextConversion()
 
 			float height = 1.0f - ImGui::GetCursorPosY() / ImGui::GetContentRegionAvail().y;
 			if (SetUpInputTextMultiline("Plain Text:", plainText.data(), plainText.size() + 1, 0.5f, height))
-			{
 				update = true;
-			}
 		}
 		ImGui::EndGroup();
 
@@ -232,9 +230,8 @@ void MungPlex::DataConversion::convertText(std::string& in, std::string& out, co
 			memcpy_s(out.data(), out.size(), temp.data(), temp.size());
 		} break;
 		case MorphText::SHIFTJIS: {
-			std::string temp = MorphText::Utf8_To_ShiftJis(in);
-			out.resize(out.size() * 2);
-			memcpy_s(out.data(), out.size(), temp.data(), temp.size() * 2);
+			out = MorphText::Utf8_To_ShiftJis(in);
+			out.resize(512);
 		} break;
 		case MorphText::JIS_X_0201_FULLWIDTH: {
 			std::string temp = MorphText::Utf8_To_JIS_X_0201_FullWidth(in);
