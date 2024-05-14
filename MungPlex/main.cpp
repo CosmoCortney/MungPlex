@@ -1,3 +1,4 @@
+#include <boost/asio.hpp>
 #include <iostream>
 #include "MungPlexConfig.h"
 #include "GLFW/glfw3.h"

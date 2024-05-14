@@ -1,10 +1,15 @@
 #pragma once
-
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
+#include <boost/process.hpp>
 #include <string>
 #include "ProcessInformation.h"
+#include <memory>
 
 namespace MungPlex
 {
+    namespace bp = boost::process;
+
     class PointerSearch
     {
     public:
@@ -28,11 +33,11 @@ namespace MungPlex
         void drawResults();
         bool performScan();
         void generateArgument();
-        void waitAndLoadResults(PROCESS_INFORMATION pi);
+        void waitAndLoadResults();
         bool loadResults();
         static bool comparePairs(std::pair<std::string, std::array<uint64_t, 4>>& a, std::pair<std::string, std::array<uint64_t, 4>>& b);
 
-        std::string _arg;
+        std::vector<std::string> _args;
         std::string _defaultPath;
         std::string _results;
         std::vector<std::pair<std::string, std::array<uint64_t, 4>>> _memDumps{}; //0: starting address, 1: target address, 2: reserved, 3: correspondence
@@ -56,5 +61,9 @@ namespace MungPlex
         const std::vector<std::string> _inputTypeSelect = { "Memory Dump", "Pointer Map" };
         std::vector<SystemRegion> _regions{};
         int _regionSelect = 0;
+        bool _disableUI = false;
+        std::shared_ptr<bp::child> _pointerSearcherProcess;
+        //std::shared_ptr<bp::ipstream> _pointerSearcherLog;
+        //std::shared_ptr<bp::ipstream> _pointerSearcherErrorLog;
     };
 }

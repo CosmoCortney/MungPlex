@@ -2,7 +2,7 @@
 
 // TODO No defines like this, define a "proper" class
 #define EMUPAIR std::pair<const std::wstring, const int>
-
+#include <boost/asio.hpp>
 #include <stdio.h>
 #include<string>
 #include "Xertz.h"

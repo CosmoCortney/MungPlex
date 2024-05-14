@@ -8,10 +8,10 @@ find_package(Lua REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(Boost REQUIRED COMPONENTS thread filesystem)
 find_library(CPP_GAME_SDK discord_game_sdk_cpp)
 find_library(DISCORD_GAME_SDK_LIB discord_game_sdk)
 find_library(DISCORD_GAME_SDK_CPP_LIB discord_game_sdk_cpp)
-#find_package(dpp CONFIG REQUIRED)
 
 # Generate MungPlexConfig.h using MungPlexConfig.h.in
 configure_file(MungPlexConfig.h.in ${CMAKE_BINARY_DIR}/MungPlexConfig.h @ONLY)
@@ -79,14 +79,15 @@ find_package(OpenGL REQUIRED)
 
 # Link libraries to the main target
 target_link_libraries(MungPlex PRIVATE
-    #MainLibrary
     glfw
     OpenGL::GL
+    sol2
     ${LUA_LIBRARIES}
     ${CPP_GAME_SDK}
     ${DISCORD_GAME_SDK_LIB}
     ${DISCORD_GAME_SDK_CPP_LIB}
-    #dpp::dpp
+    ${LUA_LIBRARIES}
+    ${Boost_LIBRARIES}
 )
 
 # Set C++ version
@@ -97,16 +98,23 @@ set_target_properties(MungPlex PROPERTIES
 )
 
 # Set GLFW build options
-set (GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set (GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set (GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+#set (GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+#set (GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+#set (GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+#target_link_libraries(MungPlex PRIVATE )
+#target_link_libraries(MungPlex PRIVATE sol2)
+#target_link_libraries(MungPlex PRIVATE )
+
+ # target_link_libraries(MungPlex PRIVATE boost/threads)
 
 # Include the binary directory to access the generated MungPlexConfig.h
 target_include_directories(MungPlex PRIVATE 
     ${CMAKE_BINARY_DIR}
     ${LUA_INCLUDE_DIR}
-    #${dpp_INCLUDE_DIRS}
 )
+
+#include_directories(${Boost_INCLUDE_DIRS})
 
 # Install target
 install(TARGETS MungPlex DESTINATION "MungPlex/bin")

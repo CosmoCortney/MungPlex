@@ -666,5 +666,20 @@ namespace MungPlex
         const bool f4 = io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansJP-Black.ttf").string().data(), scale, nullptr, io.Fonts->GetGlyphRangesJapanese());
         return /*f1 && f2 && f3 &&*/ f4;
     }
+
+    static void PopBackTrailingChars(std::string& str, const char ch)
+    {
+        while(str.back() == ch)
+            str.pop_back();
+    }
+
+    static void SetQuotationmarks(std::string& str)
+    {
+        if (str.front() != '"')
+            str = '"' + str;
+
+        if (str.back() != '"')
+            str.append("\"");
+    }
 }
 

@@ -10,7 +10,18 @@
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "name": "x64-Debug",
-      "variables": []
+      "variables": [
+        {
+          "name": "Boost_CHRONO_LIBRARY_RELEASE",
+          "value": "C:/vcpkg/installed/x64-windows/lib/boost_chrono-vc140-mt.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "Boost_PROCESS_LIBRARY_DEBUG",
+          "value": "Boost_PROCESS_LIBRARY_DEBUG-NOTFOUND",
+          "type": "FILEPATH"
+        }
+      ]
     },
     {
       "name": "x64-Release",
@@ -22,7 +33,13 @@
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": []
+      "variables": [
+        {
+          "name": "glfw3_DIR",
+          "value": "C:/vcpkg/installed/x64-windows/share/glfw3",
+          "type": "PATH"
+        }
+      ]
     }
   ]
 }
