@@ -215,13 +215,13 @@ namespace MungPlex
                         WriteTextEx(pid, pokeValue.GetASCII().data(), address);
                     break;
                     case MorphText::SHIFTJIS:
-                        WriteTextEx(pid, pokeValue.GetShiftJis(), address);
+                        WriteTextEx(pid, pokeValue.GetShiftJis().data(), address);
                     break;
                     case MorphText::JIS_X_0201_FULLWIDTH:
-                        WriteTextEx(pid, pokeValue.GetJisX0201FullWidth(), address);
+                        WriteTextEx(pid, pokeValue.GetJisX0201FullWidth().data(), address);
                     break;
                     case MorphText::JIS_X_0201_HALFWIDTH:
-                        WriteTextEx(pid, pokeValue.GetJisX0201HalfWidth(), address);
+                        WriteTextEx(pid, pokeValue.GetJisX0201HalfWidth().data(), address);
                     break;
                     case MorphText::UTF8:
                         WriteTextEx(pid, pokeValue.GetUTF8().data(), address);
@@ -233,7 +233,7 @@ namespace MungPlex
                         WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).data(), address);
                         break;
                     default: //ISO-8859-X
-                        WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
+                        WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect).data(), address);
                     }
                 }
 
@@ -258,13 +258,13 @@ namespace MungPlex
                         success = WriteTextEx(pid, pokeValue.GetASCII().data(), address);
                     } break;
                     case MorphText::SHIFTJIS: {
-                        success = WriteTextEx(pid, pokeValue.GetShiftJis(), address);
+                        success = WriteTextEx(pid, pokeValue.GetShiftJis().data(), address);
                     } break;
                     case MorphText::JIS_X_0201_FULLWIDTH: {
-                        success = WriteTextEx(pid, pokeValue.GetJisX0201FullWidth(), address);
+                        success = WriteTextEx(pid, pokeValue.GetJisX0201FullWidth().data(), address);
                     } break;
                     case MorphText::JIS_X_0201_HALFWIDTH: {
-                        success = WriteTextEx(pid, pokeValue.GetJisX0201HalfWidth(), address);
+                        success = WriteTextEx(pid, pokeValue.GetJisX0201HalfWidth().data(), address);
                     } break;
                     case MorphText::UTF8: {
                         success = WriteTextEx(pid, pokeValue.GetUTF8().data(), address);
@@ -276,7 +276,7 @@ namespace MungPlex
                         success = WriteTextEx(pid, pokeValue.GetUTF32(_currentTextTypeSelect == MorphText::UTF32BE ? true : false).data(), address);
                     } break;
                     default: //ISO-8859-X
-                        success = WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect), address);
+                        success = WriteTextEx(pid, pokeValue.GetISO8859X(_currentTextTypeSelect).data(), address);
                     }
 
                     Log::LogInformation((std::string("Poked ") + _searchTextTypes[_currentTextTypeSelect].first + " text value").c_str());
