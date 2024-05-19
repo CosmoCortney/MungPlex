@@ -75,7 +75,7 @@ This is a command line application. You have to pass the respective information 
 
 ```
 >UniversalPointerSearcher.exe --help
-[2023-09-06 20:09:35.276] [42640] [info] Windows C++ Universal Pointer Searcher Engine v3.8
+[2023-09-06 20:09:35.276] [42640] [info] Windows C++ Universal Pointer Searcher Engine v3.91
 Release Build
 Copyright (C) 2018 - 2024 BullyWiiPlaza Productions
 [2023-09-06 20:09:35.277] [42640] [info] Command line arguments:
