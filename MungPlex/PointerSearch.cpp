@@ -44,7 +44,7 @@ MungPlex::PointerSearch::PointerSearch()
     _systemPresets.emplace_back("Microsoft Windows x64", 3, false);
 
     _defaultPath = Settings::GetGeneralSettings().DocumentsPath;
-    std::replace(_defaultPath.begin(), _defaultPath.end(), '\\', '/');
+    std::ranges::replace(_defaultPath, '\\', '/');
     _defaultPath.append("/MungPlex/Dumps/");
     _minOffset = "0";
     _minOffset.resize(17);
@@ -60,7 +60,7 @@ void MungPlex::PointerSearch::DrawWindow()
 
     if (ImGui::Begin("Pointer Search"))
     {
-        bool waitForDisable = GetInstance()._disableUI;
+	    const bool waitForDisable = GetInstance()._disableUI;
         if (waitForDisable) ImGui::BeginDisabled();
         {
             if (Connection::IsConnected() && Settings::GetGeneralSettings().EnableRichPresence && !stateSet)
@@ -178,9 +178,9 @@ void MungPlex::PointerSearch::drawSettings()
         
         if (ImGui::Button("Dump"))
         {
-            SystemRegion& region = _regions[_regionSelect];
-            std::wstring path = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath) + L"\\MungPlex\\Dumps\\" + std::to_wstring(region.Base) + L".bin";
-            Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).DumpMemory(region.BaseLocationProcess, path, region.Size);
+            auto& [Label, Base, Size, BaseLocationProcess] = _regions[_regionSelect];
+            std::wstring path = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath) + L"\\MungPlex\\Dumps\\" + std::to_wstring(Base) + L".bin";
+            Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).DumpMemory(BaseLocationProcess, path, Size);
         }
     }
     ImGui::EndChild();
@@ -189,7 +189,7 @@ void MungPlex::PointerSearch::drawSettings()
 
 void MungPlex::PointerSearch::drawList()
 {
-    ImVec2 childXY = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f };
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f };
 
     ImGui::BeginChild("child_MemDumpList", childXY, true);
     {
@@ -207,7 +207,7 @@ void MungPlex::PointerSearch::drawList()
             //ImGui::TableSetColumnWidth(0, ImGui::GetContentRegionAvail().x * 0.5f);
             ImGui::TableHeadersRow();
             
-            for (int row = 0; row < _memDumps.size(); ++row)
+            for (size_t row = 0; row < _memDumps.size(); ++row)
             {
                 ImGui::TableNextRow();
 
@@ -215,36 +215,36 @@ void MungPlex::PointerSearch::drawList()
                 {
                     ImGui::TableSetColumnIndex(col);
 
-                    switch(col)
+                    switch (col)
                     {
-                    case 0:
-                        if (SetUpInputText((label + std::to_string(row)).c_str(), _memDumps[row].first.data(), _memDumps[row].first.size(), 1.0f, 0.0f, false))
-                        {
-                        }
-                        break;
-                    case 1:
-                        if (SetUpInputText((label + "s" + std::to_string(row)).c_str(), _bufStartingAddress[row].data(), _bufStartingAddress[row].size(), 1.0f, 0.0f, false))
-                        {
-                            std::stringstream stream;
-                            stream << std::hex << _bufStartingAddress[row];
-                            stream >> _memDumps[row].second[0];
-                        }
-                        break;
-                    case 2:
-                        if (SetUpInputText((label + "t" + std::to_string(row)).c_str(), _bufTargetAddress[row].data(), _bufTargetAddress[row].size(), 1.0f, 0.0f, false))
-                        {
-                            std::stringstream stream;
-                            stream << std::hex << _bufTargetAddress[row];
-                            stream >> _memDumps[row].second[1];
-                        }
-                        break;
-                    case 3: 
-                        if (SetUpInputInt((label + "correspondence" + std::to_string(row)).c_str(), reinterpret_cast<int*>(&_memDumps[row].second[3]), 1, 1, 1.0f, 0.0f, 0, false))
-                        {
-                            if (static_cast<int>(_memDumps[row].second[3]) < 0)
-                                _memDumps[row].second[3] = 0;
-                        }
-                        break;
+	                    case 0:
+	                        if (SetUpInputText(label + std::to_string(row), _memDumps[row].first.data(), _memDumps[row].first.size(), 1.0f, 0.0f, false))
+	                        {
+	                        }
+	                        break;
+	                    case 1:
+	                        if (SetUpInputText(label + "s" + std::to_string(row), _bufStartingAddress[row].data(), _bufStartingAddress[row].size(), 1.0f, 0.0f, false))
+	                        {
+	                            std::stringstream stream;
+	                            stream << std::hex << _bufStartingAddress[row];
+	                            stream >> _memDumps[row].second[0];
+	                        }
+	                        break;
+	                    case 2:
+	                        if (SetUpInputText(label + "t" + std::to_string(row), _bufTargetAddress[row].data(), _bufTargetAddress[row].size(), 1.0f, 0.0f, false))
+	                        {
+	                            std::stringstream stream;
+	                            stream << std::hex << _bufTargetAddress[row];
+	                            stream >> _memDumps[row].second[1];
+	                        }
+	                        break;
+	                    case 3: 
+	                        if (SetUpInputInt(label + "correspondence" + std::to_string(row), reinterpret_cast<int*>(&_memDumps[row].second[3]), 1, 1, 1.0f, 0.0f, 0, false))
+	                        {
+	                            if (static_cast<int>(_memDumps[row].second[3]) < 0)
+	                                _memDumps[row].second[3] = 0;
+	                        }
+	                        break;
                     }
                 }
             }
@@ -359,15 +359,14 @@ void MungPlex::PointerSearch::generateArgument()
     auto memDumpsSorted = _memDumps; //this is needed because sorting _memDumps messes up the table
     std::ranges::sort(memDumpsSorted, comparePairs);
 
-    // Remove trailing null bytes
-    for (auto & [first, second] : memDumpsSorted)
-    {
-        remove_trailing_nulls(first);
-    }
+    auto resultsPath = _resultsPath;
+    remove_trailing_nulls(resultsPath);
 
-    remove_trailing_nulls(_resultsPath);
-    remove_trailing_nulls(_minOffset);
-    remove_trailing_nulls(_maxOffset);
+    auto minOffset = _minOffset;
+    remove_trailing_nulls(minOffset);
+
+    auto maxOffset = _maxOffset;
+    remove_trailing_nulls(maxOffset);
 
     std::stringstream stream;
 
@@ -392,7 +391,9 @@ void MungPlex::PointerSearch::generateArgument()
         {
             if (second[3] == 0) // 0 correspondence
             {
-                _args.push_back(first);
+                auto first_copy = first;
+                remove_trailing_nulls(first_copy);
+                _args.push_back(first_copy);
             }
         }
     }
@@ -403,11 +404,11 @@ void MungPlex::PointerSearch::generateArgument()
     _args.emplace_back("--address-size");
     _args.push_back(std::to_string(_addressWidth));
     _args.emplace_back("--pointer-offset-range");
-    _args.push_back(_minOffset + "," + _maxOffset);
+    _args.push_back(minOffset + "," + maxOffset);
 	_args.emplace_back("--pointer-depth-range");
     _args.push_back(std::to_string(_minPointerDepth) + "," + std::to_string(_maxPointerDepth));
     _args.emplace_back("--store-memory-pointers-file-path");
-    _args.push_back(_resultsPath);
+    _args.push_back(resultsPath);
 
     // TODO Implement the missing flags
 
@@ -513,17 +514,17 @@ void MungPlex::PointerSearch::generateArgument()
     _args.push_back(targetAdresses);
     */
 
-    _args.push_back("--maximum-memory-utilization-fraction");
+    _args.emplace_back("--maximum-memory-utilization-fraction");
     _args.push_back(std::to_string(_maxMemUtilizationFraction));
-    _args.push_back("--file-extensions");
-    _args.push_back(".bin");
-    _args.push_back(".raw");
-    _args.push_back(".dmp");
-    _args.push_back("--maximum-pointer-count");
+    _args.emplace_back("--file-extensions");
+    _args.emplace_back(".bin");
+    _args.emplace_back(".raw");
+    _args.emplace_back(".dmp");
+    _args.emplace_back("--maximum-pointer-count");
     _args.push_back(std::to_string(_maxPointerCount));
-    _args.push_back("--maximum-pointers-printed-count");
+    _args.emplace_back("--maximum-pointers-printed-count");
     _args.push_back(std::to_string(_maxPointerCount));
-    _args.push_back("--disable-printing-memory-pointers-to-console");
+    _args.emplace_back("--disable-printing-memory-pointers-to-console");
 
     if(_printModuleNames)
         _args.emplace_back("--print-module-file-names");
@@ -572,7 +573,8 @@ bool MungPlex::PointerSearch::loadResults()
     return !_results.empty();
 }
 
-bool MungPlex::PointerSearch::comparePairs(std::pair<std::string, std::array<uint64_t, 4>>& a, std::pair<std::string, std::array<uint64_t, 4>>& b)
+bool MungPlex::PointerSearch::comparePairs(const std::pair<std::string, std::array<uint64_t, 4>>& a,
+                                           const std::pair<std::string, std::array<uint64_t, 4>>& b)
 {
     if (a.second[3] != b.second[3])
         return a.second[3] < b.second[3];

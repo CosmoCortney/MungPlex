@@ -1,6 +1,6 @@
 #pragma once
+
 #include <boost/asio.hpp>
-#include <boost/thread.hpp>
 #include <boost/process.hpp>
 #include <string>
 #include "ProcessInformation.h"
@@ -35,7 +35,8 @@ namespace MungPlex
         void generateArgument();
         void waitAndLoadResults();
         bool loadResults();
-        static bool comparePairs(std::pair<std::string, std::array<uint64_t, 4>>& a, std::pair<std::string, std::array<uint64_t, 4>>& b);
+        static bool comparePairs(const std::pair<std::string, std::array<uint64_t, 4>>& a,
+            const std::pair<std::string, std::array<uint64_t, 4>>& b);
 
         std::vector<std::string> _args;
         std::string _defaultPath;
@@ -62,6 +63,7 @@ namespace MungPlex
         std::vector<SystemRegion> _regions{};
         int _regionSelect = 0;
         bool _disableUI = false;
+        // TODO This can probably be removed
         std::shared_ptr<bp::child> _pointerSearcherProcess;
         //std::shared_ptr<bp::ipstream> _pointerSearcherLog;
         //std::shared_ptr<bp::ipstream> _pointerSearcherErrorLog;
