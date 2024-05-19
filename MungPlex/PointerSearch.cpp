@@ -140,7 +140,7 @@ void MungPlex::PointerSearch::drawSettings()
         {
             if (ImGuiFileDialog::Instance()->IsOk())
             {
-                std::string filePathName = std::string("\"") + ImGuiFileDialog::Instance()->GetFilePathName() + "\"";
+                const std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
                 _memDumps.emplace_back(filePathName, std::array<uint64_t, 4>());
                 _memDumps.back().first.resize(512);
                 _bufStartingAddress.emplace_back("0");
@@ -265,6 +265,47 @@ void MungPlex::PointerSearch::drawResults()
     ImGui::EndChild();
 }
 
+std::string execute_external_process(const std::string& command, const std::vector<std::string>& arguments) {
+    boost::asio::io_context io_context;
+    boost::process::ipstream output_stream;
+    std::ostringstream result;
+    std::future<void> read_output;
+
+    boost::process::child process(command, boost::process::args(arguments),
+        (boost::process::std_out & boost::process::std_err) > output_stream, io_context);
+
+    // Read output asynchronously
+    read_output = std::async(std::launch::async, [&] {
+        std::string line;
+        while (output_stream && std::getline(output_stream, line) && !line.empty()) {
+            result << line << '\n';
+        }
+    });
+
+    // Run the I/O context in a separate thread
+    std::thread io_thread([&io_context] {
+        io_context.run();
+    });
+
+    // Wait for the process to exit
+    process.wait();
+
+    // Wait for the output reading to complete
+    read_output.get();
+
+    // Join the I/O thread
+    io_thread.join();
+
+    // Check for errors
+    if (process.exit_code() != 0) {
+        const auto error_message = "Command failed with return value "
+            + std::to_string(process.exit_code()) + ": " + result.str();
+        throw std::runtime_error(error_message);
+    }
+
+    return result.str();
+}
+
 bool MungPlex::PointerSearch::performScan()
 {
     const auto pointerSearcherFilePath = GetResourcesFilePath(R"(Universal-Pointer-Searcher-Engine\UniversalPointerSearcher.exe)");
@@ -273,26 +314,17 @@ bool MungPlex::PointerSearch::performScan()
     
     try
     {
-        _pointerSearcherProcess = std::make_shared<bp::child>(pointerSearcherFilePath.string(), bp::args = _args/*, bp::std_out > *_pointerSearcherLog/*, bp::std_err > *_pointerSearcherErrorLog*/);
- 
-        if (_pointerSearcherProcess->running())
-        {
+        const auto process_output = execute_external_process(pointerSearcherFilePath.string(), _args);
+        // _pointerSearcherProcess = std::make_shared<bp::child>(pointerSearcherFilePath.string(), bp::args = _args/*, bp::std_out > *_pointerSearcherLog/*, bp::std_err > *_pointerSearcherErrorLog*/);
 
-            boost::thread([&]()
-                {
-                    waitAndLoadResults();
-                }).detach();
-                return true;
-        }
-        else
-        {
-            std::cerr << "Failed to launch pointer searcher" << std::endl;
-            return false;
-        }
+        Log::LogInformation("Finished Pointer Scan");
+        loadResults();
+        return true;
     }
     catch (const std::exception& ex)
     {
-        std::cerr << "Error launching pointer searcher: " << ex.what() << std::endl;
+        // TODO Better error handling, for example a message dialog. Currently, the user has no way of knowing if the pointer searcher failed...
+        std::cerr << "Pointer searcher failed: " << ex.what() << '\n';
         return false;
     }
 }
@@ -307,18 +339,79 @@ void MungPlex::PointerSearch::waitAndLoadResults()
     _disableUI = false;
 }
 
+// TODO Maybe his helper method is redundant if it already exists somewhere else
+void remove_trailing_nulls(std::string& str) {
+    // Find the position of the last character that is not a null character
+    if (const std::size_t end_pos = str.find_last_not_of('\0');
+        end_pos != std::string::npos) {
+        // Erase characters after the last non-null character
+        str.erase(end_pos + 1);
+    }
+    else {
+        // If the entire string is null characters, clear it
+        str.clear();
+    }
+}
+
 void MungPlex::PointerSearch::generateArgument()
 {
     _args.clear();
     auto memDumpsSorted = _memDumps; //this is needed because sorting _memDumps messes up the table
-    std::sort(memDumpsSorted.begin(), memDumpsSorted.end(), comparePairs);
+    std::ranges::sort(memDumpsSorted, comparePairs);
+
+    // Remove trailing null bytes
+    for (auto & [first, second] : memDumpsSorted)
+    {
+        remove_trailing_nulls(first);
+    }
+
+    remove_trailing_nulls(_resultsPath);
+    remove_trailing_nulls(_minOffset);
+    remove_trailing_nulls(_maxOffset);
 
     std::stringstream stream;
-    _args.push_back("--pointer-offset-range " + std::string(_minOffset.c_str()) + "," + _maxOffset.c_str());
-    _args.push_back("--pointer-depth-range " + std::to_string(_minPointerDepth) + "," + std::to_string(_maxPointerDepth));
-    _args.push_back("--verbose");
 
-    int highestCorrespondence = 0;
+    if (!memDumpsSorted.empty())
+    {
+        _args.emplace_back("--initial-starting-address");
+        for (auto [first, second] : memDumpsSorted)
+        {
+            const auto starting_address = second[0];
+            _args.push_back(ToHexString(starting_address, true, true));
+        }
+
+        _args.emplace_back("--target-address");
+        for (auto [first, second] : memDumpsSorted)
+        {
+            const auto target_address = second[1];
+            _args.push_back(ToHexString(target_address, true, true));
+        }
+
+        _args.emplace_back("--initial-file-path");
+        for (auto [first, second] : memDumpsSorted)
+        {
+            if (second[3] == 0) // 0 correspondence
+            {
+                _args.push_back(first);
+            }
+        }
+    }
+
+    _args.emplace_back("--verbose");
+    _args.emplace_back("--endian");
+    _args.emplace_back(_isBigEndian ? "big" : "little");
+    _args.emplace_back("--address-size");
+    _args.push_back(std::to_string(_addressWidth));
+    _args.emplace_back("--pointer-offset-range");
+    _args.push_back(_minOffset + "," + _maxOffset);
+	_args.emplace_back("--pointer-depth-range");
+    _args.push_back(std::to_string(_minPointerDepth) + "," + std::to_string(_maxPointerDepth));
+    _args.emplace_back("--store-memory-pointers-file-path");
+    _args.push_back(_resultsPath);
+
+    // TODO Implement the missing flags
+
+    /*int highestCorrespondence = 0;
     std::string initialFilePaths("--initial-file-path ");
     std::string readPointermapsFilePaths("--read-pointer-maps-file-paths ");
     std::string writePointermapsFilePaths("--write-pointer-maps-file-paths ");
@@ -416,33 +509,39 @@ void MungPlex::PointerSearch::generateArgument()
         _args.push_back(comparisonStartingAddresses);
     }
 
-    PopBackTrailingChars(targetAdresses, ' ');
+	PopBackTrailingChars(targetAdresses, ' ');
     _args.push_back(targetAdresses);
-    _args.push_back(std::string("--endian ").append(_isBigEndian ? "big" : "little"));
-    _args.push_back("--address-size " + std::to_string(_addressWidth));
-    _args.push_back("--maximum-memory-utilization-fraction " + std::to_string(_maxMemUtilizationFraction));
-    _args.push_back("--file-extensions .bin .raw .dmp");
-    _args.push_back("--maximum-pointer-count " + std::to_string(_maxPointerCount));
-    _args.push_back("--maximum-pointers-printed-count " + std::to_string(_maxPointerCount));
+    */
+
+    _args.push_back("--maximum-memory-utilization-fraction");
+    _args.push_back(std::to_string(_maxMemUtilizationFraction));
+    _args.push_back("--file-extensions");
+    _args.push_back(".bin");
+    _args.push_back(".raw");
+    _args.push_back(".dmp");
+    _args.push_back("--maximum-pointer-count");
+    _args.push_back(std::to_string(_maxPointerCount));
+    _args.push_back("--maximum-pointers-printed-count");
+    _args.push_back(std::to_string(_maxPointerCount));
     _args.push_back("--disable-printing-memory-pointers-to-console");
 
     if(_printModuleNames)
-        _args.push_back("--print-module-file-names");
+        _args.emplace_back("--print-module-file-names");
 
     if(_printVisitedAddresses)
-        _args.push_back("--print-visited-addresses");
+        _args.emplace_back("--print-visited-addresses");
 
     Log::LogInformation("Pointer scan arguments: ");
 
 #ifndef NDEBUG
-    for (std::string line : _args)
+    for (const std::string &line : _args)
     {
-        for (char ch : line)
+        for (const char ch : line)
             if (ch == '\0')
                 std::cout << "has 0 \n";
     }
 
-    for(std::string line : _args)
+    for(const std::string &line : _args)
         Log::LogInformation(line, true, 2);
 
     //std::cout << "pointer scan args:\n" << _arg << "\n";
@@ -470,13 +569,13 @@ bool MungPlex::PointerSearch::loadResults()
     buffer << resultsFile.rdbuf();
     _results = buffer.str();
     Log::LogInformation("Pointer Scan results loaded");
-    return static_cast<bool>(_results.size());
+    return !_results.empty();
 }
 
 bool MungPlex::PointerSearch::comparePairs(std::pair<std::string, std::array<uint64_t, 4>>& a, std::pair<std::string, std::array<uint64_t, 4>>& b)
 {
     if (a.second[3] != b.second[3])
         return a.second[3] < b.second[3];
-    else
-        return a.second[0] < b.second[0];
+
+    return a.second[0] < b.second[0];
 }
