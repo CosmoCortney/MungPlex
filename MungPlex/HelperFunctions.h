@@ -1,20 +1,23 @@
 #pragma once
-#include<iostream>
-#include<string>
-#include<stdio.h>
-#include<sstream>
+#include <iostream>
+#include <string>
+#include <stdio.h>
+#include <sstream>
 #include <vector>
 #include <functional>
 #include "GLFW/glfw3.h"
 #include "imgui.h"
-#include"Connection.h"
-#include<cstdint>
+#include "Connection.h"
+#include <cstdint>
 #include <filesystem>
-#include"LitColor.h"
-#include"MorphText.h"
+#include "LitColor.h"
+#include "MorphText.h"
 #include <stdlib.h>
-#include"OperativeArray.h"
-#include<algorithm>
+#include "OperativeArray.h"
+#include <algorithm>
+#include <chrono>
+#include <iomanip>
+#include <ctime>
 
 namespace MungPlex
 {
@@ -681,5 +684,45 @@ namespace MungPlex
         if (str.back() != '"')
             str.append("\"");
     }
-}
 
+    enum TimeFlags
+    {
+        YEAR = 1,
+        MONTH = 1 << 1,
+        DAY = 1 << 2,
+        HOUR = 1 << 3,
+        MINUTE = 1 << 4,
+        SECOND = 1 << 5
+    };
+
+    static std::string GetCurrentTimeString(const int flags = HOUR | MINUTE | SECOND)
+    {
+        auto now = std::chrono::system_clock::now();
+        std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+        std::tm now_tm = *std::localtime(&now_time_t);
+        std::string timeArgs;
+
+        if (flags & YEAR)
+            timeArgs.append("%Y-");
+
+        if (flags & MONTH)
+            timeArgs.append("%m-");
+
+        if (flags & DAY)
+            timeArgs.append("%d-");
+
+        if (flags & HOUR)
+            timeArgs.append("%H-");
+
+        if (flags & MINUTE)
+            timeArgs.append("%M-");
+
+        if (flags & SECOND)
+            timeArgs.append("%S");
+
+        PopBackTrailingChars(timeArgs, '-');
+        std::ostringstream stream;
+        stream << std::put_time(&now_tm, timeArgs.c_str());
+        return stream.str();
+    }
+}

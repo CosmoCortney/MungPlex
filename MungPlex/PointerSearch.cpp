@@ -142,8 +142,13 @@ void MungPlex::PointerSearch::drawSettings()
         
         if (ImGui::Button("Dump"))
         {
+            std::stringstream stream(std::string(Settings::GetGeneralSettings().DocumentsPath), std::ios_base::app | std::ios_base::out);
+            stream << R"(\MungPlex\Dumps\)";
+            stream << ProcessInformation::GetPlatform() << '\\';
+            stream << ProcessInformation::GetGameID() << '\\';
             auto& [Label, Base, Size, BaseLocationProcess] = _regions[_regionSelect];
-            std::wstring path = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath) + L"\\MungPlex\\Dumps\\" + std::to_wstring(Base) + L".bin";
+            stream << std::uppercase << std::hex << Base << '_' << GetCurrentTimeString(YEAR | MONTH | DAY | HOUR | MINUTE | SECOND) << ".bin";
+            std::wstring path = MorphText::Utf8_To_Utf16LE(stream.str());
             Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).DumpMemory(BaseLocationProcess, path, Size);
         }
     }
