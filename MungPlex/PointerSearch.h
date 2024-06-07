@@ -35,6 +35,7 @@ namespace MungPlex
         void generateArgument();
         void waitAndLoadResults();
         bool loadResults();
+        std::string execute_external_process(const std::string& command, const std::vector<std::string>& arguments);
         static bool comparePairs(const std::pair<std::string, std::array<uint64_t, 4>>& a,
             const std::pair<std::string, std::array<uint64_t, 4>>& b);
 

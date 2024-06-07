@@ -265,7 +265,8 @@ void MungPlex::PointerSearch::drawResults()
     ImGui::EndChild();
 }
 
-std::string execute_external_process(const std::string& command, const std::vector<std::string>& arguments) {
+std::string MungPlex::PointerSearch::execute_external_process(const std::string& command, const std::vector<std::string>& arguments) 
+{
     boost::asio::io_context io_context;
     boost::process::ipstream output_stream;
     std::ostringstream result;
@@ -287,9 +288,10 @@ std::string execute_external_process(const std::string& command, const std::vect
         io_context.run();
     });
 
+    _disableUI = true;
     // Wait for the process to exit
     process.wait();
-
+    _disableUI = false;
     // Wait for the output reading to complete
     read_output.get();
 
@@ -324,7 +326,12 @@ bool MungPlex::PointerSearch::performScan()
     catch (const std::exception& ex)
     {
         // TODO Better error handling, for example a message dialog. Currently, the user has no way of knowing if the pointer searcher failed...
-        std::cerr << "Pointer searcher failed: " << ex.what() << '\n';
+        
+        std::string errorMsg = "Pointer searcher failed: " + std::string(ex.what());
+#if NDEBUG
+        std::cerr << errorMsg << '\n';
+#endif
+        Log::LogInformation(errorMsg);
         return false;
     }
 }
@@ -372,29 +379,81 @@ void MungPlex::PointerSearch::generateArgument()
 
     if (!memDumpsSorted.empty())
     {
-        _args.emplace_back("--initial-starting-address");
+        int lastCorrespondence = 1;
+        bool initStartingAddrFlagRequired = true;
+        bool compStartingAddrFlagRequired = true;
         for (auto [first, second] : memDumpsSorted)
         {
             const auto starting_address = second[0];
+
+            if (second[3] == 0) // 0 correspondence (aka initial)
+            {
+                if (initStartingAddrFlagRequired)
+                {
+                    _args.emplace_back("--initial-starting-address");
+                    initStartingAddrFlagRequired = false;
+                }
+            }
+            else
+            {
+                if (compStartingAddrFlagRequired)
+                {
+                    _args.emplace_back("--comparison-starting-address");
+                    compStartingAddrFlagRequired = false;
+                }
+            }
+            
+            if (second[3] != lastCorrespondence && second[3] > 1)
+                _args.push_back("%%");
+
             _args.push_back(ToHexString(starting_address, true, true));
+            lastCorrespondence = second[3];
         }
+
+        lastCorrespondence = -1;
 
         _args.emplace_back("--target-address");
         for (auto [first, second] : memDumpsSorted)
         {
+            if (lastCorrespondence == second[3])
+                continue;
+
             const auto target_address = second[1];
             _args.push_back(ToHexString(target_address, true, true));
+            lastCorrespondence = second[3];
         }
 
-        _args.emplace_back("--initial-file-path");
+        lastCorrespondence = 1;
+
+        bool initPathFlagRequired = true;
+        bool compPathFlagRequired = true;
         for (auto [first, second] : memDumpsSorted)
         {
-            if (second[3] == 0) // 0 correspondence
+            if (second[3] == 0)
             {
-                auto first_copy = first;
-                remove_trailing_nulls(first_copy);
-                _args.push_back(first_copy);
+                if (initPathFlagRequired)
+                {
+                    _args.emplace_back("--initial-file-path");
+                    initPathFlagRequired = false;
+                }
             }
+            else
+            {
+                if (compPathFlagRequired)
+                {
+                    _args.emplace_back("--comparison-file-path");
+                    compPathFlagRequired = false;
+                }
+            }
+
+            if (second[3] != lastCorrespondence && second[3] > 1)
+                _args.push_back("%%");
+
+            auto first_copy = first;
+            remove_trailing_nulls(first_copy);
+            //SetQuotationmarks(first_copy);
+            _args.push_back(first_copy);
+            lastCorrespondence = second[3];
         }
     }
 
