@@ -1,7 +1,7 @@
-#include"CheatConvert.h"
-#include"Log.h"
-#include<sstream>
-#include"HelperFunctions.h"
+#include "CheatConvert.h"
+#include <iostream>
+#include "HelperFunctions.h"
+#include "Log.h"
 
 std::vector<std::pair<uint32_t, uint32_t>> MungPlex::CheatConvert::_dissectedCheat;
 std::string MungPlex::CheatConvert::_lua;

@@ -78,6 +78,8 @@ namespace MungPlex
         static REGION_LIST& GetRegionList();
         static std::vector<SystemRegion>& GetSystemRegionList();
         static bool IsConnectionValid();
+        static const std::vector<std::pair<int, std::string>>& GetSystemPairs();
+        static std::string GetSystemNameByID(const int id);
 
         template<typename addressType> static addressType GetModuleAddress(const std::wstring& moduleName)
         {
@@ -226,6 +228,18 @@ namespace MungPlex
         int _platformID = UNK;
         int _connectionCheckValue = 0;
         void* _connectionCheckPtr = nullptr;
+        static inline const std::vector<std::pair<int, std::string>> _systemPairs
+        {
+            { NES, "NES" }, { SNES, "SNES" }, { N64, "Nintendo 64" }, { GAMECUBE, "GameCube" },
+            { TRIFORCE, "Triforce" }, { WII, "Wii" }, { WIIU, "Wii U" }, { SWITCH, "Switch"}, 
+            { GB, "GameBoy" }, { GBC, "GameBoy Color" }, { NDS, "NDS" }, { N3DS, "3DS" }, 
+            { PS1, "PS1" }, { PS2, "PS2" }, { PS3 , "PS3" }, { PS4, "PS4" }, { PS5, "PS5", },
+            { PSP, "PSP" }, { PSV, "PS Vita" }, 
+            { SMS, "Master System" }, { GENESIS, "Mega Drive" }, { S32X, "32X" }, { SMCD, "Mega-CD" },
+            { SATURN, "Saturn" }, { DREAMCAST, "Dreamcast" }, { GG, "GamesGear" },
+            { XBOX, "XBOX" }, { XBOX360, "XBOX 360" }, { XBOXONE, "XBOX One" }, { XBOXSERIES, "XBOX Series" },
+            { X86, "PC" }, { X64, "PC" }
+        };
 
         void drawModuleList();
         void drawRegionList();

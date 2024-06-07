@@ -1,9 +1,16 @@
-#include "Connection.h"
-#include"Settings.h"
-#include"Log.h"
 #include <chrono>
-#include <thread>
+#include "Connection.h"
+#include "examples/libs/emscripten/emscripten_mainloop_stub.h"
+#include <fstream>
 #include <future>
+#include "imgui.h"
+#include "imgui_internal.h"
+#include <iomanip>
+#include "Log.h"
+#include "MungPlexConfig.h"
+#include "ProcessInformation.h"
+#include "Settings.h"
+#include <thread>
 
 void MungPlex::Connection::DrawWindow()
 {

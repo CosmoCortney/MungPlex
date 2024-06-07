@@ -1,28 +1,28 @@
 ﻿#pragma once
-#include <iostream>
-#include <stdio.h>
+#include <algorithm>
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+#include <chrono>
+#include "Connection.h"
+#include <cstdio>
+#include "examples/libs/emscripten/emscripten_mainloop_stub.h"
+#include <functional>
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include "examples/libs/emscripten/emscripten_mainloop_stub.h"
-#include<string>
+#include <iostream>
+#include "HelperFunctions.h"
+#include "LitColor.h"
+#include "Log.h"
+#include "MemCompare.h"
+#include "MemDump.h"
+#include "MorphText.h"
 #include "MungPlexConfig.h"
-#include "Connection.h"
-#include"HelperFunctions.h"
-#include <chrono>
+#include "OperativeArray.h"
+#include "Settings.h"
+#include <stdio.h>
+#include <string>
 #include <thread>
-#include<functional>
-#include<algorithm>
-#include <cstdio>
-#include"Settings.h"
-#include"Log.h"
-#include"LitColor.h"
-#include"MorphText.h"
-#include"OperativeArray.h"
-#include"MemDump.h"
-#include"MemCompare.h"
 
 namespace MungPlex
 {
@@ -82,17 +82,56 @@ namespace MungPlex
             return Instance;
         }
 
-        std::vector<std::pair<std::string, int>> _searchValueTypes{};
-        std::vector<std::pair<std::string, int>> _searchPrimitiveTypes{};
-        std::vector<std::pair<std::string, int>> _searchTextTypes{};
-        std::vector<std::pair<std::string, int>> _searchArrayTypes{}; //remove once Arrays support floats
-        std::vector<std::pair<std::string, int>> _searchColorTypes{};
-        std::vector<std::pair<std::string, int>> _searchConditionTypes{};
-        std::vector<std::pair<std::string, int>> _searchConditionTypesArray{};
-        std::vector<std::pair<std::string, int>> _searchConditionTypesFloat{};
-        std::vector<std::pair<std::string, int>> _searchConditionTypesColor{};
-        std::vector<std::pair<std::string, int>> _searchConditionTypesText{};
-        std::vector<std::pair<std::string, int>> _searchComparasionType{};
+        const std::vector<std::pair<std::string, int>> _searchValueTypes{
+            { "Primitive", PRIMITIVE }, { "Array", ARRAY }, { "Text", TEXT }, { "Color", COLOR }
+        };
+        const std::vector<std::pair<std::string, int>> _searchPrimitiveTypes{ 
+            { "Int 8 (1 Byte)", INT8 }, { "Int 16 (2 Bytes)", INT16 }, { "Int 32 (4 Bytes)", INT32 }, 
+            { "Int 64 (8 Bytes)", INT64 }, { "Float Single", FLOAT }, { "Float Double", DOUBLE } 
+        };
+        const std::vector<std::pair<std::string, int>> _searchTextTypes{
+            { "UTF-8", MorphText::UTF8 }, { "UTF-16 Little Endian", MorphText::UTF16LE }, { "UTF-16 Big Endian", MorphText::UTF16BE },
+            { "UTF-32 Little Endian", MorphText::UTF32LE }, { "UTF-32 Big Endian", MorphText::UTF32BE }, { "ASCII", MorphText::ASCII },
+            { "ISO-8859-1 (Latin-1)", MorphText::ISO_8859_1 }, { "ISO-8859-2 (Latin-2)", MorphText::ISO_8859_2 }, 
+            { "ISO-8859-3 (Latin-3)", MorphText::ISO_8859_3 }, { "ISO-8859-4 (Latin-4)", MorphText::ISO_8859_4 },
+            { "ISO-8859-5 (Cyrillic)", MorphText::ISO_8859_5 }, { "ISO-8859-6 (Arabic)", MorphText::ISO_8859_6 },
+            { "ISO-8859-7 (Greek)", MorphText::ISO_8859_7 }, { "ISO-8859-8 (Hebrew)", MorphText::ISO_8859_8 },
+            { "ISO-8859-9 (Turkish, Latin-5)", MorphText::ISO_8859_9 }, { "ISO-8859-10 (Nordic, Latin-6)", MorphText::ISO_8859_10 },
+            { "ISO-8859-11 (Thai)", MorphText::ISO_8859_11 }, { "ISO-8859-13 (Baltic, Latin-7)", MorphText::ISO_8859_13 },
+            { "ISO-8859-14 (Celtic, Latin-8)", MorphText::ISO_8859_14 }, { "ISO-8859-15 (West European, Latin-9)", MorphText::ISO_8859_15 },
+            { "ISO-8859-16 (South-East European, Latin-10)", MorphText::ISO_8859_16 }, { "Shift-Jis", MorphText::SHIFTJIS },
+            { "JIS x 0201 Full Width", MorphText::JIS_X_0201_FULLWIDTH }, { "JIS x 0201 Half Width", MorphText::JIS_X_0201_FULLWIDTH }
+        };
+        const std::vector<std::pair<std::string, int>> _searchArrayTypes{
+            { "Int 8 (1 Byte)", INT8 }, { "Int 16 (2 Bytes)", INT16 }, { "Int 32 (4 Bytes)", INT32 }, { "Int 64 (8 Bytes)", INT64 }
+        }; //remove once Arrays support floats
+        const std::vector<std::pair<std::string, int>> _searchColorTypes{
+            { "RGB 888 (3 Bytes)", LitColor::RGB888 }, { "RGBA 8888 (4 Bytes)", LitColor::RGBA8888 }, { "RGBF (3 Floats)", LitColor::RGBF },
+            { "RGBAF (4 Floats)", LitColor::RGBAF }, { "RGB 565 (2 Bytes)", LitColor::RGB565 }, { "RGB 5A3 (2 Bytes)", LitColor::RGB5A3 }
+        };
+        const std::vector<std::pair<std::string, int>> _searchConditionTypes{
+            { "Equal (==)", MemoryCompare::EQUAL }, { "Unequal (!=)", MemoryCompare::UNEQUAL }, { "Greater (>)", MemoryCompare::GREATER },
+            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL }, { "Lower (<)", MemoryCompare::LOWER }, { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL },
+            { "Increased by", MemoryCompare::INCREASED_BY }, { "Decreased by", MemoryCompare::DECREASED_BY }, { "Value Between", MemoryCompare::BETWEEN },
+            { "Value Not Between", MemoryCompare::NOT_BETWEEN }, { "AND (has all true bits)", MemoryCompare::AND }, { "OR (has at least 1 true bit)", MemoryCompare::OR }
+        };
+        const std::vector<std::pair<std::string, int>> _searchConditionTypesArray{
+            { "Equal (==)", MemoryCompare::EQUAL }, { "Unequal (!=)", MemoryCompare::UNEQUAL }
+        };
+        const std::vector<std::pair<std::string, int>> _searchConditionTypesFloat{
+            { "Equal (==)", MemoryCompare::EQUAL }, { "Unequal (!=)", MemoryCompare::UNEQUAL }, { "Greater (>)", MemoryCompare::GREATER },
+            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL }, { "Lower (<)", MemoryCompare::LOWER }, { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL },
+            { "Increased by", MemoryCompare::INCREASED_BY }, { "Decreased by", MemoryCompare::DECREASED_BY }, { "Value Between", MemoryCompare::BETWEEN },
+            { "Value Not Between", MemoryCompare::NOT_BETWEEN }
+        };
+        const std::vector<std::pair<std::string, int>> _searchConditionTypesColor{
+            { "Equal (==)", MemoryCompare::EQUAL }, { "Unequal (!=)", MemoryCompare::UNEQUAL }, { "Greater (>)", MemoryCompare::GREATER },
+            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL }, { "Lower (<)", MemoryCompare::LOWER }, { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL }
+        };
+        const std::vector<std::pair<std::string, int>> _searchConditionTypesText{ { "Equal (==)", MemoryCompare::EQUAL } };
+        const std::vector<std::pair<std::string, int>> _searchComparasionType{
+            { "Unknown/Initial", 0 }, { "Known Value", MemoryCompare::KNOWN }
+        };
         int _currentcomparisonTypeSelect = 0;
         int _currentConditionTypeSelect = 0;
         ImVec4 _colorVec;

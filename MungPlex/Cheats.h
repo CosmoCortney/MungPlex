@@ -1,12 +1,7 @@
 #pragma once
 #define SOL_ALL_SAFETIES_ON 1
-#include "sol/sol.hpp"
-#include <cassert>
-#include "lua.h"
-#include "GLFW/glfw3.h"
-#include <thread>
-#include <future>
 #include "Connection.h"
+#include "sol/sol.hpp"
 
 namespace MungPlex
 {

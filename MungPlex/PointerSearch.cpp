@@ -1,11 +1,7 @@
+#include "ImGuiFileDialog.h"
+#include "Log.h"
 #include "PointerSearch.h"
-#include"ImGuiFileDialog.h"
-#include"Log.h"
 #include "Settings.h"
-#include <fstream>
-#include <chrono>
-#include <algorithm>
-#include <utility>
 
 MungPlex::PointerSearch::PointerSearch()
 {

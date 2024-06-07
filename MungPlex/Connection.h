@@ -2,20 +2,7 @@
 #include <boost/asio.hpp>
 #include "discord-game-sdk/discord_game_sdk.h"
 #include "discord-game-sdk/discord.h"
-#include <iostream>
-#include <stdio.h>
-#include "GLFW/glfw3.h"
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include "examples/libs/emscripten/emscripten_mainloop_stub.h"
-#include<string>
-#include<fstream>
-#include <iomanip>
-#include "MungPlexConfig.h"
-#include"ProcessInformation.h"
-#include"MemoryViewer.h"
+#include "MemoryViewer.h"
 
 namespace MungPlex
 {
@@ -32,8 +19,8 @@ namespace MungPlex
         static std::vector<MemoryViewer>& GetMemoryViews();
 
     private:
-        Connection() {}
-        ~Connection() {}
+        Connection() = default;
+        ~Connection() = default;
         Connection(const Connection&) = delete;
         Connection(Connection&&) = delete;
         void operator=(const Connection&) = delete;

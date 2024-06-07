@@ -1,62 +1,10 @@
-#include"Settings.h"
+#include "Settings.h"
 #include "Log.h"
+#include "MungPlexConfig.h"
 #include <shlobj_core.h>
-#include"MungPlexConfig.h"
 
 MungPlex::Settings::Settings()
 {
-	_colorSettings =
-	{
-		{ ImGuiCol_Text, { "Text", "Text" }},
-		{ ImGuiCol_TextDisabled, { "TextDisabled", "Text Disabled" }},
-		{ ImGuiCol_TextSelectedBg, { "TextSelectedBg", "Selected Text Background" }},
-		{ ImGuiCol_WindowBg, { "Background", "Background" }},
-		{ ImGuiCol_ChildBg, { "ChildBG", "Panel Background" }},
-		{ ImGuiCol_PopupBg, { "PopupBG", "Popup Background" }},
-		{ ImGuiCol_FrameBg, { "FrameBG", "Frame Background" }},
-		{ ImGuiCol_FrameBgHovered, { "FrameBGHovered", "Frame Background Hovered" }},
-		{ ImGuiCol_FrameBgActive, { "FrameBGActive", "Frame Background Active" }},
-		{ ImGuiCol_TitleBg, { "TitleBG", "Title Bar Background" }},
-		{ ImGuiCol_TitleBgActive, { "TitleBGActive", "Title Bar Background Active" }},
-		{ ImGuiCol_TitleBgCollapsed, { "TitleBGCollapsed", "Title Bar Background Collapsed" }},
-		{ ImGuiCol_ScrollbarBg, { "ScrollbarBg", "Scrollbar Background" }},
-		{ ImGuiCol_ScrollbarGrab, { "ScrollbarGrab", "Scrollbar Grab" }},
-		{ ImGuiCol_ScrollbarGrabHovered, { "ScrollbarGrabHovered", "Scrollbar Grab Hovered" }},
-		{ ImGuiCol_ScrollbarGrabActive, { "ScrollbarGrabActive", "Scrollbar Grab Active" }},
-		{ ImGuiCol_CheckMark, { "CheckMark", "Check Mark" }},
-		{ ImGuiCol_SliderGrab, { "SliderGrab", "Slider Grab" }},
-		{ ImGuiCol_SliderGrabActive, { "SliderGrabActive", "Slider Grab Active" }},
-		{ ImGuiCol_Button, { "Button", "Button" }},
-		{ ImGuiCol_ButtonHovered, { "ButtonHovered", "Button Hovered" }},
-		{ ImGuiCol_ButtonActive, { "ButtonActive", "Button Active" }},
-		{ ImGuiCol_Header, { "Header", "Header" }},
-		{ ImGuiCol_HeaderHovered, { "HeaderHovered", "Header Hovered" }},
-		{ ImGuiCol_HeaderActive, { "HeaderActive", "Header Active" }},
-		{ ImGuiCol_Separator, { "Separator", "Separator" }},
-		{ ImGuiCol_SeparatorHovered, { "SeparatorHovered", "Separator Hovered" }},
-		{ ImGuiCol_SeparatorActive, { "SeparatorActive", "Separator Active" }},
-		{ ImGuiCol_ResizeGrip, { "ResizeGrip", "Resize Grip" }},
-		{ ImGuiCol_ResizeGripHovered, { "ResizeGripHovered", "Resize Grip Hovered" }},
-		{ ImGuiCol_ResizeGripActive, { "ResizeGripActive", "Resize Grip Active" }},
-		{ ImGuiCol_Tab, { "Tab", "Tab" }},
-		{ ImGuiCol_TabHovered, { "TabHovered", "Tab Hovered" }},
-		{ ImGuiCol_TabActive, { "TabActive", "Tab Active" }},
-		{ ImGuiCol_TabUnfocused, { "TabUnfocused", "Tab Unfocused" }},
-		{ ImGuiCol_TabUnfocusedActive, { "TabUnfocusedActive", "Tab Unfocused Active" }},
-		{ ImGuiCol_DockingPreview, { "DockingPreview", "Docking Preview" }},
-		{ ImGuiCol_DockingEmptyBg, { "DockingEmptyBG", "Docking Empty Background" }},
-		{ ImGuiCol_TableHeaderBg, { "TableHeaderBg", "Table Header Background" }},
-		{ ImGuiCol_TableBorderStrong, { "TableBorderStrong", "Table Border Strong" }},
-		{ ImGuiCol_TableBorderLight, { "TableBorderLight", "Table Border Light" }},
-		{ ImGuiCol_TableRowBg, { "TableRowBg", "Table Row Background" }},
-		{ ImGuiCol_TableRowBgAlt, { "TableRowBgAlt", "Table Row Background Alternate" }},
-		{ ImGuiCol_ModalWindowDimBg, { "WindowDim", "Window Dim" }},
-		{ ImGuiCol_PlotLines, { "PlotLines", "Plot Lines" }},
-		{ ImGuiCol_PlotLinesHovered, { "PlotLinesHovered", "Plot Lines Hovered" }},
-		{ ImGuiCol_PlotHistogram, { "PlotHistogram", "Plot Histogram" }},
-		{ ImGuiCol_PlotHistogramHovered, { "PlotHistogramHovered", "Plot Histogram Hovered" }}
-	};
-
 	_defaultStyle.Colors[ImGuiCol_WindowBg] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	_defaultStyle.Colors[ImGuiCol_Text] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	_defaultStyle.Colors[ImGuiCol_TextDisabled] = { 0.5f, 0.5f, 0.5f, 1.0f };
@@ -349,56 +297,17 @@ void MungPlex::Settings::createDocFolders()
 {
 	std::string mungPlexDocsPath = std::string(_generalSettings.DocumentsPath) + R"(\MungPlex)";
 	validateDir(mungPlexDocsPath);
-	validateDir(mungPlexDocsPath + R"(\Search)");
-	validateDir(mungPlexDocsPath + R"(\Dumps)");
-	validateDir(mungPlexDocsPath + R"(\PointerSearch)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl)");
-	validateDir(mungPlexDocsPath + R"(\Cheats)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\Nintendo 64)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\SNES)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\GameCube)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\Wii)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\Wii U)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\PC)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\NDS)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\Switch)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\PSP)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\PS1)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\PS2)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\PS3)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\Mega Drive)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\Mega-CD)");
-	validateDir(mungPlexDocsPath + R"(\Cheats\32X)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\Nintendo 64)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\SNES)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\GameCube)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\Wii)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\Wii U)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\PC)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\NDS)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\Switch)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\PSP)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\PS1)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\PS2)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\PS3)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\Mega Drive)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\Mega-CD)");
-	validateDir(mungPlexDocsPath + R"(\WatchControl\32X)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\Nintendo 64)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\SNES)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\GameCube)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\Wii)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\Wii U)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\PC)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\NDS)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\Switch)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\PSP)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\PS1)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\PS2)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\PS3)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\Mega Drive)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\Mega-CD)");
-	validateDir(mungPlexDocsPath + R"(\Dumps\32X)");
+	
+	for (auto& dir : _featureDirs)
+	{
+		validateDir(mungPlexDocsPath + '\\' + dir);
+
+		if (dir.compare("Search") == 0) // dont consider this one for system-specific subdirs
+			continue;
+
+		for(auto& sysPair : ProcessInformation::GetSystemPairs())
+			validateDir(mungPlexDocsPath + '\\' + dir + '\\' + sysPair.second);
+	}
 }
 
 void MungPlex::Settings::validateDir(const std::string dir)

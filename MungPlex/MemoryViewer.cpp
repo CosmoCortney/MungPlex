@@ -1,6 +1,7 @@
 #include "MemoryViewer.h"
 #include "Connection.h"
-#include"Settings.h"
+#include <iostream>
+#include "Settings.h"
 
 MungPlex::MemoryViewer::MemoryViewer(const uint32_t id)
 {

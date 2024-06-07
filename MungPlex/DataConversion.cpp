@@ -1,10 +1,12 @@
-#include"DataConversion.h"
-#include"MorphText.h"
-#include"HelperFunctions.h"
-#include"LitColor.h"
-#include"Settings.h"
-#include"Xertz.h"
-#include"imgui_memory_editor.h"
+#include "DataConversion.h"
+#include "imgui.h"
+#include "imgui_internal.h"
+#include "MorphText.h"
+#include "HelperFunctions.h"
+#include "LitColor.h"
+#include "Settings.h"
+#include <utility>
+#include "Xertz.h"
 
 MungPlex::DataConversion::DataConversion()
 {

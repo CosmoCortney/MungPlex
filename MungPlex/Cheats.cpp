@@ -1,8 +1,11 @@
 #include "Cheats.h"
-#include "Settings.h"
-#include <string>
-#include "Log.h"
+#include <cassert>
 #include "CheatConvert.h"
+#include <future>
+#include "Log.h"
+#include "lua.h"
+#include "Settings.h"
+#include <thread>
 
 static float scale = 2.0f;
 

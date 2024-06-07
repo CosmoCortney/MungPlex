@@ -1,23 +1,23 @@
 #pragma once
-#include <iostream>
-#include <string>
-#include <stdio.h>
-#include <sstream>
-#include <vector>
+#include <algorithm>
+#include <chrono>
+#include "Connection.h"
+#include <cstdint>
+#include <ctime>
+#include <filesystem>
 #include <functional>
 #include "GLFW/glfw3.h"
 #include "imgui.h"
-#include "Connection.h"
-#include <cstdint>
-#include <filesystem>
+#include <iomanip>
+#include <iostream>
 #include "LitColor.h"
 #include "MorphText.h"
-#include <stdlib.h>
 #include "OperativeArray.h"
-#include <algorithm>
-#include <chrono>
-#include <iomanip>
-#include <ctime>
+#include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 
 namespace MungPlex
 {

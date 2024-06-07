@@ -1,20 +1,20 @@
 #pragma once
 #include <boost/asio.hpp>
-#include <iostream>
-#include <stdio.h>
-#include "GLFW/glfw3.h"
-#include "imgui.h"
-#include "imgui_internal.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
+#include "imgui.h"
+#include "imgui_internal.h"
+#include "GLFW/glfw3.h"
+#include <iostream>
+#include "MungPlexConfig.h"
+#include "nlohmann/json.hpp"
+#include <stdio.h>
 #include <string>
-#include <vector>
+#include <utility>
 #include <variant>
-#include<utility>
-#include"MungPlexConfig.h"
-#include"Xertz.h"
-#include"nlohmann/json.hpp"
+#include <vector>
+#include "Xertz.h"
 
 namespace MungPlex
 {

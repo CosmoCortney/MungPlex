@@ -1,23 +1,23 @@
 #include <boost/asio.hpp>
-#include <iostream>
-#include "MungPlexConfig.h"
-#include "GLFW/glfw3.h"
-#include "imgui.h"
-#include "imgui_internal.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-#include"Settings.h"
+#include "Cheats.h"
 #include "Connection.h"
-#include "ProcessInformation.h"
-#include"Search.h"
-#include"Cheats.h"
-#include"Log.h"
+#include "DataConversion.h"
+#include "GLFW/glfw3.h"
+#include "HelperFunctions.h"
+#include "imgui.h"
+#include "imgui_internal.h"
+#include <iostream>
+#include "Log.h"
+#include "MungPlexConfig.h"
 #include "PointerSearch.h"
-#include"DataConversion.h"
-#include"HelperFunctions.h"
-#include"WatchControl.h"
+#include "ProcessInformation.h"
+#include "Search.h"
+#include "Settings.h"
+#include "WatchControl.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include"stb/stb_image.h"
+#include "stb/stb_image.h"
 
 #ifndef NDEBUG
 	#pragma comment(linker, "/SUBSYSTEM:console /ENTRY:mainCRTStartup")

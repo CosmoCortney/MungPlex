@@ -3,71 +3,6 @@
 
 MungPlex::Search::Search()
 {
-	_searchValueTypes.emplace_back("Primitive", PRIMITIVE);
-	_searchValueTypes.emplace_back("Array", ARRAY);
-	_searchValueTypes.emplace_back("Text", TEXT);
-	_searchValueTypes.emplace_back("Color", COLOR);
-
-	_searchPrimitiveTypes.emplace_back("Int 8 (1 Byte)", INT8);
-	_searchPrimitiveTypes.emplace_back("Int 16 (2 Bytes)", INT16);
-	_searchPrimitiveTypes.emplace_back("Int 32 (4 Bytes)", INT32);
-	_searchPrimitiveTypes.emplace_back("Int 64 (8 Bytes)", INT64);
-	_searchArrayTypes = _searchPrimitiveTypes;
-	_searchPrimitiveTypes.emplace_back("Float Single", FLOAT);
-	_searchPrimitiveTypes.emplace_back("Float Double", DOUBLE);
-
-	_searchTextTypes.emplace_back("UTF-8", MorphText::UTF8);
-	_searchTextTypes.emplace_back("UTF-16 Little Endian", MorphText::UTF16LE);
-	_searchTextTypes.emplace_back("UTF-16 Big Endian", MorphText::UTF16BE);
-	_searchTextTypes.emplace_back("UTF-32 Little Endian", MorphText::UTF32LE);
-	_searchTextTypes.emplace_back("UTF-32 Big Endian", MorphText::UTF32BE);
-	_searchTextTypes.emplace_back("ASCII", MorphText::ASCII);
-	_searchTextTypes.emplace_back("ISO-8859-1 (Latin-1)", MorphText::ISO_8859_1);
-	_searchTextTypes.emplace_back("ISO-8859-2 (Latin-2)", MorphText::ISO_8859_2);
-	_searchTextTypes.emplace_back("ISO-8859-3 (Latin-3)", MorphText::ISO_8859_3);
-	_searchTextTypes.emplace_back("ISO-8859-4 (Latin-4)", MorphText::ISO_8859_4);
-	_searchTextTypes.emplace_back("ISO-8859-5 (Cyrillic)", MorphText::ISO_8859_5);
-	_searchTextTypes.emplace_back("ISO-8859-6 (Arabic)", MorphText::ISO_8859_6);
-	_searchTextTypes.emplace_back("ISO-8859-7 (Greek)", MorphText::ISO_8859_7);
-	_searchTextTypes.emplace_back("ISO-8859-8 (Hebrew)", MorphText::ISO_8859_8);
-	_searchTextTypes.emplace_back("ISO-8859-9 (Turkish, Latin-5)", MorphText::ISO_8859_9);
-	_searchTextTypes.emplace_back("ISO-8859-10 (Nordic, Latin-6)", MorphText::ISO_8859_10);
-	_searchTextTypes.emplace_back("ISO-8859-11 (Thai)", MorphText::ISO_8859_11);
-	_searchTextTypes.emplace_back("ISO-8859-13 (Baltic, Latin-7)", MorphText::ISO_8859_13);
-	_searchTextTypes.emplace_back("ISO-8859-14 (Celtic, Latin-8)", MorphText::ISO_8859_14);
-	_searchTextTypes.emplace_back("ISO-8859-15 (West European, Latin-9)", MorphText::ISO_8859_15);
-	_searchTextTypes.emplace_back("ISO-8859-16 (South-East European, Latin-10)", MorphText::ISO_8859_16);
-	_searchTextTypes.emplace_back("Shift-Jis", MorphText::SHIFTJIS);
-	_searchTextTypes.emplace_back("JIS x 0201 Full Width", MorphText::JIS_X_0201_FULLWIDTH);
-	_searchTextTypes.emplace_back("JIS x 0201 Half Width", MorphText::JIS_X_0201_FULLWIDTH);
-
-	_searchColorTypes.emplace_back("RGB 888 (3 Bytes)", LitColor::RGB888);
-	_searchColorTypes.emplace_back("RGBA 8888 (4 Bytes)", LitColor::RGBA8888);
-	_searchColorTypes.emplace_back("RGBF (3 Floats)", LitColor::RGBF);
-	_searchColorTypes.emplace_back("RGBAF (4 Floats)", LitColor::RGBAF);
-	_searchColorTypes.emplace_back("RGB 565 (2 Bytes)", LitColor::RGB565);
-	_searchColorTypes.emplace_back("RGB 5A3 (2 Bytes)", LitColor::RGB5A3);
-
-	_searchConditionTypes.emplace_back("Equal (==)", MemoryCompare::EQUAL);
-	_searchConditionTypesText = _searchConditionTypes;
-	_searchConditionTypes.emplace_back("Unequal (!=)", MemoryCompare::UNEQUAL);
-	_searchConditionTypesArray = _searchConditionTypes;
-	_searchConditionTypes.emplace_back("Greater (>)", MemoryCompare::GREATER);
-	_searchConditionTypes.emplace_back("Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL);
-	_searchConditionTypes.emplace_back("Lower (<)", MemoryCompare::LOWER);
-	_searchConditionTypes.emplace_back("Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL);
-	_searchConditionTypesColor = _searchConditionTypes;
-	_searchConditionTypes.emplace_back("Increased by", MemoryCompare::INCREASED_BY);
-	_searchConditionTypes.emplace_back("Decreased by", MemoryCompare::DECREASED_BY);
-	_searchConditionTypes.emplace_back("Value Between", MemoryCompare::BETWEEN);
-	_searchConditionTypes.emplace_back("Value Not Between", MemoryCompare::NOT_BETWEEN);
-	_searchConditionTypesFloat = _searchConditionTypes;
-	_searchConditionTypes.emplace_back("AND (has all true bits)", MemoryCompare::AND);
-	_searchConditionTypes.emplace_back("OR (has at least 1 true bit)", MemoryCompare::OR);
-
-	_searchComparasionType.emplace_back("Unknown/Initial", 0);
-	_searchComparasionType.emplace_back("Known Value", MemoryCompare::KNOWN);
-
 	_RegionSelectSignalCombo.ConnectOnIndexChanged(Slot_IndexChanged);
 	_RegionSelectSignalCombo.ConnectOnItemCountChanged(Slot_ItemCountChanged);
 	_RegionSelectSignalCombo.ConnectOnTextChanged(Slot_TextChanged);
@@ -376,7 +311,7 @@ void MungPlex::Search::drawSearchOptions()
 		}
 		if (!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::EndDisabled();
 
-		std::vector<std::pair<std::string, int>>* conditionTypeItems;
+		const std::vector<std::pair<std::string, int>>* conditionTypeItems;
 
 		switch (_currentValueTypeSelect)
 		{

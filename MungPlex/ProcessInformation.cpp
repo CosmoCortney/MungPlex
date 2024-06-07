@@ -283,44 +283,46 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	
 	switch (emulator.second)
 	{
-	case DOLPHIN:
-		connected = initDolphin();
-		break;
-	case PROJECT64:
-		connected = initProject64();
-		break;
-	case CEMU:
-		connected = initCemu();
-		break;
-	case YUZU:
-		connected = initYuzu();
-		break;
-	case MELONDS:
-		connected = initMelonDS();
-		break;
-	case MESEN:
-		connected = initMesen();
-		break;
-	case PPSSPP:
-		connected = initPPSSPP();
-		break;
-	case NO$PSX:
-		connected = initNo$psx();
-		break;
-	case PCSX2:
-		connected = initPcsx2();
-		break;
-	case RPCS3:
-		connected = initRpcs3();
-		break;
-	case FUSION:
-		connected = initFusion();
-		break;
+		case DOLPHIN:
+			connected = initDolphin();
+			break;
+		case PROJECT64:
+			connected = initProject64();
+			break;
+		case CEMU:
+			connected = initCemu();
+			break;
+		case YUZU:
+			connected = initYuzu();
+			break;
+		case MELONDS:
+			connected = initMelonDS();
+			break;
+		case MESEN:
+			connected = initMesen();
+			break;
+		case PPSSPP:
+			connected = initPPSSPP();
+			break;
+		case NO$PSX:
+			connected = initNo$psx();
+			break;
+		case PCSX2:
+			connected = initPcsx2();
+			break;
+		case RPCS3:
+			connected = initRpcs3();
+			break;
+		case FUSION:
+			connected = initFusion();
+			break;
 	}
 
 	if (!connected)
 		return false;
 
+	_platform = GetSystemNameByID(_platformID);
+	PointerSearch::SelectPreset(_platformID);
 	setupSearch();
 	setupCheats();
 	WatchControl::InitWatchFile();
@@ -427,8 +429,6 @@ bool MungPlex::ProcessInformation::initMelonDS()
 			continue;
 
 		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
-		_platform = "NDS";
-		PointerSearch::SelectPreset(NDS);
 		_platformID = NDS;
 		return true;
 	}
@@ -546,8 +546,6 @@ bool MungPlex::ProcessInformation::initYuzu()
 			continue;
 		
 		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
-		_platform = "Switch";
-		PointerSearch::SelectPreset(SWITCH);
 		_platformID = SWITCH;
 		return true;
 	}
@@ -558,7 +556,6 @@ bool MungPlex::ProcessInformation::initYuzu()
 bool MungPlex::ProcessInformation::initMesen()
 {
 	setMiscProcessInfo("Mesen", false, false, 2, 1);
-	_platform = "SNES";
 	bool ramFound = false;
 	bool romFound = false;
 	char* RAM;
@@ -645,7 +642,6 @@ bool MungPlex::ProcessInformation::initMesen()
 	_gameID.append(std::to_string(tempByte)).append("-");
 	_process.ReadMemoryFast(&tempByte, RAM + 0x7FDB, 1);
 	_gameID.append(std::to_string(tempByte));
-	PointerSearch::SelectPreset(SNES);
 	_platformID = SNES;
 
 	return true;
@@ -697,7 +693,6 @@ bool MungPlex::ProcessInformation::initProject64()
 		_systemRegions[1].BaseLocationProcess = region.GetBaseAddress<void*>();
 		_systemRegions[1].Size = rSize;
 		found = true;
-		_platform = "Nintendo 64";
 		char tempID[5] = "";
 		ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(tempID), region.GetBaseAddress<char*>() + 0x3B);
 		_rpcGameID = _gameID = std::string(tempID);
@@ -708,7 +703,6 @@ bool MungPlex::ProcessInformation::initProject64()
 			ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(_gameName.data() + i), region.GetBaseAddress<char*>() + 0x20 + i);
 
 		_gameName = RemoveSpacePadding(_gameName);
-		PointerSearch::SelectPreset(N64);
 		_platformID = N64;
 		break;
 	}
@@ -739,7 +733,6 @@ void MungPlex::ProcessInformation::setMiscProcessInfo(const std::string processN
 bool MungPlex::ProcessInformation::initNo$psx()
 {
 	setMiscProcessInfo("No$psx", false, false, 4, 1);
-	_platform = "PS1";
 	static const uint64_t ramFlag = 0x696C6F626D795300;
 
 	for (const Xertz::MemoryRegion& region : GetRegionList())
@@ -771,7 +764,6 @@ bool MungPlex::ProcessInformation::initNo$psx()
 		}
 
 		_gameName = _gameName.substr(0, _gameName.find(".SYM"));
-		PointerSearch::SelectPreset(PS1);
 		_platformID = PS1;
 		return true;
 	}
@@ -834,8 +826,6 @@ bool MungPlex::ProcessInformation::initRpcs3()
 			gTitle = gTitle.substr(0, gTitle.size() - 1);
 
 		_gameName = MorphText::Utf16LE_To_Utf8(gTitle);
-		_platform = "PS3";
-		PointerSearch::SelectPreset(PS3);
 		_platformID = PS3;
 		return true;
 	}
@@ -903,8 +893,6 @@ bool MungPlex::ProcessInformation::initPcsx2()
 
 		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
 		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.c_str());
-		_platform = "PS2";
-		PointerSearch::SelectPreset(PS2);
 		_platformID = PS2;
 		return true;
 	}
@@ -983,8 +971,6 @@ bool MungPlex::ProcessInformation::initDolphin()
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{
-		_platform = "GameCube";
-		PointerSearch::SelectPreset(GAMECUBE);
 		_platformID = GAMECUBE;
 		_systemRegions.erase(_systemRegions.begin() + 1);
 		return true;
@@ -1008,8 +994,6 @@ bool MungPlex::ProcessInformation::initDolphin()
 	int IDcopy;
 	_process.ReadMemoryFast(&temp, _systemRegions[0].BaseLocationProcess, 4);
 	_process.ReadMemoryFast(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
-	_platform = "Wii";
-	PointerSearch::SelectPreset(WII);
 	_platformID = WII;
 
 	if (temp == 0 && IDcopy != 0)
@@ -1063,8 +1047,6 @@ bool MungPlex::ProcessInformation::initFusion()
 		_systemRegions[1].Base = 0xFF0000;
 		_rpcGameID = "#";
 		_gameID = _gameName + " - " + _gameID;
-		_platform = "Mega-CD";
-		PointerSearch::SelectPreset(SMCD);
 		_platformID = SMCD;
 		return true;
 	}
@@ -1086,12 +1068,10 @@ bool MungPlex::ProcessInformation::initFusion()
 	{
 		if (romHeader[0x41] == 0x58323320) //32X ROM found
 		{
-			_platform = "32X";
 			_platformID = S32X;
 		}
 		else if ((romHeader[0x41] == 0x47454D20 && romHeader[0x42] == 0x52442041) || (romHeader[0x41] == 0x4E454720)) //mega drive ROM found
 		{
-			_platform = "Mega Drive";
 			_platformID = GENESIS;
 		}
 		else //something went wrong
@@ -1120,7 +1100,6 @@ bool MungPlex::ProcessInformation::initFusion()
 		_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(ramPTR);
 		_systemRegions[1].Size = 0x10000;
 		_systemRegions[1].Base = 0xFF0000;
-		PointerSearch::SelectPreset(_platformID);
 		return true;
 	}
 
@@ -1197,8 +1176,6 @@ bool MungPlex::ProcessInformation::initCemu()
 		_rpcGameID = _gameID.append("-" + MorphText::Utf16LE_To_Utf8(wTitle.substr(0, wTitle.find(L"]"))));
 		//std::cout << _gameID << std::endl;
 		//std::cout << _gameName << std::endl;
-		_platform = "Wii U";
-		PointerSearch::SelectPreset(WIIU);
 		_platformID = WIIU;
 		return true;
 	}
@@ -1233,8 +1210,6 @@ bool MungPlex::ProcessInformation::initPPSSPP()
 		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.substr(pos + 14)).c_str();
 		//std::cout << _gameID << std::endl;
 		//std::cout << _gameName << std::endl;
-		_platform = "PSP";
-		PointerSearch::SelectPreset(PSP);
 		_platformID = PSP;
 		return true;
 	}
@@ -1570,4 +1545,24 @@ bool MungPlex::ProcessInformation::IsConnectionValid()
 	default: //PC
 		return true;
 	}
+}
+
+const std::vector<std::pair<int, std::string>>& MungPlex::ProcessInformation::GetSystemPairs()
+{
+	return _systemPairs;
+}
+
+
+std::string MungPlex::ProcessInformation::GetSystemNameByID(const int id)
+{
+	auto name = std::find_if(_systemPairs.begin(), _systemPairs.end(), 
+		[id](const std::pair<int, std::string>& pair) { return pair.first == id; 
+	});
+
+	if (name != _systemPairs.end())
+	{
+		return name->second;
+	}
+
+	return "Undefined";
 }
