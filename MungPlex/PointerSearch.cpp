@@ -9,45 +9,9 @@
 
 MungPlex::PointerSearch::PointerSearch()
 {
-    _systemPresets.emplace_back("Nintendo Entertainment Systen / Famicom", 1, false);
-    _systemPresets.emplace_back("Super Nintendo Entertainment Systen / Super Famicom", 1, false);
-    _systemPresets.emplace_back("Nintendo 64", 2, true);
-    _systemPresets.emplace_back("Nintendo GameCube", 2, true);
-    _systemPresets.emplace_back("Triforce Arcade", 2, true);
-    _systemPresets.emplace_back("Nintendo Wii", 2, true);
-    _systemPresets.emplace_back("Nintendo Wii U", 2, true);
-    _systemPresets.emplace_back("Nintendo Switch", 3, false);
-    _systemPresets.emplace_back("Nintendo GameBoy", 1, false);
-    _systemPresets.emplace_back("Nintendo GameBoy Color", 1, false);
-    _systemPresets.emplace_back("Nintendo GameBoy Advance", 2, false);
-    _systemPresets.emplace_back("Nintendo DS", 2, false);
-    _systemPresets.emplace_back("Nintendo 3DS", 2, false);
-    _systemPresets.emplace_back("Sony Playstation", 2, false);
-    _systemPresets.emplace_back("Sony Playstation 2", 2, false);
-    _systemPresets.emplace_back("Sony Playstation 3", 2, true);
-    _systemPresets.emplace_back("Sony Playstation 4", 3, false);
-    _systemPresets.emplace_back("Sony Playstation 5", 3, false);
-    _systemPresets.emplace_back("Sony Playstation Portable", 2, false);
-    _systemPresets.emplace_back("Sony Playstation Vita", 2, false);
-    _systemPresets.emplace_back("Sega Master System", 1, false);
-    _systemPresets.emplace_back("Sega Mega Drive / Genesis", 1, true);
-    _systemPresets.emplace_back("Sega Mega 32X", 1, true);
-    _systemPresets.emplace_back("Sega Mega CD", 1, true);
-    _systemPresets.emplace_back("Sega Saturn", 2, true);
-    _systemPresets.emplace_back("Sega Dreamcast", 2, false);
-    _systemPresets.emplace_back("Sega GameGear", 1, false);
-    _systemPresets.emplace_back("Microsoft XBOX", 2, false);
-    _systemPresets.emplace_back("Microsoft XBOX 360", 2, true);
-    _systemPresets.emplace_back("Microsoft XBOX One", 3, false);
-    _systemPresets.emplace_back("Microsoft XBOX Series", 3, false);
-    _systemPresets.emplace_back("Microsoft Windows x86", 2, false);
-    _systemPresets.emplace_back("Microsoft Windows x64", 3, false);
-
     _defaultPath = Settings::GetGeneralSettings().DocumentsPath;
     std::ranges::replace(_defaultPath, '\\', '/');
     _defaultPath.append("/MungPlex/Dumps/");
-    _minOffset = "0";
-    _minOffset.resize(17);
     _maxOffset = "1000";
     _maxOffset.resize(17);
     _resultsPath = std::string(Settings::GetGeneralSettings().DocumentsPath) + R"(\MungPlex\PointerSearch\Pointers.txt)";
@@ -289,16 +253,11 @@ std::string MungPlex::PointerSearch::execute_external_process(const std::string&
     });
 
     _disableUI = true;
-    // Wait for the process to exit
     process.wait();
     _disableUI = false;
-    // Wait for the output reading to complete
     read_output.get();
-
-    // Join the I/O thread
     io_thread.join();
 
-    // Check for errors
     if (process.exit_code() != 0) {
         const auto error_message = "Command failed with return value "
             + std::to_string(process.exit_code()) + ": " + result.str();
@@ -311,24 +270,18 @@ std::string MungPlex::PointerSearch::execute_external_process(const std::string&
 bool MungPlex::PointerSearch::performScan()
 {
     const auto pointerSearcherFilePath = GetResourcesFilePath(R"(Universal-Pointer-Searcher-Engine\UniversalPointerSearcher.exe)");
-    //_pointerSearcherLog = std::make_shared<bp::ipstream>();
-    //_pointerSearcherErrorLog = std::make_shared<bp::ipstream>();
     
     try
     {
         const auto process_output = execute_external_process(pointerSearcherFilePath.string(), _args);
-        // _pointerSearcherProcess = std::make_shared<bp::child>(pointerSearcherFilePath.string(), bp::args = _args/*, bp::std_out > *_pointerSearcherLog/*, bp::std_err > *_pointerSearcherErrorLog*/);
-
         Log::LogInformation("Finished Pointer Scan");
         loadResults();
         return true;
     }
     catch (const std::exception& ex)
     {
-        // TODO Better error handling, for example a message dialog. Currently, the user has no way of knowing if the pointer searcher failed...
-        
         std::string errorMsg = "Pointer searcher failed: " + std::string(ex.what());
-#if NDEBUG
+#ifndef NDEBUG
         std::cerr << errorMsg << '\n';
 #endif
         Log::LogInformation(errorMsg);
@@ -360,7 +313,7 @@ void remove_trailing_nulls(std::string& str) {
     }
 }
 
-void MungPlex::PointerSearch::generateArgument()
+void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing flags
 {
     _args.clear();
     auto memDumpsSorted = _memDumps; //this is needed because sorting _memDumps messes up the table
@@ -451,7 +404,6 @@ void MungPlex::PointerSearch::generateArgument()
 
             auto first_copy = first;
             remove_trailing_nulls(first_copy);
-            //SetQuotationmarks(first_copy);
             _args.push_back(first_copy);
             lastCorrespondence = second[3];
         }
@@ -468,111 +420,6 @@ void MungPlex::PointerSearch::generateArgument()
     _args.push_back(std::to_string(_minPointerDepth) + "," + std::to_string(_maxPointerDepth));
     _args.emplace_back("--store-memory-pointers-file-path");
     _args.push_back(resultsPath);
-
-    // TODO Implement the missing flags
-
-    /*int highestCorrespondence = 0;
-    std::string initialFilePaths("--initial-file-path ");
-    std::string readPointermapsFilePaths("--read-pointer-maps-file-paths ");
-    std::string writePointermapsFilePaths("--write-pointer-maps-file-paths ");
-    std::string targetPointermaps("--target-pointer-maps ");
-    std::string comparisonFilePaths("--comparison-file-path ");
-    std::string initialStartingAddresses("--initial-starting-address ");
-    std::string comparisonStartingAddresses("--comparison-starting-address ");
-    std::string targetAdresses("--target-address ");
-    std::string resultsPath = _resultsPath.c_str();
-    PopBackTrailingChars(resultsPath, ' ');
-    SetQuotationmarks(resultsPath);
-    _args.push_back("--store-memory-pointers-file-path " + resultsPath);
-
-    for (auto& memDump : memDumpsSorted)
-    {
-        memDump.first = memDump.first.c_str();
-        SetQuotationmarks(memDump.first);
-
-        if (memDump.second[3] > highestCorrespondence)
-            highestCorrespondence = memDump.second[3];
-    }
-
-
-    int previousCorrespondence = -1;
-    bool separator = true;
-    for(int currentCorrespondence = 0; currentCorrespondence <= highestCorrespondence; ++currentCorrespondence)
-    {
-        separator = true;
-
-    	for (auto memDump : memDumpsSorted)
-        {
-            stream.str(std::string());
-
-            if (_selectedInputType)
-            {
-                readPointermapsFilePaths.append(memDump.first).append(" ");
-
-                if (memDump.second[3] == 0)
-                    targetPointermaps.append("Initial ");
-                else
-                    targetPointermaps.append("\"Comparison ").append(std::to_string(memDump.second[3])).append("\" ");
-            }
-            else
-            {
-                if (memDump.second[3] == currentCorrespondence && currentCorrespondence == 0)
-                {
-                    initialFilePaths.append(memDump.first).append(" "); //file path
-                    stream << std::hex << memDump.second[0]; //starting address
-                    initialStartingAddresses.append("0x").append(stream.str()).append(" ");
-                }
-                else if (memDump.second[3] == currentCorrespondence && currentCorrespondence > 0)
-                {
-                    comparisonFilePaths.append(memDump.first).append(" "); //file path
-                    stream << std::hex << memDump.second[0]; //starting address
-                    comparisonStartingAddresses.append("0x").append(stream.str()).append(" ");
-                }
-            }
-            
-            if(memDump.second[3] == currentCorrespondence && previousCorrespondence != currentCorrespondence)
-            {
-                stream.str(std::string()); //target address
-                stream << std::hex << memDump.second[1];
-                targetAdresses.append("0x").append(stream.str()).append(" ");
-                previousCorrespondence = currentCorrespondence;
-            }
-
-            if(currentCorrespondence > 1 && currentCorrespondence <= highestCorrespondence && separator)
-            {
-                comparisonFilePaths.append("%% ");
-                comparisonStartingAddresses.append("%% ");
-                separator = false;
-            }
-        }
-
-        if (_selectedInputType)
-            break;
-    }
-    
-    if (_selectedInputType)
-    {
-        PopBackTrailingChars(readPointermapsFilePaths, ' ');
-        PopBackTrailingChars(targetPointermaps, ' ');
-        _args.push_back(readPointermapsFilePaths);
-        _args.push_back(targetPointermaps);
-    }
-    else
-    {
-        PopBackTrailingChars(initialFilePaths, ' ');
-        PopBackTrailingChars(initialStartingAddresses, ' ');
-        PopBackTrailingChars(comparisonFilePaths, ' ');
-        PopBackTrailingChars(comparisonStartingAddresses, ' ');
-        _args.push_back(initialFilePaths);
-        _args.push_back(initialStartingAddresses);
-        _args.push_back(comparisonFilePaths);
-        _args.push_back(comparisonStartingAddresses);
-    }
-
-	PopBackTrailingChars(targetAdresses, ' ');
-    _args.push_back(targetAdresses);
-    */
-
     _args.emplace_back("--maximum-memory-utilization-fraction");
     _args.push_back(std::to_string(_maxMemUtilizationFraction));
     _args.emplace_back("--file-extensions");
@@ -594,18 +441,11 @@ void MungPlex::PointerSearch::generateArgument()
     Log::LogInformation("Pointer scan arguments: ");
 
 #ifndef NDEBUG
-    for (const std::string &line : _args)
-    {
-        for (const char ch : line)
-            if (ch == '\0')
-                std::cout << "has 0 \n";
-    }
-
-    for(const std::string &line : _args)
-        Log::LogInformation(line, true, 2);
-
-    //std::cout << "pointer scan args:\n" << _arg << "\n";
+    for (const std::string& line : _args)
+        std::cout << line << '\n';
 #endif
+    for (const std::string& line : _args)
+        Log::LogInformation(line, true, 2);
 }
 
 void MungPlex::PointerSearch::SelectPreset(const int presetIndex)
