@@ -1,9 +1,8 @@
 #include "DataConversion.h"
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "MorphText.h"
 #include "HelperFunctions.h"
-#include "LitColor.h"
+#include "MorphText.h"
 #include "Settings.h"
 #include <utility>
 #include "Xertz.h"
@@ -11,43 +10,6 @@
 MungPlex::DataConversion::DataConversion()
 {
 	_verticalSpacing = ImVec2(0.0f, 25.0f * Settings::GetGeneralSettings().Scale);
-
-	_specializedColorTypes.emplace_back("RGBF (3 Floats)", LitColor::RGBF);
-	_specializedColorTypes.emplace_back("RGBAF (4 Floats)", LitColor::RGBAF);
-	_specializedColorTypes.emplace_back("RGB 565 (2 Bytes)", LitColor::RGB565);
-	_specializedColorTypes.emplace_back("RGB 5A3 (2 Bytes)", LitColor::RGB5A3);
-
-	_floatTypes.emplace_back("Float Single", FloatTypes::FLOAT);
-	_floatTypes.emplace_back("Float Double", FloatTypes::DOUBLE);
-
-	_intTypes.emplace_back("Int 16", IntTypes::INT16);
-	_intTypes.emplace_back("Int 32", IntTypes::INT32);
-	_intTypes.emplace_back("Int 64", IntTypes::INT64);
-
-	_textTypes.emplace_back("UTF-8", MorphText::UTF8);
-	_textTypes.emplace_back("UTF-16 Little Endian", MorphText::UTF16LE);
-	_textTypes.emplace_back("UTF-16 Big Endian", MorphText::UTF16BE);
-	_textTypes.emplace_back("UTF-32 Little Endian", MorphText::UTF32LE);
-	_textTypes.emplace_back("UTF-32 Big Endian", MorphText::UTF32BE);
-	_textTypes.emplace_back("ASCII", MorphText::ASCII);
-	_textTypes.emplace_back("ISO-8859-1 (Latin 1)", MorphText::ISO_8859_1);
-	_textTypes.emplace_back("ISO-8859-2 (Latin 2)", MorphText::ISO_8859_2);
-	_textTypes.emplace_back("ISO-8859-3 (Latin 3)", MorphText::ISO_8859_3);
-	_textTypes.emplace_back("ISO-8859-4 (Latin 4)", MorphText::ISO_8859_4);
-	_textTypes.emplace_back("ISO-8859-5 (Cyrillic)", MorphText::ISO_8859_5);
-	_textTypes.emplace_back("ISO-8859-6 (Arabic)", MorphText::ISO_8859_6);
-	_textTypes.emplace_back("ISO-8859-7 (Greek)", MorphText::ISO_8859_7);
-	_textTypes.emplace_back("ISO-8859-8 (Hebrew)", MorphText::ISO_8859_8);
-	_textTypes.emplace_back("ISO-8859-9 (Turkish)", MorphText::ISO_8859_9);
-	_textTypes.emplace_back("ISO-8859-10 (Nordic)", MorphText::ISO_8859_10);
-	_textTypes.emplace_back("ISO-8859-11 (Thai)", MorphText::ISO_8859_11);
-	_textTypes.emplace_back("ISO-8859-13 (Baltic)", MorphText::ISO_8859_13);
-	_textTypes.emplace_back("ISO-8859-14 (Celtic", MorphText::ISO_8859_14);
-	_textTypes.emplace_back("ISO-8859-15 (West European)", MorphText::ISO_8859_15);
-	_textTypes.emplace_back("ISO-8859-16 (South-East European)", MorphText::ISO_8859_16);
-	_textTypes.emplace_back("Shift-Jis CP932", MorphText::SHIFTJIS_CP932);
-	_textTypes.emplace_back("Jis X 0201 Full Width", MorphText::JIS_X_0201_FULLWIDTH);
-	_textTypes.emplace_back("Jis X 0201 Half Width", MorphText::JIS_X_0201_HALFWIDTH);
 }
 
 void MungPlex::DataConversion::DrawWindow()
@@ -108,9 +70,9 @@ void MungPlex::DataConversion::drawTextConversion()
 
 		ImGui::BeginGroup();
 		{
-			if (SetUpCombo("Text Type:", _textTypes, textTypeIndex, 0.5f, 0.35f))
+			if (SetUpCombo("Text Type:", TextTypes, textTypeIndex, 0.5f, 0.35f))
 			{
-				textTypeSelect = _textTypes[textTypeIndex].second;
+				textTypeSelect = TextTypes[textTypeIndex].second;
 				update = true;
 			}
 

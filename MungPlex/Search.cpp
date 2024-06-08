@@ -112,9 +112,9 @@ void MungPlex::Search::drawValueTypeOptions()
 
 				if (_disableBecauseNoText) ImGui::BeginDisabled();
 				{
-					if (SetUpCombo("Text Type:", _searchTextTypes, _currentTextTypeIndex, 0.5f, 0.4f))
+					if (SetUpCombo("Text Type:", TextTypes, _currentTextTypeIndex, 0.5f, 0.4f))
 					{
-						_currentTextTypeSelect = _searchTextTypes[_currentTextTypeIndex].second;
+						_currentTextTypeSelect = TextTypes[_currentTextTypeIndex].second;
 						setRecommendedValueSettings(TEXT);
 					}
 				}
@@ -734,7 +734,7 @@ void MungPlex::Search::arrayTypeSearchLog()
 
 void MungPlex::Search::textTypeSearchLog()
 {
-	Log::LogInformation("Text<" + _searchTextTypes[_currentTextTypeIndex].first + ">: " + _knownValueText.StdStr(), true, 4);
+	Log::LogInformation("Text<" + TextTypes[_currentTextTypeIndex].first + ">: " + _knownValueText.StdStr(), true, 4);
 }
 
 void MungPlex::Search::colorTypeSearchLog()

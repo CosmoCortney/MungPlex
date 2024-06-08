@@ -84,57 +84,98 @@ namespace MungPlex
             return Instance;
         }
 
-        const std::vector<std::pair<std::string, int>> _searchValueTypes{
-            { "Primitive", PRIMITIVE }, { "Array", ARRAY }, { "Text", TEXT }, { "Color", COLOR }
+        const std::vector<std::pair<std::string, int>> _searchValueTypes
+        {
+            { "Primitive", PRIMITIVE },
+            { "Array", ARRAY },
+            { "Text", TEXT },
+            { "Color", COLOR }
         };
-        const std::vector<std::pair<std::string, int>> _searchPrimitiveTypes{ 
-            { "Int 8 (1 Byte)", INT8 }, { "Int 16 (2 Bytes)", INT16 }, { "Int 32 (4 Bytes)", INT32 }, 
-            { "Int 64 (8 Bytes)", INT64 }, { "Float Single", FLOAT }, { "Float Double", DOUBLE } 
+
+        const std::vector<std::pair<std::string, int>> _searchPrimitiveTypes
+        { 
+            { "Int 8 (1 Byte)", INT8 },
+            { "Int 16 (2 Bytes)", INT16 },
+            { "Int 32 (4 Bytes)", INT32 }, 
+            { "Int 64 (8 Bytes)", INT64 },
+            { "Float Single", FLOAT },
+            { "Float Double", DOUBLE } 
         };
-        const std::vector<std::pair<std::string, int>> _searchTextTypes{
-            { "UTF-8", MT::UTF8 }, { "UTF-16 Little Endian", MT::UTF16LE }, { "UTF-16 Big Endian", MT::UTF16BE },
-            { "UTF-32 Little Endian", MT::UTF32LE }, { "UTF-32 Big Endian", MT::UTF32BE }, { "ASCII", MT::ASCII },
-            { "ISO-8859-1 (Latin-1)", MT::ISO_8859_1 }, { "ISO-8859-2 (Latin-2)", MT::ISO_8859_2 }, 
-            { "ISO-8859-3 (Latin-3)", MT::ISO_8859_3 }, { "ISO-8859-4 (Latin-4)", MT::ISO_8859_4 },
-            { "ISO-8859-5 (Cyrillic)", MT::ISO_8859_5 }, { "ISO-8859-6 (Arabic)", MT::ISO_8859_6 },
-            { "ISO-8859-7 (Greek)", MT::ISO_8859_7 }, { "ISO-8859-8 (Hebrew)", MT::ISO_8859_8 },
-            { "ISO-8859-9 (Turkish, Latin-5)", MT::ISO_8859_9 }, { "ISO-8859-10 (Nordic, Latin-6)", MT::ISO_8859_10 },
-            { "ISO-8859-11 (Thai)", MT::ISO_8859_11 }, { "ISO-8859-13 (Baltic, Latin-7)", MT::ISO_8859_13 },
-            { "ISO-8859-14 (Celtic, Latin-8)", MT::ISO_8859_14 }, { "ISO-8859-15 (West European, Latin-9)", MT::ISO_8859_15 },
-            { "ISO-8859-16 (South-East European, Latin-10)", MT::ISO_8859_16 }, { "Shift-Jis CP932", MT::SHIFTJIS_CP932 },
-            { "KS X 1001 (EUC-KR)", MT::KS_X_1001 },
-            { "JIS x 0201 Full Width", MT::JIS_X_0201_FULLWIDTH }, { "JIS x 0201 Half Width", MT::JIS_X_0201_HALFWIDTH }
-        };
-        const std::vector<std::pair<std::string, int>> _searchArrayTypes{
-            { "Int 8 (1 Byte)", INT8 }, { "Int 16 (2 Bytes)", INT16 }, { "Int 32 (4 Bytes)", INT32 }, { "Int 64 (8 Bytes)", INT64 }
+        
+        const std::vector<std::pair<std::string, int>> _searchArrayTypes
+        {
+            { "Int 8 (1 Byte)", INT8 },
+            { "Int 16 (2 Bytes)", INT16 },
+            { "Int 32 (4 Bytes)", INT32 },
+            { "Int 64 (8 Bytes)", INT64 }
         }; //remove once Arrays support floats
-        const std::vector<std::pair<std::string, int>> _searchColorTypes{
-            { "RGB 888 (3 Bytes)", LitColor::RGB888 }, { "RGBA 8888 (4 Bytes)", LitColor::RGBA8888 }, { "RGBF (3 Floats)", LitColor::RGBF },
-            { "RGBAF (4 Floats)", LitColor::RGBAF }, { "RGB 565 (2 Bytes)", LitColor::RGB565 }, { "RGB 5A3 (2 Bytes)", LitColor::RGB5A3 }
+
+        const std::vector<std::pair<std::string, int>> _searchColorTypes
+        {
+            { "RGB 888 (3 Bytes)", LitColor::RGB888 },
+            { "RGBA 8888 (4 Bytes)", LitColor::RGBA8888 },
+            { "RGBF (3 Floats)", LitColor::RGBF },
+            { "RGBAF (4 Floats)", LitColor::RGBAF },
+            { "RGB 565 (2 Bytes)", LitColor::RGB565 },
+            { "RGB 5A3 (2 Bytes)", LitColor::RGB5A3 }
         };
-        const std::vector<std::pair<std::string, int>> _searchConditionTypes{
-            { "Equal (==)", MemoryCompare::EQUAL }, { "Unequal (!=)", MemoryCompare::UNEQUAL }, { "Greater (>)", MemoryCompare::GREATER },
-            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL }, { "Lower (<)", MemoryCompare::LOWER }, { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL },
-            { "Increased by", MemoryCompare::INCREASED_BY }, { "Decreased by", MemoryCompare::DECREASED_BY }, { "Value Between", MemoryCompare::BETWEEN },
-            { "Value Not Between", MemoryCompare::NOT_BETWEEN }, { "AND (has all true bits)", MemoryCompare::AND }, { "OR (has at least 1 true bit)", MemoryCompare::OR }
+
+        const std::vector<std::pair<std::string, int>> _searchConditionTypes
+        {
+            { "Equal (==)", MemoryCompare::EQUAL },
+            { "Unequal (!=)", MemoryCompare::UNEQUAL },
+            { "Greater (>)", MemoryCompare::GREATER },
+            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL },
+            { "Lower (<)", MemoryCompare::LOWER },
+            { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL },
+            { "Increased by", MemoryCompare::INCREASED_BY },
+            { "Decreased by", MemoryCompare::DECREASED_BY },
+            { "Value Between", MemoryCompare::BETWEEN },
+            { "Value Not Between", MemoryCompare::NOT_BETWEEN },
+            { "AND (has all true bits)", MemoryCompare::AND },
+            { "OR (has at least 1 true bit)", MemoryCompare::OR }
         };
-        const std::vector<std::pair<std::string, int>> _searchConditionTypesArray{
-            { "Equal (==)", MemoryCompare::EQUAL }, { "Unequal (!=)", MemoryCompare::UNEQUAL }
+
+        const std::vector<std::pair<std::string, int>> _searchConditionTypesArray
+        {
+            { "Equal (==)", MemoryCompare::EQUAL }, 
+            { "Unequal (!=)", MemoryCompare::UNEQUAL }
         };
-        const std::vector<std::pair<std::string, int>> _searchConditionTypesFloat{
-            { "Equal (==)", MemoryCompare::EQUAL }, { "Unequal (!=)", MemoryCompare::UNEQUAL }, { "Greater (>)", MemoryCompare::GREATER },
-            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL }, { "Lower (<)", MemoryCompare::LOWER }, { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL },
-            { "Increased by", MemoryCompare::INCREASED_BY }, { "Decreased by", MemoryCompare::DECREASED_BY }, { "Value Between", MemoryCompare::BETWEEN },
+
+        const std::vector<std::pair<std::string, int>> _searchConditionTypesFloat
+        {
+            { "Equal (==)", MemoryCompare::EQUAL },
+            { "Unequal (!=)", MemoryCompare::UNEQUAL },
+            { "Greater (>)", MemoryCompare::GREATER },
+            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL },
+            { "Lower (<)", MemoryCompare::LOWER },
+            { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL },
+            { "Increased by", MemoryCompare::INCREASED_BY },
+            { "Decreased by", MemoryCompare::DECREASED_BY },
+            { "Value Between", MemoryCompare::BETWEEN },
             { "Value Not Between", MemoryCompare::NOT_BETWEEN }
         };
-        const std::vector<std::pair<std::string, int>> _searchConditionTypesColor{
-            { "Equal (==)", MemoryCompare::EQUAL }, { "Unequal (!=)", MemoryCompare::UNEQUAL }, { "Greater (>)", MemoryCompare::GREATER },
-            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL }, { "Lower (<)", MemoryCompare::LOWER }, { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL }
+
+        const std::vector<std::pair<std::string, int>> _searchConditionTypesColor
+        {
+            { "Equal (==)", MemoryCompare::EQUAL },
+            { "Unequal (!=)", MemoryCompare::UNEQUAL },
+            { "Greater (>)", MemoryCompare::GREATER },
+            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL },
+            { "Lower (<)", MemoryCompare::LOWER },
+            { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL }
         };
-        const std::vector<std::pair<std::string, int>> _searchConditionTypesText{ { "Equal (==)", MemoryCompare::EQUAL } };
-        const std::vector<std::pair<std::string, int>> _searchComparasionType{
-            { "Unknown/Initial", 0 }, { "Known Value", MemoryCompare::KNOWN }
+
+        const std::vector<std::pair<std::string, int>> _searchConditionTypesText{
+            { "Equal (==)", MemoryCompare::EQUAL }
         };
+
+        const std::vector<std::pair<std::string, int>> _searchComparasionType
+        {
+            { "Unknown/Initial", 0 },
+            { "Known Value", MemoryCompare::KNOWN }
+        };
+
         int _currentcomparisonTypeSelect = 0;
         int _currentConditionTypeSelect = 0;
         ImVec4 _colorVec;
@@ -265,7 +306,7 @@ namespace MungPlex
                     }
                 }
 
-                Log::LogInformation((std::string("Multi-poked ") + _searchTextTypes[_currentTextTypeSelect].first + " text values").c_str());
+                Log::LogInformation((std::string("Multi-poked ") + TextTypes[_currentTextTypeIndex].first + " text values").c_str());
                 return true;
             }
 
@@ -291,7 +332,7 @@ namespace MungPlex
                             success = WriteTextEx(pid, pokeValue.GetString<char*>(_currentTextTypeSelect), address);
                     }
 
-                    Log::LogInformation((std::string("Poked ") + _searchTextTypes[_currentTextTypeSelect].first + " text value").c_str());
+                    Log::LogInformation((std::string("Poked ") + TextTypes[_currentTextTypeIndex].first + " text value").c_str());
                     return success;
                 }
             }
