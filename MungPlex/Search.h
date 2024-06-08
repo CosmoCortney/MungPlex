@@ -102,6 +102,7 @@ namespace MungPlex
             { "ISO-8859-11 (Thai)", MT::ISO_8859_11 }, { "ISO-8859-13 (Baltic, Latin-7)", MT::ISO_8859_13 },
             { "ISO-8859-14 (Celtic, Latin-8)", MT::ISO_8859_14 }, { "ISO-8859-15 (West European, Latin-9)", MT::ISO_8859_15 },
             { "ISO-8859-16 (South-East European, Latin-10)", MT::ISO_8859_16 }, { "Shift-Jis CP932", MT::SHIFTJIS_CP932 },
+            { "KS X 1001 (EUC-KR)", MT::KS_X_1001 },
             { "JIS x 0201 Full Width", MT::JIS_X_0201_FULLWIDTH }, { "JIS x 0201 Half Width", MT::JIS_X_0201_HALFWIDTH }
         };
         const std::vector<std::pair<std::string, int>> _searchArrayTypes{
