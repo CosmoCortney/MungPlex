@@ -15,7 +15,7 @@ MungPlex::Search::Search()
 	_caseSensitive = Settings::GetSearchSettings().DefaultCaseSensitive;
 	_useColorWheel = Settings::GetSearchSettings().DefaultColorWheel;
 	_hex = Settings::GetSearchSettings().DefaultValuesHex;
-	_resultsPath = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath) + L"\\MungPlex\\Search\\";
+	_resultsPath = MT::Convert<char*, std::wstring>(Settings::GetGeneralSettings().DocumentsPath, MT::UTF8, MT::UTF16LE) + L"\\MungPlex\\Search\\";
 }
 
 void MungPlex::Search::DrawWindow()
@@ -112,8 +112,11 @@ void MungPlex::Search::drawValueTypeOptions()
 
 				if (_disableBecauseNoText) ImGui::BeginDisabled();
 				{
-					if (SetUpCombo("Text Type:", _searchTextTypes, _currentTextTypeSelect, 0.5f, 0.4f))
+					if (SetUpCombo("Text Type:", _searchTextTypes, _currentTextTypeIndex, 0.5f, 0.4f))
+					{
+						_currentTextTypeSelect = _searchTextTypes[_currentTextTypeIndex].second;
 						setRecommendedValueSettings(TEXT);
+					}
 				}
 				if (_disableBecauseNoText) ImGui::EndDisabled();
 
@@ -731,7 +734,7 @@ void MungPlex::Search::arrayTypeSearchLog()
 
 void MungPlex::Search::textTypeSearchLog()
 {
-	Log::LogInformation("Text<" + _searchTextTypes[_currentTextTypeSelect].first + ">: " + _knownValueText.StdStr(), true, 4);
+	Log::LogInformation("Text<" + _searchTextTypes[_currentTextTypeIndex].first + ">: " + _knownValueText.StdStr(), true, 4);
 }
 
 void MungPlex::Search::colorTypeSearchLog()
@@ -1003,34 +1006,14 @@ void MungPlex::Search::drawResultsTableNew()
 
 						switch (_currentTextTypeSelect)
 						{
-						case MorphText::ASCII: {
-							temputf8 = MorphText::ASCII_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount));
-						} break;
-						case MorphText::SHIFTJIS: {
-							temputf8 = MorphText::ShiftJis_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount));
-						} break;
-						case MorphText::JIS_X_0201_FULLWIDTH: {
-							temputf8 = MorphText::JIS_X_0201_FullWidth_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount));
-						} break;
-						case MorphText::JIS_X_0201_HALFWIDTH: {
-							temputf8 = MorphText::JIS_X_0201_HalfWidth_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount));
-						} break;
-						case MorphText::UTF8: {
-							temputf8 = MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount);
-						} break;
-						case MorphText::UTF16LE: case MorphText::UTF16BE: {
-							temputf8 = _currentTextTypeSelect == MorphText::UTF16BE
-								? MorphText::Utf16BE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<wchar_t>(pageIndexWithRowCount))
-								: MorphText::Utf16LE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<wchar_t>(pageIndexWithRowCount));
-						} break;
-						case MorphText::UTF32LE: case MorphText::UTF32BE: {
-							temputf8 = _currentTextTypeSelect == MorphText::UTF32BE
-								? MorphText::Utf32BE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char32_t>(pageIndexWithRowCount))
-								: MorphText::Utf32LE_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char32_t>(pageIndexWithRowCount));
-						} break;
-						default: { //ISO-8859-X
-							temputf8 = MorphText::ISO8859X_To_Utf8(MemoryCompare::MemCompare::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount), _currentTextTypeSelect);
-						} break;
+							case MT::UTF16LE: case MT::UTF16BE:
+								temputf8 = MT::Convert<wchar_t*, std::string>(MC::GetResults().GetSpecificValuePtrAllRanges<wchar_t>(pageIndexWithRowCount), _currentTextTypeSelect, MT::UTF8);
+							break;
+							case MT::UTF32LE: case MT::UTF32BE:
+								temputf8 = MT::Convert<char32_t*, std::string>(MC::GetResults().GetSpecificValuePtrAllRanges<char32_t>(pageIndexWithRowCount), _currentTextTypeSelect, MT::UTF8);
+							break;
+							default: 
+								temputf8 = MT::Convert<char*, std::string>(MC::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount), _currentTextTypeSelect, MT::UTF8);
 						}
 
 						sprintf(buf.Data(), "%s", temputf8.c_str());
@@ -1405,16 +1388,16 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 	switch (valueType)
 	{
 		case ARRAY:
-			_currentColorTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeSelect = 0;
+			_currentColorTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeIndex= 0;
 		break;	
 		case COLOR:
-			_currentArrayTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeSelect = 0;
+			_currentArrayTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeIndex = 0;
 			break;
 		case TEXT:
 			_currentColorTypeSelect = _currentPrimitiveTypeSelect = _currentArrayTypeSelect = 0;
 		break;
 		default: //PRIMITIVE
-			_currentColorTypeSelect = _currentArrayTypeSelect = _currentTextTypeSelect = 0;
+			_currentColorTypeSelect = _currentArrayTypeSelect = _currentTextTypeIndex = 0;
 	}
 
 	switch (_currentValueTypeSelect)

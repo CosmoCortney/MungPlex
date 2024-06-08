@@ -58,7 +58,9 @@ add_executable (MungPlex
     ../include/MemoryCompare/MemDump.h
     ../include/MemoryCompare/MemDump.cpp
     ../include/MemoryCompare/include/LitColor/LitColor/LitColor.h
+    ../include/MemoryCompare/include/MorphText/MorphText/Lookup.h
     ../include/MemoryCompare/include/MorphText/MorphText/MorphText.h
+    ../include/MemoryCompare/include/MorphText/MorphText/MorphText.cpp
     ../include/MemoryCompare/include/OperativeArray/OperativeArray/OperativeArray.h
     ../include/Xertz/Xertz.h
     ../include/Xertz/MemoryRegion.h

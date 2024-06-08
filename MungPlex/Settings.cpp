@@ -84,7 +84,7 @@ void MungPlex::Settings::InitSettings()
 		{
 			auto tmp = new wchar_t[512];
 			SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &tmp);
-			strcpy_s(generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(tmp).c_str());
+			strcpy_s(generalSettings.DocumentsPath, MT::Convert<wchar_t*, std::string>(tmp, MT::UTF16LE, MT::UTF8).c_str());
 			CoTaskMemFree(tmp);
 			GetInstance().createDocFolders();
 			save = true;
@@ -251,11 +251,11 @@ bool MungPlex::Settings::saveSettings()
 		if (!std::filesystem::is_directory(_generalSettings.DocumentsPath))
 		{
 			auto path = new wchar_t[256];
-			wcscpy(path, MorphText::Utf8_To_Utf16LE(_generalSettings.DocumentsPath).c_str());
+			wcscpy(path, MT::Convert<char*, std::wstring>(_generalSettings.DocumentsPath, MT::UTF8, MT::UTF16LE).c_str());
 
 			if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &path)))
 			{
-				strcpy_s(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(path).c_str());
+				strcpy_s(_generalSettings.DocumentsPath, MT::Convert<wchar_t*, std::string>(path, MT::UTF16LE, MT::UTF8).c_str());
 			}
 
 			CoTaskMemFree(path);
@@ -361,8 +361,8 @@ void MungPlex::Settings::resetSettings()
 	ImGuiStyle& style = ImGui::GetStyle();
 	style = _defaultStyle;
 	auto path = new wchar_t[256];
-	wcscpy(path, MorphText::Utf8_To_Utf16LE(_generalSettings.DocumentsPath).c_str());
-	strcpy_s(_generalSettings.DocumentsPath, MorphText::Utf16LE_To_Utf8(path).c_str());
+	wcscpy(path, MT::Convert<char*, std::wstring>(_generalSettings.DocumentsPath, MT::UTF8, MT::UTF16LE).c_str());
+	strcpy_s(_generalSettings.DocumentsPath, MT::Convert<wchar_t*, std::string>(path, MT::UTF16LE, MT::UTF8).c_str());
 	_generalSettings.Scale = 1.2f;
 	_generalSettings.DefaultWindowSelect = 0;
 	_generalSettings.EnableRichPresence = false;

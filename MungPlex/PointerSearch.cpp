@@ -144,7 +144,7 @@ void MungPlex::PointerSearch::drawSettings()
             stream << ProcessInformation::GetGameID() << '\\';
             auto& [Label, Base, Size, BaseLocationProcess] = _regions[_regionSelect];
             stream << std::uppercase << std::hex << Base << '_' << GetCurrentTimeString(YEAR | MONTH | DAY | HOUR | MINUTE | SECOND) << ".bin";
-            std::wstring path = MorphText::Utf8_To_Utf16LE(stream.str());
+            std::wstring path = MT::Convert<std::string, std::wstring>(stream.str(), MT::UTF8, MT::UTF16LE);
             Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).DumpMemory(BaseLocationProcess, path, Size);
         }
     }

@@ -35,13 +35,21 @@ glfwSetWindowShouldClose(window, GL_TRUE);
 
 void clearSearchResultsDir()
 {
-	const std::wstring path(MorphText::Utf8_To_Utf16LE(MungPlex::Settings::GetGeneralSettings().DocumentsPath).append(L"\\MungPlex\\Search"));
-	std::wcout << path;
+	const std::string temp = std::string(MungPlex::Settings::GetGeneralSettings().DocumentsPath) + R"(\MungPlex\Search)";
+	const std::wstring path = MorphText::Convert<std::string, std::wstring>(temp, MT::UTF8, MT::UTF16LE);
 
 	if (std::filesystem::is_directory(path))
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(path))
 			std::filesystem::remove_all(entry.path());
+	}
+	else
+	{
+		const std::string err = "Error clearing Search Path: " + MorphText::Convert<std::wstring, std::string>(path, MorphText::UTF16LE, MorphText::UTF8);
+#ifndef NDEBUG
+		std::cout << err << '\n';
+#endif
+		MungPlex::Log::LogInformation(err);
 	}
 }
 

@@ -124,6 +124,7 @@ Currently supported encodings:
     - `UTF-16 BE`
     - `UTF-32 LE`
     - `UTF-32 BE`
+    - `Shift-Jis CP932`
     - `Shift-Jis`
     - `Jis X 0201 Full Width`
     - `Jis X 0201 Half Width`
@@ -478,9 +479,8 @@ To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item 
   - Migrate `imgui` to using `vcpkg` (e.g. install `imgui[glfw-binding]`)
   - Texture Streaming
   - Corruptor
-  - Value watch and control
 - Search 
-  - Text Types: `JIS X 0208`, Pokemon game text encodings, `EUC-KR`, `EUC-JP`, `EUC-CN`, `EUC-TW`, `Big5`, `base64`, ...
+  - Text Types: `JIS X 0208`, Pokemon game text encodings, `EUC-JP`, `EUC-CN`, `EUC-TW`, `Big5`, `base64`, ...
   - Color types: `RGB332`, `RGB444`, `RGBA4444`, `RGB555`, `RGBA5551`, `IA8`, ...
   - Array types: float, double
 - Pointer Search
@@ -495,5 +495,5 @@ To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item 
 <a name="kiitos"></a>
 ## Special Thanks
 - Lawn Meower: Idea, code, reverse engineering
-- [BullyWiiPlaza](https://github.com/BullyWiiPlaza/): Code, Creation of Pointer Search Engine
+- [BullyWiiPlaza](https://github.com/BullyWiiPlaza/): Code, Creation of [Pointer Searcher Engine](https://github.com/BullyWiiPlaza/Universal-Pointer-Searcher-Engine)
 - [Divengerss](https://www.youtube.com/channel/UCZDBXfuNiVXXb7Wbh_syiDw): Testing, reporting bugs

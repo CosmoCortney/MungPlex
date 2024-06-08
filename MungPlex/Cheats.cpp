@@ -112,7 +112,7 @@ MungPlex::Cheats::Cheats()
 
 	_cheatList = Settings::GetCheatsSettings().DefaultCheatList;
 	_perSecond = Settings::GetCheatsSettings().DefaultInterval;
-	_documentsPath = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath);
+	_documentsPath = MT::Convert<char*, std::wstring>(Settings::GetGeneralSettings().DocumentsPath, MT::UTF8, MT::UTF16LE);
 
 	_cheatTypes.emplace_back("GameCube Action Replay", CheatConvert::GCN_AR);
 	//initCheatFile();
@@ -514,7 +514,7 @@ bool MungPlex::Cheats::isInRange(const uint64_t ptr, const uint64_t start, const
 
 uint64_t MungPlex::Cheats::getModuleAddress(const char* moduleName)
 {
-	return ProcessInformation::GetProcess().GetModuleAddress(MorphText::Utf8_To_Utf16LE(moduleName));
+	return ProcessInformation::GetProcess().GetModuleAddress(MT::Convert<const char*, std::wstring>(moduleName, MT::UTF8, MT::UTF16LE));
 }
 
 void MungPlex::Cheats::logText(const char* text)
@@ -987,8 +987,8 @@ double MungPlex::Cheats::readFromRAM(const int type, const uint64_t address)
 void MungPlex::Cheats::InitCheatFile()
 {
 	GetInstance()._currentCheatFile = GetInstance()._documentsPath + L"\\MungPlex\\Cheats\\" 
-		+ MorphText::Utf8_To_Utf16LE(ProcessInformation::GetPlatform()) + L"\\" 
-		+ MorphText::Utf8_To_Utf16LE(ProcessInformation::GetGameID()) + L".json";
+		+ MT::Convert<std::string, std::wstring>(ProcessInformation::GetPlatform(), MT::UTF8, MT::UTF16LE) + L"\\"
+		+ MT::Convert<std::string, std::wstring>(ProcessInformation::GetGameID(), MT::UTF8, MT::UTF16LE) + L".json";
 	
 	if (!std::filesystem::exists(GetInstance()._currentCheatFile))
 	{
@@ -1180,7 +1180,7 @@ void MungPlex::Cheats::refreshModuleList()
 	for (int i = 0; i < moduleCount; ++i)
 	{
 		lua_pushinteger(L, ProcessInformation::GetModuleList()[i].second);
-		lua_setfield(L, -2, MorphText::Utf16LE_To_Utf8(ProcessInformation::GetModuleList()[i].first).c_str());
+		lua_setfield(L, -2, MT::Convert<std::wstring, std::string>(ProcessInformation::GetModuleList()[i].first, MT::UTF16LE, MT::UTF8).c_str());
 	}
 	lua_setglobal(L, "Modules");
 }

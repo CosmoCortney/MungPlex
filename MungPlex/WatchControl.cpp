@@ -106,9 +106,9 @@ bool MungPlex::WatchControl::saveList()
 
 void MungPlex::WatchControl::InitWatchFile()
 {
-	GetInstance()._currentFile = MorphText::Utf8_To_Utf16LE(Settings::GetGeneralSettings().DocumentsPath) + L"\\MungPlex\\WatchControl\\"
-		+ MorphText::Utf8_To_Utf16LE(ProcessInformation::GetPlatform()) + L"\\"
-		+ MorphText::Utf8_To_Utf16LE(ProcessInformation::GetGameID()) + L".json";
+	GetInstance()._currentFile = MT::Convert<char*, std::wstring>(Settings::GetGeneralSettings().DocumentsPath, MT::UTF8, MT::UTF16LE) + L"\\MungPlex\\WatchControl\\"
+		+ MT::Convert<std::string, std::wstring>(ProcessInformation::GetPlatform(), MT::UTF8, MT::UTF16LE) + L"\\"
+		+ MT::Convert<std::string, std::wstring>(ProcessInformation::GetGameID(), MT::UTF8, MT::UTF16LE) + L".json";
 
 	if (!std::filesystem::exists(GetInstance()._currentFile))
 	{
@@ -401,7 +401,7 @@ void MungPlex::WatchControl::View::SetBasicMembers(const nlohmann::json elem)
 	_label = elem["Title"];
 	_module = elem["Module"];
 	_moduleW.resize(32);
-	_moduleW = MorphText::Utf8_To_Utf16LE(_module);
+	_moduleW = MT::Convert<std::string, std::wstring>(_module, MT::UTF8, MT::UTF16LE);
 	_moduleW.resize(32);
 	_useModulePath = elem["UseModule"];
 	_freeze = elem["WriteOn"];

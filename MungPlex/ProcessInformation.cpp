@@ -413,7 +413,7 @@ bool MungPlex::ProcessInformation::initMelonDS()
 				tempTitle += *reinterpret_cast<wchar_t*>(&buf[romBase + titleOffset + ch]);
 			}
 
-			_gameName = MorphText::Utf16LE_To_Utf8(tempTitle);
+			_gameName = MT::Convert<std::wstring, std::string>(tempTitle, MT::UTF16LE, MT::UTF8);
 			romFound = true;
 			break;
 		}
@@ -465,7 +465,7 @@ bool MungPlex::ProcessInformation::initYuzu()
 		while (gTitle.back() == 0x0020)
 			gTitle = gTitle.substr(0, gTitle.size()-1);
 
-		_gameName = MorphText::Utf16LE_To_Utf8(gTitle);
+		_gameName = MT::Convert<std::wstring, std::string>(gTitle, MT::UTF16LE, MT::UTF8);
 		//std::cout << _gameName << std::endl;
 
 		posStart = wTitleBuf.find(L"|");
@@ -523,7 +523,7 @@ bool MungPlex::ProcessInformation::initYuzu()
 					continue;
 
 				idFound = true;
-				_rpcGameID = _gameID = MorphText::Utf16LE_To_Utf8(tempID + L"-" + version);
+				_rpcGameID = _gameID = MT::Convert<std::wstring, std::string>(tempID + L"-" + version, MT::UTF16LE, MT::UTF8);
 				break;
 			}
 
@@ -633,7 +633,7 @@ bool MungPlex::ProcessInformation::initMesen()
 	//todo JIS X 0201 encoding once MorphText supports it
 	_gameID = std::string(21, 0);
 	_process.ReadMemoryFast(_gameID.data(), RAM + 0x7FC0, 21);
-	_gameID = MorphText::JIS_X_0201_FullWidth_To_Utf8(_gameID.data());
+	_gameID = MT::Convert<char*, std::string>(_gameID.data(), MT::JIS_X_0201_FULLWIDTH, MT::UTF8);
 	_gameID = RemoveSpacePadding(_gameID, false);
 	_gameName = _gameID;
 	_gameID.append("-");
@@ -794,7 +794,7 @@ bool MungPlex::ProcessInformation::initRpcs3()
 
 		_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[offset - 0xE0]);
 		_gameID.resize(9);
-		gIdWindow = MorphText::Utf8_To_Utf16LE(_gameID);
+		gIdWindow = MT::Convert<std::string, std::wstring>(_gameID, MT::UTF8, MT::UTF16LE);
 		_rpcGameID = _gameID.append("-[" + std::string(reinterpret_cast<char*>(&buf[offset - 0xA0])) + "]");
 		gameIdFound = true;
 		_connectionCheckValue = *reinterpret_cast<int*>(&buf[offset - 0xDC]);
@@ -825,7 +825,7 @@ bool MungPlex::ProcessInformation::initRpcs3()
 		while (gTitle.back() == 0x0020)
 			gTitle = gTitle.substr(0, gTitle.size() - 1);
 
-		_gameName = MorphText::Utf16LE_To_Utf8(gTitle);
+		_gameName = MT::Convert<std::wstring, std::string>(gTitle, MT::UTF16LE, MT::UTF8);
 		_platformID = PS3;
 		return true;
 	}
@@ -892,7 +892,7 @@ bool MungPlex::ProcessInformation::initPcsx2()
 			continue;
 
 		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
-		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.c_str());
+		_gameName = MT::Convert<wchar_t*, std::string>(wTitleBuf.c_str(), MT::UTF16LE, MT::UTF8);
 		_platformID = PS2;
 		return true;
 	}
@@ -931,8 +931,8 @@ bool MungPlex::ProcessInformation::initDolphin()
 		for (int i = posEnd; wTitleBuf[i] != '|'; --i)
 			posBeg = i;
 
-		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.substr(posBeg + 1, posEnd - posBeg - 2));
-
+		const std::wstring wTitle = wTitleBuf.substr(posBeg + 1, posEnd - posBeg - 2);
+		_gameName = MT::Convert<std::wstring, std::string>(wTitle, MT::UTF16LE, MT::UTF8);
 		//std::cout << _gameName << std::endl;
 		break;
 	}
@@ -1167,13 +1167,13 @@ bool MungPlex::ProcessInformation::initCemu()
 			continue;
 
 		std::wstring wTitle = wTitleBuf.substr(pos + 9);
-		_gameID = MorphText::Utf16LE_To_Utf8(wTitle.substr(0, 17));
+		_gameID = MT::Convert<std::wstring, std::string>(wTitle.substr(0, 17), MT::UTF16LE, MT::UTF8);
 		wTitle = wTitle.substr(19);
 		pos = wTitle.find(L"[");
-		_gameRegion = MorphText::Utf16LE_To_Utf8(wTitle.substr(pos+1, 2));
-		_gameName = MorphText::Utf16LE_To_Utf8(wTitle.substr(0, pos - 1));
+		_gameRegion = MT::Convert<std::wstring, std::string>(wTitle.substr(pos+1, 2), MT::UTF16LE, MT::UTF8);
+		_gameName = MT::Convert<std::wstring, std::string>(wTitle.substr(0, pos - 1), MT::UTF16LE, MT::UTF8);
 		wTitle = wTitle.substr(wTitle.find(L"v"));
-		_rpcGameID = _gameID.append("-" + MorphText::Utf16LE_To_Utf8(wTitle.substr(0, wTitle.find(L"]"))));
+		_rpcGameID = _gameID.append("-" + MT::Convert<std::wstring, std::string>(wTitle.substr(0, wTitle.find(L"]"))), MT::UTF16LE, MT::UTF8);
 		//std::cout << _gameID << std::endl;
 		//std::cout << _gameName << std::endl;
 		_platformID = WIIU;
@@ -1206,8 +1206,8 @@ bool MungPlex::ProcessInformation::initPPSSPP()
 			continue;
 
 		int pos = wTitleBuf.find(L"-");
-		_rpcGameID = _gameID = MorphText::Utf16LE_To_Utf8(wTitleBuf.substr(pos+2, 9)).c_str();
-		_gameName = MorphText::Utf16LE_To_Utf8(wTitleBuf.substr(pos + 14)).c_str();
+		_rpcGameID = _gameID = MT::Convert<std::wstring, std::string>(wTitleBuf.substr(pos + 2, 9), MT::UTF16LE, MT::UTF8);
+		_gameName = MT::Convert<std::wstring, std::string>(wTitleBuf.substr(pos + 14), MT::UTF16LE, MT::UTF8);
 		//std::cout << _gameID << std::endl;
 		//std::cout << _gameName << std::endl;
 		_platformID = PSP;
@@ -1504,8 +1504,9 @@ bool MungPlex::ProcessInformation::IsConnectionValid()
 			for (HWND wHandle : Xertz::SystemInfo::GetWindowHandleList())
 			{
 				GetWindowTextW(wHandle, wTitleBuf.data(), 512);
-
-				if (wTitleBuf.find(MorphText::Utf8_To_Utf16LE(GetInstance()._gameID)) == std::wstring::npos)
+				std::wstring idW = MT::Convert<std::string, std::wstring>(GetInstance()._gameID, MT::UTF8, MT::UTF16LE);
+				
+				if (wTitleBuf.find(idW) == std::wstring::npos)
 					continue;
 
 				int pos = wTitleBuf.find(L"-");

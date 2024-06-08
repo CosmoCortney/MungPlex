@@ -42,7 +42,7 @@ void MungPlex::Connection::drawConnectionSelect()
 
 				if (_connected)
 				{
-					_connectionMessage = "Connected to emulator: " + MorphText::Utf16LE_To_Utf8(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first);
+					_connectionMessage = "Connected to emulator: " + MT::Convert<std::wstring, std::string>(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first, MT::UTF16LE, MT::UTF8);
 					_richPresenceDetails = std::string("Messing with "
 						+ ProcessInformation::GetTitle()
 						+ " (" + ProcessInformation::GetPlatform() + ", "
