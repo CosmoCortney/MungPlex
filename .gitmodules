@@ -8,12 +8,6 @@
 [submodule "include/Xertz"]
 	path = include/Xertz
 	url = https://github.com/CosmoCortney/Xertz.git
-[submodule "include/sol2"]
-	path = include/sol2
-	url = https://github.com/ThePhD/sol2.git
-[submodule "include/lua"]
-	path = include/lua
-	url = https://github.com/lua/lua
 [submodule "include/ImGuiFileDialog"]
 	path = include/ImGuiFileDialog
 	url = https://github.com/aiekick/ImGuiFileDialog.git
