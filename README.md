@@ -125,7 +125,7 @@ Currently supported encodings:
     - `UTF-32 LE`
     - `UTF-32 BE`
     - `Shift-Jis CP932`
-    - `Shift-Jis`
+    - `KS X 1001`
     - `Jis X 0201 Full Width`
     - `Jis X 0201 Half Width`
     - `ISO-8859-1` - `ISO-8859-16`
@@ -457,7 +457,7 @@ A small conversion utility
 - Convert RGB(A) to RGB(A)F, RGB565, RGB5A3 and vice versa
 
 ### Text Conversion
-- Convert UTF-8 Text to UTF-16 Little Endian, UTF-16 Big Endian, UTF-32 Little Endian, UTF-32 Big Endian, Shift-Jis, Jis x 0201 Full Width, Jis X 0201 Half Width, ASCII, ISO-8859-1 - 16 and vice versa
+- Convert UTF-8 Text to UTF-16 Little Endian, UTF-16 Big Endian, UTF-32 Little Endian, UTF-32 Big Endian, Shift-Jis CP932, KS X 1001 (EUC-KR), Jis x 0201 Full Width, Jis X 0201 Half Width, ASCII, ISO-8859-1 - 16 and vice versa
 
 <a name="compiling"></a>
 ## Compiling
@@ -465,18 +465,14 @@ A small conversion utility
 Open the project in Visual Studio as "Open as local folder".
 
 Using `vcpkg`, make sure to install the following libraries (`vcpkg install xxx:x64-windows`):
-* `sol2` ([example project](https://github.com/BullyWiiPlaza/Sol2WithCMake))
 * `glfw3`
-* `nlohmann-json`
-* `discord-game-sdk`
-* `boost`
 
 To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item and build/debug as usual in Visual Studio.
 
 <a name="todo"></a>
 ## TODO
 - General
-  - Migrate `imgui` to using `vcpkg` (e.g. install `imgui[glfw-binding]`)
+  - Migrate `imgui` to using `vcpkg` (e.g. install `imgui[glfw-binding]` and [docking-experimental])
   - Texture Streaming
   - Corruptor
 - Search 
@@ -491,6 +487,7 @@ To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item 
 - Cheats
   - Syntax Highlighting, more OS functionalities
 
+You can find up-to-date ToDos and an idea list on the affiliated Discord Server (see above)
 
 <a name="kiitos"></a>
 ## Special Thanks

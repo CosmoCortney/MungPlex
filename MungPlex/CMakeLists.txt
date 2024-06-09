@@ -3,7 +3,6 @@
 cmake_minimum_required (VERSION 3.16)
 project(MungPlex VERSION 2.4.0)
 
-# Find lua
 find_package(Lua REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
