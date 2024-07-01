@@ -25,6 +25,7 @@ None of the contributors of this project bear any warranty or responsibility for
 - [Process Information](#processinformation)
 - [Settings](#settings)
 - [Data Conversion](#dataconversion)
+- [Downloading](#downloading)
 - [Compiling](#compiling)
 - [To Do](#todo)
 - [Special Thanks](#kiitos)
@@ -459,15 +460,25 @@ A small conversion utility
 ### Text Conversion
 - Convert UTF-8 Text to UTF-16 Little Endian, UTF-16 Big Endian, UTF-32 Little Endian, UTF-32 Big Endian, Shift-Jis CP932, KS X 1001 (EUC-KR), Jis x 0201 Full Width, Jis X 0201 Half Width, ASCII, ISO-8859-1 - 16 and vice versa
 
+<a name="downloading"></a>
+## Downloading the project
+- Clone the project using git
+- Init all (nested) submodules using ``git submodule update --init --recursive``
+- Then update all submodules using ``git pull --recurse-submodules``
+
 <a name="compiling"></a>
 ## Compiling
-
-Open the project in Visual Studio as "Open as local folder".
-
-Using `vcpkg`, make sure to install the following libraries (`vcpkg install xxx:x64-windows`):
-* `glfw3`
-
-To finally compile and launch `MungPlex`, select `MungPlex.exe` as startup item and build/debug as usual in Visual Studio.
+- update C++ redistrubutable to something later than spring 2024. I recommend doing so by updating Visual Studio
+- [install vcpkg](https://learn.microsoft.com/de-de/vcpkg/get_started/get-started?pivots=shell-powershell) if not done already
+- use vcpkg to install the following packages (``vcpkg install xxx:x64-windows``): 
+  - glfw3
+  - lua
+  - sol2
+  - boost
+  - nlohmann-json
+  - discord-game-sdk
+- open the project in Visual Studio as "Open as local folder" or in VSCode, Rider as a cmake project
+- set ``main.cpp`` as startup item (VS: right click, ``Set as startup item``)
 
 <a name="todo"></a>
 ## TODO
