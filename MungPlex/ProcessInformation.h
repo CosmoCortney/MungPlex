@@ -39,7 +39,7 @@ namespace MungPlex
 
         enum Emulators
         {
-            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, MELONDS, NO$PSX, PCSX2, RPCS3, PPSSPP, FUSION
+            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, VBA, MELONDS, NO$PSX, PCSX2, RPCS3, PPSSPP, FUSION
         };
 
         enum Systems
@@ -54,7 +54,7 @@ namespace MungPlex
         static bool ConnectToEmulator(int EmulatorIndex);
         static bool ConnectToProcess(int processIndex);
         static bool ConnectToApplicationProcess(int applicationProcessIndex);
-        static std::vector<EMUPAIR>& GetEmulatorList();
+        static const std::vector<EMUPAIR>& GetEmulatorList();
         static int32_t GetProcessType();
         static int32_t GetPID();
         static bool IsX64();
@@ -178,22 +178,8 @@ namespace MungPlex
         }
 
     private:
-        ProcessInformation()
-        {
-            _emulators.emplace_back(L"Mesen", MESEN);
-            _emulators.emplace_back(L"Project64", PROJECT64);
-            _emulators.emplace_back(L"Dolphin", DOLPHIN);
-            _emulators.emplace_back(L"Cemu", CEMU);
-            _emulators.emplace_back(L"Yuzu", YUZU);
-            _emulators.emplace_back(L"melonDS", MELONDS);
-            _emulators.emplace_back(L"No$psx", NO$PSX);
-            _emulators.emplace_back(L"pcsx2", PCSX2);
-            _emulators.emplace_back(L"Rpcs3", RPCS3);
-            _emulators.emplace_back(L"PPSSPP", PPSSPP);
-            _emulators.emplace_back(L"Fusion", FUSION);
-        }
-
-        ~ProcessInformation(){};
+        ProcessInformation() = default;
+        ~ProcessInformation() = default;
         ProcessInformation(const ProcessInformation&) = delete;
         ProcessInformation(ProcessInformation&&) = delete;
         void operator=(const ProcessInformation&) = delete;
@@ -220,7 +206,21 @@ namespace MungPlex
         std::vector<SystemRegion> _systemRegions;
         std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
         int32_t _currentEmulatorNumber;
-        std::vector<EMUPAIR> _emulators;
+        static inline const std::vector<EMUPAIR> _emulators = 
+        {
+            { L"Mesen", MESEN },
+            { L"Project64", PROJECT64 },
+            { L"Dolphin", DOLPHIN },
+            { L"Cemu", CEMU },
+            { L"Yuzu", YUZU },
+            { L"VisualBoyAdvance", VBA },
+            { L"melonDS", MELONDS },
+            { L"No$psx", NO$PSX },
+            { L"pcsx2", PCSX2 },
+            { L"Rpcs3", RPCS3 },
+            { L"PPSSPP", PPSSPP },
+            { L"Fusion", FUSION }
+        };
         std::wstring _exePath;
         bool _read = true;
         bool _write = true;
@@ -251,6 +251,7 @@ namespace MungPlex
         bool initProject64();
         bool initMesen();
         bool initCemu();
+        bool initVBA();
         bool initMelonDS();
         bool initPPSSPP();
         bool initYuzu();

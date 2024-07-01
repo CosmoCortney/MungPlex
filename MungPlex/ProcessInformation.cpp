@@ -295,6 +295,9 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 		case YUZU:
 			connected = initYuzu();
 			break;
+		case VBA:
+			connected = initVBA();
+			break;
 		case MELONDS:
 			connected = initMelonDS();
 			break;
@@ -373,6 +376,63 @@ void MungPlex::ProcessInformation::setupSearch()
 void MungPlex::ProcessInformation::setupCheats()
 {
 	Cheats::InitCheatFile();
+}
+
+bool MungPlex::ProcessInformation::initVBA()
+{
+	uint64_t regionSize;
+	bool romFound = false;
+	enum type { GB = 1, GBC, GBA };
+	int typeFound = 0;
+	uint64_t bufLogo = 0;
+	std::vector<uint8_t> bufRegion(0x8000000);
+	uint8_t* basePtr = nullptr;
+	bool makeThisTrueLater = false;
+
+	for (const auto& region : GetRegionList())
+	{
+		regionSize = region.GetRegionSize();
+		basePtr = region.GetBaseAddress<uint8_t*>();
+
+		if (regionSize == 0x2001000 && (region.GetProtect() & PAGE_READWRITE) == PAGE_READWRITE)
+		{
+			_process.ReadMemoryFast(&bufLogo, basePtr+0x44, 8);
+
+			if (bufLogo != 0x21A29A6951AEFF24)
+				continue;
+
+			setMiscProcessInfo("VisualBoyAdvace", false, false, 4, 1);
+			_systemRegions[0].BaseLocationProcess = basePtr + 0x40;
+			typeFound = GBA;
+			std::cout << "type: " << typeFound << " " << _systemRegions[0].BaseLocationProcess << std::endl;
+			return makeThisTrueLater;
+		}
+		else if ((regionSize >= 0x1000 && regionSize < 0x8000000) && (region.GetProtect() & PAGE_READWRITE) == PAGE_READWRITE)
+		{
+			_process.ReadMemoryFast(bufRegion.data(), basePtr, 0x8000000);
+			uint8_t* bufPtr = bufRegion.data();
+
+			for (int i = 4; i < regionSize; i += 0x10)
+			{
+				if (*reinterpret_cast<uint64_t*>(bufPtr + i) != 0x0B000DCC6666EDCE)
+					continue;
+
+				setMiscProcessInfo("VisualBoyAdvace", false, false, 2, 1);
+				_systemRegions[0].BaseLocationProcess = basePtr + i - 0x104;
+				uint8_t* typePtr = bufPtr + i + 0x3F;
+
+				if (*typePtr == 0x80 || *typePtr == 0xC0)
+					typeFound = GBC;
+				else
+					typeFound = GB;
+
+				std::cout << "type: " << typeFound << " " << _systemRegions[0].BaseLocationProcess << std::endl;
+				return makeThisTrueLater;
+			}
+		}
+	}
+
+	return false;
 }
 
 bool MungPlex::ProcessInformation::initMelonDS()
@@ -1292,9 +1352,9 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	return true; 
 }
 
-std::vector<EMUPAIR>& MungPlex::ProcessInformation::GetEmulatorList()
+const std::vector<EMUPAIR>& MungPlex::ProcessInformation::GetEmulatorList()
 {
-	return GetInstance()._emulators;
+	return _emulators;
 }
 
 int32_t MungPlex::ProcessInformation::GetProcessType()

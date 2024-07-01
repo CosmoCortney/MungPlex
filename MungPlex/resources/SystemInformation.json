@@ -745,6 +745,53 @@
       "Entities": [
 
       ]
+    },
+    "VisualBoyAdvance": {
+      "Regions": [
+        {
+          "Label": "ROM Bank 0",
+          "Base": "0",
+          "Size": "0x4000"
+        },
+        {
+          "Label": "ROM Bank 1",
+          "Base": "0x4000",
+          "Size": "0x4000"
+        },
+        {
+          "Label": "Video RAM",
+          "Base": "0x8000",
+          "Size": "0x2000"
+        },
+        {
+          "Label": "Ex RAM",
+          "Base": "0xA000",
+          "Size": "0x2000"
+        },
+        {
+          "Label": "Work RAM",
+          "Base": "0xC000",
+          "Size": "0"
+        },
+        {
+          "Label": "Echo RAM",
+          "Base": "0xE000",
+          "Size": "0x1E00"
+        },
+        {
+          "Label": "I/O Registers",
+          "Base": "0xFF00",
+          "Size": "0x80"
+        },
+        {
+          "Label": "High RAM + Interrupt",
+          "Base": "0xFF80",
+          "Size": "0x80"
+        }
+      ],
+      "Entities": [
+
+      ]
     }
   }
 }
