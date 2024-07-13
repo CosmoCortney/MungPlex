@@ -211,9 +211,9 @@ void MungPlex::ProcessInformation::drawGameInformation()
 	}
 }
 
-bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorIndex)
+bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const std::string& system)
 {
-	std::wstring emulator = GetInstance()._emulators[emulatorIndex].first;
+	//std::wstring emulator = GetInstance()._emulators[emulatorIndex].first;
 	GetInstance()._gameEntities.clear();
 	GetInstance()._systemRegions.clear();
 	std::string buffer;
@@ -233,9 +233,9 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 	try
 	{
 		auto doc = nlohmann::json::parse(jsonstr);
-		std::string emuNameBasic(emulator.begin(), emulator.end());
-		auto& regions = doc["Emulators"][emuNameBasic]["Regions"];
-		auto& entities = doc["Emulators"][emuNameBasic]["Entities"];
+		//std::string emuNameBasic(emulator.begin(), emulator.end());
+		auto& regions = doc["Systems"][system]["Regions"];
+		//auto& entities = doc["Emulators"][system]["Entities"];
 
 		for (auto& region : regions)
 		{
@@ -245,7 +245,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 			GetInstance()._systemRegions.emplace_back(SystemRegion(label, base, size));
 		}
 
-		for (auto& gameEntity : entities)
+		/*for (auto& gameEntity : entities)
 		{
 			auto entity = gameEntity["Entity"].get<std::string>();
 			int location = std::stoi(gameEntity["Location"].get<std::string>(), 0, 0);
@@ -253,7 +253,7 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const int emulatorI
 			int size = std::stoi(gameEntity["Size"].get<std::string>(), 0, 0);
 			bool hex = gameEntity["Hex"].get<bool>();
 			GetInstance()._gameEntities.emplace_back(GameEntity(entity, location, datatype, size, hex));
-		}
+		}*/
 
 		if (regions.empty())
 			return false;
@@ -382,34 +382,57 @@ bool MungPlex::ProcessInformation::initVBA()
 {
 	uint64_t regionSize;
 	bool romFound = false;
-	enum type { GB = 1, GBC, GBA };
-	int typeFound = 0;
+	//enum type { GB = 1, GBC, GBA };
 	uint64_t bufLogo = 0;
 	std::vector<uint8_t> bufRegion(0x8000000);
-	uint8_t* basePtr = nullptr;
+	uint8_t* romBasePtr = nullptr;
+	char* mainMemoryRegion = nullptr;
 	bool makeThisTrueLater = false;
+	char* moduleAddr = reinterpret_cast<char*>(_process.GetModuleAddress(L"visualboyadvance-m.exe") + 0x3000000);
+	char* identifierAddr = nullptr;
+	std::vector<uint64_t> moduleBuf(0x2000000 / 8);
+	_process.ReadMemoryFast(moduleBuf.data(), moduleAddr, 0x2000000);
 
 	for (const auto& region : GetRegionList())
 	{
 		regionSize = region.GetRegionSize();
-		basePtr = region.GetBaseAddress<uint8_t*>();
+		romBasePtr = region.GetBaseAddress<uint8_t*>();
 
 		if (regionSize == 0x2001000 && (region.GetProtect() & PAGE_READWRITE) == PAGE_READWRITE)
 		{
-			_process.ReadMemoryFast(&bufLogo, basePtr+0x44, 8);
+			_process.ReadMemoryFast(&bufLogo, romBasePtr +0x44, 8);
 
 			if (bufLogo != 0x21A29A6951AEFF24)
 				continue;
 
 			setMiscProcessInfo("VisualBoyAdvace", false, false, 4, 1);
-			_systemRegions[0].BaseLocationProcess = basePtr + 0x40;
-			typeFound = GBA;
-			std::cout << "type: " << typeFound << " " << _systemRegions[0].BaseLocationProcess << std::endl;
-			return makeThisTrueLater;
+			LoadSystemInformationJSON("GBA");
+			_systemRegions[7].BaseLocationProcess = romBasePtr + 0x40;
+			_platformID = GBA;
+
+			//ToDo: Find WRAM pointer by comparing the region size it is stored in. Check if 0x323CAB23 is a valid marker
+
+			for (int j = 0; j < moduleBuf.size(); ++j)
+			{
+				if (moduleBuf[j] != 0x0C6E0C6D0C6D0C6C)
+					continue;
+
+				identifierAddr = j * 8 + moduleAddr;
+				uint64_t tempPtr = 0;
+				_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x78, 8);
+				_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
+				break;
+			}
+
+
+
+
+			std::cout << "type: " << _platformID << " " << _systemRegions[0].BaseLocationProcess << std::endl;
+			return true;
 		}
-		else if ((regionSize >= 0x1000 && regionSize < 0x8000000) && (region.GetProtect() & PAGE_READWRITE) == PAGE_READWRITE)
+		else if ((regionSize >= 0x1000 && regionSize < 0x8000000) && (region.GetProtect() & PAGE_READWRITE) == PAGE_READWRITE) //ToDo: Ensure this is future-proof
 		{
-			_process.ReadMemoryFast(bufRegion.data(), basePtr, 0x8000000);
+			_process.ReadMemoryFast(bufRegion.data(), romBasePtr, 0x8000000);
 			uint8_t* bufPtr = bufRegion.data();
 
 			for (int i = 4; i < regionSize; i += 0x10)
@@ -418,16 +441,46 @@ bool MungPlex::ProcessInformation::initVBA()
 					continue;
 
 				setMiscProcessInfo("VisualBoyAdvace", false, false, 2, 1);
-				_systemRegions[0].BaseLocationProcess = basePtr + i - 0x104;
 				uint8_t* typePtr = bufPtr + i + 0x3F;
 
 				if (*typePtr == 0x80 || *typePtr == 0xC0)
-					typeFound = GBC;
+				{
+					LoadSystemInformationJSON("GBC");
+					_platformID = GBC;
+				}
 				else
-					typeFound = GB;
+				{
+					LoadSystemInformationJSON("GB");
+					_platformID = GB;
+				}
 
-				std::cout << "type: " << typeFound << " " << _systemRegions[0].BaseLocationProcess << std::endl;
-				return makeThisTrueLater;
+				_systemRegions[0].BaseLocationProcess = romBasePtr + i - 0x104;
+
+				for (int j = 0; j < moduleBuf.size(); ++j)
+				{
+					if (moduleBuf[j] != 0x0C6E0C6D0C6D0C6C)
+						continue;
+
+					identifierAddr = j * 8 + moduleAddr;
+					uint64_t tempPtr = 0;
+					_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x98, 8);
+					_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
+					_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x78, 8);
+					_systemRegions[2].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
+					_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x68, 8);
+					_systemRegions[3].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
+					_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x58, 8);
+					_systemRegions[4].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
+					_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x50, 8);
+					_systemRegions[5].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
+					_systemRegions[6].BaseLocationProcess = reinterpret_cast<void*>(tempPtr + 0x2F00);
+					break;
+				}
+				
+
+
+				std::cout << "type: " << _platformID << " " << _systemRegions[0].BaseLocationProcess << std::endl;
+				return true;
 			}
 		}
 	}
@@ -446,6 +499,7 @@ bool MungPlex::ProcessInformation::initMelonDS()
 		if (region.GetRegionSize() < 0x800000 || (region.GetProtect() & PAGE_READWRITE) != PAGE_READWRITE)
 			continue;
 
+		char* mainMemoryRegion = region.GetBaseAddress<char*>();
 		std::vector<uint8_t> buf(region.GetRegionSize());
 		_process.ReadMemoryFast(buf.data(), region.GetBaseAddress<void*>(), region.GetRegionSize());
 
@@ -454,7 +508,7 @@ bool MungPlex::ProcessInformation::initMelonDS()
 			if (*reinterpret_cast<uint64_t*>(&buf[i]) != romFlag)
 				continue;
 
-			_connectionCheckPtr = reinterpret_cast<void*>(region.GetBaseAddress<char*>() + i);
+			_connectionCheckPtr = reinterpret_cast<void*>(mainMemoryRegion + i);
 			_connectionCheckValue = romFlag;
 			const uint32_t romBase = i - 0xC0;
 			_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[romBase + 0xC]);
@@ -488,6 +542,7 @@ bool MungPlex::ProcessInformation::initMelonDS()
 		if (region.GetRegionSize() != 0x10F0000)
 			continue;
 
+		LoadSystemInformationJSON("NDS");
 		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
 		_platformID = NDS;
 		return true;
@@ -636,7 +691,8 @@ bool MungPlex::ProcessInformation::initMesen()
 			continue;
 
 		std::vector<uint64_t> buf(regionSize/8);
-		_process.ReadMemoryFast(buf.data(), region.GetBaseAddress<void*>(), regionSize);
+		char* mainMemoryRegion = region.GetBaseAddress<char*>();
+		_process.ReadMemoryFast(buf.data(), mainMemoryRegion, regionSize);
 
 		for (int i = 0; i < regionSize/8; i += 2)
 		{
@@ -644,12 +700,13 @@ bool MungPlex::ProcessInformation::initMesen()
 				continue;
 			
 			//std::cout << "ram found!\n";
-			RAM = region.GetBaseAddress<char*>() + i * 8 - 0xD0;
+			RAM = mainMemoryRegion + i * 8 - 0xD0;
 			ROMflag = buf[i + 1];
 			ramFound = true;
+			LoadSystemInformationJSON("SNES");
 			_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(RAM);
 			_connectionCheckValue = ramFlag;
-			_connectionCheckPtr = region.GetBaseAddress<char*>() + i * 8;
+			_connectionCheckPtr = mainMemoryRegion + i * 8;
 			break;
 		}
 	}
@@ -721,12 +778,14 @@ bool MungPlex::ProcessInformation::initProject64()
 			continue;
 
 		uint32_t temp;
-		_process.ReadMemoryFast(&temp, region.GetBaseAddress<char*>() + 8, 4);
+		char* mainMemoryRegion = region.GetBaseAddress<char*>();
+		_process.ReadMemoryFast(&temp, mainMemoryRegion + 8, 4);
 
 		if (temp != 0x03400008)
 			continue;
 
-		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+		LoadSystemInformationJSON("N64");
+		_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(mainMemoryRegion);
 		found = true;
 		break;
 	}
@@ -741,26 +800,27 @@ bool MungPlex::ProcessInformation::initProject64()
 		if (rSize < 0x400000)
 			continue;
 		
+		char* romRegion = region.GetBaseAddress<char*>();
 		uint64_t temp;
-		_process.ReadMemoryFast(&temp, region.GetBaseAddress<char*>(), 8);
+		_process.ReadMemoryFast(&temp, romRegion, 8);
 
 		if (temp != romFlag)
 			continue;
 		
 		_connectionCheckValue = romFlag;
-		_connectionCheckPtr = region.GetBaseAddress<void*>();
+		_connectionCheckPtr = reinterpret_cast<void*>(romRegion);
 		region.SetProtect(GetHandle(), PAGE_EXECUTE_READWRITE);
 		_systemRegions[1].BaseLocationProcess = region.GetBaseAddress<void*>();
 		_systemRegions[1].Size = rSize;
 		found = true;
 		char tempID[5] = "";
-		ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(tempID), region.GetBaseAddress<char*>() + 0x3B);
+		ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(tempID), romRegion + 0x3B);
 		_rpcGameID = _gameID = std::string(tempID);
 		_gameName.resize(20);
 		_gameRegion = getRegionFromNintendoRegionCode(_gameID[3]);
 
 		for (int i = 0; i <= 20; i+=4)
-			ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(_gameName.data() + i), region.GetBaseAddress<char*>() + 0x20 + i);
+			ReadFromReorderedRangeEx(_process, reinterpret_cast<uint32_t*>(_gameName.data() + i), romRegion + 0x20 + i);
 
 		_gameName = RemoveSpacePadding(_gameName);
 		_platformID = N64;
@@ -787,7 +847,6 @@ void MungPlex::ProcessInformation::setMiscProcessInfo(const std::string processN
 	_addressWidth = addressWidth;
 	_rereorderRegion = rereorder;
 	_alignment = alignment;
-
 }
 
 bool MungPlex::ProcessInformation::initNo$psx()
@@ -800,12 +859,14 @@ bool MungPlex::ProcessInformation::initNo$psx()
 		if (region.GetRegionSize() != 0x459000)
 			continue;
 
-		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x30100;
+		char* mainMemoryRegion = region.GetBaseAddress<char*>();
+		LoadSystemInformationJSON("PS1");
+		_systemRegions[0].BaseLocationProcess = mainMemoryRegion + 0x30100;
 		_gameID = std::string(12, 0);
-		_process.ReadMemoryFast(_gameID.data(), region.GetBaseAddress<char*>() + 0x30100 + 0x00003A49, 11);
+		_process.ReadMemoryFast(_gameID.data(), mainMemoryRegion + 0x30100 + 0x00003A49, 11);
 		_rpcGameID = _gameID = _gameID.c_str();
 		char tempRegion[32];
-		_process.ReadMemoryFast(tempRegion, region.GetBaseAddress<char*>() + 0x30100 + 0x00003BE5, 32);
+		_process.ReadMemoryFast(tempRegion, mainMemoryRegion + 0x30100 + 0x00003BE5, 32);
 		_gameRegion = tempRegion;
 		_gameRegion = _gameRegion.substr(0, _gameRegion.find(" area"));
 		void* exeAddr = reinterpret_cast<void*>(_process.GetModuleAddress(L"NO$PSX.EXE"));
@@ -834,7 +895,7 @@ bool MungPlex::ProcessInformation::initNo$psx()
 bool MungPlex::ProcessInformation::initRpcs3()
 {
 	setMiscProcessInfo("Rpcs3", true, false, 4, 4);
-
+	LoadSystemInformationJSON("PS3");
 	_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(0x300010000);
 	_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(0x330000000);
 	_systemRegions[2].BaseLocationProcess = reinterpret_cast<void*>(0x340000000);
@@ -918,6 +979,7 @@ bool MungPlex::ProcessInformation::initPcsx2()
 			if(regions[k].GetAllocationProtect() != PAGE_READWRITE)
 				regions[k].SetProtect(GetHandle(), PAGE_READWRITE);
 
+		LoadSystemInformationJSON("PS2");
 		_systemRegions[0].BaseLocationProcess = regions[i].GetBaseAddress<char*>();
 
 		uint32_t bufSize = 0x1000000;
@@ -963,10 +1025,6 @@ bool MungPlex::ProcessInformation::initPcsx2()
 bool MungPlex::ProcessInformation::initDolphin()
 {
 	setMiscProcessInfo("Dolphin", true, false, 4, 4);
-	_systemRegions.erase(_systemRegions.begin() + 2); //--
-	_systemRegions.erase(_systemRegions.begin() + 2); // |- remove these lines once caches and sram are figured out
-	_systemRegions.erase(_systemRegions.begin() + 2); //--
-
 	uint32_t temp = 0;
 	uint32_t flagGCN = 0;
 	uint32_t flagWii = 0;
@@ -998,6 +1056,7 @@ bool MungPlex::ProcessInformation::initDolphin()
 	}
 
 	bool memoryFound = false;
+	char* mainMemRegion = nullptr;
 
 	for (const auto& _region : GetRegionList())
 	{
@@ -1005,14 +1064,14 @@ bool MungPlex::ProcessInformation::initDolphin()
 			continue;
 
 		memoryFound = true;
-		_process.ReadMemoryFast(&temp, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x28), 4);
-		_process.ReadMemoryFast(&flagGCN, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x18), 4);
-		_process.ReadMemoryFast(&flagWii, reinterpret_cast<void*>(_region.GetBaseAddress<uint64_t>() + 0x1C), 4);
+		mainMemRegion = _region.GetBaseAddress<char*>();;
+		_process.ReadMemoryFast(&temp, mainMemRegion + 0x28, 4);
+		_process.ReadMemoryFast(&flagGCN, mainMemRegion + 0x18, 4);
+		_process.ReadMemoryFast(&flagWii, mainMemRegion + 0x1C, 4);
 
 		if (temp != 0x8001)
 			continue;
 
-		_systemRegions[0].BaseLocationProcess = _region.GetBaseAddress<void*>();
 		_connectionCheckPtr = _region.GetBaseAddress<void*>();
 		_process.ReadMemoryFast(&_connectionCheckValue, _connectionCheckPtr, 4);
 		break;
@@ -1021,9 +1080,9 @@ bool MungPlex::ProcessInformation::initDolphin()
 	if (!memoryFound)
 		return false;
 
-	_process.ReadMemoryFast(tempID, _systemRegions[0].BaseLocationProcess, 6);
-	_process.ReadMemoryFast(&discNo, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 6, 1);
-	_process.ReadMemoryFast(&discVer, reinterpret_cast<char*>(_systemRegions[0].BaseLocationProcess) + 7, 1);
+	_process.ReadMemoryFast(tempID, mainMemRegion, 6);
+	_process.ReadMemoryFast(&discNo, mainMemRegion + 6, 1);
+	_process.ReadMemoryFast(&discVer, mainMemRegion + 7, 1);
 	_gameID = _rpcGameID = tempID;
 	_gameID.append("-").append(std::to_string(discNo));
 	_gameID.append("-").append(std::to_string(discVer));
@@ -1031,8 +1090,10 @@ bool MungPlex::ProcessInformation::initDolphin()
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{
+		//Add checks for Triforce games
 		_platformID = GAMECUBE;
-		_systemRegions.erase(_systemRegions.begin() + 1);
+		LoadSystemInformationJSON("GameCube");
+		_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(mainMemRegion);
 		return true;
 	}
 
@@ -1052,9 +1113,10 @@ bool MungPlex::ProcessInformation::initDolphin()
 	}
 
 	int IDcopy;
-	_process.ReadMemoryFast(&temp, _systemRegions[0].BaseLocationProcess, 4);
-	_process.ReadMemoryFast(&IDcopy, static_cast<char*>(_systemRegions[0].BaseLocationProcess) + 0x3180, 4);
+	_process.ReadMemoryFast(&temp, mainMemRegion, 4);
+	_process.ReadMemoryFast(&IDcopy, mainMemRegion + 0x3180, 4);
 	_platformID = WII;
+	LoadSystemInformationJSON("Wii");
 
 	if (temp == 0 && IDcopy != 0)
 	{
@@ -1092,10 +1154,10 @@ bool MungPlex::ProcessInformation::initFusion()
 		_connectionCheckPtr = reinterpret_cast<char*>(romPTR) + 0x4A * 4;
 		_gameID = std::string(reinterpret_cast<char*>(&romHeader[0x60]));
 		_gameID.resize(14);
+		LoadSystemInformationJSON("MegaCD");
 		_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(romPTR);
 		_systemRegions[0].Size = Xertz::SwapBytes<uint32_t>(romHeader[0x69]) + 1;
 		_systemRegions[0].Base = 0x0;
-		_systemRegions[0].Label = "BOOT ROM";
 
 		ramPTR = 0x006A52D4;
 		_gameName.resize(48);
@@ -1128,10 +1190,12 @@ bool MungPlex::ProcessInformation::initFusion()
 	{
 		if (romHeader[0x41] == 0x58323320) //32X ROM found
 		{
+			LoadSystemInformationJSON("32X");
 			_platformID = S32X;
 		}
 		else if ((romHeader[0x41] == 0x47454D20 && romHeader[0x42] == 0x52442041) || (romHeader[0x41] == 0x4E454720)) //mega drive ROM found
 		{
+			LoadSystemInformationJSON("MegaDrive");
 			_platformID = GENESIS;
 		}
 		else //something went wrong
@@ -1176,8 +1240,10 @@ bool MungPlex::ProcessInformation::initCemu()
 		if (region.GetRegionSize() != 0x4E000000)
 			continue;
 
-		_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
-		_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(region.GetBaseAddress<char*>() + 0x0E000000);
+		LoadSystemInformationJSON("WiiU");
+		char* mainBase = region.GetBaseAddress<char*>();
+		_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(mainBase);
+		_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(mainBase + 0x0E000000);
 
 
 		//old title id fetch code, just leave it there in case it may be needed again
@@ -1252,7 +1318,9 @@ bool MungPlex::ProcessInformation::initPPSSPP()
 	{
 		if (region.GetRegionSize() == 0x1f00000)
 		{
-			_systemRegions[0].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x1000000;
+			LoadSystemInformationJSON("PSP");
+			char* mainMemoryRegion = region.GetBaseAddress<char*>();
+			_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(mainMemoryRegion + 0x1000000);
 			break;
 		}
 	}
@@ -1334,8 +1402,8 @@ void MungPlex::ProcessInformation::obtainGameEntities(void* baseLocation)
 
 bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 {
-	if (!LoadSystemInformationJSON(emulatorIndex))
-		return false;
+	//if (!LoadSystemInformationJSON(emulatorIndex))
+		//return false;
 
 	if (!GetInstance().initEmulator(emulatorIndex))
 		return false;

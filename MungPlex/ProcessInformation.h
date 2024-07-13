@@ -62,7 +62,7 @@ namespace MungPlex
         static HANDLE GetHandle();
         static int32_t GetAddressWidth();
         static bool GetRereorderFlag();
-        static bool LoadSystemInformationJSON(int emulatorIndex);
+        static bool LoadSystemInformationJSON(const std::string& system);
         static std::string& GetGameID();
         static std::string& GetRpcGameID();
         static std::string& GetProcessName();
