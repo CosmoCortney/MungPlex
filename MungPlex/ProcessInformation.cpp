@@ -1,10 +1,11 @@
 #include "ProcessInformation.h"
-#include <Windows.h>
-#include"Search.h"
-#include"Cheats.h"
+#include "Cheats.h"
 #include "Log.h"
-#include"PointerSearch.h"
-#include"WatchControl.h"
+#include <boost/iostreams/device/mapped_file.hpp>
+#include "PointerSearch.h"
+#include "Search.h"
+#include "WatchControl.h"
+#include <Windows.h>
 
 void MungPlex::ProcessInformation::DrawWindow()
 {
@@ -301,6 +302,9 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 		case MELONDS:
 			connected = initMelonDS();
 			break;
+		case LIME3DS:
+			connected = initLime3DS();
+			break;
 		case MESEN:
 			connected = initMesen();
 			break;
@@ -549,6 +553,64 @@ bool MungPlex::ProcessInformation::initMelonDS()
 	}
 
 	return false;
+}
+
+bool MungPlex::ProcessInformation::initLime3DS()
+{
+	setMiscProcessInfo("Lime3DS", false, false, 4, 4);
+	boost::filesystem::path gameInfoPath(std::string(Settings::GetGeneralSettings().DocumentsPath) + "\\MungPlex\\CurrentGame.json");
+	
+	if (!_process.IsOpen())
+		return false;
+
+	if (!boost::filesystem::exists(gameInfoPath)) 
+	{
+		std::cerr << "File does not exist: " << gameInfoPath << std::endl;
+		return false;
+	}
+
+	boost::iostreams::mapped_file_source gameInfoFile;
+	gameInfoFile.open(gameInfoPath);
+
+	if (!gameInfoFile.is_open())
+	{
+		std::cerr << "Failed to open file: " << gameInfoPath << std::endl;
+		return false;
+	}
+
+	std::string gameInfo(gameInfoFile.data(), gameInfoFile.size());
+	gameInfoFile.close();
+
+	try
+	{
+		nlohmann::json json = nlohmann::json::parse(gameInfo);
+		_gameName = json["Title"];
+		_gameID = json["TitleID"];
+		_gameRegion = json["Region"];
+		_rpcGameID = _gameID;
+		_platformID = N3DS;
+
+		std::vector<std::string> basePtrs = json["BasePointers"];
+		std::vector<std::string> bases = json["Bases"];
+		std::vector<std::string> sizes = json["Sizes"];
+
+		for (int i = 0; i < basePtrs.size(); ++i)
+		{
+			SystemRegion region;
+			region.Label = std::string("FCRAM ").append(std::to_string(i+1));
+			region.Base = std::strtoull(bases[i].c_str(), NULL, 16);
+			region.BaseLocationProcess = reinterpret_cast<void*>(std::strtoull(basePtrs[i].c_str(), NULL, 16));
+			region.Size = std::strtoull(sizes[i].c_str(), NULL, 16);
+			_systemRegions.push_back(region);
+		}
+	}
+	catch (const nlohmann::json::parse_error& exception)
+	{
+		Log::LogInformation((std::string("Failed parsing settings file: ") + exception.what()).c_str());
+		return false;
+	}
+
+	return true;
 }
 
 bool MungPlex::ProcessInformation::initYuzu()

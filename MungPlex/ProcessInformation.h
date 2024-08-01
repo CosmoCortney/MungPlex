@@ -39,7 +39,7 @@ namespace MungPlex
 
         enum Emulators
         {
-            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, VBA, MELONDS, NO$PSX, PCSX2, RPCS3, PPSSPP, FUSION
+            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, VBA, MELONDS, LIME3DS, NO$PSX, PCSX2, RPCS3, PPSSPP, FUSION
         };
 
         enum Systems
@@ -215,6 +215,7 @@ namespace MungPlex
             { L"Yuzu", YUZU },
             { L"VisualBoyAdvance", VBA },
             { L"melonDS", MELONDS },
+            { L"Lime3DS", LIME3DS },
             { L"No$psx", NO$PSX },
             { L"pcsx2", PCSX2 },
             { L"Rpcs3", RPCS3 },
@@ -253,6 +254,7 @@ namespace MungPlex
         bool initCemu();
         bool initVBA();
         bool initMelonDS();
+        bool initLime3DS();
         bool initPPSSPP();
         bool initYuzu();
         bool initNo$psx();

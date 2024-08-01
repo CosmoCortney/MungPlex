@@ -7,7 +7,7 @@ find_package(Lua REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-find_package(Boost REQUIRED COMPONENTS thread filesystem)
+find_package(Boost REQUIRED COMPONENTS thread filesystem iostreams)
 find_library(CPP_GAME_SDK discord_game_sdk_cpp)
 find_library(DISCORD_GAME_SDK_LIB discord_game_sdk)
 find_library(DISCORD_GAME_SDK_CPP_LIB discord_game_sdk_cpp)
@@ -89,6 +89,8 @@ target_link_libraries(MungPlex PRIVATE
     ${DISCORD_GAME_SDK_CPP_LIB}
     ${LUA_LIBRARIES}
     ${Boost_LIBRARIES}
+    Boost::filesystem
+    Boost::iostreams
 )
 
 # Set C++ version
@@ -113,6 +115,7 @@ set_target_properties(MungPlex PROPERTIES
 target_include_directories(MungPlex PRIVATE 
     ${CMAKE_BINARY_DIR}
     ${LUA_INCLUDE_DIR}
+    ${Boost_INCLUDE_DIRS}
 )
 
 #include_directories(${Boost_INCLUDE_DIRS})
