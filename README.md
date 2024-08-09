@@ -70,7 +70,7 @@ RetroArch also make it unnecessarily difficult to find everything needed since i
 <img src="MungPlex\resources\img\manual\MungPlex_connection_01.png" width="256">
 
 Before clicking *Connect* ensure the emulator AND game are running.
- 
+
 #### Special Cases
 Some emulators need special requirements in order to be connected to.
 
