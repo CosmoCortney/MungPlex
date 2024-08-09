@@ -1,7 +1,7 @@
 # CMakeList.txt : CMake project for MungPlex, include source and define
 # project specific logic here.
 cmake_minimum_required (VERSION 3.16)
-project(MungPlex VERSION 2.4.1)
+project(MungPlex VERSION 2.5.0)
 
 find_package(Lua REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
@@ -100,25 +100,11 @@ set_target_properties(MungPlex PROPERTIES
     CXX_EXTENSIONS NO
 )
 
-# Set GLFW build options
-
-#set (GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-#set (GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-#set (GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-#target_link_libraries(MungPlex PRIVATE )
-#target_link_libraries(MungPlex PRIVATE sol2)
-#target_link_libraries(MungPlex PRIVATE )
-
- # target_link_libraries(MungPlex PRIVATE boost/threads)
-
-# Include the binary directory to access the generated MungPlexConfig.h
 target_include_directories(MungPlex PRIVATE 
     ${CMAKE_BINARY_DIR}
     ${LUA_INCLUDE_DIR}
     ${Boost_INCLUDE_DIRS}
 )
-
-#include_directories(${Boost_INCLUDE_DIRS})
 
 # Install target
 install(TARGETS MungPlex DESTINATION "MungPlex/bin")
