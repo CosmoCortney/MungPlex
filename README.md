@@ -13,6 +13,8 @@ It is also possible for flashing lights and sudden loud noises to appear when ed
 Also do not use this tool for cheating online in public sessions/rooms! Only losers do that and you may get banned from your game's network.
 None of the contributors of this project bear any warranty or responsibility for any damage happening.
 
+## MungPlex Wiki
+The [MungPlex Wiki]https://github.com/CosmoCortney/MungPlex/wiki) provides a lot of useful information about MungPlex, hacking techniques, and computer science relevant for game hacking.
 
 ## Table of contents
 - [Releases](#releases)
@@ -461,7 +463,7 @@ A small conversion utility
 - Convert UTF-8 Text to UTF-16 Little Endian, UTF-16 Big Endian, UTF-32 Little Endian, UTF-32 Big Endian, Shift-Jis CP932, KS X 1001 (EUC-KR), Jis x 0201 Full Width, Jis X 0201 Half Width, ASCII, ISO-8859-1 - 16 and vice versa
 
 <a name="downloading"></a>
-## Downloading the project
+## Downloading the project's source code
 - Clone the project using git
 - Init all (nested) submodules using ``git submodule update --init --recursive``
 - Then update all submodules using ``git pull --recurse-submodules``
