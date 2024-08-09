@@ -3,7 +3,7 @@
 MungPlex is a cheat search tool and game enhancer for various emulators and PC games. It allows you to experience and mung up your favorite games in multiple ways - hence the name MungPlex. Version 2.0.0 has re-implemented all features of the deprecated repository and comes with some new features. You can also join the affiliated [Discord Server](https://discord.gg/wU62ZTvQRj) (may be renamed).
 
 The following feature illustration guides you through the general usage of MungPlex.
-
+ 
 ## Before You Proceed
 If the app looks off go to Settings, change the UI scale and restart MungPlex.</br>
 It might happen for MungPlex to be unable to connect to a game. This may be due to changes to the emulator that make MungPlex incapable of finding the emulated RAM and/or game ID. If this is the case you can reach out to the MungPlex Discord Server and report any problems.</br>
@@ -78,6 +78,9 @@ Open Mesen and disable rewind by going to `Settings/Preferences/Advanced/` and u
 Click the play button (arrow pointing to the right) to execute. 
 Run this script every time you want to connect to Mesen if it is not executed automatically.
 
+##### Lime3DS
+You need a special version of Lime3DS for MungPlex to be able to connect to. You can find it [here](https://github.com/CosmoCortney/Lime3DS-for-MungPlex/releases).
+
 ##### Yuzu
 Before connecting to Yuzu go to Yuzu's menu, then `Emulation/General/UI` and set for `Row 1 Text:` *Title Name*, and for `Row 2 Text:` *Title ID*. MungPlex requires this to be able to find Title IDs once the Game Name has been detected. If the Title ID could not be found restart the game or emulator entirely and retry.<br>
 The Nintendo Switch uses [ASLR (Address space layout randomization)](https://en.wikipedia.org/wiki/Address_space_layout_randomization) which causes base addresses to be randomized. Therefore no base can be determined yet and therefore cheats have to be searched again every time you restart the game. A lot of research has to be done here.
@@ -132,6 +135,14 @@ Currently supported encodings:
     - `Jis X 0201 Full Width`
     - `Jis X 0201 Half Width`
     - `ISO-8859-1` - `ISO-8859-16`
+    - `Pokémon Gen I English`
+    - `Pokémon Gen I French/German`
+    - `Pokémon Gen I Italian/Spanish`
+    - `Pokémon Gen I Japanese`
+    - `Pokémon Gen II English`
+    - `Pokémon Gen II French/German`
+    - `Pokémon Gen II Italian/Spanish`
+    - `Pokémon Gen II Japanese`
   - `Color`: Allows for searching color values. If you don't know what color type certain objects or textures use you may need to try different types.
     - `RGB888`: 24-bit color value commonly used in 3D games
     - `RGBA8888`: Same as above but with an additional 8-bit alpha channel
