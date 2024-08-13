@@ -209,117 +209,37 @@
     "GB": {
       "Regions": [
         {
-          "Label": "ROM Bank 0",
+          "Label": "ROM",
           "Base": "0",
-          "Size": "0x4000"
-        },
-        {
-          "Label": "ROM Bank 1",
-          "Base": "0x4000",
-          "Size": "0x4000"
-        },
-        {
-          "Label": "Video RAM",
-          "Base": "0x8000",
-          "Size": "0x2000"
-        },
-        {
-          "Label": "SRAM",
-          "Base": "0xA000",
-          "Size": "0x2000"
-        },
-        {
-          "Label": "RAM",
-          "Base": "0xC000",
-          "Size": "0x1000"
+          "Size": "0"
         },
         {
           "Label": "WRAM",
-          "Base": "0xD000",
-          "Size": "0x2F00"
-        },
-        {
-          "Label": "I/O Registers & Interrupt",
-          "Base": "0xFF00",
-          "Size": "0x100"
+          "Base": "0xC000",
+          "Size": "0x2000"
         }
       ]
     },
     "GBC": {
       "Regions": [
         {
-          "Label": "ROM Bank 0",
+          "Label": "ROM",
           "Base": "0",
-          "Size": "0x4000"
-        },
-        {
-          "Label": "ROM Bank 1",
-          "Base": "0x4000",
-          "Size": "0x4000"
-        },
-        {
-          "Label": "Video RAM",
-          "Base": "0x8000",
-          "Size": "0x2000"
-        },
-        {
-          "Label": "SRAM",
-          "Base": "0xA000",
-          "Size": "0x2000"
-        },
-        {
-          "Label": "RAM",
-          "Base": "0xC000",
-          "Size": "0x1000"
+          "Size": "0"
         },
         {
           "Label": "WRAM",
-          "Base": "0xD000",
-          "Size": "0x2F00"
-        },
-        {
-          "Label": "I/O Registers & Interrupt",
-          "Base": "0xFF00",
-          "Size": "0x100"
+          "Base": "0xC000",
+          "Size": "0x2000"
         }
       ]
     },
     "GBA": {
       "Regions": [
         {
-          "Label": "BIOS",
-          "Base": "0",
-          "Size": "0x4000"
-        },
-        {
           "Label": "WRAM",
           "Base": "0x02000000",
           "Size": "0x40000"
-        },
-        {
-          "Label": "IRAM",
-          "Base": "0x03000000",
-          "Size": "0x8000"
-        },
-        {
-          "Label": "I/O Registers",
-          "Base": "0x04000000",
-          "Size": "0x400"
-        },
-        {
-          "Label": "PALETTE",
-          "Base": "0x05000000",
-          "Size": "0x400"
-        },
-        {
-          "Label": "VRAM",
-          "Base": "0x06000000",
-          "Size": "0x18000"
-        },
-        {
-          "Label": "OAM",
-          "Base": "0x07000000",
-          "Size": "0x400"
         },
         {
           "Label": "ROM",

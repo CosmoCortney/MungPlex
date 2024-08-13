@@ -55,6 +55,7 @@ As of version 2.3.0 the following emulators and systems are supported:
 - Dolphin (GameCube, Triforce, Wii, WiiWare)
 - Cemu (Wii U)
 - Yuzu (Switch) Experimental!
+<!-- - mGBA -->
 - melonDS (Nintendo DS)
 <!-- -Lime3DS -->
 - No$psx (PS1)

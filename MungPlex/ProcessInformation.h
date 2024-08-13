@@ -39,7 +39,7 @@ namespace MungPlex
 
         enum Emulators
         {
-            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, VBA, MELONDS, LIME3DS, NO$PSX, PCSX2, RPCS3, PPSSPP, FUSION
+            MESEN, PROJECT64, DOLPHIN, CEMU, YUZU, mGBA, MELONDS, LIME3DS, NO$PSX, PCSX2, RPCS3, PPSSPP, FUSION
         };
 
         enum Systems
@@ -213,7 +213,7 @@ namespace MungPlex
             { L"Dolphin", DOLPHIN },
             { L"Cemu", CEMU },
             { L"Yuzu", YUZU },
-            { L"VisualBoyAdvance", VBA },
+            { L"mGBA", mGBA },
             { L"melonDS", MELONDS },
             { L"Lime3DS", LIME3DS },
             { L"No$psx", NO$PSX },
@@ -233,7 +233,7 @@ namespace MungPlex
         {
             { NES, "NES" }, { SNES, "SNES" }, { N64, "Nintendo 64" }, { GAMECUBE, "GameCube" },
             { TRIFORCE, "Triforce" }, { WII, "Wii" }, { WIIU, "Wii U" }, { SWITCH, "Switch"}, 
-            { GB, "GameBoy" }, { GBC, "GameBoy Color" }, { NDS, "NDS" }, { N3DS, "3DS" }, 
+            { GB, "GameBoy" }, { GBC, "GameBoy Color" }, { GBA, "GameBoy Advance" }, { NDS, "NDS" }, {N3DS, "3DS"},
             { PS1, "PS1" }, { PS2, "PS2" }, { PS3 , "PS3" }, { PS4, "PS4" }, { PS5, "PS5", },
             { PSP, "PSP" }, { PSV, "PS Vita" }, 
             { SMS, "Master System" }, { GENESIS, "Mega Drive" }, { S32X, "32X" }, { SMCD, "Mega-CD" },
@@ -252,7 +252,7 @@ namespace MungPlex
         bool initProject64();
         bool initMesen();
         bool initCemu();
-        bool initVBA();
+        bool initMGBA();
         bool initMelonDS();
         bool initLime3DS();
         bool initPPSSPP();
