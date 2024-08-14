@@ -512,7 +512,7 @@ namespace MungPlex
             return true;
         }
 
-        template<typename T> void drawArrayValues(const int col, const uint16_t itemCount, const uint64_t index, char* buf, char* tempValue, const char* literal)
+        template<typename T> void drawArrayValues(const int col, const uint16_t itemCount, const uint64_t index, FloorString& buf, FloorString& tempValue, const char* literal)
         {
             //const int iterationIndex = MemoryCompare::MemCompare::GetSearchStats().second-1;
             T* value = nullptr;
@@ -526,38 +526,38 @@ namespace MungPlex
                     value = MemoryCompare::MemCompare::GetResults().GetSpecificPreviousValuePtrAllRanges<T>(index * itemCount);
                 else
                 {
-                    sprintf_s(buf, 1024, "");
+                    sprintf_s(buf.Data(), buf.Size(), "");
                     return;
                 }
             }
             else
             {
-                sprintf_s(buf, 1024,"");
+                sprintf_s(buf.Data(), buf.Size(),"");
                 return;
             }
 
             printTableArray<T>(buf, literal, itemCount, value);
 
             if(copyTempValue)
-                std::memcpy(tempValue, buf, 1024);
+                tempValue = buf;
         }
 
-        template<typename T> void printTableArray(char* buf, const char* literal, const uint32_t itemCount, const T* vals)
+        template<typename T> void printTableArray(FloorString& buf, const char* literal, const uint32_t itemCount, const T* vals)
         {
             if (vals == nullptr)
                 return; 
 
-            strcpy_s(buf, 1024,"");
+            buf = "";
             static FloorString temp("", 18);
 
             for (uint32_t i = 0; i < itemCount; ++i)
             {
                 sprintf(temp.Data(), literal, vals[i]);
                 if(_hex)
-                    strcat_s(buf, 1024, "0x");
-                strcat_s(buf, 1024, temp.Data());
+                    strcat_s(buf.Data(), buf.Size(), "0x");
+                strcat_s(buf.Data(), buf.Size(), temp.Data());
                 if(i < itemCount-1)
-                    strcat_s(buf, 1024, ", ");
+                    strcat_s(buf.Data(), buf.Size(), ", ");
             }
 
             //std::puts(buf);

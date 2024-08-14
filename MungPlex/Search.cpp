@@ -790,8 +790,8 @@ void MungPlex::Search::drawResultsTableNew()
 		}
 
 		static FloorString tempAddress("", 17);
-		static FloorString tempValue("", 256);
-		static FloorString buf("", 256);
+		static FloorString tempValue("", 1024);
+		static FloorString buf("", 1024);
 		static int addressTextWidth = ProcessInformation::GetAddressWidth() > 4 ? 16 : 8;
 		static uint64_t pageIndex;
 		pageIndex = (_currentPageValue - 1) * _maxResultsPerPage;
@@ -850,16 +850,16 @@ void MungPlex::Search::drawResultsTableNew()
 					switch (_currentArrayTypeSelect)
 					{
 					case INT8:
-						drawArrayValues<uint8_t>(col, itemCount, pageIndexWithRowCount, buf.Data(), tempValue.Data(), literal);
+						drawArrayValues<uint8_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
 						break;
 					case INT16:
-						drawArrayValues<uint16_t>(col, itemCount, pageIndexWithRowCount, buf.Data(), tempValue.Data(), literal);
+						drawArrayValues<uint16_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
 						break;
 					case INT32:
-						drawArrayValues<uint32_t>(col, itemCount, pageIndexWithRowCount, buf.Data(), tempValue.Data(), literal);
+						drawArrayValues<uint32_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
 						break;
 					case INT64:
-						drawArrayValues<uint64_t>(col, itemCount, pageIndexWithRowCount, buf.Data(), tempValue.Data(), literal);
+						drawArrayValues<uint64_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, literal);
 						break;
 						/*case FLOAT:
 							DrawArrayValues<float>(col, itemCount, resultsIndex, buf, tempValue, literal);
