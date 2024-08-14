@@ -1234,6 +1234,9 @@ bool MungPlex::ProcessInformation::initDolphin()
 		for (int i = posEnd; wTitleBuf[i] != '|'; --i)
 			posBeg = i;
 
+		if (posBeg < 0)
+			break;
+
 		const std::wstring wTitle = wTitleBuf.substr(posBeg + 1, posEnd - posBeg - 2);
 		_gameName = MT::Convert<std::wstring, std::string>(wTitle, MT::UTF16LE, MT::UTF8);
 		//std::cout << _gameName << std::endl;
