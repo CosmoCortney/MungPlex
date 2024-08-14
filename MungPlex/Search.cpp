@@ -383,6 +383,7 @@ void MungPlex::Search::drawSearchOptions()
 			_iterations.clear();
 			_iterationIndex = 0;
 			_searchActive = false;
+			_currentPageValue = 0;
 		}
 
 		if (iterationCount < 1) ImGui::EndDisabled();
@@ -776,7 +777,7 @@ void MungPlex::Search::drawResultsTableNew()
 		
 		if (_currentPageValue == _pagesAmountValue)
 		{
-			static uint32_t lastPageResultCount = resultCount % _maxResultsPerPage;
+			uint32_t lastPageResultCount = resultCount % _maxResultsPerPage;
 			if (lastPageResultCount == 0)
 				;
 			else if (row >= lastPageResultCount)
