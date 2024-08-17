@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include"Search.h"
 
 MungPlex::Search::Search()
@@ -794,8 +794,12 @@ void MungPlex::Search::drawResultsTableNew()
 		static FloorString tempValue("", 1024);
 		static FloorString buf("", 1024);
 		static int addressTextWidth = ProcessInformation::GetAddressWidth() > 4 ? 16 : 8;
-		static uint64_t pageIndex;
+		static int64_t pageIndex;
 		pageIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+
+		if (pageIndex < 0)
+			pageIndex = 0;
+
 		uint64_t pageIndexWithRowCount = pageIndex + row;
 		static uint64_t address;
 
