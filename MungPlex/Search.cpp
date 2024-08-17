@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include"Search.h"
 
 MungPlex::Search::Search()
@@ -61,7 +61,7 @@ void MungPlex::Search::DrawWindow()
 
 void MungPlex::Search::drawValueTypeOptions()
 {
-	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.19f };
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.16f };
 
 	ImGui::BeginChild("child_valueOptions", childXY, true);
 	{
@@ -72,71 +72,53 @@ void MungPlex::Search::drawValueTypeOptions()
 			ImGui::BeginGroup();
 			{
 				if (SetUpCombo("Value Type:", _searchValueTypes, _currentValueTypeSelect, 0.5f, 0.4f))
+				{
 					_updateLabels = true;
-
-				_disableBecauseNoPrimitive = _currentValueTypeSelect != PRIMITIVE;
-				_disableBecauseNoArray = _currentValueTypeSelect != ARRAY;
-				_disableBecauseNoColor = _currentValueTypeSelect != COLOR;
-				_disableBecauseNoText = _currentValueTypeSelect != TEXT;
-				_disableBecauseNoInt = (!_disableBecauseNoPrimitive && _currentPrimitiveTypeSelect > INT64)
-					|| (!_disableBecauseNoArray && _currentArrayTypeSelect > INT64)
-					|| !_disableBecauseNoColor
-					|| !_disableBecauseNoText;
+					_knownValueText = "";
+					_secondaryKnownValueText = "";
+				}
 
 				if (_currentValueTypeSelect == TEXT || _currentValueTypeSelect == COLOR)
 					_currentcomparisonTypeSelect = MemoryCompare::KNOWN;
 
-				ImGui::SameLine();
-
-				ImGui::Checkbox("Big Endian", &_underlyingBigEndian);
-
-				if (_disableBecauseNoPrimitive) ImGui::BeginDisabled();
+				switch (_currentValueTypeSelect)
 				{
-					if (SetUpCombo("Primitive Type:", _searchPrimitiveTypes, _currentPrimitiveTypeSelect, 0.5f, 0.4f))
-						setRecommendedValueSettings(PRIMITIVE);
-				}
-				if (_disableBecauseNoPrimitive) ImGui::EndDisabled();
-
-				ImGui::SameLine();
-
-				if (_disableBecauseNoInt) ImGui::BeginDisabled();
-					ImGui::Checkbox("Signed", &_signed);
-				if (_disableBecauseNoInt) ImGui::EndDisabled();
-
-				if (_disableBecauseNoArray) ImGui::BeginDisabled();
-				{
-					if (SetUpCombo("Array Type:", _searchArrayTypes, _currentArrayTypeSelect, 0.5f, 0.4f)) //use primitived types here once Arrays support floats
+				case ARRAY:
+					if (SetUpCombo("Array Type:", _searchArrayTypes, _currentArrayTypeSelect, 0.5f, 0.4f)) //use primitive types here once Arrays support floats
 						setRecommendedValueSettings(ARRAY);
-				}
-				if (_disableBecauseNoArray) ImGui::EndDisabled();
-
-				if (_disableBecauseNoText) ImGui::BeginDisabled();
+					break;
+				case COLOR:
 				{
+					if (SetUpCombo("Color Type:", _searchColorTypes, _currentColorTypeSelect, 0.5f, 0.4f))
+						setRecommendedValueSettings(COLOR);
+
+					if (_currentColorTypeSelect != LitColor::RGB5A3)
+						_forceAlpha = false;
+
+					ImGui::SameLine();
+
+					if (_currentColorTypeSelect != LitColor::RGB5A3) ImGui::BeginDisabled();
+					ImGui::Checkbox("Force Alpha", &_forceAlpha);
+					if (_currentColorTypeSelect != LitColor::RGB5A3) ImGui::EndDisabled();
+				}break;
+				case TEXT:
 					if (SetUpCombo("Text Type:", TextTypes, _currentTextTypeIndex, 0.5f, 0.4f))
 					{
 						_currentTextTypeSelect = TextTypes[_currentTextTypeIndex].second;
 						setRecommendedValueSettings(TEXT);
-					}
+					} 
+					break;
+				default: //PRIMITIVE
+					if (SetUpCombo("Primitive Type:", _searchPrimitiveTypes, _currentPrimitiveTypeSelect, 0.5f, 0.4f))
+						setRecommendedValueSettings(PRIMITIVE);
 				}
-				if (_disableBecauseNoText) ImGui::EndDisabled();
 
-				if (_disableBecauseNoColor) ImGui::BeginDisabled();
-				{
-					if (SetUpCombo("Color Type:", _searchColorTypes, _currentColorTypeSelect, 0.5f, 0.4f))
-					{
-						setRecommendedValueSettings(COLOR);
-
-						if (_currentColorTypeSelect != LitColor::RGB5A3)
-							_forceAlpha = false;
-					}
-				}
-				if (_disableBecauseNoColor) ImGui::EndDisabled();
+				ImGui::Checkbox("Big Endian", &_underlyingBigEndian);
 
 				ImGui::SameLine();
 
-				if (_disableBecauseNoColor || _currentColorTypeSelect != LitColor::RGB5A3) ImGui::BeginDisabled();
-					ImGui::Checkbox("Force Alpha", &_forceAlpha);
-				if (_disableBecauseNoColor || _currentColorTypeSelect != LitColor::RGB5A3) ImGui::EndDisabled();
+				if (_currentPrimitiveTypeSelect < FLOAT && _currentValueTypeSelect == PRIMITIVE)
+					ImGui::Checkbox("Signed", &_signed);
 			}
 			ImGui::EndGroup();
 		}
@@ -147,7 +129,7 @@ void MungPlex::Search::drawValueTypeOptions()
 
 void MungPlex::Search::drawRangeOptions()
 {
-	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.175f };
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.2f };
 
 	ImGui::BeginChild("child_rangeOptions", childXY, true);
 	{
@@ -205,7 +187,7 @@ void MungPlex::Search::drawRangeOptions()
 				ImGui::SameLine();
 				HelpMarker("Some emulators like Project64 reorder the emulatoed RAM in 4 byte chunks of the opposite endianness which requires re-reordering before scanning. The best option is auto-selected for you, but it might be helpful to set it manually if you encounter a reordered region or structure on another platform.");
 		
-				if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::BeginDisabled();
+				if (ProcessInformation::GetProcessType() == ProcessInformation::NATIVE)
 				{
 					static bool refresh = false;
 
@@ -221,9 +203,7 @@ void MungPlex::Search::drawRangeOptions()
 
 					ImGui::SameLine();
 					HelpMarker("If Write AND Exec. are unchecked, only read-only ranges are considered. Otherwise readable ranges are always considered.");
-
 				}
-				if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::EndDisabled();
 			}
 			ImGui::EndGroup();
 		}
@@ -232,9 +212,179 @@ void MungPlex::Search::drawRangeOptions()
 	ImGui::EndChild();
 }
 
+void MungPlex::Search::drawPrimitiveSearchOptions()
+{
+	static std::string knownPrimaryValueLabel;
+	static std::string knownSecondaryValueLabel;
+	static bool disablePrimaryValueText = false;
+	static bool disableSecondaryValueText = true;
+
+	if (_updateLabels)
+	{
+		switch (_currentConditionTypeSelect)
+		{
+			case MemoryCompare::BETWEEN:
+			{
+				knownPrimaryValueLabel = "Lowest:";
+				knownSecondaryValueLabel = "Highest:";
+				disableSecondaryValueText = false;
+			} break;
+			case MemoryCompare::NOT_BETWEEN:
+			{
+				knownPrimaryValueLabel = "Below:";
+				knownSecondaryValueLabel = "Above:";
+				disableSecondaryValueText = false;
+			} break;
+			case MemoryCompare::INCREASED_BY:
+			{
+				knownPrimaryValueLabel = "Increased by:";
+				knownSecondaryValueLabel = "Not applicable";
+				disableSecondaryValueText = true;
+			} break;
+			case MemoryCompare::DECREASED_BY:
+			{
+				knownPrimaryValueLabel = "Decreased by:";
+				knownSecondaryValueLabel = "Not applicable";
+				disableSecondaryValueText = true;
+			} break;
+			default:
+			{
+				knownPrimaryValueLabel = "Value:";
+				knownSecondaryValueLabel = "Not applicable";
+				disableSecondaryValueText = true;
+			}
+		}
+		_updateLabels = false;
+	}
+
+	if (MungPlex::SetUpCombo("Comparison Type:", _searchComparasionType, _currentcomparisonTypeSelect, 0.5f, 0.4f))
+		_updateLabels = true;
+
+	const std::vector<std::pair<std::string, int>>* conditionTypeItems;
+
+	if (_currentPrimitiveTypeSelect < FLOAT)
+		conditionTypeItems = &_searchConditionTypes;
+	else
+		conditionTypeItems = &_searchConditionTypesFloat;
+
+	if (SetUpCombo("Condition Type:", *conditionTypeItems, _currentConditionTypeSelect, 0.5f, 0.4f))
+		_updateLabels = true;
+
+	if (!_diableBecauseUnknownAndNotRangebased)
+		SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 0.5f, 0.4f);
+
+	if (_currentConditionTypeSelect >= MemoryCompare::BETWEEN && _currentConditionTypeSelect <= MemoryCompare::NOT_BETWEEN)
+		SetUpInputText(knownSecondaryValueLabel, _secondaryKnownValueText.Data(), _secondaryKnownValueText.Size(), 0.5f, 0.4f);
+
+	if (_currentPrimitiveTypeSelect >= FLOAT)
+		SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 0.5f, 0.4f);
+}
+
+void MungPlex::Search::drawArraySearchOptions()
+{
+	static std::string knownPrimaryValueLabel = "Array Expression:";
+	static bool disablePrimaryValueText = false;
+
+	ImGui::BeginGroup();
+	
+	if (SetUpCombo("Condition Type:", _searchConditionTypesArray, _currentConditionTypeSelect, 0.5f, 0.4f))
+		_updateLabels = true;
+
+	SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 0.5f, 0.4f);
+
+	//keep just in case float arrays will ever happen
+	//if (_disableBecauseNoInt)
+	//SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 0.5f, 0.4f);
+	//if (_disableBecauseNoInt) ImGui::EndDisabled();
+	ImGui::EndGroup();
+}
+
+void MungPlex::Search::drawColorSearchOptions()
+{
+	static std::string knownPrimaryValueLabel = "Color Expression:";
+
+	ImGui::BeginGroup();
+	{
+		MungPlex::SetUpCombo("Comparison Type:", _searchComparasionType, _currentcomparisonTypeSelect, 0.5f, 0.4f);
+
+		if (SetUpCombo("Condition Type:", _searchConditionTypesText, _currentConditionTypeSelect, 0.5f, 0.4f))
+			_updateLabels = true;
+
+		if (!_diableBecauseUnknownAndNotRangebased)
+			SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 0.5f, 0.4f);
+
+		SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 0.5f, 0.4f);
+
+		ImGui::Checkbox("Color Wheel", &_useColorWheel);
+		ImGui::SameLine();
+
+		if (ImGui::Button("Pick color from screen"))
+		{
+			//HWND windowHandle = GetForegroundWindow(); todo: make this work ): 
+			_colorVec = PickColorFromScreen();
+			//MungPlex::SetWindowToForeground(windowHandle);
+		}
+	}
+	ImGui::EndGroup();
+
+	ImGui::SameLine();
+
+	ImGui::BeginGroup();
+	{
+		int colorPickerFlags = ImGuiColorEditFlags_NoOptions;
+		colorPickerFlags |= _useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar;
+
+		switch (_currentColorTypeSelect)
+		{
+			case LitColor::RGBA8888:
+				colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
+				break;
+			case LitColor::RGBF:
+				colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoAlpha;
+				break;
+			case LitColor::RGBAF:
+				colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
+				break;
+			default: //RGB888, RGB565, RGB5A3
+				if(_forceAlpha)
+					colorPickerFlags |= ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
+				else
+					colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
+		}
+		const ImVec2 childXY = ImGui::GetContentRegionAvail();
+		ImGui::PushItemWidth(childXY.x * 0.5f);
+		ImGui::ColorPicker4("##ColorPicker", (float*)&_colorVec, colorPickerFlags);
+		ImGui::PopItemWidth();
+
+		if (_currentValueTypeSelect == COLOR)
+			ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText.Data(), _forceAlpha);
+	}
+	ImGui::EndGroup();
+}
+
+
+void MungPlex::Search::drawTextSearchOptions()
+{
+	static std::string knownPrimaryValueLabel = "Text Value:";
+	static bool disablePrimaryValueText = false;
+	int iterationCount = MemoryCompare::MemCompare::GetIterationCount();
+
+	_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
+
+	ImGui::BeginGroup();
+	{
+		if (_diableBecauseUnknownAndNotRangebased) ImGui::BeginDisabled();
+			SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 0.5f, 0.4f);
+		if (_diableBecauseUnknownAndNotRangebased) ImGui::EndDisabled();
+
+		ImGui::Checkbox("Case Sensitive", &_caseSensitive);
+	}
+	ImGui::EndGroup();
+}
+
 void MungPlex::Search::drawSearchOptions()
 {
-	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.334f };
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.331f };
 
 	ImGui::BeginChild("child_searchOptions", childXY, true);
 	{
@@ -247,126 +397,45 @@ void MungPlex::Search::drawSearchOptions()
 
 		_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
 
-		if (_updateLabels)
-		{
-			switch (_currentValueTypeSelect)
-			{
-			case ARRAY:
-				knownPrimaryValueLabel = "Array Expression:";
-				knownSecondaryValueLabel = "Not applicable";
-				break;
-			case COLOR:
-				knownPrimaryValueLabel, "Color Expression:";
-				knownSecondaryValueLabel, "Not applicable";
-				break;
-			case TEXT:
-				knownPrimaryValueLabel = "Text Value:";
-				knownSecondaryValueLabel = "Not applicable";
-				break;
-			default: //PRIMITIVE
-				if (_currentConditionTypeSelect == MemoryCompare::BETWEEN)
-				{
-					knownPrimaryValueLabel = "Lowest:";
-					knownSecondaryValueLabel = "Highest:";
-					disableSecondaryValueText = false;
-				}
-				else if (_currentConditionTypeSelect == MemoryCompare::NOT_BETWEEN)
-				{
-					knownPrimaryValueLabel = "Below:";
-					knownSecondaryValueLabel = "Above:";
-					disableSecondaryValueText = false;
-				}
-				else if (_currentConditionTypeSelect == MemoryCompare::INCREASED_BY)
-				{
-					knownPrimaryValueLabel = "Increased by:";
-					knownSecondaryValueLabel = "Not applicable";
-				}
-				else if (_currentConditionTypeSelect == MemoryCompare::DECREASED_BY)
-				{
-					knownPrimaryValueLabel = "Decreased by:";
-					knownSecondaryValueLabel = "Not applicable";
-				}
-				else
-				{
-					knownPrimaryValueLabel = "Value:";
-					knownSecondaryValueLabel = "Not applicable";
-				}
-			}
-			_updateLabels = false;
-		}
-
 		ImGui::BeginGroup();
 
 		if (!iterationCount) ImGui::BeginDisabled();
 			SetUpCombo("Counter Iteration:", _iterations, _iterationIndex, 0.5f, 0.4f);
 		if (!iterationCount) ImGui::EndDisabled();
-		
-		if(SetUpInputInt("Alignment:", &_alignmentValue, 1, 1, 0.5f, 0.4f, 0, true, "This value specifies the increment of the next address to be scanned. 1 means that the following value to be scanned is the at the current address + 1. Here are some recommendations for each value type: Int8/Text/Color/Array<Int8> - 1, Int16/Color/Array<Int16> - 2, Int32/Int64/Float/Double/Color/Array<Int32>/Array<Int64> - 4. Systems that use less than 4MBs of RAM (PS1, SNES, MegaDrive, ...) should always consider an alignment of 1, despite the value recommendations."))
+
+		ImGui::SameLine();
+
+		if (SetUpInputInt("Alignment:", &_alignmentValue, 1, 1, 1.0f, 0.4f, 0, true, "This value specifies the increment of the next address to be scanned. 1 means that the following value to be scanned is the at the current address + 1. Here are some recommendations for each value type: Int8/Text/Color/Array<Int8> - 1, Int16/Color/Array<Int16> - 2, Int32/Int64/Float/Double/Color/Array<Int32>/Array<Int64> - 4. Systems that use less than 4MBs of RAM (PS1, SNES, MegaDrive, ...) should always consider an alignment of 1, despite the value recommendations."))
 		{
 			if (_alignmentValue < 1)
 				_alignmentValue = 1;
 		}
 
-		if(!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::BeginDisabled();
-		{
-			if (MungPlex::SetUpCombo("comparison Type:", _searchComparasionType, _currentcomparisonTypeSelect, 0.5f, 0.4f))
-				_updateLabels = true;
-		}
-		if (!_disableBecauseNoText || !_disableBecauseNoColor) ImGui::EndDisabled();
-
-		const std::vector<std::pair<std::string, int>>* conditionTypeItems;
-
 		switch (_currentValueTypeSelect)
 		{
 		case ARRAY:
-			conditionTypeItems = &_searchConditionTypesArray;
-		break;
+			drawArraySearchOptions();
+			break;
 		case COLOR:
-			conditionTypeItems = &_searchConditionTypesColor;
-		break;
+			drawColorSearchOptions();
+			break;
 		case TEXT:
-			conditionTypeItems = &_searchConditionTypesText;
-		break;
+			drawTextSearchOptions();
+			break;
 		default: //PRIMITIVE
-			if (_currentPrimitiveTypeSelect < FLOAT)
-				conditionTypeItems = &_searchConditionTypes;
-			else
-				conditionTypeItems = &_searchConditionTypesFloat;
+			drawPrimitiveSearchOptions();
 		}
 
-		if (!_disableBecauseNoText) ImGui::BeginDisabled();
-		{
-			if (SetUpCombo("Condition Type:", *conditionTypeItems, _currentConditionTypeSelect, 0.5f, 0.4f))
-				_updateLabels = true;
-		}
-		if (!_disableBecauseNoText) ImGui::EndDisabled();
-
-		if (_diableBecauseUnknownAndNotRangebased) ImGui::BeginDisabled();
-			SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 0.5f, 0.4f);
-		if (_diableBecauseUnknownAndNotRangebased) ImGui::EndDisabled();
-
-		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < MemoryCompare::BETWEEN || _currentConditionTypeSelect > MemoryCompare::NOT_BETWEEN))) ImGui::BeginDisabled();
-			SetUpInputText(knownSecondaryValueLabel, _secondaryKnownValueText.Data(), _secondaryKnownValueText.Size(), 0.5f, 0.4f);
-		if (_disableBecauseNoPrimitive || (!_disableBecauseNoPrimitive && (_currentConditionTypeSelect < MemoryCompare::BETWEEN || _currentConditionTypeSelect > MemoryCompare::NOT_BETWEEN))) ImGui::EndDisabled();
-
-		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::BeginDisabled();
-			SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 0.5f, 0.4f);
-		if (!_disableBecauseNoInt || !_disableBecauseNoText) ImGui::EndDisabled();
 		
 		if (iterationCount) ImGui::BeginDisabled();
-			ImGui::Checkbox("Cached", &GetInstance()._cached);
+		ImGui::Checkbox("Cached", &GetInstance()._cached);
 		if (iterationCount) ImGui::EndDisabled();
 
 		ImGui::SameLine();
+
 		ImGui::Checkbox("Values are hex", &GetInstance()._hex);
+
 		ImGui::SameLine();
-
-		_disableBecauseNoText = _currentValueTypeSelect != TEXT;
-
-		if (_disableBecauseNoText) ImGui::BeginDisabled();
-			ImGui::Checkbox("Case Sensitive", &_caseSensitive);
-		if (_disableBecauseNoText) ImGui::EndDisabled();
-		
 
 		if (ImGui::Button("Search"))
 		{
@@ -388,57 +457,6 @@ void MungPlex::Search::drawSearchOptions()
 
 		if (iterationCount < 1) ImGui::EndDisabled();
 
-		ImGui::EndGroup();
-
-		ImGui::SameLine();
-
-		ImGui::BeginGroup();
-		{
-			if (_disableBecauseNoColor)
-				ImGui::BeginDisabled();
-			
-			int colorPickerFlags = ImGuiColorEditFlags_NoOptions;
-			colorPickerFlags |= _useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar;
-
-			switch (_currentColorTypeSelect)
-			{
-			case LitColor::RGBA8888:
-				colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
-				break;
-			case LitColor::RGBF:
-				colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoAlpha;
-				break;
-			case LitColor::RGBAF:
-				colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
-				break;
-			default: //RGB888, RGB565, RGB5A3
-				if(_forceAlpha)
-					colorPickerFlags |= ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
-				else
-					colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
-			}
-
-			ImGui::PushItemWidth(childXY.x * 0.275f);
-			ImGui::ColorPicker4("##ColorPicker", (float*)&_colorVec, colorPickerFlags);
-			ImGui::PopItemWidth();
-
-			if (!_disableBecauseNoColor)
-				ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText.Data(), _forceAlpha);
-
-
-			ImGui::Checkbox("Color Wheel", &_useColorWheel);
-			ImGui::SameLine();
-
-			if (ImGui::Button("Pick color from screen"))
-			{
-				//HWND windowHandle = GetForegroundWindow(); todo: make this work ): 
-				_colorVec = PickColorFromScreen();
-				//MungPlex::SetWindowToForeground(windowHandle);
-			}
-
-			if (_disableBecauseNoColor)
-				ImGui::EndDisabled();
-		}
 		ImGui::EndGroup();
 	}
 	ImGui::EndChild();
@@ -488,17 +506,14 @@ void MungPlex::Search::drawResultsArea()
 				}
 				ImGui::EndGroup();
 
-				if (!_disableBecauseNoText) ImGui::BeginDisabled();
+				if (_currentValueTypeSelect != TEXT)
 				{
+
 					ImGui::Checkbox("Previous Value", &_pokePrevious);
+					ImGui::SameLine();
+					HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous values - no matter what's in the \"Value\" text field. If this is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
+					ImGui::SameLine();
 				}
-				if (!_disableBecauseNoText) ImGui::EndDisabled();
-
-				ImGui::SameLine();
-
-				HelpMarker("If \"Multi-Poke\" is checked this will enable poking previous values - no matter what's in the \"Value\" text field. If this is unchecked the expression inside \"Value\" will be written to all selected result addresses.");
-
-				ImGui::SameLine();
 
 				ImGui::Checkbox("Multi-Poke", &_multiPoke);
 
@@ -628,7 +643,6 @@ void MungPlex::Search::drawResultsArea()
 			if (MemoryCompare::MemCompare::GetIterationCount() > 0) ImGui::EndDisabled();
 		}
 		ImGui::EndGroup();
-
 	}
 	ImGui::EndChild();
 }
@@ -778,6 +792,7 @@ void MungPlex::Search::drawResultsTableNew()
 		if (_currentPageValue == _pagesAmountValue)
 		{
 			uint32_t lastPageResultCount = resultCount % _maxResultsPerPage;
+
 			if (lastPageResultCount == 0)
 				;
 			else if (row >= lastPageResultCount)
@@ -848,7 +863,6 @@ void MungPlex::Search::drawResultsTableNew()
 						itemCount >>= 3;
 						break;
 					}
-
 
 					//uint64_t resultIndexWithItemCount = resultsIndex * itemCount;
 

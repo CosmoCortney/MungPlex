@@ -60,7 +60,7 @@ void MungPlex::Connection::drawConnectionSelect()
 				}
 			}
 
-			if (_selectedEmulatorIndex == ProcessInformation::MESEN || _selectedEmulatorIndex == ProcessInformation::RPCS3 || _selectedEmulatorIndex == ProcessInformation::YUZU)
+			if (_selectedEmulatorIndex == ProcessInformation::MESEN || ProcessInformation::LIME3DS || _selectedEmulatorIndex == ProcessInformation::RPCS3 || _selectedEmulatorIndex == ProcessInformation::YUZU)
 			{
 				ImGui::SameLine();
 				ImGui::Text("Important:");
@@ -77,6 +77,9 @@ void MungPlex::Connection::drawConnectionSelect()
 				case ProcessInformation::YUZU:
 					HelpMarker("Experimental, base adresses are not yet figured out.");
 					break;
+				case ProcessInformation::LIME3DS:
+					HelpMarker("A special version of Lime3DS is required. You can download it from https://github.com/CosmoCortney/Lime3DS-for-MungPlex");
+					break; 
 				}
 			}
 

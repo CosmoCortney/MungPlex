@@ -188,12 +188,8 @@ namespace MungPlex
         bool _cached = false;
         float _precision = 100.0f;
         bool _diableBecauseUnknownAndNotRangebased = false;
-        bool _disableBecauseNoPrimitive = false;
-        bool _disableBecauseNoInt = false;
         bool _disableBecauseNoText = false;
-        bool _disableBecauseNoColor = false;
         bool _caseSensitive = true;
-        bool _disableBecauseNoArray = false;
         int _currentValueTypeSelect = 0;
         int _currentPrimitiveTypeSelect = 0;
         int _currentArrayTypeSelect = 0;
@@ -246,6 +242,10 @@ namespace MungPlex
         void drawValueTypeOptions();
         void drawRangeOptions();
         void drawSearchOptions();
+        void drawPrimitiveSearchOptions();
+        void drawArraySearchOptions();
+        void drawColorSearchOptions();
+        void drawTextSearchOptions();
         void drawResultsArea();
         void performSearch();
         void primitiveTypeSearchLog();
