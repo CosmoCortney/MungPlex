@@ -405,11 +405,13 @@ void MungPlex::Search::drawSearchOptions()
 
 		ImGui::SameLine();
 
-		if (SetUpInputInt("Alignment:", &_alignmentValue, 1, 1, 1.0f, 0.4f, 0, true, "This value specifies the increment of the next address to be scanned. 1 means that the following value to be scanned is the at the current address + 1. Here are some recommendations for each value type: Int8/Text/Color/Array<Int8> - 1, Int16/Color/Array<Int16> - 2, Int32/Int64/Float/Double/Color/Array<Int32>/Array<Int64> - 4. Systems that use less than 4MBs of RAM (PS1, SNES, MegaDrive, ...) should always consider an alignment of 1, despite the value recommendations."))
-		{
-			if (_alignmentValue < 1)
-				_alignmentValue = 1;
-		}
+		if (iterationCount) ImGui::BeginDisabled();
+			if (SetUpInputInt("Alignment:", &_alignmentValue, 1, 1, 1.0f, 0.4f, 0, true, "This value specifies the increment of the next address to be scanned. 1 means that the following value to be scanned is the at the current address + 1. Here are some recommendations for each value type: Int8/Text/Color/Array<Int8> - 1, Int16/Color/Array<Int16> - 2, Int32/Int64/Float/Double/Color/Array<Int32>/Array<Int64> - 4. Systems that use less than 4MBs of RAM (PS1, SNES, MegaDrive, ...) should always consider an alignment of 1, despite the value recommendations."))
+			{
+				if (_alignmentValue < 1)
+					_alignmentValue = 1;
+			}
+		if (iterationCount) ImGui::EndDisabled();
 
 		switch (_currentValueTypeSelect)
 		{

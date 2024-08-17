@@ -60,7 +60,7 @@ void MungPlex::Connection::drawConnectionSelect()
 				}
 			}
 
-			if (_selectedEmulatorIndex == ProcessInformation::MESEN || ProcessInformation::LIME3DS || _selectedEmulatorIndex == ProcessInformation::RPCS3 || _selectedEmulatorIndex == ProcessInformation::YUZU)
+			if (_selectedEmulatorIndex == ProcessInformation::MESEN || _selectedEmulatorIndex == ProcessInformation::LIME3DS || _selectedEmulatorIndex == ProcessInformation::RPCS3 || _selectedEmulatorIndex == ProcessInformation::YUZU)
 			{
 				ImGui::SameLine();
 				ImGui::Text("Important:");
