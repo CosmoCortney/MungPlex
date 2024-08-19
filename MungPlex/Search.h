@@ -92,6 +92,12 @@ namespace MungPlex
             { "Color", COLOR }
         };
 
+        const std::vector<std::pair<std::string, int>> _endiannesses
+        {
+            { "Little", LITTLE },
+            { "Big", BIG }
+        };
+
         const std::vector<std::pair<std::string, int>> _searchPrimitiveTypes
         { 
             { "Int 8 (1 Byte)", INT8 },
@@ -218,6 +224,7 @@ namespace MungPlex
         uint64_t _rangeEndValue = 0;
         bool _crossRegion = false;
         bool _rereorderRegion = false;
+        int _endiannessSelect = 0;
 
         //results
         uint32_t _pagesAmountValue = 0;
@@ -233,7 +240,6 @@ namespace MungPlex
         uint64_t _pokeAddress = 0;
         FloorString  _pokeAddressText = FloorString("", 17);
         std::tuple<uint64_t, int> _searchStats;
-        bool _underlyingBigEndian = false;
         bool _deselectedIllegalSelection = false;
         std::vector<MemoryCompare::MemDump> _currentMemoryDumps{};
         bool _scanAllRegions = false;
@@ -437,7 +443,7 @@ namespace MungPlex
             if (_multiPoke)
             {
                 int regionIndex = -1;
-                bool swapBytes = _underlyingBigEndian;
+                bool swapBytes = _endiannessSelect;
                 const uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
@@ -484,7 +490,7 @@ namespace MungPlex
 
             if (_multiPoke)
             {
-                bool swapBytes = _underlyingBigEndian;
+                bool swapBytes = _endiannessSelect;
                 const uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)

@@ -61,7 +61,7 @@ void MungPlex::Search::DrawWindow()
 
 void MungPlex::Search::drawValueTypeOptions()
 {
-	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.16f };
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.145f };
 
 	ImGui::BeginChild("child_valueOptions", childXY, true);
 	{
@@ -113,7 +113,7 @@ void MungPlex::Search::drawValueTypeOptions()
 						setRecommendedValueSettings(PRIMITIVE);
 				}
 
-				ImGui::Checkbox("Big Endian", &_underlyingBigEndian);
+
 
 				ImGui::SameLine();
 
@@ -129,7 +129,7 @@ void MungPlex::Search::drawValueTypeOptions()
 
 void MungPlex::Search::drawRangeOptions()
 {
-	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.2f };
+	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y * 0.215f };
 
 	ImGui::BeginChild("child_rangeOptions", childXY, true);
 	{
@@ -137,75 +137,74 @@ void MungPlex::Search::drawRangeOptions()
 
 		if (_searchActive) ImGui::BeginDisabled();
 		{
-			ImGui::BeginGroup();
-			{
-				static std::stringstream stream;
-				_regions = ProcessInformation::GetSystemRegionList();
-				_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.5f, 0.4f);
-
-				if(_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText.Data(), _rangeStartText.Size(), 0.5f, 0.4f))
-				{
-					stream << _rangeStartText.StdStr();
-					stream >> std::hex >> _rangeStartValue;
-					stream.str(std::string());
-				}
-
-				if(_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText.Data(), _rangeEndText.Size(), 0.5f, 0.4f))
-				{
-					stream << _rangeEndText.StdStr();
-					stream >> std::hex >> _rangeEndValue;
-					stream.str(std::string());
-				}
-			}
-			ImGui::EndGroup();
+			static std::stringstream stream;
+			_regions = ProcessInformation::GetSystemRegionList();
+			_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.5f, 0.4f);
 
 			ImGui::SameLine();
 
-			ImGui::BeginGroup();
+			SetUpCombo("Endianness:", _endiannesses, _endiannessSelect, 1.0f, 0.4f);
+
+			if(_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText.Data(), _rangeStartText.Size(), 0.5f, 0.4f))
 			{
-				if (ImGui::Checkbox("Cross-Region", &_crossRegion))
-				{
-					std::string hexStartStr;
-					std::string hexEndStr;
-
-					if (_crossRegion)
-					{
-						hexStartStr = ToHexString(_regions.front().Base, 0);
-						hexEndStr = ToHexString(_regions.back().Base + _regions.back().Size - 1, 0);
-					}
-					else
-					{
-						hexStartStr = ToHexString(_regions[_currentRegionSelect].Base, 0);
-						hexEndStr = ToHexString(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1, 0);
-					}
-
-					_rangeStartText = hexStartStr;
-					_rangeEndText = hexEndStr;
-				}
-
-				ImGui::Checkbox("Re-reorder Region", &_rereorderRegion);
-				ImGui::SameLine();
-				HelpMarker("Some emulators like Project64 reorder the emulatoed RAM in 4 byte chunks of the opposite endianness which requires re-reordering before scanning. The best option is auto-selected for you, but it might be helpful to set it manually if you encounter a reordered region or structure on another platform.");
-		
-				if (ProcessInformation::GetProcessType() == ProcessInformation::NATIVE)
-				{
-					static bool refresh = false;
-
-					if (ImGui::Checkbox("Write", ProcessInformation::GetRangeFlagWrite()))
-						refresh = true;
-
-					ImGui::SameLine();
-					if (ImGui::Checkbox("Exec.", ProcessInformation::GetRangeFlagExecute()))
-						refresh = true;
-
-					if(refresh)
-						ProcessInformation::RefreshRegionlistPC();
-
-					ImGui::SameLine();
-					HelpMarker("If Write AND Exec. are unchecked, only read-only ranges are considered. Otherwise readable ranges are always considered.");
-				}
+				stream << _rangeStartText.StdStr();
+				stream >> std::hex >> _rangeStartValue;
+				stream.str(std::string());
 			}
-			ImGui::EndGroup();
+
+			ImGui::SameLine();
+
+			if(_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText.Data(), _rangeEndText.Size(), 1.0f, 0.4f))
+			{
+				stream << _rangeEndText.StdStr();
+				stream >> std::hex >> _rangeEndValue;
+				stream.str(std::string());
+			}
+
+			if (ImGui::Checkbox("Cross-Region", &_crossRegion))
+			{
+				std::string hexStartStr;
+				std::string hexEndStr;
+
+				if (_crossRegion)
+				{
+					hexStartStr = ToHexString(_regions.front().Base, 0);
+					hexEndStr = ToHexString(_regions.back().Base + _regions.back().Size - 1, 0);
+				}
+				else
+				{
+					hexStartStr = ToHexString(_regions[_currentRegionSelect].Base, 0);
+					hexEndStr = ToHexString(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1, 0);
+				}
+
+				_rangeStartText = hexStartStr;
+				_rangeEndText = hexEndStr;
+			}
+
+			ImGui::SameLine();
+			ImGui::Checkbox("Re-reorder Region", &_rereorderRegion);
+			ImGui::SameLine();
+			HelpMarker("Some emulators like Project64 reorder the emulatoed RAM in 4 byte chunks of the opposite endianness which requires re-reordering before scanning. The best option is auto-selected for you, but it might be helpful to set it manually if you encounter a reordered region or structure on another platform.");
+		
+			if (ProcessInformation::GetProcessType() == ProcessInformation::NATIVE)
+			{
+				static bool refresh = false;
+				ImGui::SameLine();
+
+				if (ImGui::Checkbox("Write", ProcessInformation::GetRangeFlagWrite()))
+					refresh = true;
+
+				ImGui::SameLine();
+
+				if (ImGui::Checkbox("Exec.", ProcessInformation::GetRangeFlagExecute()))
+					refresh = true;
+
+				if(refresh)
+					ProcessInformation::RefreshRegionlistPC();
+
+				ImGui::SameLine();
+				HelpMarker("If Write AND Exec. are unchecked, only read-only ranges are considered. Otherwise readable ranges are always considered.");
+			}
 		}
 		if (_searchActive) ImGui::EndDisabled();
 	}
@@ -1354,7 +1353,7 @@ void MungPlex::Search::setUpAndIterate()
 		if (_caseSensitive)
 			setupFlags |= MemoryCompare::CASE_SENSITIVE;
 
-		if (_underlyingBigEndian)
+		if (_endiannessSelect)
 			setupFlags |= MemoryCompare::BIG_ENDIAN;
 
 		if (_cached)
@@ -1391,7 +1390,7 @@ void MungPlex::Search::setUpAndIterate()
 
 void MungPlex::Search::SetUnderlyingBigEndianFlag(const bool isBigEndian)
 {
-	GetInstance()._underlyingBigEndian = isBigEndian;
+	GetInstance()._endiannessSelect = isBigEndian;
 }
 
 void MungPlex::Search::SetRereorderRegion(const bool rereorder)
