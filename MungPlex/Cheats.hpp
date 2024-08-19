@@ -1,6 +1,6 @@
 #pragma once
 #define SOL_ALL_SAFETIES_ON 1
-#include "Connection.h"
+#include "Connection.hpp"
 #include "sol/sol.hpp"
 
 namespace MungPlex

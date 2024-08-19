@@ -1,10 +1,10 @@
-#include "ProcessInformation.h"
-#include "Cheats.h"
-#include "Log.h"
+#include "ProcessInformation.hpp"
+#include "Cheats.hpp"
+#include "Log.hpp"
 #include <boost/iostreams/device/mapped_file.hpp>
-#include "PointerSearch.h"
-#include "Search.h"
-#include "WatchControl.h"
+#include "PointerSearch.hpp"
+#include "Search.hpp"
+#include "WatchControl.hpp"
 #include <Windows.h>
 
 void MungPlex::ProcessInformation::DrawWindow()

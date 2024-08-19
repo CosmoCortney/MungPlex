@@ -7,14 +7,14 @@
 #include "imgui_internal.h"
 #include "GLFW/glfw3.h"
 #include <iostream>
-#include "MungPlexConfig.h"
+#include "MungPlexConfig.hpp"
 #include "nlohmann/json.hpp"
 #include <stdio.h>
 #include <string>
 #include <utility>
 #include <variant>
 #include <vector>
-#include "Xertz.h"
+#include "Xertz.hpp"
 
 namespace MungPlex
 {

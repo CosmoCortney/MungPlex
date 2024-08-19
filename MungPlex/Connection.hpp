@@ -2,7 +2,7 @@
 #include <boost/asio.hpp>
 #include "discord-game-sdk/discord_game_sdk.h"
 #include "discord-game-sdk/discord.h"
-#include "MemoryViewer.h"
+#include "MemoryViewer.hpp"
 
 namespace MungPlex
 {

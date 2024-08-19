@@ -2,7 +2,7 @@
 #include <boost/asio.hpp>
 #include <boost/process.hpp>
 #include <memory>
-#include "ProcessInformation.h"
+#include "ProcessInformation.hpp"
 #include <string>
 
 namespace MungPlex

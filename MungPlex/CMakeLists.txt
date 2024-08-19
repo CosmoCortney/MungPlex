@@ -12,35 +12,35 @@ find_library(CPP_GAME_SDK discord_game_sdk_cpp)
 find_library(DISCORD_GAME_SDK_LIB discord_game_sdk)
 find_library(DISCORD_GAME_SDK_CPP_LIB discord_game_sdk_cpp)
 
-# Generate MungPlexConfig.h using MungPlexConfig.h.in
-configure_file(MungPlexConfig.h.in ${CMAKE_BINARY_DIR}/MungPlexConfig.h @ONLY)
+# Generate MungPlexConfig.hpp using MungPlexConfig.hpp.in
+configure_file(MungPlexConfig.hpp.in ${CMAKE_BINARY_DIR}/MungPlexConfig.hpp @ONLY)
 
 # Add the main executable target
 add_executable (MungPlex
     main.cpp
-    Settings.h
+    Settings.hpp
     Settings.cpp
     Connection.cpp
-    Connection.h
+    Connection.hpp
     ProcessInformation.cpp
-    ProcessInformation.h
-    Search.h
+    ProcessInformation.hpp
+    Search.hpp
     Search.cpp
-    Log.h
+    Log.hpp
     Log.cpp
-    PointerSearch.h
+    PointerSearch.hpp
     PointerSearch.cpp
-    HelperFunctions.h
-    Cheats.h
+    HelperFunctions.hpp
+    Cheats.hpp
     Cheats.cpp
-    MemoryViewer.h
+    MemoryViewer.hpp
     MemoryViewer.cpp
-    DataConversion.h
+    DataConversion.hpp
     DataConversion.cpp
-    CheatConvert.h
+    CheatConvert.hpp
     CheatConvert.cpp
     WatchControl.cpp
-    WatchControl.h
+    WatchControl.hpp
     resources.rc
     ../include/imgui/imgui.cpp
     ../include/imgui/imgui_demo.cpp
@@ -49,24 +49,24 @@ add_executable (MungPlex
     ../include/imgui/imgui_widgets.cpp
     ../include/imgui/backends/imgui_impl_opengl3.cpp
     ../include/imgui/backends/imgui_impl_glfw.cpp
-    ../include/MemoryCompare/MemCompareOperations.h
-    ../include/MemoryCompare/MemCompareResult.h
-    ../include/MemoryCompare/MemCompareResult.cpp
-    ../include/MemoryCompare/MemCompare.h
-    ../include/MemoryCompare/MemCompare.cpp
-    ../include/MemoryCompare/MemDump.h
-    ../include/MemoryCompare/MemDump.cpp
-    ../include/MemoryCompare/include/LitColor/LitColor/LitColor.h
-    ../include/MemoryCompare/include/MorphText/MorphText/Lookup.h
-    ../include/MemoryCompare/include/MorphText/MorphText/MorphText.h
+    ../include/MemoryCompare/MemoryCompareOperators.hpp
+    ../include/MemoryCompare/MemoryCompareResult.hpp
+    ../include/MemoryCompare/MemoryCompareResult.cpp
+    ../include/MemoryCompare/MemoryCompare.hpp
+    ../include/MemoryCompare/MemoryCompare.cpp
+    ../include/MemoryCompare/MemoryDump.hpp
+    ../include/MemoryCompare/MemoryDump.cpp
+    ../include/MemoryCompare/include/LitColor/LitColor/LitColor.hpp
+    ../include/MemoryCompare/include/MorphText/MorphText/Lookup.hpp
+    ../include/MemoryCompare/include/MorphText/MorphText/MorphText.hpp
     ../include/MemoryCompare/include/MorphText/MorphText/MorphText.cpp
-    ../include/MemoryCompare/include/OperativeArray/OperativeArray/OperativeArray.h
-    ../include/Xertz/Xertz.h
-    ../include/Xertz/MemoryRegion.h
+    ../include/MemoryCompare/include/OperativeArray/OperativeArray/OperativeArray.hpp
+    ../include/Xertz/Xertz.hpp
+    ../include/Xertz/MemoryRegion.hpp
     ../include/Xertz/MemoryRegion.cpp
-    ../include/Xertz/ProcessInfo.h
+    ../include/Xertz/ProcessInfo.hpp
     ../include/Xertz/ProcessInfo.cpp
-    ../include/Xertz/SystemInfo.h
+    ../include/Xertz/SystemInfo.hpp
     ../include/Xertz/SystemInfo.cpp
     ../include/ImGuiFileDialog/ImGuiFileDialog.h
     ../include/ImGuiFileDialog/ImGuiFileDialog.cpp

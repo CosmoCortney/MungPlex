@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <chrono>
-#include "Connection.h"
+#include "Connection.hpp"
 #include <cstdint>
 #include <ctime>
 #include <filesystem>
@@ -10,9 +10,9 @@
 #include "imgui.h"
 #include <iomanip>
 #include <iostream>
-#include "LitColor.h"
-#include "MorphText.h"
-#include "OperativeArray.h"
+#include "LitColor.hpp"
+#include "MorphText.hpp"
+#include "OperativeArray.hpp"
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>

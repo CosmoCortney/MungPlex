@@ -1,8 +1,8 @@
 #pragma once
-#include "Connection.h"
+#include "Connection.hpp"
 #include <filesystem>
 #include <functional>
-#include "HelperFunctions.h"
+#include "HelperFunctions.hpp"
 #include "nlohmann/json.hpp"
 #include <string>
 #include <vector>

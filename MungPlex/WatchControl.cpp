@@ -1,8 +1,8 @@
-#include "WatchControl.h"
+#include "WatchControl.hpp"
 #include <algorithm>
-#include "Helperfunctions.h"
-#include "ProcessInformation.h"
-#include "Settings.h"
+#include "Helperfunctions.hpp"
+#include "ProcessInformation.hpp"
+#include "Settings.hpp"
 
 const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_IntTypes = 
 {

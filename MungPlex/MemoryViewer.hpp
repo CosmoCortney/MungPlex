@@ -8,11 +8,11 @@
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "Xertz.h"
+#include "Xertz.hpp"
 #include "imgui_memory_editor.h"
 #include <iomanip>
-#include "MungPlexConfig.h"
-#include "ProcessInformation.h"
+#include "MungPlexConfig.hpp"
+#include "ProcessInformation.hpp"
 #include <string>
 
 namespace MungPlex

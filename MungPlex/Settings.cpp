@@ -1,6 +1,6 @@
-#include "Settings.h"
-#include "Log.h"
-#include "MungPlexConfig.h"
+#include "Settings.hpp"
+#include "Log.hpp"
+#include "MungPlexConfig.hpp"
 #include <shlobj_core.h>
 
 MungPlex::Settings::Settings()

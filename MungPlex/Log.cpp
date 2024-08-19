@@ -1,7 +1,7 @@
-#include "Log.h"
+#include "Log.hpp"
 #include <ctime> 
 #include <fstream>
-#include "Settings.h"
+#include "Settings.hpp"
 #include <stdio.h>
 
 std::string MungPlex::Log::_logMessage;

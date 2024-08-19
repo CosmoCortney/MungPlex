@@ -15,6 +15,12 @@ namespace MungPlex
         COLOR = 3
     };
 
+    enum Endiannesses
+    {
+        LITTLE = 0,
+        BIG = 1
+    };
+
     enum PrimitiveType
     {
         INT8 = 0,

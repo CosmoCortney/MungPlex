@@ -5,8 +5,8 @@
 #include <boost/asio.hpp>
 #include <stdio.h>
 #include<string>
-#include "Xertz.h"
-#include"HelperFunctions.h"
+#include "Xertz.hpp"
+#include"HelperFunctions.hpp"
 #include <nlohmann/json.hpp>
 
 namespace MungPlex
