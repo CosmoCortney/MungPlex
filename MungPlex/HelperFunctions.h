@@ -49,7 +49,11 @@ namespace MungPlex
         { "Shift-Jis CP932", MorphText::SHIFTJIS_CP932 },
         { "KS X 1001 (EUC-KR)", MorphText::KS_X_1001 },
         { "Jis X 0201 Full Width", MorphText::JIS_X_0201_FULLWIDTH },
-        { "Jis X 0201 Half Width", MorphText::JIS_X_0201_HALFWIDTH }
+        { "Jis X 0201 Half Width", MorphText::JIS_X_0201_HALFWIDTH },
+        { "Pokémon Gen I English", MorphText::POKEMON_GEN1_ENGLISH },
+        { "Pokémon Gen I French/German", MorphText::POKEMON_GEN1_FRENCH_GERMAN },
+        { "Pokémon Gen I Italian/Spanish", MorphText::POKEMON_GEN1_ITALIAN_SPANISH },
+        { "Pokémon Gen I Japanese", MorphText::POKEMON_GEN1_JAPANESE }
     };
 
     template<typename addressType> static addressType TranslatePtrTo4BytesReorderingPtr(addressType ptr)

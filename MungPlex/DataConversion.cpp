@@ -127,7 +127,8 @@ void MungPlex::DataConversion::convertHexText(std::string& in, std::string& out,
 		case MorphText::ISO_8859_10: case MorphText::ISO_8859_11: case MorphText::ISO_8859_13:
 		case MorphText::ISO_8859_14: case MorphText::ISO_8859_15: case MorphText::ISO_8859_16:
 		case MorphText::ASCII: case MorphText::JIS_X_0201_FULLWIDTH: case MorphText::JIS_X_0201_HALFWIDTH: 
-		case MorphText::SHIFTJIS_CP932: 
+		case MorphText::SHIFTJIS_CP932: case MorphText::POKEMON_GEN1_ENGLISH: case MorphText::POKEMON_GEN1_FRENCH_GERMAN:
+		case MorphText::POKEMON_GEN1_ITALIAN_SPANISH:  case MorphText::POKEMON_GEN1_JAPANESE:
 		{
 			std::string temp = MorphText::Convert<std::string, std::string>(in.data(), textTypeSelect, MorphText::UTF8);
 			memcpy_s(out.data(), out.size(), temp.data(), temp.size());
@@ -162,7 +163,8 @@ void MungPlex::DataConversion::convertText(std::string& in, std::string& out, co
 		case MorphText::ISO_8859_10: case MorphText::ISO_8859_11: case MorphText::ISO_8859_13: 
 		case MorphText::ISO_8859_14: case MorphText::ISO_8859_15: case MorphText::ISO_8859_16: 
 		case MorphText::JIS_X_0201_FULLWIDTH: case MorphText::JIS_X_0201_HALFWIDTH: case MorphText::ASCII: 
-		case MorphText::SHIFTJIS_CP932:
+		case MorphText::SHIFTJIS_CP932: case MorphText::POKEMON_GEN1_ENGLISH: case MorphText::POKEMON_GEN1_FRENCH_GERMAN:
+		case MorphText::POKEMON_GEN1_ITALIAN_SPANISH:  case MorphText::POKEMON_GEN1_JAPANESE:
 		{
 			std::string temp = MorphText::Convert<std::string, std::string>(in, MorphText::UTF8, textTypeSelect);
 			memcpy_s(out.data(), out.size(), temp.data(), temp.size());
