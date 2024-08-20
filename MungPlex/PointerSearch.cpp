@@ -25,7 +25,7 @@ void MungPlex::PointerSearch::DrawWindow()
         {
             if (Connection::IsConnected() && Settings::GetGeneralSettings().EnableRichPresence && !stateSet)
             {
-                Connection::SetRichPresenceState("Scanning for Pointers");
+                Connection::GetDiscordRichPresence().SetRichPresenceState("Scanning for Pointers");
                 stateSet = true;
             }
 

@@ -651,7 +651,7 @@ void MungPlex::Cheats::DrawWindow()
 		{
 			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence && ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 			{
-				Connection::SetRichPresenceState("Operating Lua Cheats");
+				Connection::GetDiscordRichPresence().SetRichPresenceState("Operating Lua Cheats");
 				stateSet = true;
 			}
 		}

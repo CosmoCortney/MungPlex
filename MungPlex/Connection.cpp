@@ -43,18 +43,18 @@ void MungPlex::Connection::drawConnectionSelect()
 				if (_connected)
 				{
 					_connectionMessage = "Connected to emulator: " + MT::Convert<std::wstring, std::string>(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first, MT::UTF16LE, MT::UTF8);
-					_richPresenceDetails = std::string("Messing with "
+					std::string details = std::string("Messing with "
 						+ ProcessInformation::GetTitle()
 						+ " (" + ProcessInformation::GetPlatform() + ", "
 						+ ProcessInformation::GetRpcGameID() + ", "
 						+ ProcessInformation::GetRegion() + ") "
 						+ "running on " + ProcessInformation::GetProcessName());
+					_discord.SetRichPresenceDetails(details);
 
-					if (_core != nullptr)
-						_core->~Core();
+
 
 					if (Settings::GetGeneralSettings().EnableRichPresence)
-						InitRichPresence();
+						_discord.InitRichPresence();
 
 					startConnectionCheck();
 				}
@@ -126,13 +126,11 @@ void MungPlex::Connection::drawConnectionSelect()
 				if (_connected)
 				{
 					_connectionMessage = "Connected to Process: " + ProcessInformation::GetProcessName();
-					_richPresenceDetails = "Messing with " + ProcessInformation::GetProcessName();
-
-					if (_core != nullptr)
-						_core->~Core();
+					std::string details = "Messing with " + ProcessInformation::GetProcessName();
+					_discord.SetRichPresenceDetails(details);
 
 					if (Settings::GetGeneralSettings().EnableRichPresence)
-						InitRichPresence();
+						_discord.InitRichPresence();
 				}
 
 				startConnectionCheck();
@@ -158,17 +156,7 @@ void MungPlex::Connection::drawConnectionSelect()
 		ImGui::EndTabBar();
 
 		if (Settings::GetGeneralSettings().EnableRichPresence)
-		{
-			if (_connected && _core != nullptr)
-			{
-				if (_core->RunCallbacks() != discord::Result::Ok)
-					_core->~Core();
-			}
-			else if (_core != nullptr)
-			{
-				_core->~Core();
-			}
-		}
+			_discord.CheckGameState(_connected);
 	}
 
 	ImGui::Dummy(ImVec2(0.0f, 5.0f));
@@ -208,33 +196,9 @@ bool MungPlex::Connection::IsConnected()
 	return GetInstance()._connected;
 }
 
-void MungPlex::Connection::SetRichPresenceState(const std::string& action)
+MungPlex::DiscordRPC MungPlex::Connection::GetDiscordRichPresence()
 {
-	if(GetInstance()._core == nullptr)
-	    return;
-
-	GetInstance()._activity.SetState(action.c_str());
-	GetInstance()._core->ActivityManager().UpdateActivity(GetInstance()._activity, getDiscordActivityResult);
-}
-
-void MungPlex::Connection::InitRichPresence()
-{
-	discord::Core::Create(1175421760892567552, DiscordCreateFlags_Default, &GetInstance()._core);
-	GetInstance()._core->SetLogHook(discord::LogLevel::Debug, logDiscordProblem);
-	GetInstance()._activity.SetApplicationId(1175421760892567552);
-	//_activity.SetName("Test Name");
-	GetInstance()._activity.SetDetails(GetInstance()._richPresenceDetails.c_str());
-	GetInstance()._activity.SetType(discord::ActivityType::Playing);
-	GetInstance()._activity.SetInstance(true);
-	GetInstance()._activity.GetTimestamps().SetStart(time(NULL));
-	GetInstance()._activity.GetAssets().SetLargeImage("icon1024");
-	GetInstance()._core->ActivityManager().UpdateActivity(GetInstance()._activity, getDiscordActivityResult);
-}
-
-void MungPlex::Connection::StopRichPresence()
-{
-	if(GetInstance()._core != nullptr)
-		GetInstance()._core->~Core();
+	return GetInstance()._discord;
 }
 
 std::vector<MungPlex::MemoryViewer>& MungPlex::Connection::GetMemoryViews()
@@ -257,19 +221,4 @@ void MungPlex::Connection::checkConnection()
 		std::this_thread::sleep_for(millisecondsToWait);
 		_connected = ProcessInformation::IsConnectionValid();
 	}
-}
-
-void MungPlex::Connection::getDiscordActivityResult(discord::Result result)
-{
-	if (result != discord::Result::Ok)
-	{
-		std::string err = "Error handling Discord Rich PResence (err-code: " + std::to_string((int)result) + ")";
-		std::cout << err << std::endl;
-		Log::LogInformation(err);
-	}
-}
-
-void MungPlex::Connection::logDiscordProblem(const discord::LogLevel level, const std::string message)
-{
-	std::cout << "discord error level: " << (int)level << " - " << message << std::endl;
 }

@@ -1,8 +1,7 @@
 #pragma once
 #include <boost/asio.hpp>
-#include "discord-game-sdk/discord_game_sdk.h"
-#include "discord-game-sdk/discord.h"
 #include "MemoryViewer.hpp"
+#include "Discord.hpp"
 
 namespace MungPlex
 {
@@ -13,9 +12,10 @@ namespace MungPlex
     public:
         static void DrawWindow();
         static bool IsConnected();
-        static void SetRichPresenceState(const std::string& action);
-        static void InitRichPresence();
-        static void StopRichPresence();
+        static DiscordRPC GetDiscordRichPresence();
+        //static void SetRichPresenceState(const std::string& action);
+        //static void InitRichPresence();
+        //static void StopRichPresence();
         static std::vector<MemoryViewer>& GetMemoryViews();
 
     private:
@@ -38,16 +38,13 @@ namespace MungPlex
         int _selectedApplicationProcessIndex = 0;
         std::string _connectionMessage = "Not connected...";
         std::vector<MemoryViewer> _memoryViewers;
-        discord::Core* _core;
-        discord::Result _result;
-        discord::Activity _activity;
-        std::string _richPresenceDetails;
+        DiscordRPC _discord;
 
         void drawConnectionSelect();
         void memoryViewerButton();
         void startConnectionCheck();
         void checkConnection();
-        static void getDiscordActivityResult(discord::Result result);
-        static void logDiscordProblem(const discord::LogLevel level, const std::string message);
+        //static void getDiscordActivityResult(discord::Result result);
+        //static void logDiscordProblem(const discord::LogLevel level, const std::string message);
     };
 }

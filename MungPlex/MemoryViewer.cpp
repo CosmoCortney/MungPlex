@@ -33,7 +33,7 @@ void MungPlex::MemoryViewer::DrawWindow()
         if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
         {
             if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence)
-                Connection::SetRichPresenceState("Memory Viewer");
+                Connection::GetDiscordRichPresence().SetRichPresenceState("Memory Viewer");
 
             stateSet = true;
         }

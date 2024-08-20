@@ -185,9 +185,9 @@ void MungPlex::Settings::drawGeneralSettings()
 		
 		if (ImGui::Checkbox("Enable Discord Rich Presence", &_generalSettings.EnableRichPresence))
 			if (Connection::IsConnected() && _generalSettings.EnableRichPresence)
-				Connection::InitRichPresence();
+				Connection::GetDiscordRichPresence().InitRichPresence();
 			else
-				Connection::StopRichPresence();
+				Connection::GetDiscordRichPresence().StopRichPresence();
 		}
 		ImGui::EndGroup();
 	}

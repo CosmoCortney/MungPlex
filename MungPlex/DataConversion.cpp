@@ -20,7 +20,7 @@ void MungPlex::DataConversion::DrawWindow()
 	{
 		if (!stateSet && Connection::IsConnected() && Settings::GetGeneralSettings().EnableRichPresence && ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 		{
-			Connection::SetRichPresenceState("Data Conversion");
+			Connection::GetDiscordRichPresence().SetRichPresenceState("Data Conversion");
 			stateSet = true;
 		}
 

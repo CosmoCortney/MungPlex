@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include"Search.hpp"
+#include "Search.hpp"
 
 MungPlex::Search::Search()
 {
@@ -30,7 +30,7 @@ void MungPlex::Search::DrawWindow()
 		{
 			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence && ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 			{
-				Connection::SetRichPresenceState("Memory Search");
+				Connection::GetDiscordRichPresence().SetRichPresenceState("Memory Search");
 				stateSet = true;
 			}
 		}

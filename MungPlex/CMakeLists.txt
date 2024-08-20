@@ -17,31 +17,33 @@ configure_file(MungPlexConfig.hpp.in ${CMAKE_BINARY_DIR}/MungPlexConfig.hpp @ONL
 
 # Add the main executable target
 add_executable (MungPlex
-    main.cpp
-    Settings.hpp
-    Settings.cpp
-    Connection.cpp
-    Connection.hpp
-    ProcessInformation.cpp
-    ProcessInformation.hpp
-    Search.hpp
-    Search.cpp
-    Log.hpp
-    Log.cpp
-    PointerSearch.hpp
-    PointerSearch.cpp
-    HelperFunctions.hpp
-    Cheats.hpp
-    Cheats.cpp
-    MemoryViewer.hpp
-    MemoryViewer.cpp
-    DataConversion.hpp
-    DataConversion.cpp
     CheatConvert.hpp
     CheatConvert.cpp
+    Cheats.hpp
+    Cheats.cpp
+    Connection.cpp
+    Connection.hpp
+    DataConversion.hpp
+    DataConversion.cpp
+    Discord.cpp
+    Discord.hpp
+    HelperFunctions.hpp
+    Log.hpp
+    Log.cpp
+    main.cpp
+    MemoryViewer.hpp
+    MemoryViewer.cpp
+    PointerSearch.hpp
+    PointerSearch.cpp
+    ProcessInformation.cpp
+    ProcessInformation.hpp
+    resources.rc
+    Search.hpp
+    Search.cpp
+    Settings.hpp
+    Settings.cpp
     WatchControl.cpp
     WatchControl.hpp
-    resources.rc
     ../include/imgui/imgui.cpp
     ../include/imgui/imgui_demo.cpp
     ../include/imgui/imgui_draw.cpp

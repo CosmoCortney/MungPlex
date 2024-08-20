@@ -42,7 +42,7 @@ void MungPlex::WatchControl::DrawWindow()
 		{
 			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence && ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 			{
-				Connection::SetRichPresenceState("Value Watch & Control");
+				Connection::GetDiscordRichPresence().SetRichPresenceState("Value Watch & Control");
 				stateSet = true;
 			}
 		}
