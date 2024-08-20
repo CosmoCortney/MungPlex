@@ -14,7 +14,7 @@ namespace MungPlex
     struct GameEntity
     {
         std::string Entity;
-        int Location;
+        uint64_t Location;
         std::string Datatype;
         int Size;
         bool Hex;
@@ -261,7 +261,7 @@ namespace MungPlex
         bool initPcsx2();
         bool initRpcs3();
         bool initFusion();
-        void obtainGameEntities(void* baseLocation);
+        bool obtainGameEntities(const std::string& systemName);
         void setupSearch();
         void setupCheats();
         void refreshModuleList();

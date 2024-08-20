@@ -246,16 +246,6 @@ bool MungPlex::ProcessInformation::LoadSystemInformationJSON(const std::string& 
 			GetInstance()._systemRegions.emplace_back(SystemRegion(label, base, size));
 		}
 
-		/*for (auto& gameEntity : entities)
-		{
-			auto entity = gameEntity["Entity"].get<std::string>();
-			int location = std::stoi(gameEntity["Location"].get<std::string>(), 0, 0);
-			auto datatype = gameEntity["Datatype"].get<std::string>();
-			int size = std::stoi(gameEntity["Size"].get<std::string>(), 0, 0);
-			bool hex = gameEntity["Hex"].get<bool>();
-			GetInstance()._gameEntities.emplace_back(GameEntity(entity, location, datatype, size, hex));
-		}*/
-
 		if (regions.empty())
 			return false;
 	}
@@ -286,9 +276,11 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	{
 		case DOLPHIN:
 			connected = initDolphin();
+			obtainGameEntities("GameCubeTriforceWii");
 			break;
 		case PROJECT64:
 			connected = initProject64();
+			obtainGameEntities("N64");
 			break;
 		case CEMU:
 			connected = initCemu();
@@ -298,6 +290,10 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 			break;
 		case mGBA:
 			connected = initMGBA();
+			if(_platformID == GBA)
+				obtainGameEntities("GBA");
+			else
+				obtainGameEntities("GB");
 			break;
 		case MELONDS:
 			connected = initMelonDS();
@@ -333,7 +329,6 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	setupSearch();
 	setupCheats();
 	WatchControl::InitWatchFile();
-	obtainGameEntities(_systemRegions[0].BaseLocationProcess);
 	return true;
 }
 
@@ -506,112 +501,6 @@ bool MungPlex::ProcessInformation::initMGBA()
 		return true;
 	}
 
-	/*
-	uint64_t regionSize;
-	bool romFound = false;
-	//enum type { GB = 1, GBC, GBA };
-	uint64_t bufLogo = 0;
-	std::vector<uint8_t> bufRegion(0x8000000);
-	uint8_t* romBasePtr = nullptr;
-	char* mainMemoryRegion = nullptr;
-	bool makeThisTrueLater = false;
-	char* moduleAddr = reinterpret_cast<char*>(_process.GetModuleAddress(L"visualboyadvance-m.exe") + 0x3000000);
-	char* identifierAddr = nullptr;
-	std::vector<uint64_t> moduleBuf(0x2000000 / 8);
-	_process.ReadMemoryFast(moduleBuf.data(), moduleAddr, 0x2000000);
-
-	for (const auto& region : GetRegionList())
-	{
-		regionSize = region.GetRegionSize();
-		romBasePtr = region.GetBaseAddress<uint8_t*>();
-
-		if (regionSize == 0x2001000 && (region.GetProtect() & PAGE_READWRITE) == PAGE_READWRITE)
-		{
-			_process.ReadMemoryFast(&bufLogo, romBasePtr +0x44, 8);
-
-			if (bufLogo != 0x21A29A6951AEFF24)
-				continue;
-
-			setMiscProcessInfo("VisualBoyAdvace", false, false, 4, 1);
-			LoadSystemInformationJSON("GBA");
-			_systemRegions[7].BaseLocationProcess = romBasePtr + 0x40;
-			_platformID = GBA;
-
-			//ToDo: Find WRAM pointer by comparing the region size it is stored in. Check if 0x323CAB23 is a valid marker
-
-			for (int j = 0; j < moduleBuf.size(); ++j)
-			{
-				if (moduleBuf[j] != 0x0C6E0C6D0C6D0C6C)
-					continue;
-
-				identifierAddr = j * 8 + moduleAddr;
-				uint64_t tempPtr = 0;
-				_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x78, 8);
-				_systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
-				break;
-			}
-
-
-
-
-			std::cout << "type: " << _platformID << " " << _systemRegions[0].BaseLocationProcess << std::endl;
-			return true;
-		}
-		else if ((regionSize >= 0x1000 && regionSize < 0x8000000) && (region.GetProtect() & PAGE_READWRITE) == PAGE_READWRITE) //ToDo: Ensure this is future-proof
-		{
-			_process.ReadMemoryFast(bufRegion.data(), romBasePtr, 0x8000000);
-			uint8_t* bufPtr = bufRegion.data();
-
-			for (int i = 4; i < regionSize; i += 0x10)
-			{
-				if (*reinterpret_cast<uint64_t*>(bufPtr + i) != 0x0B000DCC6666EDCE)
-					continue;
-
-				setMiscProcessInfo("VisualBoyAdvace", false, false, 2, 1);
-				uint8_t* typePtr = bufPtr + i + 0x3F;
-
-				if (*typePtr == 0x80 || *typePtr == 0xC0)
-				{
-					LoadSystemInformationJSON("GBC");
-					_platformID = GBC;
-				}
-				else
-				{
-					LoadSystemInformationJSON("GB");
-					_platformID = GB;
-				}
-
-				_systemRegions[0].BaseLocationProcess = romBasePtr + i - 0x104;
-
-				for (int j = 0; j < moduleBuf.size(); ++j)
-				{
-					if (moduleBuf[j] != 0x0C6E0C6D0C6D0C6C)
-						continue;
-
-					identifierAddr = j * 8 + moduleAddr;
-					uint64_t tempPtr = 0;
-					_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x98, 8);
-					_systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
-					_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x78, 8);
-					_systemRegions[2].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
-					_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x68, 8);
-					_systemRegions[3].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
-					_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x58, 8);
-					_systemRegions[4].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
-					_process.ReadMemoryFast(&tempPtr, identifierAddr - 0x50, 8);
-					_systemRegions[5].BaseLocationProcess = reinterpret_cast<void*>(tempPtr);
-					_systemRegions[6].BaseLocationProcess = reinterpret_cast<void*>(tempPtr + 0x2F00);
-					break;
-				}
-				
-
-
-				std::cout << "type: " << _platformID << " " << _systemRegions[0].BaseLocationProcess << std::endl;
-				return true;
-			}
-		}
-	}
-	*/
 	return false;
 }
 
@@ -1543,26 +1432,56 @@ std::string& MungPlex::ProcessInformation::GetRpcGameID()
 	return GetInstance()._rpcGameID;
 }
 
-void MungPlex::ProcessInformation::obtainGameEntities(void* baseLocation)
+bool MungPlex::ProcessInformation::obtainGameEntities(const std::string& systemName)
 {
-	std::string entityValue;
-	entityValue.reserve(2048);
+	_gameEntities.clear();
+	std::string buffer;
+	std::string jsonstr;
+	std::ifstream inFile;
+	inFile.open(GetResourcesFilePath("EntityInformation.json"));
 
-	for (auto& [Entity, Location, Datatype,
-		Size, Hex, Value] : _gameEntities)
+	if (inFile)
+		while (std::getline(inFile, buffer))
+			jsonstr.append(buffer).append("\n");
+	else
+		return false;
+	
+	try
+	{
+		auto doc = nlohmann::json::parse(jsonstr);
+		auto& entities = doc["Entities"][systemName];
+
+		for (auto& gameEntity : entities)
+		{
+			std::string entity = gameEntity["Entity"].get<std::string>();
+			uint64_t location = std::stoll(gameEntity["Location"].get<std::string>(), nullptr, 16);
+			std::string datatype = gameEntity["Datatype"].get<std::string>();
+			int size = std::stoi(gameEntity["Size"].get<std::string>(), nullptr, 10);
+			bool hex = gameEntity["Hex"].get<bool>();
+			_gameEntities.emplace_back(GameEntity(entity, location, datatype, size, hex));
+		}
+
+		if (_gameEntities.empty())
+			return false;
+	}
+	catch (const nlohmann::json::parse_error& exception)
+	{
+		std::cerr << "Parsing failed: " << exception.what() << std::endl;
+		return false;
+	}
+
+	for (auto& [Entity, Location, Datatype, Size, Hex, Value] : _gameEntities)
 	{
 		static char buffer[2048];
 		std::stringstream stream;
 		const int size = Size;
 		const bool hex = Hex;
-
-		void* readLocation = static_cast<char*>(baseLocation) + Location;
-		_process.ReadMemoryFast(buffer, readLocation, size);
+		std::string entityValue;
 
 		if (Datatype.compare("INT") == 0)
 		{
-			uint64_t tempVal = *reinterpret_cast<uint64_t*>(buffer);
-			tempVal &= ~(0xFFFFFFFFFFFFFFFF << (8 * size));
+			uint64_t tempVal = ReadValue<uint64_t>(Location);
+			tempVal >>= 64 - (8 * size);
 
 			if (hex)
 				stream << "0x" << std::hex << tempVal;
@@ -1573,15 +1492,20 @@ void MungPlex::ProcessInformation::obtainGameEntities(void* baseLocation)
 		}
 		else if (Datatype.compare("TEXT") == 0)
 		{
-			entityValue = std::string(buffer, size);
+			entityValue.resize(size);
+
+			for(int x = 0; x < size; ++x)
+				entityValue[x] = ReadValue<char>(Location + x);
 		}
 		else if (Datatype.compare("BIN") == 0)
 		{
+			uint8_t temp = 0;
+
 			for (int x = 0; x < size; ++x)
 			{
-				stream << std::hex << (static_cast<int>(  *(reinterpret_cast<char*>(buffer) + x)  ) & 0xff);
+				temp = ReadValue<uint8_t>(Location + x);
+				entityValue.append(ToHexString(temp, 2));
 			}
-			entityValue.append(stream.str());
 		}
 
 		Value = entityValue;
@@ -1590,15 +1514,12 @@ void MungPlex::ProcessInformation::obtainGameEntities(void* baseLocation)
 
 bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 {
-	//if (!LoadSystemInformationJSON(emulatorIndex))
-		//return false;
+	GetInstance()._processType = EMULATOR;
 
 	if (!GetInstance().initEmulator(emulatorIndex))
 		return false;
 	
-	GetInstance()._exePath = GetInstance()._process.GetFilePath(); // refactor these two lines when implementing PC game support
-	GetInstance()._processType = EMULATOR;
-
+	GetInstance()._exePath = GetInstance()._process.GetFilePath();
 	std::string msg("Connected to ");
 	msg.append(GetInstance()._processName + " (");
 	msg.append(GetInstance()._platform + ") - Game ID: ");

@@ -94,28 +94,28 @@
       },
       {
         "Entity": "Arena Low",
-        "Location": "0x800030",
+        "Location": "0x80000030",
         "Datatype": "INT",
         "Size": "4",
         "Hex": true
       },
       {
         "Entity": "Arena High",
-        "Location": "0x800034",
+        "Location": "0x80000034",
         "Datatype": "INT",
         "Size": "4",
         "Hex": true
       },
       {
         "Entity": "Start of FST",
-        "Location": "0x800038",
+        "Location": "0x80000038",
         "Datatype": "INT",
         "Size": "4",
         "Hex": true
       },
       {
         "Entity": "Maximum FST Size",
-        "Location": "0x80003C",
+        "Location": "0x8000003C",
         "Datatype": "INT",
         "Size": "4",
         "Hex": true
@@ -564,7 +564,118 @@
     ]
   },
   "N64": [
-
+    {
+      "Entity": "Endianness Indicator",
+      "Location": "0x90000000",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Initial PI_BSB_DOM1_LAT_REG & PI_BSB_DOM1_PGS_REG",
+      "Location": "0x90000001",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Initial PI_BSD_DOM1_PWD_REG",
+      "Location": "0x90000002",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Initial PI_BSB_DOM1_PGS_REG",
+      "Location": "0x90000003",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "ClockRate Override",
+      "Location": "0x90000004",
+      "Datatype": "INT",
+      "Size": "4",
+      "Hex": true
+    },
+    {
+      "Entity": "Program Counter",
+      "Location": "0x90000008",
+      "Datatype": "INT",
+      "Size": "4",
+      "Hex": true
+    },
+    {
+      "Entity": "Release Address",
+      "Location": "0x9000000C",
+      "Datatype": "INT",
+      "Size": "4",
+      "Hex": true
+    },
+    {
+      "Entity": "CRC1",
+      "Location": "0x90000010",
+      "Datatype": "INT",
+      "Size": "4",
+      "Hex": true
+    },
+    {
+      "Entity": "CRC2",
+      "Location": "0x90000014",
+      "Datatype": "INT",
+      "Size": "4",
+      "Hex": true
+    },
+    {
+      "Entity": "Unknown",
+      "Location": "0x900000018",
+      "Datatype": "BIN",
+      "Size": "8",
+      "Hex": true
+    },
+    {
+      "Entity": "Name",
+      "Location": "0x90000020",
+      "Datatype": "TEXT",
+      "Size": "20",
+      "Hex": false
+    },
+    {
+      "Entity": "Unknown",
+      "Location": "0x90000034",
+      "Datatype": "BIN",
+      "Size": "4",
+      "Hex": true
+    },
+    {
+      "Entity": "Media Format",
+      "Location": "0x90000038",
+      "Datatype": "INT",
+      "Size": "4",
+      "Hex": true
+    },
+    {
+      "Entity": "Cartridge ID",
+      "Location": "0x9000003C",
+      "Datatype": "TEXT",
+      "Size": "2",
+      "Hex": false
+    },
+    {
+      "Entity": "Region Code",
+      "Location": "0x9000003E",
+      "Datatype": "TEXT",
+      "Size": "1",
+      "Hex": false
+    },
+    {
+      "Entity": "Version",
+      "Location": "0x9000003F",
+      "Datatype": "TEXT",
+      "Size": "1",
+      "Hex": false
+    }
   ],
   "WiiU": [
 
@@ -591,13 +702,155 @@
 
   ],
   "GB": [
-
-  ],
-  "GBC": [
-
+    {
+      "Entity": "Entry Point",
+      "Location": "0x0100",
+      "Datatype": "INT",
+      "Size": "4",
+      "Hex": true
+    },
+    {
+      "Entity": "Title",
+      "Location": "0x0134",
+      "Datatype": "TEXT",
+      "Size": "16",
+      "Hex": false
+    },
+    {
+      "Entity": "GBC Flag",
+      "Location": "0x0143",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "License Code",
+      "Location": "0x0144",
+      "Datatype": "TEXT",
+      "Size": "2",
+      "Hex": false
+    },
+    {
+      "Entity": "SBG Flag",
+      "Location": "0x0146",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Cartridge Type",
+      "Location": "0x0147",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "ROM Size Flag",
+      "Location": "0x0148",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "RAM Size Flag",
+      "Location": "0x0149",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Destination Code",
+      "Location": "0x014A",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Old License Code",
+      "Location": "0x014B",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Mask ROM Version Code",
+      "Location": "0x014C",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Header Checksum",
+      "Location": "0x014D",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Global Checksum",
+      "Location": "0x014E",
+      "Datatype": "BIN",
+      "Size": "2",
+      "Hex": true
+    }
   ],
   "GBA": [
-
+    {
+      "Entity": "Entry Point",
+      "Location": "0x08000000",
+      "Datatype": "INT",
+      "Size": "4",
+      "Hex": true
+    },
+    {
+      "Entity": "Title",
+      "Location": "0x080000A0",
+      "Datatype": "TEXT",
+      "Size": "12",
+      "Hex": false
+    },
+    {
+      "Entity": "Game Code",
+      "Location": "0x080000AC",
+      "Datatype": "TEXT",
+      "Size": "4",
+      "Hex": false
+    },
+    {
+      "Entity": "Maker Code",
+      "Location": "0x080000B0",
+      "Datatype": "TEXT",
+      "Size": "2",
+      "Hex": true
+    },
+    {
+      "Entity": "Main Unit Code",
+      "Location": "0x080000B3",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Device Type",
+      "Location": "0x080000B4",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    },
+    {
+      "Entity": "Software Version",
+      "Location": "0x080000BC",
+      "Datatype": "INT",
+      "Size": "41",
+      "Hex": true
+    },
+    {
+      "Entity": "Complement Check",
+      "Location": "0x080000BD",
+      "Datatype": "INT",
+      "Size": "1",
+      "Hex": true
+    }
   ],
   "MegaDrive": [
 
@@ -605,6 +858,4 @@
   "MegaCD": [
 
   ]
-
-
 }
