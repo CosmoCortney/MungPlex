@@ -6,6 +6,7 @@
 #include "DataConversion.hpp"
 #include "GLFW/glfw3.h"
 #include "HelperFunctions.hpp"
+#include "ContextMenuHelper.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <iostream>
@@ -126,11 +127,21 @@ int main()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		if (show_demo_window)
-		{
-			ImGui::ShowDemoWindow(&show_demo_window);
-		}
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::SetNextWindowPos(viewport->WorkPos);
 
+		int displayWidth, displayHeight;
+		glfwGetWindowSize(window, &displayWidth, &displayHeight);
+		ImGui::SetNextWindowSize(ImVec2(displayWidth,displayHeight));
+
+		//Container window
+		ImGui::Begin("MungPlex", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+		ImGui::DockSpace(dockspace_id);
+		ImGui::End();
+
+		MungPlex::WatchControl::DrawWindow();
 		MungPlex::Settings::DrawWindow();
 		MungPlex::ProcessInformation::DrawWindow();
 		MungPlex::Connection::DrawWindow();
@@ -139,11 +150,16 @@ int main()
 		MungPlex::Log::DrawWindow();
 		MungPlex::PointerSearch::DrawWindow();
 		MungPlex::DataConversion::DrawWindow();
-		MungPlex::WatchControl::DrawWindow();
+		MungPlex::ContextMenuHelper::DrawWindow();
 
 		for (int i = 0; i < MungPlex::Connection::GetMemoryViews().size(); ++i)
 		{
 			MungPlex::Connection::GetMemoryViews()[i].DrawWindow();
+		}
+
+		if (show_demo_window)
+		{
+			ImGui::ShowDemoWindow(&show_demo_window);
 		}
 
 		static bool setWindowFocused = true;
@@ -155,13 +171,7 @@ int main()
 
 		ImGui::Render();
 
-		int display_w, display_h;
-		glfwGetFramebufferSize(window, &display_w, &display_h);
-		glViewport(0, 0, display_w, display_h);
-		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+		
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			const auto backup_current_context = glfwGetCurrentContext();
@@ -169,6 +179,12 @@ int main()
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backup_current_context);
 		}
+
+		glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
+		glViewport(0, 0, displayWidth, displayHeight);
+		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+		glClear(GL_COLOR_BUFFER_BIT);
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
 	}
