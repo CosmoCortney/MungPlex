@@ -2,6 +2,8 @@
 #include <algorithm>
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include <boost/thread.hpp>
+#include <boost/atomic.hpp>
 #include <chrono>
 #include "Connection.hpp"
 #include <cstdio>
@@ -243,6 +245,12 @@ namespace MungPlex
         bool _deselectedIllegalSelection = false;
         std::vector<MemoryCompare::MemDump> _currentMemoryDumps{};
         bool _scanAllRegions = false;
+        std::vector<uint8_t> _updateValues;
+        boost::thread _updateThread;
+        boost::atomic<bool> _updateThreadFlag = false;
+        uint64_t _lastPageResultCount = 0;
+        uint16_t _arrayItemCount = 0;
+        uint32_t _liveUpdateMilliseconds = 16;
 
         void setUpAndIterate();
         void drawValueTypeOptions();
@@ -252,6 +260,9 @@ namespace MungPlex
         void drawArraySearchOptions();
         void drawColorSearchOptions();
         void drawTextSearchOptions();
+        void prepareLiveUpdateValueList();
+        void setLiveUpdateRefreshRate();
+        void updateLivePreview();
         void drawResultsArea();
         void performSearch();
         void primitiveTypeSearchLog();
@@ -535,6 +546,10 @@ namespace MungPlex
                     sprintf_s(buf.Data(), buf.Size(), "");
                     return;
                 }
+            }
+            else if (col == 4)
+            {
+                value = reinterpret_cast<T*>(_updateValues.data() + (index % _maxResultsPerPage) * itemCount * sizeof(T));
             }
             else
             {

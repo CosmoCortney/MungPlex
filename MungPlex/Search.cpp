@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <algorithm>
 #include "Search.hpp"
 
 MungPlex::Search::Search()
@@ -652,6 +653,11 @@ void MungPlex::Search::performSearch()
 {
 	Log::LogInformation("Search: Iteration " + std::to_string(MemoryCompare::MemCompare::GetIterationCount() + 1));
 
+	_updateThreadFlag = false;
+
+	if(_updateThread.joinable())
+		_updateThread.join();
+
 	switch (_currentValueTypeSelect)
 	{
 	case ARRAY:
@@ -674,6 +680,146 @@ void MungPlex::Search::performSearch()
 	setUpAndIterate();
 	setUpIterationSelect();
 	setUpResultPaging();
+
+	if(MemoryCompare::MemCompare::GetIterationCount() < 2)
+		prepareLiveUpdateValueList();
+
+	_updateThreadFlag = true;
+	_updateThread = boost::thread(&MungPlex::Search::updateLivePreview, this);
+}
+
+void MungPlex::Search::updateLivePreview()
+{
+	static int rows = 0;
+
+	while (_updateThreadFlag)
+	{
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(_liveUpdateMilliseconds));
+
+		if (_currentPageValue < _pagesAmountValue)
+			rows = _maxResultsPerPage;
+		else
+			rows = MemoryCompare::MemCompare::GetResultCount() % _maxResultsPerPage;
+
+		for (int row = 0; row < rows; ++row)
+		{
+			static uint64_t address = 0;
+			uint64_t addressIndex = (_currentPageValue - 1) * _maxResultsPerPage + row;
+			uint8_t* updateArrayPtr = _updateValues.data();
+
+			switch (ProcessInformation::GetAddressWidth())
+			{
+			case 1:
+				address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint8_t>(addressIndex);
+				break;
+			case 2:
+				address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint16_t>(addressIndex);
+				break;
+			case 8:
+				address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint64_t>(addressIndex);
+				break;
+			default: //4
+				address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint32_t>(addressIndex);
+			}
+
+			switch (_currentValueTypeSelect)
+			{
+			case ARRAY:
+			{
+				for (int i = 0; i < _arrayItemCount; ++i)
+					switch (_currentArrayTypeSelect)
+					{
+					case INT8:
+						*(updateArrayPtr + row * _arrayItemCount + i) = ProcessInformation::ReadValue<uint8_t>(address + i);
+						break;
+					case INT16:
+						*reinterpret_cast<uint16_t*>(updateArrayPtr + row * _arrayItemCount * sizeof(uint16_t) + i * sizeof(uint16_t))
+							= ProcessInformation::ReadValue<uint16_t>(address + i * sizeof(uint16_t));
+						break;
+					case INT64:
+						*reinterpret_cast<uint64_t*>(updateArrayPtr + row * _arrayItemCount * sizeof(uint64_t) + i * sizeof(uint64_t))
+							= ProcessInformation::ReadValue<uint64_t>(address + i * sizeof(uint64_t));
+						break;
+						/*case FLOAT:
+							break;
+						case DOUBLE:
+							break;*/
+					default: //INT32
+						*reinterpret_cast<uint32_t*>(updateArrayPtr + row * _arrayItemCount * sizeof(uint32_t) + i * sizeof(uint32_t))
+							= ProcessInformation::ReadValue<uint32_t>(address + i * sizeof(uint32_t));
+					}
+			}break;
+			case COLOR:
+			{
+				static int updateValuesSize = 0;
+
+				switch (_currentColorTypeSelect)
+				{
+				case LitColor::RGBF:
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						*reinterpret_cast<float*>(updateArrayPtr + row * 3 * sizeof(float) + i * sizeof(float))
+							= ProcessInformation::ReadValue<float>(address + i * sizeof(float));
+					}
+				} break;
+				case LitColor::RGBAF:
+				{
+					for (int i = 0; i < 4; ++i)
+					{
+						*reinterpret_cast<float*>(updateArrayPtr + row * 4 * sizeof(float) + i * sizeof(float))
+							= ProcessInformation::ReadValue<float>(address + i * sizeof(float));
+					}
+				} break;
+				case LitColor::RGB565: case LitColor::RGB5A3:
+					*reinterpret_cast<uint16_t*>(updateArrayPtr + row * sizeof(uint16_t))
+						= ProcessInformation::ReadValue<uint16_t>(address);
+					break;
+				default: //RGB888, RGBA8888
+					*reinterpret_cast<uint32_t*>(updateArrayPtr + row * sizeof(uint32_t))
+						= ProcessInformation::ReadValue<uint32_t>(address);
+				}
+			}break;
+			case TEXT:
+			{
+				static int strLength = 0;
+				if (!strLength)
+					strLength = MemoryCompare::MemCompare::GetResults().GetValueWidth();
+
+				for (int i = 0; i < strLength; ++i)
+					*(updateArrayPtr + row * strLength + i) = ProcessInformation::ReadValue<uint8_t>(address + i);
+			}break;
+			default: //PRIMITIVE
+			{
+				switch (_currentPrimitiveTypeSelect)
+				{
+				case INT8:
+					*(updateArrayPtr + row) = ProcessInformation::ReadValue<uint8_t>(address);
+					break;
+				case INT16:
+					*reinterpret_cast<uint16_t*>(updateArrayPtr + row * sizeof(uint16_t))
+						= ProcessInformation::ReadValue<uint16_t>(address);
+					break;
+				case INT64:
+					*reinterpret_cast<uint64_t*>(updateArrayPtr + row * sizeof(uint64_t))
+						= ProcessInformation::ReadValue<uint64_t>(address);
+					break;
+				case FLOAT:
+					*reinterpret_cast<float*>(updateArrayPtr + row * sizeof(float))
+						= ProcessInformation::ReadValue<float>(address);
+					break;
+				case DOUBLE:
+					*reinterpret_cast<double*>(updateArrayPtr + row * sizeof(double))
+						= ProcessInformation::ReadValue<double>(address);
+					break;
+				default: //INT32
+					*reinterpret_cast<uint32_t*>(updateArrayPtr + row * sizeof(uint32_t))
+						= ProcessInformation::ReadValue<uint32_t>(address);
+				}
+			}
+			}
+		}
+	}
 }
 
 void MungPlex::Search::setUpIterationSelect()
@@ -688,6 +834,93 @@ void MungPlex::Search::setUpIterationSelect()
 		+ (iter < 2 && _currentcomparisonTypeSelect == 0 ? "" : ", " + _searchConditionTypes[_currentConditionTypeSelect].first));
 	_iterationIndex = --iter;
 	_selectedIndices.resize(_maxResultsPerPage);
+}
+
+void MungPlex::Search::setLiveUpdateRefreshRate()
+{
+	if (_maxResultsPerPage <= 256)
+		_liveUpdateMilliseconds = 16;
+	else
+		_liveUpdateMilliseconds = _maxResultsPerPage >> 4;
+}
+
+void MungPlex::Search::prepareLiveUpdateValueList()
+{
+	_updateValues.clear();
+	int updateValuesSize = 0;
+
+	switch (_currentValueTypeSelect)
+	{
+		case ARRAY:
+		{
+			_arrayItemCount = std::ranges::count(_knownValueText.StdStr(), ',') + 1;
+
+			switch (_currentArrayTypeSelect)
+			{
+			case INT8:
+				updateValuesSize = _arrayItemCount;
+				break;
+			case INT16:
+				updateValuesSize = _arrayItemCount * 2;
+				break;
+			case INT64: case DOUBLE:
+				updateValuesSize = _arrayItemCount * 8;
+				break;
+			default:
+				updateValuesSize = _arrayItemCount * 4;
+			}
+		} break;
+		case COLOR:
+		{
+			switch (_currentColorTypeSelect)
+			{
+			case LitColor::RGBF:
+				updateValuesSize = 12;
+				break;
+			case LitColor::RGBAF:
+				updateValuesSize = 16;
+				break;
+			case LitColor::RGB565: case LitColor::RGB5A3:
+				updateValuesSize = 2;
+				break;
+			default: //RGB888, RGBA8888
+				updateValuesSize = 4;
+			}
+		} break;
+		case TEXT:
+		{
+			updateValuesSize = _knownValueText.StdStr().size();
+
+			switch (_currentTextTypeSelect)
+			{
+			case MT::UTF32BE: case MT::UTF32LE:
+				updateValuesSize *= 4;
+				break;
+			default:
+				updateValuesSize *= 2; //consider double-byte encodings and encoding with single AND double bytes
+			}
+		} break;
+		default: //PRIMITIVE
+		{
+			switch (_currentPrimitiveTypeSelect)
+			{
+			case INT8:
+				updateValuesSize = 1;
+				break;
+			case INT16:
+				updateValuesSize = 2;
+				break;
+			case INT64: case DOUBLE:
+				updateValuesSize = 8;
+				break;
+			default:
+				updateValuesSize = 4;
+			}
+		}
+	}
+
+	_updateValues.resize(updateValuesSize * _maxResultsPerPage);
+	setLiveUpdateRefreshRate();
 }
 
 void MungPlex::Search::setUpResultPaging()
@@ -763,7 +996,7 @@ void MungPlex::Search::drawResultsTableNew()
 	static ImGuiSelectableFlags selectableFlags = ImGuiSelectableFlags_SpanAllColumns;
 	static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
-	if (!ImGui::BeginTable("Results", 4, flags, ImVec2(ImGui::GetContentRegionAvail().x * 0.666f, ImGui::GetContentRegionAvail().y)))
+	if (!ImGui::BeginTable("Results", 5, flags, ImVec2(ImGui::GetContentRegionAvail().x * 0.666f, ImGui::GetContentRegionAvail().y)))
 		return;
 
 	const uint64_t resultCount = MemoryCompare::MemCompare::GetResultCount();
@@ -771,8 +1004,10 @@ void MungPlex::Search::drawResultsTableNew()
 	ImGui::TableSetupColumn("Value");
 	ImGui::TableSetupColumn("Previous");
 	ImGui::TableSetupColumn("Difference (a - b)");
+	ImGui::TableSetupColumn("Live Update");
 	ImGui::TableHeadersRow();
 	const char* literal;
+
 	if (_currentValueTypeSelect == PRIMITIVE)
 		literal = GetStringLiteral(_currentPrimitiveTypeSelect, _signed, _hex);
 	else
@@ -789,7 +1024,6 @@ void MungPlex::Search::drawResultsTableNew()
 		if (_currentPageValue > _pagesAmountValue)
 			break;
 
-		
 		if (_currentPageValue == _pagesAmountValue)
 		{
 			uint32_t lastPageResultCount = resultCount % _maxResultsPerPage;
@@ -839,7 +1073,7 @@ void MungPlex::Search::drawResultsTableNew()
 		ImGui::TableNextRow(selectableFlags);
 		uint16_t iterationCount = MemoryCompare::MemCompare::GetIterationCount();
 
-		for (int col = 0; col < 4; ++col)
+		for (int col = 0; col < 5; ++col)
 		{
 			ImGui::TableSetColumnIndex(col);
 
@@ -917,6 +1151,11 @@ void MungPlex::Search::drawResultsTableNew()
 							if (_pokePrevious)
 								vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
 						}
+						else if (col == 4)
+						{
+							rgb565 = *reinterpret_cast<uint16_t*>(_updateValues.data() + row * 2);
+							rectColor = LitColor::RGB565ToRGB888(rgb565);
+						}
 						else
 							break;
 					}
@@ -940,6 +1179,11 @@ void MungPlex::Search::drawResultsTableNew()
 
 							if (_pokePrevious)
 								vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
+						}
+						else if (col == 4)
+						{
+							rgb5A3 = *reinterpret_cast<uint16_t*>(_updateValues.data() + row * sizeof(uint16_t));
+							rectColor = LitColor::RGB5A3ToRGBA8888(rgb5A3);
 						}
 						else
 							break;
@@ -974,6 +1218,11 @@ void MungPlex::Search::drawResultsTableNew()
 							if (_pokePrevious)
 								vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
 						}
+						else if (col == 4)
+						{
+							colorPtr = reinterpret_cast<float*>(_updateValues.data() + row * colorValueCount * sizeof(float));
+							rectColor = usesAlpha ? LitColor::RGBAFToRGBA8888(colorPtr) : LitColor::RGBFToRGB888(colorPtr);
+						}
 						else
 							break;
 					}
@@ -999,6 +1248,13 @@ void MungPlex::Search::drawResultsTableNew()
 							if (_pokePrevious)
 								vecCol = PackedColorToImVec4(reinterpret_cast<uint8_t*>(&rectColor));
 						}
+						else if (col == 4)
+						{
+							rectColor = *reinterpret_cast<uint32_t*>(_updateValues.data() + row * sizeof(uint32_t));
+							
+							if (_currentColorTypeSelect == LitColor::RGB888)
+								rectColor |= 0xFF;
+						}
 						else
 							break;
 					}
@@ -1019,11 +1275,10 @@ void MungPlex::Search::drawResultsTableNew()
 						strLength = MemoryCompare::MemCompare::GetResults().GetValueWidth();
 
 					pageIndexWithRowCount *= strLength;
+					static std::string temputf8;
 
 					if (col == 1)
 					{
-						static std::string temputf8;
-
 						switch (_currentTextTypeSelect)
 						{
 							case MT::UTF16LE: case MT::UTF16BE:
@@ -1035,12 +1290,26 @@ void MungPlex::Search::drawResultsTableNew()
 							default: 
 								temputf8 = MT::Convert<char*, std::string>(MC::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCount), _currentTextTypeSelect, MT::UTF8);
 						}
-
-						sprintf(buf.Data(), "%s", temputf8.c_str());
-						tempValue = buf;
+					}
+					else if (col == 4)
+					{
+						switch (_currentTextTypeSelect)
+						{
+						case MT::UTF16LE: case MT::UTF16BE:
+							temputf8 = MT::Convert<wchar_t*, std::string>(reinterpret_cast<wchar_t*>(_updateValues.data() + row * MC::GetResults().GetValueWidth()), _currentTextTypeSelect, MT::UTF8);
+							break;
+						case MT::UTF32LE: case MT::UTF32BE:
+							temputf8 = MT::Convert<char32_t*, std::string>(reinterpret_cast<char32_t*>(_updateValues.data() + row * MC::GetResults().GetValueWidth()), _currentTextTypeSelect, MT::UTF8);
+							break;
+						default:
+							temputf8 = MT::Convert<char*, std::string>(reinterpret_cast<char*>(_updateValues.data() + row * MC::GetResults().GetValueWidth()), _currentTextTypeSelect, MT::UTF8);
+						}
 					}
 					else
 						break;
+
+					sprintf(buf.Data(), "%s", temputf8.c_str());
+					tempValue = buf;
 				}
 				break;
 				default:// PRIMITIVE
@@ -1049,6 +1318,7 @@ void MungPlex::Search::drawResultsTableNew()
 					{
 						static int64_t currentValue;
 						static int64_t previousValue;
+						static int64_t liveValue;
 
 						switch (_currentPrimitiveTypeSelect)
 						{
@@ -1058,11 +1328,13 @@ void MungPlex::Search::drawResultsTableNew()
 							{
 								currentValue = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<int8_t>(pageIndexWithRowCount);
 								previousValue = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<int8_t>(pageIndexWithRowCount);
+								liveValue = *reinterpret_cast<int8_t*>(_updateValues.data() + row);
 							}
 							else
 							{
 								currentValue = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint8_t>(pageIndexWithRowCount);
 								previousValue = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint8_t>(pageIndexWithRowCount);
+								liveValue = *(_updateValues.data() + row);
 							}
 						}break;
 						case INT16:
@@ -1071,11 +1343,13 @@ void MungPlex::Search::drawResultsTableNew()
 							{
 								currentValue = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<int16_t>(pageIndexWithRowCount);
 								previousValue = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<int16_t>(pageIndexWithRowCount);
+								liveValue = *reinterpret_cast<int16_t*>(_updateValues.data() + row * sizeof(int16_t));
 							}
 							else
 							{
 								currentValue = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint16_t>(pageIndexWithRowCount);
 								previousValue = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint16_t>(pageIndexWithRowCount);
+								liveValue = *reinterpret_cast<uint16_t*>(_updateValues.data() + row * sizeof(uint16_t));
 							}
 						}break;
 						case INT64:
@@ -1084,11 +1358,13 @@ void MungPlex::Search::drawResultsTableNew()
 							{
 								currentValue = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<int64_t>(pageIndexWithRowCount);
 								previousValue = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<int64_t>(pageIndexWithRowCount);
+								liveValue = *reinterpret_cast<int64_t*>(_updateValues.data() + row * sizeof(int64_t));
 							}
 							else
 							{
 								currentValue = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint64_t>(pageIndexWithRowCount);
 								previousValue = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint64_t>(pageIndexWithRowCount);
+								liveValue = *reinterpret_cast<uint64_t*>(_updateValues.data() + row * sizeof(uint64_t));
 							}
 						}break;
 						default: //INT32
@@ -1097,11 +1373,13 @@ void MungPlex::Search::drawResultsTableNew()
 							{
 								currentValue = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<int32_t>(pageIndexWithRowCount);
 								previousValue = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<int32_t>(pageIndexWithRowCount);
+								liveValue = *reinterpret_cast<int32_t*>(_updateValues.data() + row * sizeof(int32_t));
 							}
 							else
 							{
 								currentValue = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint32_t>(pageIndexWithRowCount);
 								previousValue = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<uint32_t>(pageIndexWithRowCount);
+								liveValue = *reinterpret_cast<uint32_t*>(_updateValues.data() + row * sizeof(uint32_t));
 							}
 						}break;
 						}
@@ -1121,12 +1399,15 @@ void MungPlex::Search::drawResultsTableNew()
 						case 3:
 							sprintf(buf.Data(), literal, currentValue - previousValue);
 							break;
+						case 4:
+							sprintf(buf.Data(), literal, liveValue);
 						}
 					}
 					else
 					{
 						static double currentValue;
 						static double previousValue;
+						static double liveValue;
 
 						switch (_currentPrimitiveTypeSelect)
 						{
@@ -1134,11 +1415,13 @@ void MungPlex::Search::drawResultsTableNew()
 						{
 							currentValue = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<double>(pageIndexWithRowCount);
 							previousValue = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<double>(pageIndexWithRowCount);
+							liveValue = *reinterpret_cast<double*>(_updateValues.data() + row * sizeof(double));
 						}break;
-						default: //DOUBLE
+						default: //FLOAT
 						{
 							currentValue = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<float>(pageIndexWithRowCount);
 							previousValue = iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetPreviousValueAllRanges<float>(pageIndexWithRowCount);
+							liveValue = *reinterpret_cast<float*>(_updateValues.data() + row * sizeof(float));
 						}
 						}
 
@@ -1157,6 +1440,8 @@ void MungPlex::Search::drawResultsTableNew()
 						case 3:
 							sprintf(buf.Data(), literal, currentValue - previousValue);
 							break;
+						case 4:
+							sprintf(buf.Data(), literal, liveValue);
 						}
 					}
 				}
