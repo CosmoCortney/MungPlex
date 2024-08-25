@@ -23,6 +23,8 @@ add_executable (MungPlex
     Cheats.cpp
     Connection.cpp
     Connection.hpp
+    ContextMenuHelper.cpp
+    ContextMenuHelper.hpp
     DataConversion.hpp
     DataConversion.cpp
     Discord.cpp
