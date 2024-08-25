@@ -520,3 +520,4 @@ You can find up-to-date ToDos and an idea list on the affiliated Discord Server 
 - Lawn Meower: Idea, code, reverse engineering
 - [BullyWiiPlaza](https://github.com/BullyWiiPlaza/): Code, Creation of [Pointer Searcher Engine](https://github.com/BullyWiiPlaza/Universal-Pointer-Searcher-Engine)
 - [Divengerss](https://www.youtube.com/channel/UCZDBXfuNiVXXb7Wbh_syiDw): Testing, reporting bugs
+- [Mippy](https://github.com/Mipppy): Fixing the main frame and creation of the context menu scaffold

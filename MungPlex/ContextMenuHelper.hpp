@@ -14,12 +14,12 @@ namespace MungPlex
 		static void UpdateMemoryViewerList();
 
 	private:
-		ContextMenuHelper();
-		~ContextMenuHelper();
-		void OpenGithubLink();
-		void OpenGithubWikiLink();
+		ContextMenuHelper() = default;
+		~ContextMenuHelper() = default;
 		void openMemoryVierwer();
 		void drawViewMenuItems();
+		void drawHelpMenuItems();
+		void openWebPage(const std::string& url);
 
 		static ContextMenuHelper& GetInstance() {
 			static ContextMenuHelper Instance;

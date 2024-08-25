@@ -12,6 +12,8 @@ void MungPlex::ContextMenuHelper::DrawWindow()
 
     if (ImGui::BeginMainMenuBar())
     {
+        /*
+        
         if (ImGui::BeginMenu("File"))
         {
             if (ImGui::MenuItem("Placeholder", "Something")) {  }
@@ -22,38 +24,19 @@ void MungPlex::ContextMenuHelper::DrawWindow()
         {
             if (ImGui::MenuItem("Placeholder", "")) {  }
             ImGui::EndMenu();
-        }
+        }*/
 
         GetInstance().drawViewMenuItems();
-
-        if (ImGui::BeginMenu("Help"))
-        {
-            if (ImGui::MenuItem("Wiki")) { GetInstance().OpenGithubLink(); }
-            if (ImGui::MenuItem("Github")) { GetInstance().OpenGithubLink(); }
-            ImGui::EndMenu();
-        }
+        GetInstance().drawHelpMenuItems();
 
         ImGui::EndMainMenuBar();
     }
-
 	ImGui::End();
 }
 
-MungPlex::ContextMenuHelper::ContextMenuHelper()
+void MungPlex::ContextMenuHelper::openWebPage(const std::string& url)
 {
-}
-
-MungPlex::ContextMenuHelper::~ContextMenuHelper()
-{
-}
-
-void MungPlex::ContextMenuHelper::OpenGithubLink()
-{
-    ShellExecute(0, 0, "https://github.com/CosmoCortney/MungPlex", 0, 0, SW_SHOW);
-}
-void MungPlex::ContextMenuHelper::OpenGithubWikiLink()
-{
-    ShellExecute(0, 0, "https://github.com/CosmoCortney/MungPlex/wiki", 0, 0, SW_SHOW);
+    ShellExecute(0, 0, url.c_str(), 0, 0, SW_SHOW);
 }
 
 void MungPlex::ContextMenuHelper::openMemoryVierwer()
@@ -96,6 +79,26 @@ void MungPlex::ContextMenuHelper::drawViewMenuItems()
                 GetInstance().openMemoryVierwer();
         }
         if (disableMemViewOtion) ImGui::EndDisabled();
+
+        ImGui::EndMenu();
+    }
+}
+
+void MungPlex::ContextMenuHelper::drawHelpMenuItems()
+{
+    if (ImGui::BeginMenu("Help"))
+    {
+        if (ImGui::MenuItem("Wiki"))
+            GetInstance().openWebPage("https://github.com/CosmoCortney/MungPlex/wiki");
+
+        if (ImGui::MenuItem("GitHub"))
+            GetInstance().openWebPage("https://github.com/CosmoCortney/MungPlex");
+
+        if (ImGui::MenuItem("Discord Server"))
+            GetInstance().openWebPage("https://discord.gg/wU62ZTvQRj");
+
+        if (ImGui::MenuItem("Open Cheat Code Database"))
+            GetInstance().openWebPage("https://follow-the-white-rabbit.wtf");
 
         ImGui::EndMenu();
     }
