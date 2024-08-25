@@ -159,9 +159,6 @@ void MungPlex::Connection::drawConnectionSelect()
 			_discord.CheckGameState(_connected);
 	}
 
-	ImGui::Dummy(ImVec2(0.0f, 5.0f));
-	memoryViewerButton();
-	ImGui::Dummy(ImVec2(0.0f, 5.0f));
 	ImGui::Text(_connectionMessage.c_str());
 
 	if (ProcessInformation::GetProcessType() == ProcessInformation::EMULATOR)
@@ -173,24 +170,6 @@ void MungPlex::Connection::drawConnectionSelect()
 	}
 }
 
-void MungPlex::Connection::memoryViewerButton()
-{
-	if (!_connected || _memoryViewers.size() >= 16) ImGui::BeginDisabled();
-	{
-		ImGui::Dummy(ImVec2(0.0f, 5.0f));
-		if (ImGui::Button("Open Memory Viewer"))
-			_memoryViewers.emplace_back(++_memViewerCount);
-	}
-
-	if (!_connected || _memoryViewers.size() >= 16) ImGui::EndDisabled();
-
-	for (int i = 0; i < _memoryViewers.size(); ++i)
-	{
-		if (!_memoryViewers[i].IsOpen())
-			_memoryViewers.erase(_memoryViewers.begin() + i);
-	}
-}
-
 bool MungPlex::Connection::IsConnected()
 {
 	return GetInstance()._connected;
@@ -199,11 +178,6 @@ bool MungPlex::Connection::IsConnected()
 MungPlex::DiscordRPC MungPlex::Connection::GetDiscordRichPresence()
 {
 	return GetInstance()._discord;
-}
-
-std::vector<MungPlex::MemoryViewer>& MungPlex::Connection::GetMemoryViews()
-{
-	return GetInstance()._memoryViewers;
 }
 
 void MungPlex::Connection::startConnectionCheck()

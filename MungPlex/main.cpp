@@ -152,9 +152,16 @@ int main()
 		MungPlex::DataConversion::DrawWindow();
 		MungPlex::ContextMenuHelper::DrawWindow();
 
-		for (int i = 0; i < MungPlex::Connection::GetMemoryViews().size(); ++i)
+		for (int i = 0; i < MungPlex::ContextMenuHelper::GetMemoryViews().size(); ++i)
 		{
-			MungPlex::Connection::GetMemoryViews()[i].DrawWindow();
+			if (!MungPlex::ContextMenuHelper::GetMemoryViews()[i].IsOpen())
+			{
+				MungPlex::ContextMenuHelper::UpdateMemoryViewerList();
+				i = -1;
+				continue;
+			}
+
+			MungPlex::ContextMenuHelper::GetMemoryViews()[i].DrawWindow();
 		}
 
 		if (show_demo_window)

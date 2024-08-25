@@ -1,12 +1,15 @@
-#include <windows.h>
-#include <shellapi.h>
+#include <boost/asio.hpp>
+#include "GLFW/glfw3.h"
+#include "Connection.hpp"
 #include "ContextMenuHelper.hpp"
 #include "imgui.h"
-#include "GLFW/glfw3.h"
+#include <boost/winapi/shell.hpp>
+#include <shellapi.h>
 
-
-void MungPlex::ContextMenuHelper::DrawWindow() {
+void MungPlex::ContextMenuHelper::DrawWindow()
+{
 	ImGui::Begin("ContextMenu", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))
@@ -21,11 +24,7 @@ void MungPlex::ContextMenuHelper::DrawWindow() {
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("View"))
-        {
-            if (ImGui::MenuItem("Memory Viewer")) {}
-            ImGui::EndMenu();
-        }
+        GetInstance().drawViewMenuItems();
 
         if (ImGui::BeginMenu("Help"))
         {
@@ -55,4 +54,49 @@ void MungPlex::ContextMenuHelper::OpenGithubLink()
 void MungPlex::ContextMenuHelper::OpenGithubWikiLink()
 {
     ShellExecute(0, 0, "https://github.com/CosmoCortney/MungPlex/wiki", 0, 0, SW_SHOW);
+}
+
+void MungPlex::ContextMenuHelper::openMemoryVierwer()
+{
+    if (!Connection::IsConnected())
+        return;
+
+    if (_memoryViewers.size() >= 16)
+        return;
+
+    _memoryViewers.emplace_back(++_memViewerCount);
+    UpdateMemoryViewerList();
+}
+
+std::vector<MungPlex::MemoryViewer>& MungPlex::ContextMenuHelper::GetMemoryViews()
+{
+    return GetInstance()._memoryViewers;
+}
+
+void MungPlex::ContextMenuHelper::UpdateMemoryViewerList()
+{
+    for (int i = 0; i < GetInstance()._memoryViewers.size(); ++i)
+    {
+        if (!GetInstance()._memoryViewers[i].IsOpen())
+            GetInstance()._memoryViewers.erase(GetInstance()._memoryViewers.begin() + i);
+    }
+}
+
+void MungPlex::ContextMenuHelper::drawViewMenuItems()
+{
+    static bool disableMemViewOtion = false;
+
+    if (ImGui::BeginMenu("View"))
+    {
+        disableMemViewOtion = !Connection::IsConnected() || _memoryViewers.size() >= 16;
+        
+        if(disableMemViewOtion) ImGui::BeginDisabled();
+        {
+            if (ImGui::MenuItem("Memory Viewer"))
+                GetInstance().openMemoryVierwer();
+        }
+        if (disableMemViewOtion) ImGui::EndDisabled();
+
+        ImGui::EndMenu();
+    }
 }

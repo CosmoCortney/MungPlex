@@ -13,10 +13,6 @@ namespace MungPlex
         static void DrawWindow();
         static bool IsConnected();
         static DiscordRPC GetDiscordRichPresence();
-        //static void SetRichPresenceState(const std::string& action);
-        //static void InitRichPresence();
-        //static void StopRichPresence();
-        static std::vector<MemoryViewer>& GetMemoryViews();
 
     private:
         Connection() = default;
@@ -32,7 +28,6 @@ namespace MungPlex
         }
 
         bool _connected = false;
-        uint32_t _memViewerCount = 0;
         int _selectedEmulatorIndex = 0;
         int _selectedProcessIndex = 0;
         int _selectedApplicationProcessIndex = 0;
@@ -41,10 +36,7 @@ namespace MungPlex
         DiscordRPC _discord;
 
         void drawConnectionSelect();
-        void memoryViewerButton();
         void startConnectionCheck();
         void checkConnection();
-        //static void getDiscordActivityResult(discord::Result result);
-        //static void logDiscordProblem(const discord::LogLevel level, const std::string message);
     };
 }
