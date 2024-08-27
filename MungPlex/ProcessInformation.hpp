@@ -224,7 +224,7 @@ namespace MungPlex
         std::wstring _exePath;
         bool _read = true;
         bool _write = true;
-        bool _execute = true;
+        bool _execute = false;
         int _platformID = UNK;
         int _connectionCheckValue = 0;
         void* _connectionCheckPtr = nullptr;
