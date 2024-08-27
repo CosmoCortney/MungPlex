@@ -762,4 +762,12 @@ namespace MungPlex
         stream << std::put_time(&now_tm, timeArgs.c_str());
         return stream.str();
     }
+
+    static std::string GetWindowTitleBase(const std::string& appendage = "")
+    {
+        std::string windowTitle("MungPlex ");
+        windowTitle.append(std::to_string(MungPlex_VERSION_MAJOR) + "." + std::to_string(MungPlex_VERSION_MINOR) + "." + std::to_string(MungPlex_VERSION_PATCH));
+        windowTitle.append(appendage);
+        return windowTitle;
+    }
 }

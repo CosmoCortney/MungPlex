@@ -195,4 +195,6 @@ void MungPlex::Connection::checkConnection()
 		std::this_thread::sleep_for(millisecondsToWait);
 		_connected = ProcessInformation::IsConnectionValid();
 	}
+
+	ProcessInformation::ResetWindowTitle();
 }

@@ -3,11 +3,12 @@
 // TODO No defines like this, define a "proper" class
 #define EMUPAIR std::pair<const std::wstring, const int>
 #include <boost/asio.hpp>
-#include <stdio.h>
-#include<string>
-#include "Xertz.hpp"
-#include"HelperFunctions.hpp"
+#include <GLFW/glfw3.h>
+#include "HelperFunctions.hpp"
 #include <nlohmann/json.hpp>
+#include <stdio.h>
+#include <string>
+#include "Xertz.hpp"
 
 namespace MungPlex
 {
@@ -79,6 +80,8 @@ namespace MungPlex
         static bool IsConnectionValid();
         static const std::vector<std::pair<int, std::string>>& GetSystemPairs();
         static std::string GetSystemNameByID(const int id);
+        static void SetWindowRef(GLFWwindow* window);
+        static void ResetWindowTitle();
 
         template<typename addressType> static addressType GetModuleAddress(const std::wstring& moduleName)
         {
@@ -194,6 +197,7 @@ namespace MungPlex
         bool _underlyingIsBigEndian;
         bool _rereorderRegion;
         int _alignment;
+        GLFWwindow* _window;
         std::string _gameID;
         std::string _rpcGameID;
         std::string _platform;

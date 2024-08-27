@@ -914,6 +914,9 @@ bool MungPlex::ProcessInformation::initProcess(const std::wstring& processName)
 void MungPlex::ProcessInformation::setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth, const int alignment)
 {
 	_processName = processName;
+	std::string windowTitle = GetWindowTitleBase();
+	windowTitle.append(" | " + _processName);
+	glfwSetWindowTitle(_window, windowTitle.c_str());
 	_underlyingIsBigEndian = bigEndian;
 	_addressWidth = addressWidth;
 	_rereorderRegion = rereorder;
@@ -1523,6 +1526,13 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	msg.append(GetInstance()._gameID);
 	Log::LogInformation(msg.c_str());
 
+	std::string windowTitle = GetWindowTitleBase();
+	windowTitle.append(" | " + GetInstance()._processName);
+	windowTitle.append(" | " + GetInstance()._gameName);
+	windowTitle.append(" | " + GetInstance()._gameID);
+	windowTitle.append(" (" + GetInstance()._platform + ")");
+	glfwSetWindowTitle(GetInstance()._window, windowTitle.c_str());
+
 	return true; 
 }
 
@@ -1800,4 +1810,14 @@ std::string MungPlex::ProcessInformation::GetSystemNameByID(const int id)
 	}
 
 	return "Undefined";
+}
+
+void MungPlex::ProcessInformation::SetWindowRef(GLFWwindow* window)
+{
+	GetInstance()._window = window;
+}
+
+void MungPlex::ProcessInformation::ResetWindowTitle()
+{
+	glfwSetWindowTitle(GetInstance()._window, GetWindowTitleBase().c_str());
 }
