@@ -3,7 +3,7 @@
     {
       "buildCommandArgs": "-v",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:\\Users\\Tim\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
       "configurationType": "Debug",
       "ctestCommandArgs": "",
       "generator": "Ninja",
@@ -13,13 +13,23 @@
       "variables": [
         {
           "name": "Boost_CHRONO_LIBRARY_RELEASE",
-          "value": "C:/vcpkg/installed/x64-windows/lib/boost_chrono-vc140-mt.lib",
+          "value": "C:/Users/Tim/vcpkg/installed/x64-windows/lib/boost_chrono-vc140-mt.lib",
           "type": "FILEPATH"
         },
         {
           "name": "Boost_PROCESS_LIBRARY_DEBUG",
           "value": "Boost_PROCESS_LIBRARY_DEBUG-NOTFOUND",
           "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "C:\\Users\\Tim\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+          "type": "STRING"
+        },
+        {
+          "name": "glfw3_DIR",
+          "value": "C:/Users/Tim/vcpkg/installed/x64-windows/share/glfw3",
+          "type": "PATH"
         }
       ]
     },
@@ -30,13 +40,13 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:\\Users\\Tim\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "variables": [
         {
           "name": "glfw3_DIR",
-          "value": "C:/vcpkg/installed/x64-windows/share/glfw3",
+          "value": "C:/Users/Tim/vcpkg/installed/x64-windows/share/glfw3",
           "type": "PATH"
         }
       ]

@@ -10,10 +10,12 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <iostream>
+#include <string>
 #include "Log.hpp"
 #include "MungPlexConfig.hpp"
 #include "PointerSearch.hpp"
 #include "ProcessInformation.hpp"
+#include "WebsocketClient.hpp"
 #include "Search.hpp"
 #include "Settings.hpp"
 #include "WatchControl.hpp"
@@ -60,9 +62,10 @@ int main()
 	{
 		return EXIT_FAILURE;
 	}
-
+	MungPlex::WebsocketClient::ConnectToGame("w", "we");
+	std::string test = "hello :)";
+	MungPlex::WebsocketClient::SendServerMessage(test);
 	clearSearchResultsDir();
-
 	std::string windowTitle("MungPlex ");
 	windowTitle.append(std::to_string(MungPlex_VERSION_MAJOR) + "." + std::to_string(MungPlex_VERSION_MINOR) + "." + std::to_string(MungPlex_VERSION_PATCH));
 	IMGUI_CHECKVERSION();

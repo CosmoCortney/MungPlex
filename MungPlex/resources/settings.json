@@ -40,9 +40,9 @@
         ],
         "CheckMark": [
           [
-            1.0,
-            1.0,
-            1.0,
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
             1.0
           ]
         ],
@@ -392,9 +392,9 @@
         ]
       },
       "DefaultWindowSelect": 0,
-      "DocumentsPath": "C:\\Users\\s_sch\\Documents",
-      "EnableRichPresence": true,
-      "Scale": 0.8941890001296997
+      "DocumentsPath": "C:\\Users\\Tim\\Documents",
+      "EnableRichPresence": false,
+      "Scale": 1.2000000476837158
     },
     "Search": {
       "DefaultAlignment": 4,
