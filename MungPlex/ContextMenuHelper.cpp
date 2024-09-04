@@ -97,8 +97,8 @@ void MungPlex::ContextMenuHelper::drawHelpMenuItems()
         if (ImGui::MenuItem("Discord Server"))
             GetInstance().openWebPage("https://discord.gg/wU62ZTvQRj");
 
-        if (ImGui::MenuItem("Open Cheat Code Database"))
-            GetInstance().openWebPage("https://follow-the-white-rabbit.wtf");
+        if (ImGui::MenuItem("Cheat Code Database"))
+            GetInstance().openWebPage("https://lawnmeower.de");
 
         ImGui::EndMenu();
     }
