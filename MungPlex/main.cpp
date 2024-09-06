@@ -15,7 +15,8 @@
 #include "MungPlexConfig.hpp"
 #include "PointerSearch.hpp"
 #include "ProcessInformation.hpp"
-#include "WebsocketClient.hpp"
+#include "netplay/WebsocketClient.hpp"
+#include "netplay/NetplayWindow.hpp"
 #include "Search.hpp"
 #include "Settings.hpp"
 #include "WatchControl.hpp"
@@ -58,13 +59,11 @@ void clearSearchResultsDir()
 
 int main()
 {
+	MungPlex::WebsocketClient::ConnectToWebsocket();
 	if (!glfwInit())
 	{
 		return EXIT_FAILURE;
 	}
-	MungPlex::WebsocketClient::ConnectToGame("w", "we");
-	std::string test = "hello :)";
-	MungPlex::WebsocketClient::SendServerMessage(test);
 	clearSearchResultsDir();
 	std::string windowTitle("MungPlex ");
 	windowTitle.append(std::to_string(MungPlex_VERSION_MAJOR) + "." + std::to_string(MungPlex_VERSION_MINOR) + "." + std::to_string(MungPlex_VERSION_PATCH));
@@ -154,6 +153,7 @@ int main()
 		MungPlex::PointerSearch::DrawWindow();
 		MungPlex::DataConversion::DrawWindow();
 		MungPlex::ContextMenuHelper::DrawWindow();
+		MungPlex::NetplayWindow::DrawWindow();
 
 		for (int i = 0; i < MungPlex::ContextMenuHelper::GetMemoryViews().size(); ++i)
 		{

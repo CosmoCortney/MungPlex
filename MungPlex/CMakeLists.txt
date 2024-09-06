@@ -75,7 +75,7 @@ add_executable (MungPlex
     ../include/ImGuiFileDialog/ImGuiFileDialog.h
     ../include/ImGuiFileDialog/ImGuiFileDialog.cpp
     ../include/ImGui_MemoryEditor/imgui_memory_editor/imgui_memory_editor.h
- "ContextMenuHelper.cpp"  "WebsocketClient.cpp")
+ "ContextMenuHelper.cpp"  "netplay/WebsocketClient.cpp" "netplay/NetplayWindow.cpp" )
 
 # Link Icon
 target_sources(MungPlex PRIVATE resources.rc)
