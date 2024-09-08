@@ -27,7 +27,7 @@ void MungPlex::NetplayWindow::DrawWindow()
 		if (ImGui::InputInt("Integer Input", &GetInstance().GameIDInput)) {
 			 GetInstance().GameIDInput = GetInstance().ClampIntInputValue(GetInstance().GameIDInput, 1000, 9999);
 		}
-		if (ImGui::Button("Join Game")) {
+	if (ImGui::Button("Join Game")) {
 			GetInstance().JoinButtonClicked();
 		}
 	}
