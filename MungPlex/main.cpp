@@ -67,6 +67,7 @@ int main()
 	clearSearchResultsDir();
 	std::string windowTitle("MungPlex ");
 	windowTitle.append(std::to_string(MungPlex_VERSION_MAJOR) + "." + std::to_string(MungPlex_VERSION_MINOR) + "." + std::to_string(MungPlex_VERSION_PATCH));
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	auto& io = ImGui::GetIO();
@@ -75,12 +76,12 @@ int main()
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	ImGui::StyleColorsDark();
 
+	std::string windowTitle = MungPlex::GetWindowTitleBase();
 	const auto window = glfwCreateWindow(1280, 720, windowTitle.c_str(), nullptr, nullptr);
-
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
-
 	glfwSwapInterval(1);
+	MungPlex::ProcessInformation::SetWindowRef(window);
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	MungPlex::Settings::InitSettings();

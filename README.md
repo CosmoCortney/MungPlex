@@ -14,7 +14,7 @@ Also do not use this tool for cheating online in public sessions/rooms! Only los
 None of the contributors of this project bear any warranty or responsibility for any damage happening.
 
 ## MungPlex Wiki
-The [MungPlex Wiki]https://github.com/CosmoCortney/MungPlex/wiki) provides a lot of useful information about MungPlex, hacking techniques, and computer science relevant for game hacking.
+The [MungPlex Wiki](https://github.com/CosmoCortney/MungPlex/wiki) provides a lot of useful information about MungPlex, hacking techniques, and computer science relevant for game hacking.
 
 ## Table of contents
 - [Releases](#releases)

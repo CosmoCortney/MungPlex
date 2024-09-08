@@ -1007,7 +1007,7 @@ void MungPlex::Search::drawResultsTableNew()
 	ImGui::TableSetupColumn("Value");
 	ImGui::TableSetupColumn("Previous");
 	ImGui::TableSetupColumn("Difference (a - b)");
-	ImGui::TableSetupColumn("Live Update");
+	ImGui::TableSetupColumn("Real-Time");
 	ImGui::TableHeadersRow();
 	const char* literal;
 
