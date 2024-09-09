@@ -11,9 +11,7 @@ namespace MungPlex {
 	private:
 		NetplayWindow();
 		~NetplayWindow();
-		void HostButtonClicked();
 		static int ClampIntInputValue(int value, int min, int max);
-		static void JoinButtonClicked();
 		static const uint8_t MaxPasswordLength = 255;
 		static char PasswordInputTextBuffer[MaxPasswordLength];
 		static int GameIDInput;

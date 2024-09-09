@@ -1,7 +1,6 @@
 import asyncio
 import websockets
 import random
-import struct
 
 class Room:
     def __init__(self, password):
@@ -9,6 +8,7 @@ class Room:
         self.room_id = self.generate_room_id1()
         self.id = self.generate_room_id(self.room_id)
         self.connections = []  
+        self.host = None  # Keep track of the host
 
     def generate_room_id1(self):
         return random.randint(1000, 9999)
@@ -21,14 +21,25 @@ class Room:
         """Add a WebSocket connection to the room."""
         if websocket not in self.connections:
             self.connections.append(websocket)
+            if len(self.connections) == 1:  # The first connection is the host
+                self.host = websocket
+        print(self.host)
 
     def remove_connection(self, websocket):
         """Remove a WebSocket connection from the room."""
         if websocket in self.connections:
             self.connections.remove(websocket)
 
+        # If the host disconnects or if there are no players left, disband the room
+        if websocket == self.host:
+            print(f"Host disconnected, disbanding room {self.id}")
+            del rooms[self.id]  # Disband the room by removing it from the dictionary
+        elif not self.connections:
+            print(f"Room {self.id} is empty, disbanding...")
+            del rooms[self.id]  # Disband the room if no one is left
+
     def __repr__(self):
-        return f"Room(ID={self.id}, Password={self.password}, Connections={len(self.connections)})"
+        return f"Room(ID={self.id}, Password={self.password}, Connections={len(self.connections)}, Host={self.host})"
 
 rooms = {}
 
@@ -36,9 +47,11 @@ async def handle_message(websocket, message):
     """Process incoming messages and handle room creation or joining based on the first byte."""
     if not message:
         return
+
     # Ensure the message is a bytes object
     if isinstance(message, str):
         message = message.encode('utf-8')
+
     print(message[0])
     if len(message) < 1:
         await websocket.send(b"Error: Message too short")
@@ -66,8 +79,8 @@ async def handle_message(websocket, message):
             await websocket.send(b"Error: Message too short to join a room")
             return
 
-        # Extract the next 4 bytes for the game ID (unpack into an integer)
-        game_id = message[1:5].decode("utf-8")  # Big-endian 4-byte unsigned int
+        # Extract the next 4 bytes for the game ID
+        game_id = message[1:5].decode("utf-8")
         
         # Extract the rest of the message as the password (decode to string)
         password = message[5:].decode('utf-8')
@@ -86,22 +99,37 @@ async def handle_message(websocket, message):
                 await websocket.send(b"Error: Incorrect password")
         else:
             await websocket.send(b"Error: Room does not exist")
-    elif message[0] == 0x0B:
-        None
+    elif message[0] == 0x09:
+        for room in list(rooms.values()):
+            if websocket in room.connections:
+                room.remove_connection(websocket)
     else:
         await websocket.send(b"Error: Invalid message format")
-
+    
 async def echo(websocket, path):
     try:
         await websocket.send("Welcome to the WebSocket server!".encode('utf-8'))
 
-        async for message in websocket:
-            await handle_message(websocket, message)
+        while True:
+            try:
+                # Wait for the next message, with a timeout of 6 seconds
+                message = await asyncio.wait_for(websocket.recv(), timeout=6.0)
+                await handle_message(websocket, message)
+            except asyncio.TimeoutError:
+                print("Timeout, disconnecting client due to inactivity.")
+                await websocket.close()  # Close the connection on timeout
+                break
     except websockets.ConnectionClosed as e:
+        # Remove the connection from all rooms upon disconnection
+        for room in list(rooms.values()):
+            if websocket in room.connections:
+                room.remove_connection(websocket)
         print(f"Connection closed: {e}")
 
 start_server = websockets.serve(echo, "localhost", 8765)
-
+ro1om = Room("AAA")
+rooms[ro1om.id] = ro1om
+print(ro1om)
 asyncio.get_event_loop().run_until_complete(start_server)
 print("WebSocket server started on ws://localhost:8765")
 asyncio.get_event_loop().run_forever()

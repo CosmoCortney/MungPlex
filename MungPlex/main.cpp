@@ -59,7 +59,6 @@ void clearSearchResultsDir()
 
 int main()
 {
-	MungPlex::WebsocketClient::ConnectToWebsocket();
 	if (!glfwInit())
 	{
 		return EXIT_FAILURE;
@@ -76,7 +75,6 @@ int main()
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	ImGui::StyleColorsDark();
 
-	std::string windowTitle = MungPlex::GetWindowTitleBase();
 	const auto window = glfwCreateWindow(1280, 720, windowTitle.c_str(), nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
@@ -121,6 +119,7 @@ int main()
 	
 	style.ScaleAllSizes(MungPlex::Settings::GetGeneralSettings().Scale);
 	MungPlex::Log::LogInformation("Started MungPlex");
+	MungPlex::WebsocketClient::ConnectToWebsocket();
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -154,7 +153,8 @@ int main()
 		MungPlex::PointerSearch::DrawWindow();
 		MungPlex::DataConversion::DrawWindow();
 		MungPlex::ContextMenuHelper::DrawWindow();
-		MungPlex::NetplayWindow::DrawWindow();
+			MungPlex::NetplayWindow::DrawWindow();
+		
 
 		for (int i = 0; i < MungPlex::ContextMenuHelper::GetMemoryViews().size(); ++i)
 		{
@@ -199,7 +199,7 @@ int main()
 
 		glfwSwapBuffers(window);
 	}
-	
+	MungPlex::WebsocketClient::Disconnect();
 	clearSearchResultsDir();
 	return EXIT_SUCCESS;
 }

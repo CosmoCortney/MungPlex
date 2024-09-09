@@ -7,7 +7,12 @@
 #include <boost/asio/executor_work_guard.hpp>
 #include <vector>
 #include "../Log.hpp"
+#include "../LogMessages.hpp"
 
+bool MungPlex::WebsocketClient::IsConnected = false;
+bool MungPlex::WebsocketClient::IsInGame = false;
+bool MungPlex::WebsocketClient::IsHosting = false;
+bool MungPlex::WebsocketClient::HasInternet = true; // Assume they have internet by default.  The check for internet is one of the first functions to be called, so this shouldn't do anything regardless
 
 MungPlex::WebsocketClient::WebsocketClient()
 	: Websocket(IoC), Resolver(IoC), PingTimer(IoC), WorkGuard(boost::asio::make_work_guard(IoC))
@@ -24,17 +29,22 @@ MungPlex::WebsocketClient::~WebsocketClient()
 		Disconnect();
 	}
 	StopPingTimer();
-	IoC.stop();  
+	IoC.stop();
 	WorkGuard.reset();
 	if (IoThread.joinable()) {
-		IoThread.join();  
+		IoThread.join();
 	}
 }
 
 void MungPlex::WebsocketClient::ConnectToWebsocket() {
 	try {
-		if (GetInstance().IsConnected) {
-			MungPlex::Log::LogInformation("Already connected to netplay server!");
+		if (!GetInstance().CheckForInternetConnection()) {
+			//Abort and don't allow netplay
+			MungPlex::Log::LogInformation("[Netplay] You aren't connected to the internet!  Restart MungPlex to try again!");
+			return;
+		}
+		if (GetInstance().IsConnected || GetInstance().IsHosting || GetInstance().IsInGame) {
+			MungPlex::Log::LogInformation("[Netplay] Already connected to netplay server!");
 			return;
 		}
 		std::string full_url = GetInstance().WebsocketHostURL;
@@ -50,30 +60,35 @@ void MungPlex::WebsocketClient::ConnectToWebsocket() {
 
 		GetInstance().Websocket.handshake(host_and_port, GetInstance().WebsocketHostURLPath);
 		GetInstance().IsConnected = true;
-		
+		GetInstance().IsInGame = false;
+		GetInstance().IsHosting = false;
+
 		//Async recursive functions
 		GetInstance().StartPingTimer();
 		GetInstance().HandleMessages();
-		
-		MungPlex::Log::LogInformation("Connected to netplay server successfully!");
+
+		MungPlex::Log::LogInformation(MungPlex::GetLogMessage(MungPlex::LogMessages::NetplaySuccessfullyConnectedToServer));
 	}
 	catch (const std::exception& e) {
-		MungPlex::Log::LogInformation("Failed to connect to netplay server!");
+		printf(e.what());
+		MungPlex::Log::LogInformation(MungPlex::GetLogMessage(MungPlex::LogMessages::NetplayServerConnectionError, e.what()));
 		GetInstance().IsConnected = false;
+		GetInstance().IsInGame = false;
+		GetInstance().IsHosting = false;
 	}
 }
 
 void MungPlex::WebsocketClient::HostGame(char* Password) {
 	if (!GetInstance().IsConnected) {
-		MungPlex::Log::LogInformation("Not connected to netplay server!");
+		MungPlex::Log::LogInformation("[Netplay] Not connected to netplay server!");
 		return;
 	}
 	if (GetInstance().IsInGame) {
-		MungPlex::Log::LogInformation("You are already in a netplay session!");
+		MungPlex::Log::LogInformation("[Netplay] You are already in a netplay session!");
 		return;
 	}
 	if (GetInstance().IsHosting) {
-		MungPlex::Log::LogInformation("You are already hosting a netplay session!");
+		MungPlex::Log::LogInformation("[Netplay] You are already hosting a netplay session!");
 		return;
 	}
 	GetInstance().GamePassword = Password;
@@ -94,7 +109,7 @@ void MungPlex::WebsocketClient::JoinGame(char* _GameID, char* _Password) {
 		return;
 	}
 	if (GetInstance().IsHosting) {
-		MungPlex::Log::LogInformation("You are hosting a game!  Disconnect from it to join a different one");
+		MungPlex::Log::LogInformation("[Netplay] You are hosting a game!  Disconnect from it to join a different one");
 		return;
 	}
 	uint8_t PasswordLength = static_cast<uint8_t>(strlen(_Password));
@@ -126,122 +141,204 @@ void MungPlex::WebsocketClient::Disconnect() {
 	}
 }
 void MungPlex::WebsocketClient::LeaveGame() {
-	GetInstance().IsInGame = false;
-	GetInstance().IsHosting = false;
+	try {
+		if (!GetInstance().IsInGame) {
+			MungPlex::Log::LogInformation("[Netplay] You aren't in a game!!! How did you trigger a leave!!");
+			return;
+		}
+		if (!GetInstance().IsConnected) {
+			MungPlex::Log::LogInformation("[Netplay] Honestly how did you even trigger a leave?!");
+			return;
+		}
+		if (GetInstance().IsHosting) {
+			MungPlex::Log::LogInformation("[Netplay] You can't leave a game as a host! Try disbanding the session instead!");
+			return;
+		}
+		GetInstance().IsInGame = false;
+		GetInstance().IsHosting = false;
+
+		GetInstance().SendRequestFromEnum(MungPlex::WebsocketClient::DISCONNECT_FROM_GAME_REQUEST);
+	}
+	catch (const std::exception& e) {
+		MungPlex::Log::LogInformation("Failed to leave game!!! " + std::string(e.what()));
+	}
 }
 
 void MungPlex::WebsocketClient::SendBinaryData(std::vector<uint8_t> _buffer) {
-	boost::asio::const_buffer buffer(_buffer.data(), _buffer.size());
-	GetInstance().Websocket.write(buffer);
+	try {
+		boost::asio::const_buffer buffer(_buffer.data(), _buffer.size());
+		GetInstance().Websocket.write(buffer);
+	}
+	catch (std::exception& e) {
+		MungPlex::Log::LogInformation("Failed to send data to server!!! " + std::string(e.what()));
+	}
+}
+
+void MungPlex::WebsocketClient::SendRequestFromEnum(MungPlex::WebsocketClient::RequestTypeByteMap _type)
+{
+	std::vector<uint8_t> Buffer(1);
+	Buffer[0] = static_cast<uint8_t>(_type);
+	GetInstance().SendBinaryData(Buffer);
 }
 
 
 void MungPlex::WebsocketClient::PingServer() {
 	try {
 		if (GetInstance().IsConnected) {
-			std::vector<uint8_t> _buffer(2);
-			_buffer[0] = PING_REQUEST;
-			GetInstance().SendBinaryData(_buffer);
-			MungPlex::Log::LogInformation("Ping sent to server.");
+			GetInstance().SendRequestFromEnum(PING_REQUEST);
+#ifndef NDEBUG
+			MungPlex::Log::LogInformation("[Netplay][Debug] Ping sent to server.");
+#endif
 		}
 	}
 	catch (const std::exception& e) {
-		MungPlex::Log::LogInformation("Failed to send ping: " + std::string(e.what()));
+		MungPlex::Log::LogInformation("[Netplay] Failed to send ping! You might be disconnected due to this!!!");
 	}
 }
 
 void MungPlex::WebsocketClient::StopPingTimer() {
-	GetInstance().StopPinging.store(true);
-	boost::system::error_code ec;
-	GetInstance().PingTimer.cancel(ec);  
+	try {
+		GetInstance().StopPinging.store(true);
+		boost::system::error_code ec;
+		GetInstance().PingTimer.cancel(ec);
+	}
+	catch (std::exception& e) {
+		MungPlex::Log::LogInformation("Failed to stop ping thread! Hopefully this won't matter, but it becomes a constant, try reinstalling and posting the error to the github or discord! " + std::string(e.what()));
+	}
 }
 void MungPlex::WebsocketClient::StartPingTimer() {
+	try {
+		GetInstance().StopPinging.store(false);
+		GetInstance().PingTimer.expires_after(std::chrono::seconds(GetInstance().PING_INTERVAL));
 
-	GetInstance().StopPinging.store(false);
-	GetInstance().PingTimer.expires_after(std::chrono::seconds(GetInstance().PING_INTERVAL));
+		GetInstance().PingTimer.async_wait([](const boost::system::error_code& ec) {
+			if (ec) {
+				MungPlex::Log::LogInformation("Ping timer error: " + ec.message());
+				return;
+			}
 
-	GetInstance().PingTimer.async_wait([](const boost::system::error_code& ec) {
-		if (ec) {
-			MungPlex::Log::LogInformation("Ping timer error: " + ec.message());
+			GetInstance().PingServer();
+			GetInstance().StartPingTimer();
+			});
+	}
+	catch (std::exception& e) {
+		MungPlex::Log::LogInformation("Failed to start ping thread!!! This will likely cause you to be randomly disconnected from the server! If this becomes an issue, post this error to the github or discord! " + std::string(e.what()));
+	}
+}
+void MungPlex::WebsocketClient::HandleMessages() {
+	try {
+		if (!GetInstance().IsConnected) {
+			MungPlex::Log::LogInformation("Not connected to WebSocket server, cannot receive messages.");
 			return;
 		}
 
-		GetInstance().PingServer();
-		GetInstance().StartPingTimer();  
-		});
-}
-void MungPlex::WebsocketClient::HandleMessages() {
-	if (!GetInstance().IsConnected) {
-		MungPlex::Log::LogInformation("Not connected to WebSocket server, cannot receive messages.");
-		return;
-	}
-
-	GetInstance().Websocket.async_read(
-		GetInstance()._WebsocketBuffer, 
-		[](boost::system::error_code ec, std::size_t bytes_transferred) {
-			if (ec) {
-				MungPlex::Log::LogInformation("[Netplay] Error receiving message from netplay server! If this happens often, try restarting your game ");
-				return;
-			}
+		GetInstance().Websocket.async_read(
+			GetInstance()._WebsocketBuffer,
+			[](boost::system::error_code ec, std::size_t bytes_transferred) {
+				if (ec) {
+					MungPlex::Log::LogInformation("[Netplay] Error receiving message from netplay server! If this happens often, try restarting your game ");
+					return;
+				}
 #ifndef NDEBUG
-			MungPlex::Log::LogInformation("[Netplay] Message received. Bytes transferred: " + std::to_string(bytes_transferred));
+				MungPlex::Log::LogInformation("[Netplay][Debug] Message received. Bytes transferred: " + std::to_string(bytes_transferred));
 #endif
-			auto buffer_data = boost::beast::buffers_to_string(GetInstance()._WebsocketBuffer.data());
+				auto buffer_data = boost::beast::buffers_to_string(GetInstance()._WebsocketBuffer.data());
 
-			GetInstance().ProcessMessages(buffer_data);
+				GetInstance().ProcessMessages(buffer_data);
 
-			GetInstance()._WebsocketBuffer.consume(bytes_transferred);
-			GetInstance().HandleMessages();
-		});
+				GetInstance()._WebsocketBuffer.consume(bytes_transferred);
+				GetInstance().HandleMessages();
+			});
+	}
+	catch (std::exception& e) {
+		MungPlex::Log::LogInformation("Failed to handle an incoming message.  This has likely caused a desync between you and the game.  You are being disconnected from your game for this :(.  Try restarting!");
+		GetInstance().LeaveGame();
+	}
 }
 
 void MungPlex::WebsocketClient::ProcessMessages(const std::string& message) {
-	if (message.empty()) {
-		MungPlex::Log::LogInformation("[Netplay] Received empty message from server. If this happens often, try restarting your game!");
-		return;
-	}
-	std::vector<uint8_t> MessageBytes(message.begin(), message.end());
-	uint8_t MessageType = MessageBytes[0];
-
-	switch (MessageType) {
-	//Yes, the brackets for case: are needed
-	case RECEIVED_LOBBY_ID: {
-		// Host's game was created successfully and this is sending them the ID to it, since it is a number between 1000-9999
-		GetInstance().IsConnected = true;
-		GetInstance().IsInGame = true;
-		GetInstance().IsHosting = true;
-		if (MessageBytes.size() < 5) {
-			MungPlex::Log::LogInformation("[Netplay] Received GameID was too short. Try restarting your game!");
+	try {
+		if (message.empty()) {
+			MungPlex::Log::LogInformation("[Netplay] Received empty message from server. If this happens often, try restarting your game!");
+			return;
 		}
-		std::string ConcatenatedBytes;
-		ConcatenatedBytes += static_cast<char>(MessageBytes[1]);
-		ConcatenatedBytes += static_cast<char>(MessageBytes[2]);
-		ConcatenatedBytes += static_cast<char>(MessageBytes[3]);
-		ConcatenatedBytes += static_cast<char>(MessageBytes[4]);
+		std::vector<uint8_t> MessageBytes(message.begin(), message.end());
+		uint8_t MessageType = MessageBytes[0];
 
-		GetInstance().GameID = ConcatenatedBytes;
+		switch (MessageType) {
+			//Yes, the brackets for case: are needed
+		case RECEIVED_LOBBY_ID: {
+			// Host's game was created successfully and this is sending them the ID to it, since it is a number between 1000-9999
+			GetInstance().IsConnected = true;
+			GetInstance().IsInGame = true;
+			GetInstance().IsHosting = true;
+			if (MessageBytes.size() < 5) {
+				MungPlex::Log::LogInformation("[Netplay] Received GameID was too short. Try restarting your game!");
+			}
+			std::string ConcatenatedBytes;
+			ConcatenatedBytes += static_cast<char>(MessageBytes[1]);
+			ConcatenatedBytes += static_cast<char>(MessageBytes[2]);
+			ConcatenatedBytes += static_cast<char>(MessageBytes[3]);
+			ConcatenatedBytes += static_cast<char>(MessageBytes[4]);
 
-		MungPlex::Log::LogInformation("Received game id: " + ConcatenatedBytes);
-		break;
+			GetInstance().GameID = ConcatenatedBytes;
 
-	}
-	case SUCCESSFULLY_JOINED_GAME:
-		MungPlex::Log::LogInformation("[Netplay] Successfully joined Game#" + GetInstance().GameID + " with password " + GetInstance().GamePassword);
-		GetInstance().IsInGame = true;
-		GetInstance().IsConnected = true;
-		//Definitly not hosting if they just joined a game
-		GetInstance().IsHosting = false;
-		break;
+			MungPlex::Log::LogInformation("Received game id: " + ConcatenatedBytes);
+			break;
 
-	case PING_REQUEST:
-		break;
-	case SERVER_PONG:
-		// See SERVER_PONG definition for more details
-		break;
-	default:
+		}
+		case SUCCESSFULLY_JOINED_GAME:
+			MungPlex::Log::LogInformation("[Netplay] Successfully joined Game#" + GetInstance().GameID + " with password " + GetInstance().GamePassword);
+			GetInstance().IsInGame = true;
+			GetInstance().IsConnected = true;
+			//Definitly not hosting if they just joined a game
+			GetInstance().IsHosting = false;
+			break;
+
+		case PING_REQUEST:
+			break;
+		case SERVER_PONG:
+			// See SERVER_PONG definition for more details
+			break;
+		default:
 #ifndef NDEBUG
-		MungPlex::Log::LogInformation("[Netplay] Received unknown message type: " + std::to_string(MessageType));
+			MungPlex::Log::LogInformation("[Netplay] Received unknown message type: " + std::to_string(MessageType));
 #endif
-		break;
+			break;
+		}
+	} 
+	catch (std::exception& e) {
+		MungPlex::Log::LogInformation("Failed to process message from server!!! This has likely caused a desync and you are going to be disconnected! If this becomes an issue, report this error to the github or discord! " + std::string(e.what()));
+	}
+}
+bool MungPlex::WebsocketClient::CheckForInternetConnection() {
+	try {
+		TcpResolver::results_type endpoints = GetInstance().Resolver.resolve(GetInstance().InternetCheckURL, GetInstance().InternetCheckURLPort);
+		GetInstance().HasInternet = !endpoints.empty();
+		return !endpoints.empty();
+	}
+	catch (const std::exception& e) {
+		GetInstance().HasInternet = false;
+		return false;
+	}
+}
+void MungPlex::WebsocketClient::DisbandGame() {
+	try {
+		if (!GetInstance().IsHosting) {
+			MungPlex::Log::LogInformation("w");
+			return;
+		}
+		if (!GetInstance().IsConnected) {
+			MungPlex::Log::LogInformation("[Netplay] You aren't even connected to the server! How do you expect to disband a session!");
+			return;
+		}
+		if (!GetInstance().IsInGame) {
+			MungPlex::Log::LogInformation("[Netplay] How do you except to disband a session you aren't in!");
+		}
+
+		GetInstance().SendRequestFromEnum(HOST_SHUTDOWN_REQUEST);
+	}
+	catch (std::exception& e) {
+		MungPlex::Log::LogInformation("[Netplay] You disbanding the session failed.  Just restart MungPlex, it has the same effect! Error: " + std::string(e.what()));
 	}
 }
