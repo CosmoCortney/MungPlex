@@ -38,7 +38,12 @@ void MungPlex::NetplayWindow::DrawWindow()
 			MungPlex::WebsocketClient::LeaveGame();
 		}
 	}
-	ImGui::End();
+	if (MungPlex::WebsocketClient::IsConnected && MungPlex::WebsocketClient::IsHosting && MungPlex::WebsocketClient::IsInGame) {
+		if (ImGui::Button("Disband lobby")) {
+			MungPlex::WebsocketClient::DisbandGame();
+		}
+	}
+ 	ImGui::End();
 }
 
 

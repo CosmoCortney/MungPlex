@@ -9,17 +9,6 @@
 namespace MungPlex {
 	class LogMessages {
 	public:
-		static int CountPlaceholders(const std::string& str) {
-			const std::string placeholder = "%s";
-			int count = 0;
-			size_t pos = str.find(placeholder);
-			while (pos != std::string::npos) {
-				++count;
-				pos = str.find(placeholder, pos + placeholder.size());
-			}
-			return count;
-		}
-		static const std::vector<std::pair<std::string, int>> IntegerToMessageMappings;
 		enum LogMessageIntegers {
 			NetplayDisbandGameWhenNotHosting = 0,
 			NetplaySuccessfullyConnectedToServer = 1,
@@ -44,73 +33,58 @@ namespace MungPlex {
 			NetplayPingFailure = 20,
 			NetplayPingStopFailure = 21,
 			NetplayPingTimerError = 22,
+			NetplayPingThreadStartFailure = 23,
+			NetplayHandleMessagesDisconnected = 24,
+			NetplayHandleMessageFailure = 25,
+			NetplayHandleMessageError = 26,
+			NetplayRecievedEmptyMessage = 27,
+			NetplayHostGameIdTooShort = 28,
+			NetplayReceivedGameId = 30,
+			NetplayPasswordTooShort = 31,
+			NetplayJoinGameSuccess = 32,
+			NetplayProcessMessageException = 33,
+			NetplayDisbandGameWhenNotConnected = 34,
+			NetplayDisbandGameNotInGame = 35,
+			NetplayDisbandFailure = 36,
+		}; 
+		// THESE NEED TO BE ORDER 0 ONWARDS FOR FAST SORTING!!!!!!!!!! :)
+		static inline const std::vector<std::pair<std::string, LogMessageIntegers>> IntegerToMessageMappings = {
+			{"[Netplay] Quit goofing off! You can't disband a game you aren't hosting! We have checks server-side too, if you get around this! Good Luck!",  NetplayDisbandGameWhenNotHosting},
+			{"[Netplay] Connected to netplay server successfully!",  NetplaySuccessfullyConnectedToServer},
+			{"[Netplay] Failed to connect to netplay server!!! Error: %s",  NetplayServerConnectionError},
+			{"[Netplay] You aren't connected to the internet!  Restart MungPlex to try again!",  NetplayNoInternetError},
+			{"[Netplay] Already connected to netplay server!",  NetplayAlreadyConnectedToServer},
+			{"[Netplay] You aren't connected to the netplay server and therefore you can't host! Try restarting!",  NetplayAttemptingHostNotConnected},
+			{"[Netplay] You can't host a netplay session while already connected to one! Disconnect and try again!",  NetplayAttemptingHostAlreadyInGame},
+			{"[Netplay] You are already hosting a netplay session!",  NetplayAttemptingHostAlreadyHosting},
+			{"[Netplay] You cannot join a netplay session while you aren't connected! Restart to try again!",  NetplayJoinGameAttemptDisconnected},
+			{"[Netplay] You cannot join a netplay session while you are already in a netplay session! Disconnect from it and try again!",  NetplayJoinGameAttemptAlreadyInOne},
+			{"[Netplay] You cannot join a netplay session while you are hosting!  Change ownership of lobby or disband the session to continue!",  NetplayJoinGameAttemptButHosting},
+			{"[Netplay] You are already disconnected from the netplay server!!!",  NetplayDisconnectAttemptButAlreadyDisconnected},
+			{"[Netplay] Successfully disconnected from the netplay server!",  NetplaySuccessfullyDisconnected},
+			{"[Netplay] Failed to disconnect from netplay server!!! Better unplug your router: %s",  NetplayDisconnectFailure},
+			{"[Netplay] You are already in a game! Disconnect from it to connect to a different one!",  NetplayLeaveGameInGame},
+			{"[Netplay] How did you trigger a leave! You aren't even connected! Please put the process to trigger this on the GitHub or Discord!",  NetplayLeaveGameDisconnected},
+			{"[Netplay] You can't leave a game as a host! Transfer ownership or disband the lobby!",  NetplayLeaveGameHosting},
+			{"[Netplay] Failed to leave game!!! %s",  NetplayLeaveGameFailure},
+			{"[Netplay] Failed to send data to server!!!!!! %s",  NetplayFailedToSendBinaryData},
+			{"[Netplay][Debug] Ping sent to server.",  NetplayPingDebug},
+			{"[Netplay] Failed to stop ping thread! This should have no effect on MungPlex, don't worry!",  NetplayPingStopFailure},
+			{"[Netplay] Ping send failure!!! You will be disconnected due to this!!! %s",  NetplayPingFailure},
+			{"[Netplay] Ping timer error: %s", NetplayPingTimerError},
+			{"[Netplay] Failed to start ping thread!!! This will likely cause you to be randomly disconnected from the server! If this becomes an issue, post this error to the github or discord! %s", NetplayPingThreadStartFailure},
+			{"[Netplay] You cannot handle messages while disconnected! How did you receive one anyway...", NetplayHandleMessagesDisconnected},
+			{"[Netplay] Failed to handle incoming message :(.  Error: %s", NetplayHandleMessageFailure},
+			{"[Netplay] Failed to handle an incoming message.  This has likely caused a desync between you and the game.  You are being disconnected from your game for this :(.  Try restarting! %s", NetplayHandleMessageError},
+			{"[Netplay] Received an empty mesasage from the server! Either parsing the message has gone wrong or the server is having issues. This should not affect you unless this becomes frequent!", NetplayRecievedEmptyMessage},
+			{"[Netplay] Received a game id that could not be parsed correctly! Try again in a little bit!", NetplayHostGameIdTooShort},
+			{"[Netplay] Success received Game ID! Game#%s", NetplayReceivedGameId},
+			{"[Netplay] The password you entered is too short. It needs to be >1 characters!", NetplayPasswordTooShort},
+			{"[Netplay] Successfully joined Game#%s with password: %s", NetplayJoinGameSuccess},
+			{"[Netplay] Failed to process message from server!!! This has likely caused a desync and you are going to be disconnected! If this becomes an issue, report this error to the github or discord! %s", NetplayProcessMessageException},
+			{"[Netplay] You seriously think you can disband a session while disconnected from the netplay server?", NetplayDisbandGameWhenNotConnected},
+			{"[Netplay] You cannot disband a session when you aren't even in one!", NetplayDisbandGameNotInGame},
+			{"[Netplay] Disbanding the session failed!  Just close MungPlex, it has the same effect, anyways, here's the error: %s", NetplayDisbandFailure},
 		};
 	};
-
-
-
-	// THESE NEED TO BE ORDER 0 ONWARDS FOR FAST SORTING!!!!!!!!!! :)
-	const std::vector<std::pair<std::string, int>> LogMessages::IntegerToMessageMappings = {
-		{"[Netplay] Quit goofing off! You can't disband a game you aren't hosting! We have checks server-side too, if you get around this! Good Luck!", LogMessages::NetplayDisbandGameWhenNotHosting},
-		{"[Netplay] Connected to netplay server successfully!", LogMessages::NetplaySuccessfullyConnectedToServer},
-		{"[Netplay] Failed to connect to netplay server!!! Error: %s", LogMessages::NetplayServerConnectionError},
-		{"[Netplay] You aren't connected to the internet!  Restart MungPlex to try again!", LogMessages::NetplayNoInternetError},
-		{"[Netplay] Already connected to netplay server!", LogMessages::NetplayAlreadyConnectedToServer},
-		{"[Netplay] You aren't connected to the netplay server and therefore you can't host! Try restarting!", LogMessages::NetplayAttemptingHostNotConnected},
-		{"[Netplay] You can't host a netplay session while already connected to one! Disconnect and try again!", LogMessages::NetplayAttemptingHostAlreadyInGame},
-		{"[Netplay] You are already hosting a netplay session!", LogMessages::NetplayAttemptingHostAlreadyHosting},
-		{"[Netplay] You cannot join a netplay session while you aren't connected! Restart to try again!", LogMessages::NetplayJoinGameAttemptDisconnected},
-		{"[Netplay] You cannot join a netplay session while you are already in a netplay session! Disconnect from it and try again!", LogMessages::NetplayJoinGameAttemptAlreadyInOne},
-		{"[Netplay] You cannot join a netplay session while you are hosting!  Change ownership of lobby or disband the session to continue!", LogMessages::NetplayJoinGameAttemptButHosting},
-		{"[Netplay] You are already disconnected from the netplay server!!!", LogMessages::NetplayDisconnectAttemptButAlreadyDisconnected},
-		{"[Netplay] Successfully disconnected from the netplay server!", LogMessages::NetplaySuccessfullyConnectedToServer},
-		{"[Netplay] Failed to disconnect from netplay server!!! Better unplug your router: %s", LogMessages::NetplayDisconnectFailure},
-		{"[Netplay] You are already in a game! Disconnect from it to connect to a different one!", LogMessages::NetplayLeaveGameInGame},
-		{"[Netplay] How did you trigger a leave! You aren't even connected! Please put the process to trigger this on the GitHub or Discord!", LogMessages::NetplayLeaveGameDisconnected},
-		{"[Netplay] You can't leave a game as a host! Transfer ownership or disband the lobby!", LogMessages::NetplayLeaveGameHosting},
-		{"[Netplay] Failed to leave game!!! %s", LogMessages::NetplayLeaveGameFailure},
-		{"[Netplay] Failed to send data to server!!!!!! %s", LogMessages::NetplayFailedToSendBinaryData},
-		{"[Netplay][Debug] Ping sent to server.", LogMessages::NetplayPingDebug},
-		{"[Netplay] Failed to stop ping thread! This should have no effect on MungPlex, don't worry!", LogMessages::NetplayPingStopFailure},
-		{"[Netplay] Ping send failure!!! You will be disconnected due to this!!! %s", LogMessages::NetplayPingFailure},
-		{"[Netplay] Ping timer error: %s", LogMessages::NetplayPingTimerError},
-	};
-
-
-
-
-
-
-
-
-	// Accepts as many const char* arguments as you want, but it is highly recommended (Needed) that you use the same number of arguments as the LogMessage you choose corresponds to, or number of %s's.
-	// Messing up will result in garbage data being read, and potentially with some luck, the BEL sound being logged! ;)  
-	std::string GetLogMessage(LogMessages::LogMessageIntegers _Enum, ...) {
-		va_list args;
-		std::string logMessage;
-
-		auto it = std::lower_bound(LogMessages::IntegerToMessageMappings.begin(), LogMessages::IntegerToMessageMappings.end(), _Enum,
-			[](const std::pair<std::string, int>& pair, int value) {
-				return pair.second < value;
-			});
-
-		if (it != LogMessages::IntegerToMessageMappings.end() && it->second == _Enum) {
-			logMessage = it->first;
-		}
-		else {
-			return "Invalid LogMessageEnum";
-		}
-
-		char buffer[1024];
-
-		va_start(args, _Enum);
-		int ret = std::vsnprintf(buffer, sizeof(buffer), logMessage.c_str(), args);
-		va_end(args);
-
-		if (ret < 0) {
-			return "Error formatting message.";
-		}
-
-		return std::string(buffer);
-	}
 }
