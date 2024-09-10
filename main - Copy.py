@@ -103,6 +103,12 @@ async def handle_message(websocket, message):
         for room in list(rooms.values()):
             if websocket in room.connections:
                 room.remove_connection(websocket)
+                await websocket.send(bytearray([0x09]))
+    elif message[0] == 0x08:
+        for room in list(rooms.values()):
+            if websocket in room.connections:
+                room.remove_connection(websocket)
+                await websocket.send(bytearray([0x0A]))
     else:
         await websocket.send(b"Error: Invalid message format")
     

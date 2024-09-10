@@ -168,8 +168,6 @@ void MungPlex::WebsocketClient::LeaveGame() {
 			MungPlex::Log::LogInformation(MungPlex::LogMessages::NetplayLeaveGameHosting);
 			return;
 		}
-		GetInstance().IsInGame = false;
-		GetInstance().IsHosting = false;
 
 		GetInstance().SendRequestFromEnum(MungPlex::WebsocketClient::DISCONNECT_FROM_GAME_REQUEST);
 	}
@@ -306,8 +304,20 @@ void MungPlex::WebsocketClient::ProcessMessages(const std::string& message) {
 			GetInstance().IsHosting = false;
 			break;
 
-		case PING_REQUEST:
+		case SUCCESSFUL_DISBAND:
+			MungPlex::Log::LogInformation(MungPlex::LogMessages::NetplayDisbandSuccess);
+			GetInstance().IsHosting = false;
+			GetInstance().IsInGame = false;
+			GetInstance().IsConnected = true;
 			break;
+
+		case SUCCESSFUL_LEAVE_GAME:
+			MungPlex::Log::LogInformation(MungPlex::LogMessages::NetplayLeaveGameSuccess);
+			GetInstance().IsHosting = false;
+			GetInstance().IsInGame = false;
+			GetInstance().IsConnected = true;
+			break;
+
 		case SERVER_PONG:
 			// See SERVER_PONG definition for more details
 			break;

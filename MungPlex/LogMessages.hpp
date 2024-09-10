@@ -46,6 +46,8 @@ namespace MungPlex {
 			NetplayDisbandGameWhenNotConnected = 34,
 			NetplayDisbandGameNotInGame = 35,
 			NetplayDisbandFailure = 36,
+			NetplayDisbandSuccess = 37,
+			NetplayLeaveGameSuccess = 38,
 		}; 
 		// THESE NEED TO BE ORDER 0 ONWARDS FOR FAST SORTING!!!!!!!!!! :)
 		static inline const std::vector<std::pair<std::string, LogMessageIntegers>> IntegerToMessageMappings = {
@@ -85,6 +87,8 @@ namespace MungPlex {
 			{"[Netplay] You seriously think you can disband a session while disconnected from the netplay server?", NetplayDisbandGameWhenNotConnected},
 			{"[Netplay] You cannot disband a session when you aren't even in one!", NetplayDisbandGameNotInGame},
 			{"[Netplay] Disbanding the session failed!  Just close MungPlex, it has the same effect, anyways, here's the error: %s", NetplayDisbandFailure},
+			{"[Netplay] Successfully disbanded the lobby! ", NetplayDisbandSuccess},
+			{"[Netplay] Successfully left the netplay session!", NetplayLeaveGameSuccess},
 		};
 	};
 }

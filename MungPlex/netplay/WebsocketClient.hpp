@@ -72,6 +72,8 @@ namespace MungPlex {
             // I have no idea why the first byte of server pong is 69.  Prehaps if we plan to shrink these types into a half a byte we can look into this more.  We will just ignore these in the ProcessMessages function for the time being.  This value will probably change when we switch to C#
             SERVER_PONG = 69,
             SUCCESSFULLY_JOINED_GAME = 11,
+            SUCCESSFUL_DISBAND = 10,
+            SUCCESSFUL_LEAVE_GAME = 9,
         };
 
         static WebsocketClient& GetInstance()
