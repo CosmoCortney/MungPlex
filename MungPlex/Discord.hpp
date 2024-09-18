@@ -19,6 +19,10 @@ namespace MungPlex
 	private:
 		static void getActivityResult(discord::Result result);
 		static void logProblem(const discord::LogLevel level, const std::string message);
+		bool createCore();
+		bool isCoreValid();
+		bool getCurrentUser(discord::User& currentUser);
+		bool _discordRunningPreviously;
 		discord::Core* _core;
 		discord::Result _result;
 		discord::Activity _activity;

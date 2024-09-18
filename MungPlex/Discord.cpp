@@ -33,10 +33,12 @@ void MungPlex::DiscordRPC::SetRichPresenceDetails(const std::string& details)
 
 void MungPlex::DiscordRPC::InitRichPresence()
 {
-	if (_core != nullptr)
-		_core->~Core();
+	if (!createCore())
+		return;
 
-	discord::Core::Create(1175421760892567552, DiscordCreateFlags_Default, &_core);
+	if (!isCoreValid())
+		return;
+
 	_core->SetLogHook(discord::LogLevel::Debug, logProblem);
 	_activity.SetApplicationId(1175421760892567552);
 	//_activity.SetName("Test Name");
@@ -46,6 +48,26 @@ void MungPlex::DiscordRPC::InitRichPresence()
 	_activity.GetTimestamps().SetStart(time(NULL));
 	_activity.GetAssets().SetLargeImage("icon1024");
 	_core->ActivityManager().UpdateActivity(_activity, getActivityResult);
+	_discordRunningPreviously = true;
+}
+
+bool MungPlex::DiscordRPC::createCore()
+{
+	if (_core != nullptr)
+		_core->~Core();
+
+	discord::Result result = discord::Core::Create(1175421760892567552, DiscordCreateFlags_Default, &_core);
+	return result == discord::Result::Ok;
+}
+
+bool MungPlex::DiscordRPC::isCoreValid()
+{
+	return _core != nullptr;
+}
+
+bool MungPlex::DiscordRPC::getCurrentUser(discord::User& currentUser)
+{
+	return _core->UserManager().GetCurrentUser(&currentUser) == discord::Result::Ok;
 }
 
 void MungPlex::DiscordRPC::StopRichPresence()
@@ -56,13 +78,11 @@ void MungPlex::DiscordRPC::StopRichPresence()
 
 void MungPlex::DiscordRPC::CheckGameState(const bool connected)
 {
-	if (connected && _core != nullptr)
-	{
-		if (_core->RunCallbacks() != discord::Result::Ok)
-			_core->~Core();
-	}
-	else if (_core != nullptr)
-	{
-		_core->~Core();
-	}
+	if (!connected || _core == nullptr)
+		return;
+
+	discord::Result result = _core->RunCallbacks();
+
+	if(result == discord::Result::Ok && !_discordRunningPreviously)
+		InitRichPresence();
 }
