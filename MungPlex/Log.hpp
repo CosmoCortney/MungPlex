@@ -6,6 +6,7 @@
 #include "imgui_internal.h"
 #include <iostream>
 #include "GLFW/glfw3.h"
+#include "LogMessages.hpp"
 #include <string>
 
 namespace MungPlex
@@ -16,6 +17,7 @@ namespace MungPlex
         static void DrawWindow();
         static void LogInformation(const char* text, const bool appendToLast = false, const int indentation = 0);
         static void LogInformation(const std::string& text, const bool appendToLast = false, const int indentation = 0);
+        static void LogInformation(MungPlex::LogMessages::LogMessageIntegers _LogEnum, ...);
 
     private:
         Log() {}

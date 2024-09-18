@@ -10,10 +10,13 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <iostream>
+#include <string>
 #include "Log.hpp"
 #include "MungPlexConfig.hpp"
 #include "PointerSearch.hpp"
 #include "ProcessInformation.hpp"
+#include "netplay/WebsocketClient.hpp"
+#include "netplay/NetplayWindow.hpp"
 #include "Search.hpp"
 #include "Settings.hpp"
 #include "WatchControl.hpp"
@@ -60,8 +63,9 @@ int main()
 	{
 		return EXIT_FAILURE;
 	}
-
 	clearSearchResultsDir();
+	std::string windowTitle("MungPlex ");
+	windowTitle.append(std::to_string(MungPlex_VERSION_MAJOR) + "." + std::to_string(MungPlex_VERSION_MINOR) + "." + std::to_string(MungPlex_VERSION_PATCH));
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -71,7 +75,6 @@ int main()
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	ImGui::StyleColorsDark();
 
-	std::string windowTitle = MungPlex::GetWindowTitleBase();
 	const auto window = glfwCreateWindow(1280, 720, windowTitle.c_str(), nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
@@ -116,6 +119,7 @@ int main()
 	
 	style.ScaleAllSizes(MungPlex::Settings::GetGeneralSettings().Scale);
 	MungPlex::Log::LogInformation("Started MungPlex");
+	MungPlex::WebsocketClient::ConnectToWebsocket();
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -149,6 +153,8 @@ int main()
 		MungPlex::PointerSearch::DrawWindow();
 		MungPlex::DataConversion::DrawWindow();
 		MungPlex::ContextMenuHelper::DrawWindow();
+			MungPlex::NetplayWindow::DrawWindow();
+		
 
 		for (int i = 0; i < MungPlex::ContextMenuHelper::GetMemoryViews().size(); ++i)
 		{
@@ -193,7 +199,7 @@ int main()
 
 		glfwSwapBuffers(window);
 	}
-	
+	MungPlex::WebsocketClient::Disconnect();
 	clearSearchResultsDir();
 	return EXIT_SUCCESS;
 }
