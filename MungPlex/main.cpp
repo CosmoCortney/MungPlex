@@ -61,8 +61,6 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	clearSearchResultsDir();
-
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	auto& io = ImGui::GetIO();
@@ -80,6 +78,7 @@ int main()
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	MungPlex::Settings::InitSettings();
+	clearSearchResultsDir();
 
 	int channels;
 
