@@ -2,6 +2,9 @@
 
 MungPlex is a cheat search tool and game enhancer for various emulators and PC games. It allows you to experience and mung up your favorite games in multiple ways - hence the name MungPlex. Version 2.0.0 has re-implemented all features of the deprecated repository and comes with some new ones. You can also join the affiliated [Discord server](https://discord.gg/wU62ZTvQRj) to discuss anything about it, ask questions or contribute to the project!
 
+![image](https://github.com/user-attachments/assets/864c1518-61ee-45c4-85d9-f24635092d40)
+
+
 ## Before You Proceed
 If the app looks off go to *Settings*, change the UI scale and restart MungPlex.</br>
 It might happen for MungPlex to be unable to connect to a game. This may be due to changes to the emulator that make MungPlex incapable of finding the emulated RAM and/or game ID. If this is the case you can reach out to the MungPlex [Discord server](https://discord.gg/wU62ZTvQRj) and report any problems.</br>
