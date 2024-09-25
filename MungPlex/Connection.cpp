@@ -146,11 +146,17 @@ void MungPlex::Connection::drawConnectionSelect()
 
 			ImGui::EndTabItem();
 		}
-
-		/*if (ImGui::BeginTabItem("Remote Device"))
+		/*
+		if (ImGui::BeginTabItem("Remote Device"))
 		{
 			ImGui::Text("Select Console.");
-			ImGui::Button("Connect", ImVec2(200, 50));
+
+			if (ImGui::Button("Connect", ImVec2(200, 50)))
+			{
+				_usbGecko.Init();
+			}
+
+
 			ImGui::EndTabItem();
 		}*/
 		ImGui::EndTabBar();

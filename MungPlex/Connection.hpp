@@ -2,6 +2,7 @@
 #include <boost/asio.hpp>
 #include "MemoryViewer.hpp"
 #include "Discord.hpp"
+#include "USBGecko.hpp"
 
 namespace MungPlex
 {
@@ -34,6 +35,7 @@ namespace MungPlex
         std::string _connectionMessage = "Not connected...";
         std::vector<MemoryViewer> _memoryViewers;
         DiscordRPC _discord;
+        //USBGecko _usbGecko;
 
         void drawConnectionSelect();
         void startConnectionCheck();

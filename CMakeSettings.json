@@ -3,7 +3,6 @@
     {
       "buildCommandArgs": "-v",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
       "configurationType": "Debug",
       "ctestCommandArgs": "",
       "generator": "Ninja",
@@ -20,8 +19,34 @@
           "name": "Boost_PROCESS_LIBRARY_DEBUG",
           "value": "Boost_PROCESS_LIBRARY_DEBUG-NOTFOUND",
           "type": "FILEPATH"
+        },
+        {
+          "name": "FTDI1_LIB",
+          "value": "C:/vcpkg/installed/x64-windows/lib/ftdi1.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "libftdi1_DIR",
+          "value": "C:/vcpkg/installed/x64-windows/share/libftdi1",
+          "type": "PATH"
+        },
+        {
+          "name": "LIB_USB",
+          "value": "C:/vcpkg/installed/x64-windows/lib/libusb-1.0.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "FTDI1_DIR",
+          "value": "C:/vcpkg/installed/x64-windows/share/libftdi1",
+          "type": "PATH"
+        },
+        {
+          "name": "libusb_DIR",
+          "value": "C:/vcpkg/installed/x64-windows/share/libusb",
+          "type": "PATH"
         }
-      ]
+      ],
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
     },
     {
       "name": "x64-Release",

@@ -45,6 +45,7 @@ Find the latest release [here](https://github.com/CosmoCortney/MungPlex/releases
   - boost
   - nlohmann-json
   - discord-game-sdk
+  - libftdi1
 - open the project in Visual Studio as "Open as local folder" or in VSCode, Rider as a cmake project
 - set ``main.cpp`` as startup item (VS: right click, ``Set as startup item``)
 - compile
