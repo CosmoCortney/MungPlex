@@ -33,6 +33,11 @@ namespace MungPlex
         int DefaultInterval = 60;
     };
 
+    struct DeviceControlSettings
+    {
+        FloorString LovenseToken = FloorString("", 128);
+    };
+
 	class Settings
 	{
     public:
@@ -40,6 +45,7 @@ namespace MungPlex
         static GeneralSettings& GetGeneralSettings();
         static SearchSettings& GetSearchSettings();
         static CheatsSettings& GetCheatsSettings();
+        static DeviceControlSettings& GetDeviceControlSettings();
         static void InitSettings();
 
     private:
@@ -58,6 +64,7 @@ namespace MungPlex
         GeneralSettings _generalSettings;
         SearchSettings _searchSettings;
         CheatsSettings _cheatsSettings;
+        DeviceControlSettings _deviceControlSettings;
         ImGuiStyle _defaultStyle;
         const std::vector<std::string> _featureDirs
         {
@@ -118,6 +125,7 @@ namespace MungPlex
         void drawGeneralSettings();
         void drawSearchSettings();
         void drawCheatSettings();
+        void drawDeviceControlSettings();
         bool saveSettings();
         void createDocFolders();
         void validateDir(const std::string dir);

@@ -14,7 +14,7 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-/*.dll
+*.dll
 
 # Fortran module files
 *.mod
@@ -45,3 +45,4 @@ MungPlex/Debug/
 MungPlex/lualib.dir/
 MungPlex/MainLibrary.dir/
 MungPlex/MungPlex.dir/
+lovense-win-sdk-*.*.*/

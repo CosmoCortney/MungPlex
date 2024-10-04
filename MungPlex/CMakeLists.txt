@@ -47,11 +47,15 @@ add_executable (MungPlex
     ContextMenuHelper.hpp
     DataConversion.hpp
     DataConversion.cpp
+    source/DeviceControl/DeviceControl.cpp
+    source/DeviceControl/DeviceControl.hpp
     Discord.cpp
     Discord.hpp
     HelperFunctions.hpp
     Log.hpp
     Log.cpp
+    source/DeviceControl/LovenseToy.cpp
+    source/DeviceControl/LovenseToy.hpp
     main.cpp
     MemoryViewer.hpp
     MemoryViewer.cpp
@@ -97,6 +101,9 @@ add_executable (MungPlex
     ../include/ImGuiFileDialog/ImGuiFileDialog.h
     ../include/ImGuiFileDialog/ImGuiFileDialog.cpp
     ../include/ImGui_MemoryEditor/imgui_memory_editor/imgui_memory_editor.h
+    ${LOVENSE_SDK_FOLDER}/WinSDK_Release/includes/Lovense.h
+    ${LOVENSE_SDK_FOLDER}/WinSDK_Release/includes/LovenseDef.h
+    ${LOVENSE_SDK_FOLDER}/WinSDK_Release/includes/LovenseToyInfo.h
 )
 
 # Link Icon
@@ -126,6 +133,24 @@ target_link_libraries(MungPlex PRIVATE
     ##${LIBFTDI1_LIBRARIES}
     ##${LIBUSB_LIBRARIES}
 )
+
+set(LOVENSE_LIB_DIR "${LOVENSE_SDK_FOLDER}/WinSDK_Release/x64")
+set(OUT_DIR "${CMAKE_SOURCE_DIR}/out/build")
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_link_libraries(MungPlex PRIVATE ${LOVENSE_LIB_DIR}/Debug/LovenseToys.lib)
+    add_custom_command(TARGET MungPlex POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${LOVENSE_LIB_DIR}/Debug/LovenseToys.dll
+        ${OUT_DIR}/x64-Debug/MungPlex)
+elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_link_libraries(MungPlex PRIVATE ${LOVENSE_LIB_DIR}/Release/LovenseToys.lib)
+
+    add_custom_command(TARGET MungPlex POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${LOVENSE_LIB_DIR}/Release/LovenseToys.dll
+        ${OUT_DIR}/x64-Release/MungPlex)
+endif()
 
 # Set C++ version
 set_target_properties(MungPlex PROPERTIES

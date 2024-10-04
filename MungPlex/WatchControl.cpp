@@ -569,7 +569,8 @@ void MungPlex::WatchControl::IntegralView::Draw()
 
 		ImGui::BeginChild("child_view", ImVec2(itemWidth * 0.5f, itemHeight * 1.5f), true);
 		{
-			std::string format(8, '\0');
+			static std::string format(8, '\0');
+			
 			if (_active)
 			{
 				uint64_t valptr = reinterpret_cast<uint64_t>(GetCurrentPointer());

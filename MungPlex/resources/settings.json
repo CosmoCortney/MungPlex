@@ -4,6 +4,9 @@
       "DefaultCheatList": true,
       "DefaultInterval": 60
     },
+    "DeviceControl": {
+      "LovenseToken": ""
+    },
     "General": {
       "Colors": {
         "Background": [

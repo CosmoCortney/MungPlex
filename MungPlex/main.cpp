@@ -4,6 +4,7 @@
 #include "Cheats.hpp"
 #include "Connection.hpp"
 #include "DataConversion.hpp"
+#include "DeviceControl.hpp"
 #include "GLFW/glfw3.h"
 #include "HelperFunctions.hpp"
 #include "ContextMenuHelper.hpp"
@@ -147,6 +148,7 @@ int main()
 		MungPlex::Log::DrawWindow();
 		MungPlex::PointerSearch::DrawWindow();
 		MungPlex::DataConversion::DrawWindow();
+		MungPlex::DeviceControl::DrawWindow();
 		MungPlex::ContextMenuHelper::DrawWindow();
 
 		for (int i = 0; i < MungPlex::ContextMenuHelper::GetMemoryViews().size(); ++i)

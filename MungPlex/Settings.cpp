@@ -50,10 +50,12 @@ void MungPlex::Settings::InitSettings()
 	GeneralSettings& generalSettings = GetInstance()._generalSettings;
 	SearchSettings& searchSettings = GetInstance()._searchSettings;
 	CheatsSettings& cheatsSettings = GetInstance()._cheatsSettings;
+	DeviceControlSettings& deviceControlSettings = GetInstance()._deviceControlSettings;
 
 	generalSettings.Windows.emplace_back("Search");
 	generalSettings.Windows.emplace_back("Cheats");
 	generalSettings.Windows.emplace_back("Pointer Search");
+	generalSettings.Windows.emplace_back("Device Control");
 	generalSettings.Windows.emplace_back("Process Information");
 	generalSettings.Windows.emplace_back("Settings");
 
@@ -109,6 +111,9 @@ void MungPlex::Settings::InitSettings()
 		else if (cheatsSettings.DefaultInterval > 240)
 			cheatsSettings.DefaultInterval = 240;
 
+		//set device control defaults
+		deviceControlSettings.LovenseToken = settings["DeviceControl"]["LovenseToken"].get<std::string>();
+
 		if (save)
 			GetInstance().saveSettings();
 	}
@@ -126,6 +131,7 @@ void MungPlex::Settings::DrawWindow()
 		GetInstance().drawGeneralSettings();
 		GetInstance().drawSearchSettings();
 		GetInstance().drawCheatSettings();
+		GetInstance().drawDeviceControlSettings();
 		ImGui::Separator();
 
 		if (ImGui::Button("Save"))
@@ -140,6 +146,7 @@ void MungPlex::Settings::DrawWindow()
 
 		ImGui::SameLine();
 		ImGui::Text("Some changes take effect after restarting MungPlex (check (?))");
+		ImGui::Dummy(ImVec2(0.0f, 30.0f));
 	}
 	ImGui::End();
 }
@@ -219,7 +226,7 @@ void MungPlex::Settings::drawSearchSettings()
 
 void MungPlex::Settings::drawCheatSettings()
 {
-	const ImVec2 childYX(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.6f);
+	const ImVec2 childYX(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f);
 	ImGui::BeginChild("child_CheatSettings", childYX);
 	{
 		ImGui::SeparatorText("Cheats Settings");
@@ -233,6 +240,17 @@ void MungPlex::Settings::drawCheatSettings()
 			else if (_cheatsSettings.DefaultInterval > 240)
 				_cheatsSettings.DefaultInterval = 240;
 		}
+	}
+	ImGui::EndChild();
+}
+
+void MungPlex::Settings::drawDeviceControlSettings()
+{
+	const ImVec2 childYX(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.8f);
+	ImGui::BeginChild("child_DeviceControlSettings", childYX);
+	{
+		ImGui::SeparatorText("Device Control Settings");
+		SetUpInputText("Lovense Token", _deviceControlSettings.LovenseToken.Data(), _deviceControlSettings.LovenseToken.Size(), 1.0f, 0.2f);
 	}
 	ImGui::EndChild();
 }
@@ -282,6 +300,10 @@ bool MungPlex::Settings::saveSettings()
 		jsonChunk["DefaultCheatList"] = _cheatsSettings.DefaultCheatList;
 		jsonChunk["DefaultInterval"] = _cheatsSettings.DefaultInterval;
 		jsonData["Settings"]["Cheats"] = jsonChunk;
+		jsonChunk.clear();
+
+		jsonChunk["LovenseToken"] = _deviceControlSettings.LovenseToken.StdStrNoLeadinZeros();
+		jsonData["Settings"]["DeviceControl"] = jsonChunk;
 
 		file << "\xEF\xBB\xBF"; //write BOM
 		file << jsonData.dump(2);
@@ -329,6 +351,11 @@ MungPlex::SearchSettings& MungPlex::Settings::GetSearchSettings()
 MungPlex::CheatsSettings& MungPlex::Settings::GetCheatsSettings()
 {
 	return GetInstance()._cheatsSettings;
+}
+
+MungPlex::DeviceControlSettings& MungPlex::Settings::GetDeviceControlSettings()
+{
+	return GetInstance()._deviceControlSettings;
 }
 
 void MungPlex::Settings::setUi(const nlohmann::json& uiJson)
