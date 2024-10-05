@@ -67,7 +67,6 @@ namespace MungPlex
             static const std::vector<std::pair<std::string, int>> s_SuperiorTypes;
 
             int GetID();
-            void* GetCurrentPointer();
             nlohmann::json GetBasicJSON();
             void SetBasicMembers(const nlohmann::json elem);
             void DrawSetup(const float itemWidth, const float itemHeight, const int type);

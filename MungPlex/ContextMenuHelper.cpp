@@ -100,6 +100,9 @@ void MungPlex::ContextMenuHelper::drawHelpMenuItems()
         if (ImGui::MenuItem("Cheat Code Database"))
             GetInstance().openWebPage("https://lawnmeower.de");
 
+        if (ImGui::MenuItem("Get your Lovense token"))
+            GetInstance().openWebPage("https://en.lovense.com/user/developer/info");
+
         ImGui::EndMenu();
     }
 }

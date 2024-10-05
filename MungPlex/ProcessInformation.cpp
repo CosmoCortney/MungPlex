@@ -1821,3 +1821,50 @@ void MungPlex::ProcessInformation::ResetWindowTitle()
 {
 	glfwSetWindowTitle(GetInstance()._window, GetWindowTitleBase().c_str());
 }
+
+void* MungPlex::ProcessInformation::GetPointerFromPointerPathExpression(const std::vector<int64_t>& pointerPath, const bool useModule, const int64_t moduleAddress)
+{
+	if (pointerPath.empty())
+		return nullptr;
+
+	int64_t ptr = 0;
+
+	if (useModule)
+		ptr = moduleAddress;
+
+	for (int i = 0; i < pointerPath.size() - 1; ++i)
+	{
+		ptr += pointerPath[i];
+
+		if (ProcessInformation::GetProcessType() == ProcessInformation::EMULATOR)
+		{
+			int regionIndex = ProcessInformation::GetRegionIndex(ptr);
+
+			if (regionIndex >= 0)
+			{
+				switch (ProcessInformation::GetAddressWidth())
+				{
+				case 2:
+					ptr = ProcessInformation::ReadValue<uint8_t>(ptr);
+					break;
+				case 4:
+					ptr = ProcessInformation::ReadValue<uint32_t>(ptr);
+					break;
+				default://8
+					ptr = ProcessInformation::ReadValue<uint64_t>(ptr);
+				}
+			}
+			else
+			{
+				ptr = 0;
+				break;
+			}
+		}
+		else
+		{
+			ptr = ProcessInformation::ReadValue<uint64_t>(ptr);
+		}
+	}
+
+	return reinterpret_cast<void*>(ptr + pointerPath.back());
+}

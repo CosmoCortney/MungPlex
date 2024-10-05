@@ -425,53 +425,6 @@ void MungPlex::WatchControl::View::SetBasicMembers(const nlohmann::json elem)
 	_pointerPathText.resize(128);
 }
 
-void* MungPlex::WatchControl::View::GetCurrentPointer()
-{
-	if (_pointerPath.empty())
-		return 0;
-
-	int64_t ptr = 0;
-
-	if (_useModulePath)
-		ptr = _moduleAddress;
-
-	for (int i = 0; i < _pointerPath.size() - 1; ++i)
-	{
-		ptr += _pointerPath[i];
-
-		if (ProcessInformation::GetProcessType() == ProcessInformation::EMULATOR)
-		{
-			int regionIndex = ProcessInformation::GetRegionIndex(ptr);
-
-			if (regionIndex >= 0)
-			{
-				switch (ProcessInformation::GetAddressWidth())
-				{
-				case 2:
-					ptr = ProcessInformation::ReadValue<uint8_t>(ptr);
-					break;
-				case 4:
-					ptr = ProcessInformation::ReadValue<uint32_t>(ptr);
-					break;
-				default://8
-					ptr = ProcessInformation::ReadValue<uint64_t>(ptr);
-				}
-			}
-			else
-			{
-				ptr = 0;
-				break;
-			}
-		}
-		else
-		{
-			ptr = ProcessInformation::ReadValue<uint64_t>(ptr);
-		}
-	}
-
-	return reinterpret_cast<void*>(ptr + _pointerPath.back());
-}
-
 MungPlex::WatchControl::IntegralView::IntegralView(const int id)
 {
 	_id = id;
@@ -573,7 +526,7 @@ void MungPlex::WatchControl::IntegralView::Draw()
 			
 			if (_active)
 			{
-				uint64_t valptr = reinterpret_cast<uint64_t>(GetCurrentPointer());
+				uint64_t valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
 
 				if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
 				{
@@ -716,7 +669,7 @@ void MungPlex::WatchControl::FloatView::Draw()
 			std::string format(8, '\0');
 			if (_active)
 			{
-				uint64_t valptr = reinterpret_cast<uint64_t>(GetCurrentPointer());
+				uint64_t valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
 
 				if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
 				{
@@ -818,7 +771,7 @@ void MungPlex::WatchControl::BoolView::Draw()
 			std::string format(8, '\0');
 			if (_active)
 			{
-				uint64_t valptr = reinterpret_cast<uint64_t>(GetCurrentPointer());
+				uint64_t valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
 
 				if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
 				{
@@ -861,7 +814,7 @@ void MungPlex::WatchControl::MousePiano::Draw()
 			std::string format(8, '\0');
 			if (_active)
 			{
-				uint64_t valptr = reinterpret_cast<uint64_t>(GetCurrentPointer());
+				uint64_t valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
 
 				if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
 				{

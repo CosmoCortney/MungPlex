@@ -82,6 +82,7 @@ namespace MungPlex
         static std::string GetSystemNameByID(const int id);
         static void SetWindowRef(GLFWwindow* window);
         static void ResetWindowTitle();
+        static void* GetPointerFromPointerPathExpression(const std::vector<int64_t>& pointerPath, const bool useModule = false, const int64_t moduleAddress = 0);
 
         template<typename addressType> static addressType GetModuleAddress(const std::wstring& moduleName)
         {

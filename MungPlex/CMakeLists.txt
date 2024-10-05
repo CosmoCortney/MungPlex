@@ -52,6 +52,10 @@ add_executable (MungPlex
     Discord.cpp
     Discord.hpp
     HelperFunctions.hpp
+    source/DeviceControl/IDevice.cpp
+    source/DeviceControl/IDevice.hpp
+    source/DeviceControl/DeviceLovense_Impl.cpp
+    source/DeviceControl/DeviceLovense_Impl.hpp
     Log.hpp
     Log.cpp
     source/DeviceControl/LovenseToy.cpp
