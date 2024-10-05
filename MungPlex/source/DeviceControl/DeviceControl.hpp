@@ -110,8 +110,9 @@ namespace MungPlex
             std::vector<int64_t> _pointerPath;
             uint64_t _rangeMin = 0;
             uint64_t _rangeMax = 0;
+            int _plotCount = 128;
+            std::vector<float> _plotVals = std::vector<float>(128);
             void* getCurrentPointer();
-
         };
 
         std::vector<std::pair<int, std::variant</*DeviceXInput, */DeviceLovense>>> _devices;
