@@ -1,4 +1,6 @@
 #pragma once
+#include <boost/atomic.hpp>
+#include <boost/thread.hpp>
 #include "IDevice.hpp"
 #include "LovenseToy.hpp"
 
@@ -56,8 +58,12 @@ namespace MungPlex
 
         //toy control
         int _vibrationValue = 0;
-        int _plotCount = 128;
+        int _previousVibrationValue = 0;
+        const int _plotCount = 128;
         int _valueType = INT32;
+        const uint32_t _toyControlIntervalMilliseconds = 100;
+        boost::thread _toyControlThread;
+        static boost::atomic<bool> _toyControlThreadFlag;
         std::vector<float> _plotVals = std::vector<float>(128);
 
         void drawToyConnectionOptions();
@@ -65,5 +71,6 @@ namespace MungPlex
         void drawValueTypeOptions();
         void drawPointerSettings();
         void controlToy();
+        void plotValues();
     };
 }

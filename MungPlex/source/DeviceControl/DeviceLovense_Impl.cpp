@@ -1,6 +1,8 @@
 #include "DeviceLovense_Impl.hpp"
 #include "../../Settings.hpp"
 
+boost::atomic<bool> MungPlex::DeviceLovense::_toyControlThreadFlag = false;
+
 MungPlex::DeviceLovense::DeviceLovense()
 {
 	_token = Settings::GetDeviceControlSettings().LovenseToken;
@@ -32,7 +34,7 @@ void MungPlex::DeviceLovense::Draw()
 		{
 			drawValueTypeOptions();
 			drawPointerSettings();
-			controlToy();
+			plotValues();
 		}
 		ImGui::EndChild();
 	}
@@ -66,7 +68,19 @@ void MungPlex::DeviceLovense::drawToyConnectionOptions()
 		if (ImGui::Checkbox("Active", &_active))
 		{
 			if (!_active)
+			{
+				_toyControlThreadFlag = false;
+
+				if (_toyControlThread.joinable())
+					_toyControlThread.join();
+
 				_lovenseToy.SendCommand(CLovenseToy::COMMAND_VIBRATE, 0);
+			}
+			else
+			{
+				_toyControlThreadFlag = true;
+				_toyControlThread = boost::thread(&MungPlex::DeviceLovense::controlToy, this);
+			}
 		}
 	}
 	if (!_lovenseToy.GetToyInfo()->toy_connected) ImGui::EndDisabled();
@@ -211,75 +225,81 @@ void MungPlex::DeviceLovense::drawPointerSettings()
 
 void MungPlex::DeviceLovense::controlToy()
 {
-	static int vibrationVal = 0;
-	if (_active)
+	while (_toyControlThreadFlag)
 	{
-		static uint64_t valptr = 0;
-		valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
-
-		if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
+		if (_active && Connection::IsConnected())
 		{
-			switch (_valueType)
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(_toyControlIntervalMilliseconds));
+
+			static uint64_t valptr = 0;
+			valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
+
+			if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
 			{
-			case BOOL:
-			{
-				static bool readVal = false;
-				readVal = ProcessInformation::ReadValue<bool>(valptr);
-				vibrationVal = ScaleValue<bool>(readVal, 1);
-				_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, vibrationVal);
-			} break;
-			case INT8:
-			{
-				static int8_t readVal = 0;
-				readVal = ProcessInformation::ReadValue<int8_t>(valptr);
-				vibrationVal = ScaleValue<int8_t>(readVal, _maxI);
-				_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, vibrationVal);
-			} break;
-			case INT16:
-			{
-				static int16_t readVal = 0;
-				readVal = ProcessInformation::ReadValue<int16_t>(valptr);
-				vibrationVal = ScaleValue<int16_t>(readVal, _maxI);
-				_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, vibrationVal);
-			} break;
-			case INT64:
-			{
-				static int64_t readVal = 0;
-				readVal = ProcessInformation::ReadValue<int64_t>(valptr);
-				vibrationVal = ScaleValue<int64_t>(readVal, _maxL);
-				_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, vibrationVal);
-			} break;
-			case FLOAT:
-			{
-				static float readVal = 0.0f;
-				readVal = ProcessInformation::ReadValue<float>(valptr);
-				vibrationVal = ScaleValue<float>(readVal, _maxF);
-				_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, vibrationVal);
-			} break;
-			case DOUBLE:
-			{
-				static double readVal = 0.0;
-				readVal = ProcessInformation::ReadValue<double>(valptr);
-				vibrationVal = ScaleValue<double>(readVal, _maxD);
-				_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, vibrationVal);
-			} break;
-			default: //INT32
-			{
-				static int32_t readVal = 0;
-				readVal = ProcessInformation::ReadValue<int32_t>(valptr);
-				vibrationVal = ScaleValue<int32_t>(readVal, _maxI);
-				_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, vibrationVal);
-			} break;
+				switch (_valueType)
+				{
+				case BOOL:
+				{
+					static bool readVal = false;
+					readVal = ProcessInformation::ReadValue<bool>(valptr);
+					_vibrationValue = ScaleValue<bool>(readVal, 1);
+					_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, _vibrationValue);
+				} break;
+				case INT8:
+				{
+					static int8_t readVal = 0;
+					readVal = ProcessInformation::ReadValue<int8_t>(valptr);
+					_vibrationValue = ScaleValue<int8_t>(readVal, _maxI);
+					_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, _vibrationValue);
+				} break;
+				case INT16:
+				{
+					static int16_t readVal = 0;
+					readVal = ProcessInformation::ReadValue<int16_t>(valptr);
+					_vibrationValue = ScaleValue<int16_t>(readVal, _maxI);
+					_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, _vibrationValue);
+				} break;
+				case INT64:
+				{
+					static int64_t readVal = 0;
+					readVal = ProcessInformation::ReadValue<int64_t>(valptr);
+					_vibrationValue = ScaleValue<int64_t>(readVal, _maxL);
+					_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, _vibrationValue);
+				} break;
+				case FLOAT:
+				{
+					static float readVal = 0.0f;
+					readVal = ProcessInformation::ReadValue<float>(valptr);
+					_vibrationValue = ScaleValue<float>(readVal, _maxF);
+					_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, _vibrationValue);
+				} break;
+				case DOUBLE:
+				{
+					static double readVal = 0.0;
+					readVal = ProcessInformation::ReadValue<double>(valptr);
+					_vibrationValue = ScaleValue<double>(readVal, _maxD);
+					_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, _vibrationValue);
+				} break;
+				default: //INT32
+				{
+					static int32_t readVal = 0;
+					readVal = ProcessInformation::ReadValue<int32_t>(valptr);
+					_vibrationValue = ScaleValue<int32_t>(readVal, _maxI);
+					_toyError = _lovenseToy.SendCommand(CLovenseToy::CmdType::COMMAND_VIBRATE, _vibrationValue);
+				} break;
+				}
 			}
 		}
-
 	}
+}
 
+void MungPlex::DeviceLovense::plotValues()
+{
 	std::rotate(_plotVals.begin(), _plotVals.begin() + 1, _plotVals.end());
-	_plotVals.back() = static_cast<float>(vibrationVal);
+	_plotVals.back() = static_cast<float>(_vibrationValue);
 
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-	float plotMin = 0.0f;
-	float plotMax = 20.0f;
+	const float plotMin = 0.0f;
+	const float plotMax = 20.0f;
 	ImGui::PlotLines("##Lines", _plotVals.data(), _plotCount, 0, NULL, 0.0f, 20.0f, ImVec2(0.0f, 40.0f));
 }
