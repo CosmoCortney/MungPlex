@@ -41,7 +41,7 @@ void MungPlex::DeviceControl::drawList()
 	{
 		static int typeSelect = 0;
 
-		SetUpCombo("New Device Type:", IDevice::s_DeviceTypes, typeSelect);
+		SetUpCombo("New Device Type:", IDevice::s_DeviceTypes, typeSelect, 0.3f);
 
 		ImGui::SameLine();
 

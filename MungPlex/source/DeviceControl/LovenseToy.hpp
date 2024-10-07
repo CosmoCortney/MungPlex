@@ -28,6 +28,7 @@ namespace MungPlex
 
 	public:
 		LovenseToy();
+		~LovenseToy();
 		void InitManager(const char* token);
 		int SendCommand(const CLovenseToy::CmdType cmd, const int param = 0);
 		int SearchToy();

@@ -8,6 +8,14 @@ MungPlex::DeviceLovense::DeviceLovense()
 	_token = Settings::GetDeviceControlSettings().LovenseToken;
 }
 
+MungPlex::DeviceLovense::~DeviceLovense()
+{
+	if (_lovenseToy.IsInitialized())
+	{
+		_lovenseToy.~LovenseToy();
+	}
+}
+
 void MungPlex::DeviceLovense::Draw()
 {
 	float itemWidth = ImGui::GetContentRegionAvail().x;
@@ -41,22 +49,42 @@ void MungPlex::DeviceLovense::Draw()
 	ImGui::EndChild();
 }
 
+void MungPlex::DeviceLovense::test()
+{	
+	for (int i = 0; i < 3; ++i)
+	{
+		_lovenseToy.SendCommand(CLovenseToy::COMMAND_VIBRATE, 2);
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(20));
+		_lovenseToy.SendCommand(CLovenseToy::COMMAND_VIBRATE, 0);
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(20));
+	}
+}
+
 void MungPlex::DeviceLovense::drawToyConnectionOptions()
 {
-	if (ImGui::Button("Search Toy"))
-	{
-		_lovenseToy.InitManager(_token.CStr());
-		_toyError = _lovenseToy.SearchToy();
-	}
-
-	ImGui::SameLine();
-
-	if (!_lovenseToy.GetToyInfo()->toy_connected) ImGui::BeginDisabled();
+	if (_lovenseToy.GetToyInfo()->toy_connected)
 	{
 		if (ImGui::Button("Disconnect"))
 		{
 			_lovenseToy.SendCommand(CLovenseToy::COMMAND_VIBRATE, 0);
 			_toyError = _lovenseToy.DisconnectToy();
+		}
+	}
+	else
+	{
+		if (ImGui::Button("Search Toy"))
+		{
+			_lovenseToy.InitManager(_token.CStr());
+			_toyError = _lovenseToy.SearchToy();
+		}
+	}
+
+	ImGui::SameLine();
+	if (!_lovenseToy.GetToyInfo()->toy_connected) ImGui::BeginDisabled();
+	{
+		if (ImGui::Button("Test"))
+		{
+			_toyControlThread = boost::thread(&MungPlex::DeviceLovense::test, this);
 		}
 	}
 	if (!_lovenseToy.GetToyInfo()->toy_connected) ImGui::EndDisabled();
@@ -94,7 +122,7 @@ void MungPlex::DeviceLovense::drawToyInfo()
 	static bool toyInfoValid = false;
 	toyInfoValid = _lovenseToy.GetToyInfo()->toy_name != nullptr;
 
-	if (toyInfoValid && !_lovenseToy.GetToyInfo()->toy_connected && _lovenseToy.IsInitialized())
+	if (toyInfoValid && !_lovenseToy.GetToyInfo()->toy_connected)
 	{
 		_toyError = _lovenseToy.ConnectToToy();
 		_lovenseToy.StopSearchingToy();

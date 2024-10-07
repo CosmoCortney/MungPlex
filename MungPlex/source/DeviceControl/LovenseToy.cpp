@@ -81,8 +81,17 @@ MungPlex::LovenseToy::LovenseToy()
 	//_token = Settings::GetDeviceControlSettings().LovenseToken.StdStrNoLeadinZeros();
 }
 
+MungPlex::LovenseToy::~LovenseToy()
+{
+	ReleaseLovenseToyManager();
+	_manager.~shared_ptr();
+}
+
 void MungPlex::LovenseToy::InitManager(const char* token)
 {
+	if (_manager)
+		return;
+
 	_token = token;
 	_manager = std::shared_ptr<CLovenseToyManager>(GetLovenseToyManager());
 	bool tokenSet = _manager->SetDeveloperToken(_token.c_str());
@@ -109,9 +118,14 @@ int MungPlex::LovenseToy::ConnectToToy()
 	int result = _manager->ConnectToToy(_toyInfo.toy_id);
 
 	if (result == CLovenseToy::TOYERR_SUCCESS)
+	{
 		_toyInfo.toy_connected = true;
+		result = _manager->GetToyBattery(_toyInfo.toy_id, &_toyInfo.toy_battery);
+	}
 	else
+	{
 		_toyInfo.toy_connected = false;
+	}
 
 	return result;
 }
@@ -119,7 +133,19 @@ int MungPlex::LovenseToy::ConnectToToy()
 int MungPlex::LovenseToy::DisconnectToy()
 {
 	SendCommand(CLovenseToy::COMMAND_VIBRATE, 0);
-	return _manager->DisConnectedToy(_toyInfo.toy_id);
+	int result = _manager->DisConnectedToy(_toyInfo.toy_id);
+
+	if (result == CLovenseToy::TOYERR_SUCCESS)
+	{
+		_toyInfo.toy_connected = false;
+		_toyInfo.toy_battery = 0;
+		delete[] _toyInfo.toy_id;
+		delete[] _toyInfo.toy_name;
+		_toyInfo.toy_id = _toyInfo.toy_name = nullptr;
+		_toyInfo.toy_type = 0;
+	}
+
+	return result;
 }
 
 bool MungPlex::LovenseToy::IsInitialized()
@@ -184,7 +210,7 @@ const char* MungPlex::LovenseToy::GetErrorMessageByCode(const int err)
 	case 1019:
 		return "Error 1019: Search in progress. Can't send commands!";
 	case 1020:
-		return "Error 1020: Command not matching";
+		return "Error 1020: Command(s) not matching";
 	case 1100:
 		return "Error 1100: Failed sending bootloader";
 	case 1101:
