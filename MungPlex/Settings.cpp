@@ -97,6 +97,7 @@ void MungPlex::Settings::InitSettings()
 		searchSettings.DefaultColorWheel = settings["Search"]["DefaultColorWheel"].get<bool>();
 		searchSettings.DefaultValuesHex = settings["Search"]["DefaultValuesHex"].get<bool>();
 		searchSettings.DefaultCached = settings["Search"]["DefaultCached"].get<bool>();
+		searchSettings.DefaultDisableUndo = settings["Search"]["DefaultDisableUndo"].get<bool>();
 		searchSettings.DefaultAlignment = settings["Search"]["DefaultAlignment"].get<int>();
 
 		if (searchSettings.DefaultAlignment < 1)
@@ -218,6 +219,7 @@ void MungPlex::Settings::drawSearchSettings()
 
 		ImGui::Checkbox("Values are hex by default", &_searchSettings.DefaultValuesHex);
 		ImGui::Checkbox("Cached Searches by default", &_searchSettings.DefaultCached);
+		ImGui::Checkbox("Disable Undo by default", &_searchSettings.DefaultDisableUndo);
 		ImGui::SameLine();
 		HelpMarker("Whether search results shall be kept in RAM (uses more RAM, but faster) or saved to local starage (uses less RAM but slower).");
 	}
@@ -294,6 +296,7 @@ bool MungPlex::Settings::saveSettings()
 		jsonChunk["DefaultAlignment"] = _searchSettings.DefaultAlignment;
 		jsonChunk["DefaultValuesHex"] = _searchSettings.DefaultValuesHex;
 		jsonChunk["DefaultCached"] = _searchSettings.DefaultCached;
+		jsonChunk["DefaultDisableUndo"] = _searchSettings.DefaultDisableUndo;
 		jsonData["Settings"]["Search"] = jsonChunk;
 		jsonChunk.clear();
 

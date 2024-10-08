@@ -402,6 +402,7 @@
     "Search": {
       "DefaultAlignment": 4,
       "DefaultCached": false,
+      "DefaultDisableUndo": false,
       "DefaultCaseSensitive": true,
       "DefaultColorWheel": false,
       "DefaultValuesHex": false

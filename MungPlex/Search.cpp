@@ -13,6 +13,7 @@ MungPlex::Search::Search()
 	_selectedIndices.resize(_maxResultsPerPage);
 	_alignmentValue = Settings::GetSearchSettings().DefaultAlignment;
 	_cached = Settings::GetSearchSettings().DefaultCached;
+	_disableUndo = Settings::GetSearchSettings().DefaultDisableUndo;
 	_caseSensitive = Settings::GetSearchSettings().DefaultCaseSensitive;
 	_useColorWheel = Settings::GetSearchSettings().DefaultColorWheel;
 	_hex = Settings::GetSearchSettings().DefaultValuesHex;
@@ -399,9 +400,9 @@ void MungPlex::Search::drawSearchOptions()
 
 		ImGui::BeginGroup();
 
-		if (!iterationCount) ImGui::BeginDisabled();
+		if (!iterationCount || _disableUndo) ImGui::BeginDisabled();
 			SetUpCombo("Counter Iteration:", _iterations, _iterationIndex, 0.5f, 0.4f);
-		if (!iterationCount) ImGui::EndDisabled();
+		if (!iterationCount || _disableUndo) ImGui::EndDisabled();
 
 		ImGui::SameLine();
 
@@ -427,17 +428,22 @@ void MungPlex::Search::drawSearchOptions()
 		default: //PRIMITIVE
 			drawPrimitiveSearchOptions();
 		}
-
 		
 		if (iterationCount) ImGui::BeginDisabled();
-		ImGui::Checkbox("Cached", &GetInstance()._cached);
+		{
+			ImGui::Checkbox("Cached", &GetInstance()._cached);
+			ImGui::SameLine();
+			HelpMarker("If checked, search results will be kept in RAM. Recommended for PC games!");
+			ImGui::SameLine();
+			ImGui::Checkbox("Disable Undo", &GetInstance()._disableUndo); ImGui::SameLine();
+			ImGui::SameLine();
+			HelpMarker("If checked, comparing against iterations older than the previous one is disabled to safe memory usage. Recommended for PC games!");
+		}
 		if (iterationCount) ImGui::EndDisabled();
 
 		ImGui::SameLine();
 
 		ImGui::Checkbox("Values are hex", &GetInstance()._hex);
-
-		ImGui::SameLine();
 
 		if (ImGui::Button("Search"))
 		{
@@ -1647,6 +1653,9 @@ void MungPlex::Search::setUpAndIterate()
 		if (_cached)
 			setupFlags |= MemoryCompare::CACHED;
 
+		if (_disableUndo)
+			setupFlags |= MemoryCompare::DISABLE_UNDO;
+
 		MemoryCompare::MemCompare::SetUp(_resultsPath, _currentValueTypeSelect, subsidiaryDatatype, ProcessInformation::GetAddressWidth(), _alignmentValue, setupFlags);
 	}
 
@@ -1689,6 +1698,19 @@ void MungPlex::Search::SetRereorderRegion(const bool rereorder)
 void MungPlex::Search::SetAlignment(const int alignment)
 {
 	GetInstance()._alignmentValue = alignment;
+}
+
+void MungPlex::Search::SetNativeAppSearchSettings()
+{
+	GetInstance()._cached = true;
+	GetInstance()._disableUndo = true;
+	GetInstance()._crossRegion = true;
+}
+
+void MungPlex::Search::SetDefaultSearchSettings()
+{
+	GetInstance()._cached = Settings::GetSearchSettings().DefaultCached;
+	GetInstance()._disableUndo = Settings::GetSearchSettings().DefaultDisableUndo;
 }
 
 void MungPlex::Search::setRecommendedValueSettings(const int valueType)

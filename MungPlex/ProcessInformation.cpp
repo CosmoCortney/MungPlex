@@ -324,6 +324,7 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	_platform = GetSystemNameByID(_platformID);
 	PointerSearch::SelectPreset(_platformID);
 	setupSearch();
+	Search::SetDefaultSearchSettings();
 	setupCheats();
 	WatchControl::InitWatchFile();
 	return true;
@@ -359,6 +360,7 @@ bool MungPlex::ProcessInformation::connectToProcessFR()
 	 GetInstance()._processType = NATIVE;
 	 Cheats::InitCheatFile();
 	 WatchControl::InitWatchFile();
+	 Search::SetNativeAppSearchSettings();
 	 return connected;
  }
 

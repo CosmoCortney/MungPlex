@@ -37,6 +37,8 @@ namespace MungPlex
         static void SetUnderlyingBigEndianFlag(const bool isBigEndian);
         static void SetRereorderRegion(const bool rereorder);
         static void SetAlignment(const int alignment);
+        static void SetNativeAppSearchSettings();
+        static void SetDefaultSearchSettings();
 
         SignalCombo<SystemRegion> _RegionSelectSignalCombo;
         SignalInputText _SignalInputTextRangeStart;
@@ -194,6 +196,7 @@ namespace MungPlex
         bool _signed = false;
         bool _hex = false;
         bool _cached = false;
+        bool _disableUndo = false;
         float _precision = 100.0f;
         bool _diableBecauseUnknownAndNotRangebased = false;
         bool _disableBecauseNoText = false;

@@ -25,6 +25,7 @@ namespace MungPlex
         int DefaultAlignment = 4;
         bool DefaultValuesHex = false;
         bool DefaultCached = false;
+        bool DefaultDisableUndo = false;
     };
 
     struct CheatsSettings
