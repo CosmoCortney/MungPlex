@@ -84,7 +84,6 @@ MungPlex::LovenseToy::LovenseToy()
 MungPlex::LovenseToy::~LovenseToy()
 {
 	ReleaseLovenseToyManager();
-	_manager.~shared_ptr();
 }
 
 void MungPlex::LovenseToy::InitManager(const char* token)
@@ -93,9 +92,9 @@ void MungPlex::LovenseToy::InitManager(const char* token)
 		return;
 
 	_token = token;
-	_manager = std::shared_ptr<CLovenseToyManager>(GetLovenseToyManager());
+	_manager = GetLovenseToyManager();
 	bool tokenSet = _manager->SetDeveloperToken(_token.c_str());
-	_manager->RegisterEventCallBack(_callbacks.get());
+	_manager->RegisterEventCallBack(_callbacks);
 }
 
 int MungPlex::LovenseToy::SendCommand(const CLovenseToy::CmdType cmd, const int param)

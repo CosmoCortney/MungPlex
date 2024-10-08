@@ -41,8 +41,8 @@ namespace MungPlex
 		static const char* GetErrorMessageByCode(const int err);
 
 	private:
-		std::shared_ptr<CEventCallBack> _callbacks = std::make_shared<CEventCallBack>();
-		std::shared_ptr<CLovenseToyManager> _manager;
+		CEventCallBack* _callbacks = new CEventCallBack();
+		CLovenseToyManager* _manager = nullptr;
 		std::string _token;
 		static inline lovense_toy_info_t _toyInfo;
 		int _statusCode = CLovenseToy::TOYERR_UNKNOWN;
