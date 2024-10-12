@@ -1,7 +1,7 @@
 # CMakeList.txt : CMake project for MungPlex, include source and define
 # project specific logic here.
 cmake_minimum_required (VERSION 3.16)
-project(MungPlex VERSION 2.5.0)
+project(MungPlex VERSION 2.6.0)
 
 find_package(Lua REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
