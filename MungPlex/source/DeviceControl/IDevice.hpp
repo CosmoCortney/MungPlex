@@ -1,4 +1,5 @@
 #pragma once
+#include "../../HelperFunctions.hpp"
 #include <string>
 #include <utility>
 #include <vector>
@@ -7,17 +8,6 @@ namespace MungPlex
 {
     class IDevice
     {
-    protected:
-        //int _typeID = DeviceTypes::UNK;
-        int _deviceId = -1;
-        std::string _idText;
-        std::string _name = std::string(128, '\0');
-        std::string _label = std::string(128, '\0');
-        bool _connected = false;
-        bool _delete = false;
-        bool _active = false;
-        int _valueTypeIndex = 2;
-
     public:
         enum DeviceTypes
         {
@@ -26,6 +16,16 @@ namespace MungPlex
         static const std::vector<std::pair<std::string, int>> s_DeviceTypes;
         static const std::vector<std::pair<std::string, int>> s_ValueTypes;
         int GetID();
-        const bool IsConnected();
+        virtual void Draw() = 0;
+        virtual nlohmann::json GetJSON() = 0;
+        virtual void ParsePointerPath() = 0;
+
+    protected:
+        int _deviceTypeID = DeviceTypes::UNK;
+        int _deviceId = -1;
+        std::string _idText;
+        FloorString _name = FloorString("", 128);
+        bool _delete = false;
+        bool _active = false;
     };
 }

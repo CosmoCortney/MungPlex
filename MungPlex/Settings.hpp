@@ -69,7 +69,7 @@ namespace MungPlex
         ImGuiStyle _defaultStyle;
         const std::vector<std::string> _featureDirs
         {
-             "Search" , "Dumps", "PointerSearch", "WatchControl", "Cheats"
+             "Search" , "Dumps", "PointerSearch", "WatchControl", "Cheats", "DeviceControl"
         }; 
         const std::vector<std::pair<int, std::pair<std::string, std::string>>> _colorSettings
         {

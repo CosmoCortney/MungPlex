@@ -395,16 +395,16 @@
         ]
       },
       "DefaultWindowSelect": 0,
-      "DocumentsPath": "C:\\Users\\s_sch\\Documents",
+      "DocumentsPath": "",
       "EnableRichPresence": true,
       "Scale": 0.8941890001296997
     },
     "Search": {
       "DefaultAlignment": 4,
       "DefaultCached": false,
-      "DefaultDisableUndo": false,
       "DefaultCaseSensitive": true,
       "DefaultColorWheel": false,
+      "DefaultDisableUndo": false,
       "DefaultValuesHex": false
     }
   }

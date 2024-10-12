@@ -14,16 +14,16 @@ namespace MungPlex
 	{
     public:
         static void DrawWindow();
-        static void InitWatchFile();
+        static void InitDevicesFile();
         static void DeleteItem(const int id);
 
     private:
         DeviceControl() = default;
         ~DeviceControl() = default;
-        DeviceControl(const DeviceControl&) = delete;
+       /* DeviceControl(const DeviceControl&) = delete;
         DeviceControl(DeviceControl&&) = delete;
         void operator=(const DeviceControl&) = delete;
-        void operator=(DeviceControl&&) = delete;
+        void operator=(DeviceControl&&) = delete;*/
         static DeviceControl& GetInstance()
         {
             static DeviceControl Instance;
@@ -32,6 +32,8 @@ namespace MungPlex
 
         std::vector<std::pair<int, std::variant</*DeviceXInput, */DeviceLovense>>> _devices;
         std::vector<int> _deviceIds;
+        std::wstring _currentFile;
+        std::string _placeholderFile = "{\"DeviceList\":[]}";
 
         void drawList();
         bool saveList();

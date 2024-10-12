@@ -17,3 +17,8 @@ const std::vector<std::pair<std::string, int>> MungPlex::IDevice::s_ValueTypes =
 	{ "Float Double", DOUBLE },
 	{ "Bool", BOOL }
 };
+
+int MungPlex::IDevice::GetID()
+{
+	return _deviceId;
+}

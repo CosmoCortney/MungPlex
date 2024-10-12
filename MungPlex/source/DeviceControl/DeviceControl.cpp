@@ -4,15 +4,17 @@
 #include "../../ProcessInformation.hpp"
 #include "../../Settings.hpp"
 
+//std::vector<std::pair<int, std::variant</*DeviceXInput, */MungPlex::DeviceLovense>>> MungPlex::DeviceControl::_devices;
+
 void MungPlex::DeviceControl::DrawWindow()
 {
 	static bool stateSet = false;
 
 	if (ImGui::Begin("Device Control"))
 	{
-	//	if (!Connection::IsConnected())
-	//		ImGui::BeginDisabled();
-	//	else
+		if (!Connection::IsConnected())
+			ImGui::BeginDisabled();
+		else
 		{
 			if (!stateSet && Settings::GetGeneralSettings().EnableRichPresence && ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
 			{
@@ -23,8 +25,8 @@ void MungPlex::DeviceControl::DrawWindow()
 
 		GetInstance().drawList();
 
-	//	if (!Connection::IsConnected())
-	//		ImGui::EndDisabled();
+		if (!Connection::IsConnected())
+			ImGui::EndDisabled();
 	}
 	else
 		stateSet = false;
@@ -35,9 +37,70 @@ void MungPlex::DeviceControl::DrawWindow()
 	ImGui::End();
 }
 
+void MungPlex::DeviceControl::InitDevicesFile()
+{
+	GetInstance()._currentFile = MT::Convert<char*, std::wstring>(Settings::GetGeneralSettings().DocumentsPath, MT::UTF8, MT::UTF16LE) + L"\\MungPlex\\DeviceControl\\"
+		+ MT::Convert<std::string, std::wstring>(ProcessInformation::GetPlatform(), MT::UTF8, MT::UTF16LE) + L"\\"
+		+ MT::Convert<std::string, std::wstring>(ProcessInformation::GetGameID(), MT::UTF8, MT::UTF16LE) + L".json";
+
+	if (!std::filesystem::exists(GetInstance()._currentFile))
+	{
+		std::ofstream file(GetInstance()._currentFile, std::ios::binary);
+
+		if (file.is_open())
+		{
+			file << "\xEF\xBB\xBF"; //write BOM
+			file << GetInstance()._placeholderFile;
+		}
+	}
+
+	GetInstance()._devices.clear();
+	GetInstance()._deviceIds.clear();
+
+	std::string jsonstr;
+	{
+		std::ifstream inFile;
+		inFile.open(GetInstance()._currentFile);
+
+		if (inFile)
+		{
+			std::string buffer;
+			while (std::getline(inFile, buffer))
+			{
+				jsonstr.append(buffer).append("\n");
+			}
+		}
+	}
+
+	try
+	{
+		auto doc = nlohmann::json::parse(jsonstr);
+		auto& deviceList = doc["DeviceList"];
+
+		for (int i = 0; i < deviceList.size(); ++i)
+		{
+			int type = deviceList[i]["deviceType"];
+			GetInstance()._deviceIds.push_back(i);
+
+			switch (type)
+			{
+			case IDevice::LOVENSE:
+				GetInstance()._devices.emplace_back(IDevice::LOVENSE, DeviceLovense(i, deviceList[i]));
+				break;
+			//default: //XInput
+				
+			}
+		}
+	}
+	catch (const nlohmann::json::parse_error& exception)
+	{
+		std::cerr << "Failed parsing Device Element: " << exception.what() << std::endl;
+	}
+}
+
 void MungPlex::DeviceControl::drawList()
 {
-	ImGui::BeginChild("Device List", ImGui::GetContentRegionAvail());
+	ImGui::BeginChild("Device List", ImGui::GetContentRegionAvail(), true);
 	{
 		static int typeSelect = 0;
 
@@ -61,7 +124,7 @@ void MungPlex::DeviceControl::drawList()
 			switch (IDevice::s_DeviceTypes[typeSelect].second)
 			{
 			case IDevice::LOVENSE:
-				_devices.emplace_back(IDevice::LOVENSE, DeviceLovense());
+				_devices.emplace_back(IDevice::LOVENSE, DeviceLovense(_devices.size()));
 				break;
 			//default: //XInput
 				//_devices.emplace_back(XINPUT, DeviceXInput(_deviceIds.back()));
@@ -90,30 +153,61 @@ void MungPlex::DeviceControl::drawList()
 
 bool MungPlex::DeviceControl::saveList()
 {
-	return false;
+	std::ofstream file(_currentFile, std::ios::binary);
+	const bool isOpen = file.is_open();
+
+	if (isOpen)
+	{
+		nlohmann::json jsonData;
+
+		if (!_devices.empty())
+		{
+			for (int i = 0; i < _devices.size(); ++i)
+			{
+				nlohmann::json watchJson;
+
+				switch (_devices[i].first)
+				{
+				case IDevice::LOVENSE:
+					jsonData["DeviceList"].emplace_back(std::get<DeviceLovense>(_devices[i].second).GetJSON());
+					break;
+				//default:
+				}
+			}
+		}
+		else
+		{
+			jsonData["DeviceList"].emplace_back("");
+		}
+
+		file << "\xEF\xBB\xBF"; //write BOM
+		file << jsonData.dump(2);
+	}
+
+	return isOpen;
 }
 
 void MungPlex::DeviceControl::DeleteItem(const int id)
 {
-	/*auto& views = GetInstance()._views;
+	auto& devices = GetInstance()._devices;
 
-	for (int i = 0; i < views.size(); ++i)
+	for (int i = 0; i < devices.size(); ++i)
 	{
-		switch (views[i].first)
+		switch (devices[i].first)
 		{
-		case IDevice::LOVENSE::
-			if (std::get<FloatView>(views[i].second).GetID() == id)
+		case IDevice::LOVENSE:
+			if (std::get<DeviceLovense>(devices[i].second).GetID() == id)
 			{
-				views.erase(views.begin() + i);
+				devices.erase(devices.begin() + i);
 				return;
 			}
 			break;
-		default: //XInput
+		/*default: //XInput
 			if (std::get<IntegralView>(views[i].second).GetID() == id)
 			{
 				views.erase(views.begin() + i);
 				return;
-			}
+			}*/
 		}
-	}*/
+	}
 }

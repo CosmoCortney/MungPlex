@@ -1,5 +1,6 @@
 #include "ProcessInformation.hpp"
 #include "Cheats.hpp"
+#include "DeviceControl.hpp"
 #include "Log.hpp"
 #include <boost/iostreams/device/mapped_file.hpp>
 #include "PointerSearch.hpp"
@@ -327,6 +328,7 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	Search::SetDefaultSearchSettings();
 	setupCheats();
 	WatchControl::InitWatchFile();
+	DeviceControl::InitDevicesFile();
 	return true;
 }
 
@@ -360,6 +362,7 @@ bool MungPlex::ProcessInformation::connectToProcessFR()
 	 GetInstance()._processType = NATIVE;
 	 Cheats::InitCheatFile();
 	 WatchControl::InitWatchFile();
+	 DeviceControl::InitDevicesFile();
 	 Search::SetNativeAppSearchSettings();
 	 return connected;
  }
