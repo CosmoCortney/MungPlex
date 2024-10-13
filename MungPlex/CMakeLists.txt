@@ -74,8 +74,10 @@ add_executable (MungPlex
     Settings.cpp
     USBGecko.hpp
     USBGecko.cpp
-    WatchControl.cpp
-    WatchControl.hpp
+    source/WatchControl/WatchControl.cpp
+    source/WatchControl/WatchControl.hpp
+    source/WatchControl/IView.cpp
+    source/WatchControl/IView.hpp
     ../include/imgui/imgui.cpp
     ../include/imgui/imgui_demo.cpp
     ../include/imgui/imgui_draw.cpp

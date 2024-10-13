@@ -1,8 +1,10 @@
 #pragma once
 #include <boost/asio.hpp>
+#include <array>
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
+#include "IView.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "GLFW/glfw3.h"
@@ -18,7 +20,6 @@
 
 namespace MungPlex
 {
-
     class WatchControl
     {
     public:
@@ -39,40 +40,7 @@ namespace MungPlex
             return Instance;
         }
 
-        enum ViewTypes
-        {
-            INTEGRAL, FLOAT, BOOL, MOUSEPIANO, MAP2D, MAP3D, COLOR
-        };
-
-        class View
-        {
-        public:
-            std::wstring _moduleW = std::wstring(32, '\0');
-            std::string _module = std::string(32, '\0');
-            std::string _pointerPathText = std::string(128, '\0');
-            std::string _label = std::string(128, '\0');
-            std::vector<int64_t> _pointerPath;
-            bool _useModulePath = false;
-            uint64_t _moduleAddress = 0;
-            bool _freeze = false;
-            bool _active = false;
-            int _id;
-            bool _delete = false;
-            std::string _idText;
-            uint64_t _rangeMin = 0;
-            uint64_t _rangeMax = 0;
-            int _typeSelect = 0;
-            static const std::vector<std::pair<std::string, int>> s_IntTypes;
-            static const std::vector<std::pair<std::string, int>> s_FloatTypes;
-            static const std::vector<std::pair<std::string, int>> s_SuperiorTypes;
-
-            int GetID();
-            nlohmann::json GetBasicJSON();
-            void SetBasicMembers(const nlohmann::json elem);
-            void DrawSetup(const float itemWidth, const float itemHeight, const int type);
-        };
-
-        class IntegralView : public View
+        class IntegralView : public IView
         {
         private: 
             int64_t _val = 0;
@@ -93,7 +61,7 @@ namespace MungPlex
             nlohmann::json GetJSON();
         };
 
-        class FloatView : public View
+        class FloatView : public IView
         {
         private:
             double _val = 0.0;
@@ -114,7 +82,7 @@ namespace MungPlex
             nlohmann::json GetJSON();
         };
 
-        class BoolView : public View
+        class BoolView : public IView
         {
         private:
             bool _val = false;
@@ -126,11 +94,15 @@ namespace MungPlex
             nlohmann::json GetJSON();
         };
 
-        class MousePiano : public View
+        class MousePiano : public IView
         {
         private: 
             std::vector<std::pair<std::string, bool>> _switches;
+            std::array<std::string, 32> _checkBoxIDs;
+            std::array<std::string, 32> _checkBoxTextIDs;
             std::string _idText;
+
+            void assignCheckBoxIDs();
 
         public:
             MousePiano(const int id);

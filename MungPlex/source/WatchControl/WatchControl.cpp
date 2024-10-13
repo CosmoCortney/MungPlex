@@ -1,34 +1,10 @@
 #include "WatchControl.hpp"
 #include <algorithm>
-#include "Helperfunctions.hpp"
-#include "ProcessInformation.hpp"
-#include "Settings.hpp"
+#include "../../Helperfunctions.hpp"
+#include "../../ProcessInformation.hpp"
+#include "../../Settings.hpp"
 
-const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_IntTypes = 
-{
-	{ "Int 8", ImGuiDataType_S8 },
-	{ "UInt 8", ImGuiDataType_U8 },
-	{ "Int 16", ImGuiDataType_S16 },
-	{ "UInt 16", ImGuiDataType_U16 },
-	{ "Int 32", ImGuiDataType_S32 },
-	{ "UInt 32", ImGuiDataType_U32 },
-	{ "Int 64", ImGuiDataType_S64 },
-	{ "UInt 64", ImGuiDataType_U64 }
-};
 
-const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_FloatTypes =
-{
-	{ "Float", ImGuiDataType_Float },
-	{ "Double", ImGuiDataType_Double }
-};
-
-const std::vector<std::pair<std::string, int>> MungPlex::WatchControl::View::s_SuperiorTypes =
-{
-	{ "Integral", INTEGRAL },
-	{ "Floats", FLOAT },
-	{ "Bool", BOOL },
-	{ "DIP Switch", MOUSEPIANO }
-};
 
 void MungPlex::WatchControl::DrawWindow()
 {
@@ -78,16 +54,16 @@ bool MungPlex::WatchControl::saveList()
 
 				switch (_views[i].first)
 				{
-				case FLOAT:
+				case IView::FLOAT:
 					jsonData["Watchlist"].emplace_back(std::get<FloatView>(_views[i].second).GetJSON());
 				break;
-				case BOOL:
+				case IView::BOOL:
 					jsonData["Watchlist"].emplace_back(std::get<BoolView>(_views[i].second).GetJSON());
 				break;
-				case MOUSEPIANO:
+				case IView::MOUSEPIANO:
 					jsonData["Watchlist"].emplace_back(std::get<MousePiano>(_views[i].second).GetJSON());
 					break;
-				default: //INTEGRAL
+				default: //IView::INTEGRAL
 					jsonData["Watchlist"].emplace_back(std::get<IntegralView>(_views[i].second).GetJSON());
 				}
 			}
@@ -151,17 +127,17 @@ void MungPlex::WatchControl::InitWatchFile()
 
 			switch (type)
 			{
-			case FLOAT:
-				GetInstance()._views.emplace_back(FLOAT, FloatView(i, watchList[i]));
+			case IView::FLOAT:
+				GetInstance()._views.emplace_back(IView::FLOAT, FloatView(i, watchList[i]));
 				break;
-			case BOOL:
-				GetInstance()._views.emplace_back(BOOL, BoolView(i, watchList[i]));
+			case IView::BOOL:
+				GetInstance()._views.emplace_back(IView::BOOL, BoolView(i, watchList[i]));
 				break;
-			case MOUSEPIANO:
-				GetInstance()._views.emplace_back(MOUSEPIANO, MousePiano(i, watchList[i]));
+			case IView::MOUSEPIANO:
+				GetInstance()._views.emplace_back(IView::MOUSEPIANO, MousePiano(i, watchList[i]));
 				break;
-			default: //INTEGRAL
-				GetInstance()._views.emplace_back(INTEGRAL, IntegralView(i, watchList[i]));
+			default: //IView::INTEGRAL
+				GetInstance()._views.emplace_back(IView::INTEGRAL, IntegralView(i, watchList[i]));
 			}
 		}
 	}
@@ -177,7 +153,7 @@ void MungPlex::WatchControl::drawList()
 	{
 		static int typeSelect = 0;
 
-		SetUpCombo("New Item's Type:", View::s_SuperiorTypes, typeSelect);
+		SetUpCombo("New Item's Type:", IView::s_SuperiorTypes, typeSelect);
 		ImGui::SameLine();
 
 		if (ImGui::Button("Add Item"))
@@ -193,19 +169,19 @@ void MungPlex::WatchControl::drawList()
 				}
 			}
 
-			switch (View::s_SuperiorTypes[typeSelect].second)
+			switch (IView::s_SuperiorTypes[typeSelect].second)
 			{
-			case FLOAT:
-				_views.emplace_back(FLOAT, FloatView(_ids.back()));
+			case IView::FLOAT:
+				_views.emplace_back(IView::FLOAT, FloatView(_ids.back()));
 				break;
-			case BOOL:
-				_views.emplace_back(BOOL, BoolView(_ids.back()));
+			case IView::BOOL:
+				_views.emplace_back(IView::BOOL, BoolView(_ids.back()));
 				break;
-			case MOUSEPIANO:
-				_views.emplace_back(MOUSEPIANO, MousePiano(_ids.back()));
+			case IView::MOUSEPIANO:
+				_views.emplace_back(IView::MOUSEPIANO, MousePiano(_ids.back()));
 				break;
-			default: //INTEGRAL
-				_views.emplace_back(INTEGRAL, IntegralView(_ids.back()));
+			default: //IView::INTEGRAL
+				_views.emplace_back(IView::INTEGRAL, IntegralView(_ids.back()));
 			}
 		}
 
@@ -218,16 +194,16 @@ void MungPlex::WatchControl::drawList()
 		{
 			switch (_views[i].first)
 			{
-			case FLOAT:
+			case IView::FLOAT:
 				std::get<FloatView>(_views[i].second).Draw();
 				break;
-			case BOOL:
+			case IView::BOOL:
 				std::get<BoolView>(_views[i].second).Draw();
 				break;
-			case MOUSEPIANO:
+			case IView::MOUSEPIANO:
 				std::get<MousePiano>(_views[i].second).Draw();
 				break;
-			default: //INTEGRAL
+			default: //IView::INTEGRAL
 				std::get<IntegralView>(_views[i].second).Draw();
 			}
 		}
@@ -243,28 +219,28 @@ void MungPlex::WatchControl::DeleteItem(const int id)
 	{
 		switch (views[i].first)
 		{
-		case FLOAT:
+		case IView::FLOAT:
 			if(std::get<FloatView>(views[i].second).GetID() == id)
 			{
 				views.erase(views.begin() + i);
 				return;
 			}
 			break;
-		case BOOL:
+		case IView::BOOL:
 			if (std::get<BoolView>(views[i].second).GetID() == id)
 			{
 				views.erase(views.begin() + i);
 				return;
 			}
 			break;
-		case MOUSEPIANO:
+		case IView::MOUSEPIANO:
 			if (std::get<MousePiano>(views[i].second).GetID() == id)
 			{
 				views.erase(views.begin() + i);
 				return;
 			}
 			break;
-		default: //INTEGRAL
+		default: //IView::INTEGRAL
 			if (std::get<IntegralView>(views[i].second).GetID() == id)
 			{
 				views.erase(views.begin() + i);
@@ -272,157 +248,6 @@ void MungPlex::WatchControl::DeleteItem(const int id)
 			}
 		}
 	}
-}
-
-int MungPlex::WatchControl::View::GetID()
-{
-	return _id;
-}
-
-void MungPlex::WatchControl::View::DrawSetup(const float itemWidth, const float itemHeight, const int type)
-{
-	SetUpInputText("Title:", _label.data(), _label.size(), 0.25f, 0.2f);
-
-	ImGui::BeginChild("child_Setup", ImVec2(itemWidth * 0.5f, itemHeight * 1.5f));
-	{
-		ImGui::BeginChild("child_setup", ImVec2(itemWidth * 0.15f, itemHeight * 1.5f), true);
-		{
-			if (ImGui::Checkbox("Active", &_active))
-				if (_active && _useModulePath)
-					_moduleAddress = ProcessInformation::GetModuleAddress<uint64_t>(_moduleW);
-
-			switch (type)
-			{
-			case FLOAT:
-				SetUpCombo("Float Type:", s_FloatTypes, _typeSelect, 1.0f, 0.5f);
-			break;
-			case INTEGRAL:
-				SetUpCombo("Int Type:", s_IntTypes, _typeSelect, 1.0f, 0.5f);
-			break;
-			}
-
-			if (ImGui::Button("Delete"))
-			{
-				_delete = true;
-			}
-
-			ImGui::SameLine();
-			ImGui::Checkbox("Write", &_freeze);
-		}
-		ImGui::EndChild();
-
-		ImGui::SameLine();
-
-		ImGui::BeginChild("child_pointer", ImVec2(itemWidth * 0.345f, itemHeight * 1.5f), true);
-		{
-			if (ImGui::Checkbox("Use Module", &_useModulePath))
-				if(_useModulePath)
-					_moduleAddress = ProcessInformation::GetModuleAddress<uint64_t>(_moduleW);
-
-			ImGui::SameLine();
-			if (!_useModulePath) ImGui::BeginDisabled();
-			SetUpInputText("Module", _module.data(), _module.size(), 1.0f, 0.0f, false);
-			if (!_useModulePath) ImGui::EndDisabled();
-
-			if (SetUpInputText("Pointer Path:", _pointerPathText.data(), _pointerPathText.size(), 1.0f, 0.3f))
-			{
-				_pointerPath.clear();
-				std::string line;
-
-				if (_pointerPathText.find(',') == std::string::npos)
-				{
-					line = RemoveSpacePadding(_pointerPathText, true);
-
-					if (!line.empty())
-						if (line.front() != '\0')
-							if (IsValidHexString(line))
-								_pointerPath.push_back(stoll(line, 0, 16));
-				}
-				else
-				{
-					std::stringstream stream;
-					stream << _pointerPathText;
-
-					while (std::getline(stream, line, ','))
-					{
-						line = RemoveSpacePadding(line, true);
-
-						if (line.empty())
-							break;
-
-						if (line.front() == '\0')
-							break;
-
-						if (!IsValidHexString(line))
-							break;
-
-						_pointerPath.push_back(stoll(line, 0, 16));
-					}
-				}
-			}
-
-			int addrType = ProcessInformation::GetAddressWidth() == 8 ? ImGuiDataType_U64 : ImGuiDataType_U32;
-			std::string format = ProcessInformation::GetAddressWidth() == 8 ? "%016X" : "%08X";
-			ImGui::Text("Target Addr Range:");
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(itemWidth * 0.1f);
-			ImGui::InputScalar("##Target addr range:", addrType, &_rangeMin, NULL, NULL, format.c_str());
-			ImGui::SameLine();
-			ImGui::Text(" - ");
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 2.0f);
-			ImGui::InputScalar("## - ", addrType, &_rangeMax, NULL, NULL, format.c_str());
-		}
-		ImGui::EndChild();
-	}
-	ImGui::EndChild();
-}
-
-nlohmann::json MungPlex::WatchControl::View::GetBasicJSON()
-{
-	nlohmann::json elemJson;
-
-	elemJson["Title"] = _label.c_str();
-	elemJson["Module"] = _module.c_str();
-	elemJson["UseModule"] = _useModulePath;
-	elemJson["WriteOn"] = _freeze;
-	elemJson["Active"] = _active;
-	elemJson["PointerMin"] = _rangeMin;
-	elemJson["PointerMax"] = _rangeMax;
-
-	for (int64_t ptr : _pointerPath)
-		elemJson["PointerPath"].push_back(ptr);
-
-	return elemJson;
-}
-
-void MungPlex::WatchControl::View::SetBasicMembers(const nlohmann::json elem)
-{
-	_label = elem["Title"];
-	_module = elem["Module"];
-	_moduleW.resize(32);
-	_moduleW = MT::Convert<std::string, std::wstring>(_module, MT::UTF8, MT::UTF16LE);
-	_moduleW.resize(32);
-	_useModulePath = elem["UseModule"];
-	_freeze = elem["WriteOn"];
-	_active = elem["Active"];
-	_rangeMin = elem["PointerMin"];
-	_rangeMax = elem["PointerMax"];
-	_pointerPathText = "";
-
-	for (int i = 0; i < elem["PointerPath"].size(); ++i)
-	{
-		int64_t ptr = elem["PointerPath"][i];
-		_pointerPath.push_back(ptr);
-		std::stringstream stream;
-		stream << std::uppercase << std::hex << ptr;
-		_pointerPathText.append(stream.str());
-
-		if (i < elem["PointerPath"].size() - 1)
-			_pointerPathText.append(", ");
-	}
-
-	_pointerPathText.resize(128);
 }
 
 MungPlex::WatchControl::IntegralView::IntegralView(const int id)
@@ -446,6 +271,15 @@ MungPlex::WatchControl::BoolView::BoolView(const int id)
 	_idText = std::to_string(id);
 }
 
+void MungPlex::WatchControl::MousePiano::assignCheckBoxIDs()
+{
+	for (int i = 0; i < 32; ++i)
+	{
+		_checkBoxIDs[i] = "##cb" + std::to_string(i);
+		_checkBoxTextIDs[i] = "##cbt" + std::to_string(i);
+	}
+}
+
 MungPlex::WatchControl::MousePiano::MousePiano(const int id)
 {
 	_id = id;
@@ -454,6 +288,8 @@ MungPlex::WatchControl::MousePiano::MousePiano(const int id)
 
 	for (auto& elem : _switches)
 		elem.first.resize(32);
+
+	assignCheckBoxIDs();
 }
 
 MungPlex::WatchControl::IntegralView::IntegralView(const int id, const nlohmann::json elem)
@@ -505,6 +341,8 @@ MungPlex::WatchControl::MousePiano::MousePiano(const int id, const nlohmann::jso
 
 	for (auto& elem : _switches)
 		elem.first.resize(32);
+
+	assignCheckBoxIDs();
 }
 
 void MungPlex::WatchControl::IntegralView::Draw()
@@ -512,11 +350,9 @@ void MungPlex::WatchControl::IntegralView::Draw()
 	float itemWidth = ImGui::GetContentRegionAvail().x;
 	float itemHeight = 80.0f * Settings::GetGeneralSettings().Scale;
 
-	ImGui::Separator();
-
 	ImGui::BeginChild(std::string("child_integralView" + _idText).c_str(), ImVec2(itemWidth, itemHeight * 2.0f));
 	{
-		DrawSetup(itemWidth, itemHeight, INTEGRAL);
+		DrawSetup(itemWidth, itemHeight, IView::INTEGRAL);
 
 		ImGui::SameLine();
 
@@ -656,11 +492,9 @@ void MungPlex::WatchControl::FloatView::Draw()
 	float itemWidth = ImGui::GetContentRegionAvail().x;
 	float itemHeight = 80.0f * Settings::GetGeneralSettings().Scale;
 
-	ImGui::Separator();
-
 	ImGui::BeginChild(std::string("child_floatView" + _idText).c_str(), ImVec2(itemWidth, itemHeight * 2.0f));
 	{
-		DrawSetup(itemWidth, itemHeight, FLOAT);
+		DrawSetup(itemWidth, itemHeight, IView::FLOAT);
 
 		ImGui::SameLine();
 
@@ -758,11 +592,9 @@ void MungPlex::WatchControl::BoolView::Draw()
 	float itemWidth = ImGui::GetContentRegionAvail().x;
 	float itemHeight = 80.0f * Settings::GetGeneralSettings().Scale;
 
-	ImGui::Separator();
-
 	ImGui::BeginChild(std::string("child_boolView" + _idText).c_str(), ImVec2(itemWidth, itemHeight * 2.0f));
 	{
-		DrawSetup(itemWidth, itemHeight, BOOL);
+		DrawSetup(itemWidth, itemHeight, IView::BOOL);
 
 		ImGui::SameLine();
 
@@ -801,11 +633,9 @@ void MungPlex::WatchControl::MousePiano::Draw()
 	float itemWidth = ImGui::GetContentRegionAvail().x;
 	float itemHeight = 80.0f * Settings::GetGeneralSettings().Scale;
 
-	ImGui::Separator();
-
-	ImGui::BeginChild(std::string("child_boolView" + _idText).c_str(), ImVec2(itemWidth, itemHeight * 2.0f));
+	ImGui::BeginChild(std::string("child_mousePianoView" + _idText).c_str(), ImVec2(itemWidth, itemHeight * 2.0f));
 	{
-		DrawSetup(itemWidth, itemHeight, MOUSEPIANO);
+		DrawSetup(itemWidth, itemHeight, IView::MOUSEPIANO);
 
 		ImGui::SameLine();
 
@@ -842,14 +672,12 @@ void MungPlex::WatchControl::MousePiano::Draw()
 				if (i & 0x3)
 					ImGui::SameLine();
 
-				_idText = "##" + std::to_string(i);
-				ImGui::Checkbox((_idText + "cb").c_str(), &_switches[i].second);
+				ImGui::Checkbox(_checkBoxIDs[i].c_str(), &_switches[i].second);
 				ImGui::SameLine();
 				ImGui::SetNextItemWidth(itemWidth * 0.1f);
-				ImGui::InputText((_idText).c_str(), _switches[i].first.data(), 32);
+				ImGui::InputText(_checkBoxTextIDs[i].c_str(), _switches[i].first.data(), 32);
 				ImGui::SameLine();
 				ImGui::Dummy(ImVec2(5.0f, 0.0f));
-
 			}
 		}
 		ImGui::EndChild();
@@ -865,7 +693,7 @@ nlohmann::json MungPlex::WatchControl::IntegralView::GetJSON()
 {
 	nlohmann::json elemJson = GetBasicJSON();
 
-	elemJson["Type"] = INTEGRAL;
+	elemJson["Type"] = IView::INTEGRAL;
 	elemJson["IntegralType"] = _typeSelect;
 	elemJson["Value"] = _val;
 	elemJson["Hex"] = _hex;
@@ -879,7 +707,7 @@ nlohmann::json MungPlex::WatchControl::FloatView::GetJSON()
 {
 	nlohmann::json elemJson = GetBasicJSON();
 
-	elemJson["Type"] = FLOAT;
+	elemJson["Type"] = IView::FLOAT;
 	elemJson["FloatType"] = _typeSelect;
 	elemJson["Value"] = _val;
 	elemJson["PlotMin"] = _plotMin;
@@ -892,7 +720,7 @@ nlohmann::json MungPlex::WatchControl::BoolView::GetJSON()
 {
 	nlohmann::json elemJson = GetBasicJSON();
 
-	elemJson["Type"] = BOOL;
+	elemJson["Type"] = IView::BOOL;
 	elemJson["Value"] = _val;
 
 	return elemJson;
@@ -902,7 +730,7 @@ nlohmann::json MungPlex::WatchControl::MousePiano::GetJSON()
 {
 	nlohmann::json elemJson = GetBasicJSON();
 
-	elemJson["Type"] = MOUSEPIANO;
+	elemJson["Type"] = IView::MOUSEPIANO;
 
 	for(int i = 0; i < 32; ++i)
 		elemJson["Switches"].emplace_back(std::pair<std::string, bool>(_switches[i].first.c_str(), _switches[i].second));
