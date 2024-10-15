@@ -21,7 +21,9 @@ namespace MungPlex
         int GetID();
         nlohmann::json GetBasicJSON();
         void SetBasicMembers(const nlohmann::json elem);
-        void DrawSetup(const float itemWidth, const float itemHeight, const int type);
+        bool DrawSetup(const float itemWidth, const float itemHeight, const int type);
+        virtual void Draw() = 0;
+        virtual nlohmann::json GetJSON() = 0;
 
     protected:
         std::wstring _moduleW = std::wstring(32, '\0');
@@ -40,8 +42,11 @@ namespace MungPlex
         uint64_t _rangeMax = 0;
         int _typeSelect = 0;
 
+        virtual void drawValueSetup(const float itemWidth, const float itemHeight, const int type) = 0;
+        virtual void drawPlotArea(const float itemWidth, const float itemHeight, const int type) = 0;
+
     private:
-        void drawGeneralSetup(const float itemWidth, const float itemHeight, const int type);
+        bool drawGeneralSetup(const float itemWidth, const float itemHeight, const int type);
         void drawPointerPathSetup(const float itemWidth, const float itemHeight, const int type);
     };
 }

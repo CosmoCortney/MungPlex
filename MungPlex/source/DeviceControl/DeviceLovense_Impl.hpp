@@ -21,7 +21,6 @@ namespace MungPlex
 
         void Draw();
         nlohmann::json GetJSON();
-        void ParsePointerPath();
 
         template<typename T> int ScaleValue(const T val, const T max)
         {

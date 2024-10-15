@@ -78,6 +78,14 @@ add_executable (MungPlex
     source/WatchControl/WatchControl.hpp
     source/WatchControl/IView.cpp
     source/WatchControl/IView.hpp
+    source/WatchControl/IntegralView_Impl.cpp
+    source/WatchControl/IntegralView_Impl.hpp
+    source/WatchControl/FloatView_Impl.cpp
+    source/WatchControl/FloatView_Impl.hpp
+    source/WatchControl/BoolView_Impl.cpp
+    source/WatchControl/BoolView_Impl.hpp
+    source/WatchControl/MousePianoView_Impl.cpp
+    source/WatchControl/MousePianoView_Impl.hpp
     ../include/imgui/imgui.cpp
     ../include/imgui/imgui_demo.cpp
     ../include/imgui/imgui_draw.cpp

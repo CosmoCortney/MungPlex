@@ -33,8 +33,10 @@ int MungPlex::IView::GetID()
 	return _id;
 }
 
-void MungPlex::IView::DrawSetup(const float itemWidth, const float itemHeight, const int type)
+bool MungPlex::IView::DrawSetup(const float itemWidth, const float itemHeight, const int type)
 {
+	static bool res = false;
+
 	switch (type)
 	{
 	case ViewTypes::FLOAT:
@@ -52,32 +54,46 @@ void MungPlex::IView::DrawSetup(const float itemWidth, const float itemHeight, c
 
 	ImGui::BeginChild("child_Setup", ImVec2(itemWidth * 0.5f, itemHeight * 1.5f));
 	{
-		drawGeneralSetup(itemWidth, itemHeight, type);
+		res = drawGeneralSetup(itemWidth, itemHeight, type);
 
 		ImGui::SameLine();
 
 		drawPointerPathSetup(itemWidth, itemHeight, type);
 	}
 	ImGui::EndChild();
+
+	return res;
 }
 
-void MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHeight, const int type)
+bool MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHeight, const int type)
 {
+	static bool res = false;
+
 	ImGui::BeginChild("child_setup", ImVec2(itemWidth * 0.15f, itemHeight * 1.5f), true);
 	{
 		SetUpInputText("Title:", _label.Data(), _label.Size(), 1.0f, 0.3f);
 
 		if (ImGui::Checkbox("Active", &_active))
-			if (_active && _useModulePath)
-				_moduleAddress = ProcessInformation::GetModuleAddress<uint64_t>(_moduleW);
+		{
+			res = true;
+
+			if (_active)
+			{
+				ParsePointerPath(_pointerPath, _pointerPathText);
+
+				if(_useModulePath)
+					_moduleAddress = ProcessInformation::GetModuleAddress<uint64_t>(_moduleW);
+			}
+		}
+
 
 		switch (type)
 		{
 		case ViewTypes::FLOAT:
-			SetUpCombo("Float Type:", s_FloatTypes, _typeSelect, 1.0f, 0.5f);
+			res |= SetUpCombo("Float Type:", s_FloatTypes, _typeSelect, 1.0f, 0.5f);
 			break;
 		case ViewTypes::INTEGRAL:
-			SetUpCombo("Int Type:", s_IntTypes, _typeSelect, 1.0f, 0.5f);
+			res |= SetUpCombo("Int Type:", s_IntTypes, _typeSelect, 1.0f, 0.5f);
 			break;
 		}
 
@@ -90,6 +106,8 @@ void MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHe
 		ImGui::Checkbox("Write", &_freeze);
 	}
 	ImGui::EndChild();
+
+	return res;
 }
 
 void MungPlex::IView::drawPointerPathSetup(const float itemWidth, const float itemHeight, const int type)
@@ -106,41 +124,7 @@ void MungPlex::IView::drawPointerPathSetup(const float itemWidth, const float it
 		if (!_useModulePath) ImGui::EndDisabled();
 
 		if (SetUpInputText("Pointer Path:", _pointerPathText.data(), _pointerPathText.size(), 1.0f, 0.3f))
-		{
-			_pointerPath.clear();
-			std::string line;
-
-			if (_pointerPathText.find(',') == std::string::npos)
-			{
-				line = RemoveSpacePadding(_pointerPathText, true);
-
-				if (!line.empty())
-					if (line.front() != '\0')
-						if (IsValidHexString(line))
-							_pointerPath.push_back(stoll(line, 0, 16));
-			}
-			else
-			{
-				std::stringstream stream;
-				stream << _pointerPathText;
-
-				while (std::getline(stream, line, ','))
-				{
-					line = RemoveSpacePadding(line, true);
-
-					if (line.empty())
-						break;
-
-					if (line.front() == '\0')
-						break;
-
-					if (!IsValidHexString(line))
-						break;
-
-					_pointerPath.push_back(stoll(line, 0, 16));
-				}
-			}
-		}
+			ParsePointerPath(_pointerPath, _pointerPathText);
 
 		int addrType = ProcessInformation::GetAddressWidth() == 8 ? ImGuiDataType_U64 : ImGuiDataType_U32;
 		std::string format = ProcessInformation::GetAddressWidth() == 8 ? "%016X" : "%08X";

@@ -784,4 +784,41 @@ namespace MungPlex
         windowTitle.append(appendage);
         return windowTitle;
     }
+
+    static void ParsePointerPath(std::vector<int64_t>& pointerPath, const std::string& pointerPathStr)
+    {
+        pointerPath.clear();
+        std::string line;
+
+        if (pointerPathStr.find(',') == std::string::npos)
+        {
+            line = RemoveSpacePadding(pointerPathStr, true);
+
+            if (!line.empty())
+                if (line.front() != '\0')
+                    if (IsValidHexString(line))
+                        pointerPath.push_back(stoll(line, 0, 16));
+        }
+        else
+        {
+            std::stringstream stream;
+            stream << pointerPathStr;
+
+            while (std::getline(stream, line, ','))
+            {
+                line = RemoveSpacePadding(line, true);
+
+                if (line.empty())
+                    break;
+
+                if (line.front() == '\0')
+                    break;
+
+                if (!IsValidHexString(line))
+                    break;
+
+                pointerPath.push_back(stoll(line, 0, 16));
+            }
+        }
+    }
 }

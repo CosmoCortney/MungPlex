@@ -18,7 +18,6 @@ namespace MungPlex
         int GetID();
         virtual void Draw() = 0;
         virtual nlohmann::json GetJSON() = 0;
-        virtual void ParsePointerPath() = 0;
 
     protected:
         int _deviceTypeID = DeviceTypes::UNK;

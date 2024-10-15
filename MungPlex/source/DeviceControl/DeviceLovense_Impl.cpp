@@ -109,7 +109,7 @@ void MungPlex::DeviceLovense::assign(const DeviceLovense& other)
 	_valueTypeIndex = other._valueTypeIndex;
 	_plotVals = other._plotVals;
 	_abortPlot = other._abortPlot;
-	ParsePointerPath();
+	ParsePointerPath(_pointerPath, _pointerPathText.StdStrNoLeadinZeros());
 }
 
 void MungPlex::DeviceLovense::Draw()
@@ -174,43 +174,6 @@ nlohmann::json MungPlex::DeviceLovense::GetJSON()
 	elemJson["rangeMin"] = _rangeMin;
 	elemJson["rangeMax"] = _rangeMax;
 	return elemJson;
-}
-
-void MungPlex::DeviceLovense::ParsePointerPath()
-{
-	_pointerPath.clear();
-	std::string line;
-
-	if (_pointerPathText.StdStr().find(',') == std::string::npos)
-	{
-		line = RemoveSpacePadding(_pointerPathText.StdStr(), true);
-
-		if (!line.empty())
-			if (line.front() != '\0')
-				if (IsValidHexString(line))
-					_pointerPath.push_back(stoll(line, 0, 16));
-	}
-	else
-	{
-		std::stringstream stream;
-		stream << _pointerPathText.StdStrNoLeadinZeros();
-
-		while (std::getline(stream, line, ','))
-		{
-			line = RemoveSpacePadding(line, true);
-
-			if (line.empty())
-				break;
-
-			if (line.front() == '\0')
-				break;
-
-			if (!IsValidHexString(line))
-				break;
-
-			_pointerPath.push_back(stoll(line, 0, 16));
-		}
-	}
 }
 
 void MungPlex::DeviceLovense::test()
@@ -371,7 +334,7 @@ void MungPlex::DeviceLovense::drawPointerSettings()
 	if (!_useModulePath) ImGui::EndDisabled();
 
 	if (SetUpInputText("Pointer Path:", _pointerPathText.Data(), _pointerPathText.Size(), 1.0f, 0.2f))
-		ParsePointerPath();
+		ParsePointerPath(_pointerPath, _pointerPathText.StdStrNoLeadinZeros());
 
 	int addrType = ProcessInformation::GetAddressWidth() == 8 ? ImGuiDataType_U64 : ImGuiDataType_U32;
 	std::string format = ProcessInformation::GetAddressWidth() == 8 ? "%016X" : "%08X";
