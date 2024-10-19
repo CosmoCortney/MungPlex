@@ -1,6 +1,6 @@
 #include "IView.hpp"
 #include "imgui.h"
-#include "../../ProcessInformation.hpp"
+#include "ProcessInformation.hpp"
 
 const std::vector<std::pair<std::string, int>> MungPlex::IView::s_IntTypes =
 {

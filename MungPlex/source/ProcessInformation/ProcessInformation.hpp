@@ -4,7 +4,7 @@
 #define EMUPAIR std::pair<const std::wstring, const int>
 #include <boost/asio.hpp>
 #include <GLFW/glfw3.h>
-#include "HelperFunctions.hpp"
+#include "../../HelperFunctions.hpp"
 #include <nlohmann/json.hpp>
 #include <stdio.h>
 #include <string>
@@ -83,6 +83,7 @@ namespace MungPlex
         static void SetWindowRef(GLFWwindow* window);
         static void ResetWindowTitle();
         static void* GetPointerFromPointerPathExpression(const std::vector<int64_t>& pointerPath, const bool useModule = false, const int64_t moduleAddress = 0);
+        static void SetMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth, const int alignment);
 
         template<typename addressType> static addressType GetModuleAddress(const std::wstring& moduleName)
         {
@@ -235,9 +236,9 @@ namespace MungPlex
         void* _connectionCheckPtr = nullptr;
         static inline const std::vector<std::pair<int, std::string>> _systemPairs
         {
-            { NES, "NES" }, { SNES, "SNES" }, { N64, "Nintendo 64" }, { GAMECUBE, "GameCube" },
+            { NES, "NES" }, { SNES, "SNES" }, { N64, "N64" }, { GAMECUBE, "GameCube" },
             { TRIFORCE, "Triforce" }, { WII, "Wii" }, { WIIU, "Wii U" }, { SWITCH, "Switch"}, 
-            { GB, "GameBoy" }, { GBC, "GameBoy Color" }, { GBA, "GameBoy Advance" }, { NDS, "NDS" }, {N3DS, "3DS"},
+            { GB, "GameBoy" }, { GBC, "GameBoy Color" }, { GBA, "GameBoy Advance" }, { NDS, "NDS" }, {N3DS, "N3DS"},
             { PS1, "PS1" }, { PS2, "PS2" }, { PS3 , "PS3" }, { PS4, "PS4" }, { PS5, "PS5", },
             { PSP, "PSP" }, { PSV, "PS Vita" }, 
             { SMS, "Master System" }, { GENESIS, "Mega Drive" }, { S32X, "32X" }, { SMCD, "Mega-CD" },
@@ -252,26 +253,9 @@ namespace MungPlex
         void drawGameInformation();
         bool initEmulator(int emulatorIndex);
         bool initProcess(const std::wstring& processName);
-        bool initMesen();
-        bool initProject64();
-        bool initDolphin();
-        bool initCemu();
-        bool initYuzu();
-        bool initMGBA();
-        bool initMelonDS();
-        bool initLime3DS();
-        bool initNo$psx();
-        bool initPcsx2();
-        bool initRpcs3();
-        bool initPPSSPP();
-        bool initFusion();
-        bool obtainGameEntities(const std::string& systemName);
-        static bool loadSystemInformationJSON(const std::string& system);
         void setupSearch();
         void setupCheats();
         void refreshModuleList();
         bool connectToProcessFR();
-        void setMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth, const int alignment);
-        std::string getRegionFromNintendoRegionCode(const char code) const;
     };
 }

@@ -47,26 +47,54 @@ add_executable (MungPlex
     ContextMenuHelper.hpp
     DataConversion.hpp
     DataConversion.cpp
-    source/DeviceControl/DeviceControl.cpp
-    source/DeviceControl/DeviceControl.hpp
     Discord.cpp
     Discord.hpp
     HelperFunctions.hpp
-    source/DeviceControl/IDevice.cpp
-    source/DeviceControl/IDevice.hpp
+    source/DeviceControl/DeviceControl.cpp
+    source/DeviceControl/DeviceControl.hpp
     source/DeviceControl/DeviceLovense_Impl.cpp
     source/DeviceControl/DeviceLovense_Impl.hpp
-    Log.hpp
-    Log.cpp
+    source/DeviceControl/IDevice.cpp
+    source/DeviceControl/IDevice.hpp
     source/DeviceControl/LovenseToy.cpp
     source/DeviceControl/LovenseToy.hpp
+    Log.hpp
+    Log.cpp
     main.cpp
     MemoryViewer.hpp
     MemoryViewer.cpp
     PointerSearch.hpp
     PointerSearch.cpp
-    ProcessInformation.cpp
-    ProcessInformation.hpp
+    source/ProcessInformation/ProcessInformation.cpp
+    source/ProcessInformation/ProcessInformation.hpp
+    source/ProcessInformation/Emulators/Cemu_Impl.cpp
+    source/ProcessInformation/Emulators/Cemu_Impl.hpp
+    source/ProcessInformation/Emulators/Dolphin_Impl.cpp
+    source/ProcessInformation/Emulators/Dolphin_Impl.hpp
+    source/ProcessInformation/Emulators/Fusion_Impl.cpp
+    source/ProcessInformation/Emulators/Fusion_Impl.hpp
+    source/ProcessInformation/Emulators/IEmulator.cpp
+    source/ProcessInformation/Emulators/IEmulator.hpp
+    source/ProcessInformation/Emulators/Lime3DS_Impl.cpp
+    source/ProcessInformation/Emulators/Lime3DS_Impl.hpp
+    source/ProcessInformation/Emulators/MelonDS_Impl.cpp
+    source/ProcessInformation/Emulators/MelonDS_Impl.hpp
+    source/ProcessInformation/Emulators/Mesen_Impl.cpp
+    source/ProcessInformation/Emulators/Mesen_Impl.hpp
+    source/ProcessInformation/Emulators/mGBA_Impl.cpp
+    source/ProcessInformation/Emulators/mGBA_Impl.hpp
+    source/ProcessInformation/Emulators/No$PSX_Impl.cpp
+    source/ProcessInformation/Emulators/No$PSX_Impl.hpp
+    source/ProcessInformation/Emulators/PCSX2_Impl.cpp
+    source/ProcessInformation/Emulators/PCSX2_Impl.hpp
+    source/ProcessInformation/Emulators/PPSSPP_Impl.cpp
+    source/ProcessInformation/Emulators/PPSSPP_Impl.hpp
+    source/ProcessInformation/Emulators/Project64_Impl.cpp
+    source/ProcessInformation/Emulators/Project64_Impl.hpp
+    source/ProcessInformation/Emulators/RPCS3_Impl.cpp
+    source/ProcessInformation/Emulators/RPCS3_Impl.hpp
+    source/ProcessInformation/Emulators/Yuzu_Impl.cpp
+    source/ProcessInformation/Emulators/Yuzu_Impl.hpp
     resources.rc
     Search.hpp
     Search.cpp
@@ -74,18 +102,18 @@ add_executable (MungPlex
     Settings.cpp
     USBGecko.hpp
     USBGecko.cpp
-    source/WatchControl/WatchControl.cpp
-    source/WatchControl/WatchControl.hpp
-    source/WatchControl/IView.cpp
-    source/WatchControl/IView.hpp
-    source/WatchControl/IntegralView_Impl.cpp
-    source/WatchControl/IntegralView_Impl.hpp
-    source/WatchControl/FloatView_Impl.cpp
-    source/WatchControl/FloatView_Impl.hpp
     source/WatchControl/BoolView_Impl.cpp
     source/WatchControl/BoolView_Impl.hpp
+    source/WatchControl/FloatView_Impl.cpp
+    source/WatchControl/FloatView_Impl.hpp
+    source/WatchControl/IntegralView_Impl.cpp
+    source/WatchControl/IntegralView_Impl.hpp
+    source/WatchControl/IView.cpp
+    source/WatchControl/IView.hpp
     source/WatchControl/MousePianoView_Impl.cpp
     source/WatchControl/MousePianoView_Impl.hpp
+    source/WatchControl/WatchControl.cpp
+    source/WatchControl/WatchControl.hpp
     ../include/imgui/imgui.cpp
     ../include/imgui/imgui_demo.cpp
     ../include/imgui/imgui_draw.cpp

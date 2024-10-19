@@ -1,7 +1,7 @@
 #include "WatchControl.hpp"
 #include <algorithm>
 #include "../../Helperfunctions.hpp"
-#include "../../ProcessInformation.hpp"
+#include "ProcessInformation.hpp"
 #include "../../Settings.hpp"
 
 void MungPlex::WatchControl::DrawWindow()

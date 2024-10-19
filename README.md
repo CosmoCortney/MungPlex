@@ -310,6 +310,7 @@ Find the latest release [here](https://github.com/CosmoCortney/MungPlex/releases
 - open the project in Visual Studio as "Open as local folder" or in VSCode, Rider as a cmake project
 - set ``main.cpp`` as startup item (VS: right click, ``Set as startup item``)
 - compile
+- if you get *compiler is out of heap space* errors, reduce the amount of cores/threads and/or RAM the compiler uses
 - copy the *resources* folder to the exe-containing folder (release build only)
 - copy imgui.ini of the previous release to the exe-containing folder (release build only)
 
