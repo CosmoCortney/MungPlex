@@ -2,7 +2,7 @@
 #include "Lime3DS_Impl.hpp"
 #include "../../Log.hpp"
 #include <boost/iostreams/device/mapped_file.hpp>
-#include "../../Settings.hpp"
+#include "Settings.hpp"
 
 bool MungPlex::Lime3DS::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {

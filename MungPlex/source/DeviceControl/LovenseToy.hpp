@@ -6,7 +6,7 @@
 #include "LovenseToyInfo.h"
 #include <map>
 #include <memory>
-#include "../../Settings.hpp"
+#include "Settings.hpp"
 
 namespace MungPlex
 {

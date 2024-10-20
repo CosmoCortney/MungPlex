@@ -15,7 +15,7 @@
 #include <iostream>
 #include "HelperFunctions.hpp"
 #include "LitColor.hpp"
-#include "Log.hpp"
+#include "../../Log.hpp"
 #include "MemoryCompare.hpp"
 #include "MemoryDump.hpp"
 #include "MorphText.hpp"

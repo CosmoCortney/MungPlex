@@ -1,6 +1,6 @@
 #include "Discord.hpp"
 #include <iostream>
-#include "Log.hpp"
+#include "../../Log.hpp"
 
 void MungPlex::DiscordRPC::getActivityResult(discord::Result result)
 {

@@ -1,5 +1,5 @@
 #pragma once
-#include "../../HelperFunctions.hpp"
+#include "HelperFunctions.hpp"
 #include <string>
 #include <utility>
 #include <vector>

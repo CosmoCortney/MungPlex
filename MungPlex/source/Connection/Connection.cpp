@@ -6,7 +6,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <iomanip>
-#include "Log.hpp"
+#include "../../Log.hpp"
 #include "MungPlexConfig.hpp"
 #include "ProcessInformation.hpp"
 #include "Settings.hpp"

@@ -1,6 +1,6 @@
 #include "DeviceControl.hpp"
 #include "DeviceLovense_Impl.hpp"
-#include "../../Settings.hpp"
+#include "Settings.hpp"
 
 boost::atomic<bool> MungPlex::DeviceLovense::_toyControlThreadFlag = false;
 

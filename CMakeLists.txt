@@ -65,10 +65,19 @@ target_include_directories(MungPlex PRIVATE
     "include/ImGuiFileDialog"
     "include/ImGui_MemoryEditor/imgui_memory_editor"
     "MungPlex/source/DeviceControl"
+    "MungPlex/source/Cheats"
+    "MungPlex/source/CheatSearch"
+    "MungPlex/source/Connection"
+    "MungPlex/source/ContextMenu"
+    "MungPlex/source/DataConversion"
     "MungPlex/source/DeviceControl/lovense-win-sdk-${LOVENSE_SDK_VERSION}/WinSDK_Release/includes"
-    "MungPlex/source/WatchControl"
+    "MungPlex/source/Helpers"
+    "MungPlex/source/MemoryViewer"
+    "MungPlex/source/PointerSearch"
     "MungPlex/source/ProcessInformation"
     "MungPlex/source/ProcessInformation/Emulators"
+    "MungPlex/source/Settings"
+    "MungPlex/source/WatchControl"
 )
 
 # Enable Hot Reload for MSVC compilers if supported

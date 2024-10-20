@@ -7,7 +7,7 @@
 #include "DeviceControl.hpp"
 #include "GLFW/glfw3.h"
 #include "HelperFunctions.hpp"
-#include "ContextMenuHelper.hpp"
+#include "ContextMenu.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <iostream>
@@ -149,18 +149,18 @@ int main()
 		MungPlex::PointerSearch::DrawWindow();
 		MungPlex::DataConversion::DrawWindow();
 		MungPlex::DeviceControl::DrawWindow();
-		MungPlex::ContextMenuHelper::DrawWindow();
+		MungPlex::ContextMenu::DrawWindow();
 
-		for (int i = 0; i < MungPlex::ContextMenuHelper::GetMemoryViews().size(); ++i)
+		for (int i = 0; i < MungPlex::ContextMenu::GetMemoryViews().size(); ++i)
 		{
-			if (!MungPlex::ContextMenuHelper::GetMemoryViews()[i].IsOpen())
+			if (!MungPlex::ContextMenu::GetMemoryViews()[i].IsOpen())
 			{
-				MungPlex::ContextMenuHelper::UpdateMemoryViewerList();
+				MungPlex::ContextMenu::UpdateMemoryViewerList();
 				i = -1;
 				continue;
 			}
 
-			MungPlex::ContextMenuHelper::GetMemoryViews()[i].DrawWindow();
+			MungPlex::ContextMenu::GetMemoryViews()[i].DrawWindow();
 		}
 
 		if (show_demo_window)

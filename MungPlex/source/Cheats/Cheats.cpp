@@ -2,7 +2,7 @@
 #include <cassert>
 #include "CheatConvert.hpp"
 #include <future>
-#include "Log.hpp"
+#include "../../Log.hpp"
 #include "lua.h"
 #include "Settings.hpp"
 #include <thread>

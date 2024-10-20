@@ -1,5 +1,5 @@
 #include "FloatView_Impl.hpp"
-#include "../../Settings.hpp"
+#include "Settings.hpp"
 #include "WatchControl.hpp"
 
 MungPlex::FloatView::FloatView(const int id)

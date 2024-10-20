@@ -1,8 +1,8 @@
 #include "DeviceControl.hpp"
 #include <algorithm>
-#include "../../Helperfunctions.hpp"
+#include "Helperfunctions.hpp"
 #include "ProcessInformation.hpp"
-#include "../../Settings.hpp"
+#include "Settings.hpp"
 
 //std::vector<std::pair<int, std::variant</*DeviceXInput, */MungPlex::DeviceLovense>>> MungPlex::DeviceControl::_devices;
 

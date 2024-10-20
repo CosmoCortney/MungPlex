@@ -1,5 +1,5 @@
 #include "Settings.hpp"
-#include "Log.hpp"
+#include "../../Log.hpp"
 #include "MungPlexConfig.hpp"
 #include <shlobj_core.h>
 

@@ -1,6 +1,6 @@
 #include "Fusion_Impl.hpp"
 #include "Cemu_Impl.hpp"
-#include "../../Cheats.hpp"
+#include "Cheats.hpp"
 #include "DeviceControl.hpp"
 #include "Dolphin_Impl.hpp"
 #include "Lime3DS_Impl.hpp"
@@ -14,10 +14,10 @@
 #include "RPCS3_Impl.hpp"
 #include "PPSSPP_Impl.hpp"
 #include "Yuzu_Impl.hpp"
-#include "../../PointerSearch.hpp"
+#include "PointerSearch.hpp"
 #include "ProcessInformation.hpp"
 #include "Project64_Impl.hpp"
-#include "../../Search.hpp"
+#include "Search.hpp"
 #include "WatchControl.hpp"
 #include <Windows.h>
 

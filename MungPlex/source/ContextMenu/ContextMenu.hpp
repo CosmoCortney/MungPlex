@@ -6,7 +6,7 @@ namespace MungPlex
 {
 	class MemoryViewer;
 
-	class ContextMenuHelper
+	class ContextMenu
 	{
 	public:
 		static void DrawWindow();
@@ -14,15 +14,15 @@ namespace MungPlex
 		static void UpdateMemoryViewerList();
 
 	private:
-		ContextMenuHelper() = default;
-		~ContextMenuHelper() = default;
+		ContextMenu() = default;
+		~ContextMenu() = default;
 		void openMemoryVierwer();
 		void drawViewMenuItems();
 		void drawHelpMenuItems();
 		void openWebPage(const std::string& url);
 
-		static ContextMenuHelper& GetInstance() {
-			static ContextMenuHelper Instance;
+		static ContextMenu& GetInstance() {
+			static ContextMenu Instance;
 			return Instance;
 		}
 

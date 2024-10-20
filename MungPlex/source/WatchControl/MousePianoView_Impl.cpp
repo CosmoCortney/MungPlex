@@ -1,5 +1,5 @@
 ﻿#include "MousePianoView_Impl.hpp"
-#include "../../Settings.hpp"
+#include "Settings.hpp"
 #include "WatchControl.hpp"
 
 MungPlex::MousePianoView::MousePianoView(const int id)

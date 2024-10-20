@@ -37,19 +37,22 @@ configure_file(MungPlexConfig.hpp.in ${CMAKE_BINARY_DIR}/MungPlexConfig.hpp @ONL
 
 # Add the main executable target
 add_executable (MungPlex
-    CheatConvert.hpp
-    CheatConvert.cpp
-    Cheats.hpp
-    Cheats.cpp
-    Connection.cpp
-    Connection.hpp
-    ContextMenuHelper.cpp
-    ContextMenuHelper.hpp
-    DataConversion.hpp
-    DataConversion.cpp
-    Discord.cpp
-    Discord.hpp
-    HelperFunctions.hpp
+    source/Cheats/CheatConvert.cpp
+    source/Cheats/CheatConvert.hpp
+    source/Cheats/Cheats.cpp
+    source/Cheats/Cheats.hpp
+    source/CheatSearch/Search.hpp
+    source/CheatSearch/Search.cpp
+    source/Connection/Connection.cpp
+    source/Connection/Connection.hpp
+    source/Connection/Discord.cpp
+    source/Connection/Discord.hpp
+    source/Connection/USBGecko.hpp
+    source/Connection/USBGecko.cpp
+    source/ContextMenu/ContextMenu.cpp
+    source/ContextMenu/ContextMenu.hpp
+    source/DataConversion/DataConversion.hpp
+    source/DataConversion/DataConversion.cpp
     source/DeviceControl/DeviceControl.cpp
     source/DeviceControl/DeviceControl.hpp
     source/DeviceControl/DeviceLovense_Impl.cpp
@@ -58,13 +61,14 @@ add_executable (MungPlex
     source/DeviceControl/IDevice.hpp
     source/DeviceControl/LovenseToy.cpp
     source/DeviceControl/LovenseToy.hpp
+    source/Helpers/HelperFunctions.hpp
     Log.hpp
     Log.cpp
     main.cpp
-    MemoryViewer.hpp
-    MemoryViewer.cpp
-    PointerSearch.hpp
-    PointerSearch.cpp
+    source/MemoryViewer/MemoryViewer.hpp
+    source/MemoryViewer/MemoryViewer.cpp
+    source/PointerSearch/PointerSearch.hpp
+    source/PointerSearch/PointerSearch.cpp
     source/ProcessInformation/ProcessInformation.cpp
     source/ProcessInformation/ProcessInformation.hpp
     source/ProcessInformation/Emulators/Cemu_Impl.cpp
@@ -96,12 +100,8 @@ add_executable (MungPlex
     source/ProcessInformation/Emulators/Yuzu_Impl.cpp
     source/ProcessInformation/Emulators/Yuzu_Impl.hpp
     resources.rc
-    Search.hpp
-    Search.cpp
-    Settings.hpp
-    Settings.cpp
-    USBGecko.hpp
-    USBGecko.cpp
+    source/Settings/Settings.hpp
+    source/Settings/Settings.cpp
     source/WatchControl/BoolView_Impl.cpp
     source/WatchControl/BoolView_Impl.hpp
     source/WatchControl/FloatView_Impl.cpp

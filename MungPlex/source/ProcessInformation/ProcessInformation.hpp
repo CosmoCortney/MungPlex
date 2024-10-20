@@ -4,7 +4,7 @@
 #define EMUPAIR std::pair<const std::wstring, const int>
 #include <boost/asio.hpp>
 #include <GLFW/glfw3.h>
-#include "../../HelperFunctions.hpp"
+#include "HelperFunctions.hpp"
 #include <nlohmann/json.hpp>
 #include <stdio.h>
 #include <string>

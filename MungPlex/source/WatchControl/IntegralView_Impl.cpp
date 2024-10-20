@@ -1,5 +1,5 @@
 #include "IntegralView_Impl.hpp"
-#include "../../Settings.hpp"
+#include "Settings.hpp"
 #include "WatchControl.hpp"
 
 MungPlex::IntegralView::IntegralView(const int id)

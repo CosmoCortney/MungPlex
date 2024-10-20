@@ -1,12 +1,12 @@
 #include <boost/asio.hpp>
 #include "GLFW/glfw3.h"
 #include "Connection.hpp"
-#include "ContextMenuHelper.hpp"
+#include "ContextMenu.hpp"
 #include "imgui.h"
 #include <boost/winapi/shell.hpp>
 #include <shellapi.h>
 
-void MungPlex::ContextMenuHelper::DrawWindow()
+void MungPlex::ContextMenu::DrawWindow()
 {
 	ImGui::Begin("ContextMenu", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 
@@ -34,12 +34,12 @@ void MungPlex::ContextMenuHelper::DrawWindow()
 	ImGui::End();
 }
 
-void MungPlex::ContextMenuHelper::openWebPage(const std::string& url)
+void MungPlex::ContextMenu::openWebPage(const std::string& url)
 {
     ShellExecute(0, 0, url.c_str(), 0, 0, SW_SHOW);
 }
 
-void MungPlex::ContextMenuHelper::openMemoryVierwer()
+void MungPlex::ContextMenu::openMemoryVierwer()
 {
     if (!Connection::IsConnected())
         return;
@@ -51,12 +51,12 @@ void MungPlex::ContextMenuHelper::openMemoryVierwer()
     UpdateMemoryViewerList();
 }
 
-std::vector<MungPlex::MemoryViewer>& MungPlex::ContextMenuHelper::GetMemoryViews()
+std::vector<MungPlex::MemoryViewer>& MungPlex::ContextMenu::GetMemoryViews()
 {
     return GetInstance()._memoryViewers;
 }
 
-void MungPlex::ContextMenuHelper::UpdateMemoryViewerList()
+void MungPlex::ContextMenu::UpdateMemoryViewerList()
 {
     for (int i = 0; i < GetInstance()._memoryViewers.size(); ++i)
     {
@@ -65,7 +65,7 @@ void MungPlex::ContextMenuHelper::UpdateMemoryViewerList()
     }
 }
 
-void MungPlex::ContextMenuHelper::drawViewMenuItems()
+void MungPlex::ContextMenu::drawViewMenuItems()
 {
     static bool disableMemViewOtion = false;
 
@@ -84,7 +84,7 @@ void MungPlex::ContextMenuHelper::drawViewMenuItems()
     }
 }
 
-void MungPlex::ContextMenuHelper::drawHelpMenuItems()
+void MungPlex::ContextMenu::drawHelpMenuItems()
 {
     if (ImGui::BeginMenu("Help"))
     {

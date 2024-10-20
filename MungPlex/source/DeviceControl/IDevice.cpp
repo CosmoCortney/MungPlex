@@ -1,5 +1,5 @@
 #include "IDevice.hpp"
-#include "../../HelperFunctions.hpp"
+#include "HelperFunctions.hpp"
 
 const std::vector<std::pair<std::string, int>> MungPlex::IDevice::s_DeviceTypes =
 {

@@ -1,5 +1,5 @@
 ﻿#include "BoolView_Impl.hpp"
-#include "../../Settings.hpp"
+#include "Settings.hpp"
 #include "WatchControl.hpp"
 
 MungPlex::BoolView::BoolView(const int id)
