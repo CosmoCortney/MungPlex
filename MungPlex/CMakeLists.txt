@@ -8,29 +8,10 @@ find_package(sol2 CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread filesystem iostreams)
-#find_package(libftdi CONFIG REQUIRED)
-##find_package(libftdi1 CONFIG REQUIRED)
-##find_library(FTDI1_LIB libftdi1)
-#find_library(USB_LIB libusb)
-##find_package(libusb)
-#find_package(PkgConfig)
-#pkg_check_modules(libusb-1.0 REQUIRED libusb-1.0)
 find_library(CPP_GAME_SDK discord_game_sdk_cpp)
 find_library(DISCORD_GAME_SDK_LIB discord_game_sdk)
 find_library(DISCORD_GAME_SDK_CPP_LIB discord_game_sdk_cpp)
-
-#message(STATUS "VCPKG_ROOT is set to: $ENV{VCPKG_ROOT}")
-
-#if(DEFINED ENV{VCPKG_ROOT})
-#    set(VCPKG_ROOT $ENV{VCPKG_ROOT})
-#else()
-#    message(FATAL_ERROR "Please set the VCPKG_ROOT environment variable.")
-#endif()
-
-
-#set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
-
-#find_library(FTDI1_LIB NAMES ftdi1 PATHS "${VCPKG_ROOT}/installed/x64-windows/lib/")
+find_library(FTDI_LIB NAMES ftdi PATHS "${FT_LIB_FOLDER}/amd64")
 
 # Generate MungPlexConfig.hpp using MungPlexConfig.hpp.in
 configure_file(MungPlexConfig.hpp.in ${CMAKE_BINARY_DIR}/MungPlexConfig.hpp @ONLY)
@@ -146,6 +127,7 @@ add_executable (MungPlex
     ${LOVENSE_SDK_FOLDER}/WinSDK_Release/includes/Lovense.h
     ${LOVENSE_SDK_FOLDER}/WinSDK_Release/includes/LovenseDef.h
     ${LOVENSE_SDK_FOLDER}/WinSDK_Release/includes/LovenseToyInfo.h
+    ${FT_LIB_FOLDER}/ftd2xx.h
 )
 
 # Link Icon
@@ -166,14 +148,8 @@ target_link_libraries(MungPlex PRIVATE
     ${Boost_LIBRARIES}
     Boost::filesystem
     Boost::iostreams
-    #libftdi::ftdi
-    #ftdi1
-    #${libusb-1.0_LIBRARIES}
-    ##usb-1.0
-    ##${FTDI1_LIB}
-    #${USB_LIB}
-    ##${LIBFTDI1_LIBRARIES}
-    ##${LIBUSB_LIBRARIES}
+    kernel32 user32 gdi32
+    ${FT_LIB_FOLDER}/amd64/ftd2xx.lib
 )
 
 set(LOVENSE_LIB_DIR "${LOVENSE_SDK_FOLDER}/WinSDK_Release/x64")

@@ -146,19 +146,30 @@ void MungPlex::Connection::drawConnectionSelect()
 
 			ImGui::EndTabItem();
 		}
-		/*
-		if (ImGui::BeginTabItem("Remote Device"))
+		
+		if (ImGui::BeginTabItem("Physical Console"))
 		{
-			ImGui::Text("Select Console.");
+			static int sel = 0;
+			SetUpCombo("Connection Type:", _connectionTypes, sel, 1.0f, 0.35f);
 
-			if (ImGui::Button("Connect", ImVec2(200, 50)))
+			if (ImGui::Button("Connect"))
 			{
-				_usbGecko.Init();
+				switch (_connectionTypes[sel].second)
+				{
+				case CON_USBGecko:
+					if (_usbGecko.Init() != FT_OK)
+						break;
+
+					_usbGecko.Connect();
+					break;
+				default:
+					;
+				}
 			}
 
 
 			ImGui::EndTabItem();
-		}*/
+		}
 		ImGui::EndTabBar();
 
 		if (Settings::GetGeneralSettings().EnableRichPresence)
