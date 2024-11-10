@@ -119,7 +119,6 @@ namespace MungPlex
 		FT_STATUS purge(const uint32_t mask);
 		FT_STATUS sendGeckoCommand(uint8_t cmd);
 		FT_STATUS getCommandResponce(char* out);
-		bool memoryArgsInRange(const uint32_t memoryStart, const uint32_t memoryEnd);
 		FT_STATUS sendDumpInformation(const uint32_t memoryStart = 0x80000000, const uint32_t memoryEnd = 0x817FFFFF);
 		FT_STATUS geckoRead(char* buf, const uint64_t readSize, LPDWORD bytesReceived);
 		FT_STATUS geckoWrite(char* buf, const uint64_t writeSize, LPDWORD bytesWritten);

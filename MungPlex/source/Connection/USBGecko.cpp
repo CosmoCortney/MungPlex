@@ -206,53 +206,8 @@ FT_STATUS MungPlex::USBGecko::getCommandResponce(char* out)
     return ftStatus;
 }
 
-bool MungPlex::USBGecko::memoryArgsInRange(const uint32_t memoryStart, const uint32_t memoryEnd)
-{
-    if (memoryEnd < memoryStart)
-        return false;
-
-    if (memoryStart < 0x80000000)
-        return false;
-
-    if (memoryEnd <= 0x80000000)
-        return false;
-
-    if (_rvlMode)
-    {
-        if (memoryStart >= 0x81800000 && memoryStart < 0x90000000)
-            return false;
-
-        if (memoryStart >= 0x94000000)
-            return false;
-
-        if (memoryEnd >= 0x81800000 && memoryEnd < 0x90000000)
-            return false;
-
-        if (memoryEnd >= 0x94000000)
-            return false;
-    }
-    else
-    {
-        if (memoryStart >= 0x81800000)
-            return false;
-
-        if (memoryEnd >= 0x81800000)
-            return false;
-    }
-
-    return true;
-}
-
 FT_STATUS MungPlex::USBGecko::sendDumpInformation(const uint32_t memoryStart, const uint32_t memoryEnd)
 {
-    if (!memoryArgsInRange(memoryStart, memoryEnd))
-    {
-#ifndef NDEBUG
-        std::cout << "Error: Addresses out of range\n";
-#endif
-        return FT_INVALID_ARGS;
-    }
-
     static std::vector<char> memoryRange(8); //contains first and last address as big endian each
     *reinterpret_cast<uint32_t*>(memoryRange.data()) = std::byteswap(memoryStart);
     *reinterpret_cast<uint32_t*>(&memoryRange[4]) = std::byteswap(memoryEnd);
