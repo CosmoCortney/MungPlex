@@ -321,6 +321,27 @@ bool MungPlex::ProcessInformation::ConnectToProcess(int processIndex)
 	 return GetInstance().connectToProcessFR();
 }
 
+ bool MungPlex::ProcessInformation::ConnectToRealConsole(const int type)
+ {
+	 GetInstance()._currentConsoleConnectionType = type;
+
+	 switch (type)
+	 {
+	 default: //CON_USBGECKO
+		 GetInstance()._usbGecko = std::make_shared<USBGecko>();
+
+		 if (GetInstance()._usbGecko->Init() != FT_OK)
+			 return false;
+
+		 if(GetInstance()._usbGecko->Connect() != FT_OK)
+			 return false;
+
+		 GetInstance()._processType = CONSOLE;
+	 }
+
+	 return true;
+}
+
 bool MungPlex::ProcessInformation::connectToProcessFR()
  {
 	 bool connected = _process.GetPID() > 0 && _process.IsOpen();
@@ -410,6 +431,11 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 const std::vector<EMUPAIR>& MungPlex::ProcessInformation::GetEmulatorList()
 {
 	return _emulators;
+}
+
+const std::vector<std::pair<std::string, int>>& MungPlex::ProcessInformation::GetConsoleConnectionTypeList()
+{
+	return _consoleConnectionTypes;
 }
 
 int32_t MungPlex::ProcessInformation::GetProcessType()

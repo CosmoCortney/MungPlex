@@ -44,14 +44,7 @@ FT_STATUS MungPlex::USBGecko::Connect()
         return ftStatus;
     }
 
-    if ((ftStatus = sendGeckoCommand(cmd_unfreeze)) != FT_OK)
-    {
-#ifndef NDEBUG
-        std::cout << "Error: Failed to unfreeze/start game\n";
-#endif
-    }
-
-    return ftStatus;
+    return Unfreeze();
 }
 
 FT_STATUS MungPlex::USBGecko::Reset()
@@ -60,6 +53,33 @@ FT_STATUS MungPlex::USBGecko::Reset()
     if ((ftStatus = resetDevice()) != FT_OK) return ftStatus; //Assignmens are intentional
     if ((ftStatus = purge(1)) != FT_OK) return ftStatus; //RX
     return purge(2); //TX
+}
+
+FT_STATUS MungPlex::USBGecko::Disconnect()
+{
+    static FT_STATUS ftStatus = 0;
+    if ((ftStatus = Reset()) != FT_OK) return ftStatus;
+    return closeUsbGecko();
+}
+
+FT_STATUS MungPlex::USBGecko::Read(char* buf, const uint64_t rangeStart, const uint64_t readSize)
+{
+    static FT_STATUS ftStatus = 0;
+    if ((ftStatus = dump(buf, rangeStart, rangeStart + readSize)) != FT_OK) return ftStatus;
+    return Unfreeze();
+}
+
+FT_STATUS MungPlex::USBGecko::Unfreeze()
+{
+    static FT_STATUS ftStatus = 0;
+    if ((ftStatus = sendGeckoCommand(cmd_unfreeze)) != FT_OK)
+    {
+#ifndef NDEBUG
+        std::cout << "Error: Failed to unfreeze/start game\n";
+#endif
+    }
+
+    return ftStatus;
 }
 
 FT_STATUS MungPlex::USBGecko::findUsbGecko()
@@ -182,15 +202,15 @@ FT_STATUS MungPlex::USBGecko::getCommandResponce(char* out)
     }
 
     //Read reply - expcecting GCACK
-    uint8_t bytesReceived = 0;
+    uint64_t bytesReceived = 0;
     FT_STATUS ftStatus = 0;
 
     for (int i = 0; i < 10; ++i)
     {
         ftStatus = geckoRead(out, 1, reinterpret_cast<LPDWORD>(&bytesReceived));
 
-        if (*out == GCACK)
-            break;
+        if (*out == static_cast<char>(GCACK))
+            return ftStatus;
 
         if (i == 9)
         {
@@ -199,8 +219,6 @@ FT_STATUS MungPlex::USBGecko::getCommandResponce(char* out)
 #endif
             return ftStatus;
         }
-
-        continue;
     }
 
     return ftStatus;
@@ -212,7 +230,7 @@ FT_STATUS MungPlex::USBGecko::sendDumpInformation(const uint32_t memoryStart, co
     *reinterpret_cast<uint32_t*>(memoryRange.data()) = std::byteswap(memoryStart);
     *reinterpret_cast<uint32_t*>(&memoryRange[4]) = std::byteswap(memoryEnd);
 
-    uint8_t bytesWritten = 0;
+    uint64_t bytesWritten = 0;
     FT_STATUS ftStatus = geckoWrite(memoryRange.data(), 8, reinterpret_cast<LPDWORD>(&bytesWritten));
 
     if(ftStatus != FT_OK)
@@ -249,7 +267,7 @@ FT_STATUS MungPlex::USBGecko::geckoRead(char* buf, const uint64_t readSize, LPDW
     if (ftStatus == FT_OK && *bytesReceived > 0)
     {
 #ifndef NDEBUG
-        std::cout << "Received " << bytesReceived << " bytes\n";
+        std::cout << "Received " << *bytesReceived << " bytes\n";
 #endif
     }
     else 
@@ -277,7 +295,7 @@ FT_STATUS MungPlex::USBGecko::geckoWrite(char* buf, const uint64_t writeSize, LP
     if (ftStatus == FT_OK && *bytesWritten > 0)
     {
 #ifndef NDEBUG
-        std::cout << bytesWritten << "Bytes written\n";
+        std::cout << *bytesWritten << "Bytes written\n";
 #endif
     }
     else
@@ -290,13 +308,13 @@ FT_STATUS MungPlex::USBGecko::geckoWrite(char* buf, const uint64_t writeSize, LP
     return ftStatus;
 }
 
-FT_STATUS MungPlex::USBGecko::dump(const uint32_t memoryStart, const uint32_t memoryEnd)
+FT_STATUS MungPlex::USBGecko::dump(char* buf, const uint32_t memoryStart, const uint32_t memoryEnd)
 {
     FT_STATUS ftStatus = sendGeckoCommand(cmd_readmem);
     char responce = 0;
     ftStatus = getCommandResponce(&responce);
 
-    if (responce != GCACK)
+    if (responce != static_cast<char>(GCACK))
         return ftStatus;
 
     ftStatus = sendDumpInformation(memoryStart, memoryEnd);
@@ -305,27 +323,31 @@ FT_STATUS MungPlex::USBGecko::dump(const uint32_t memoryStart, const uint32_t me
         return ftStatus;
 
     std::vector<char> readBuffer(_packetSize);
-    std::vector<char> dump;
-    uint32_t dumpSize = memoryEnd - memoryStart + 1;
+    uint32_t dumpSize = memoryEnd - memoryStart;
     uint32_t fullChunksCount = dumpSize / _packetSize;
     uint32_t lastChunkSize = dumpSize % _packetSize;
     uint32_t totalChunksCount = (lastChunkSize > 0) ? fullChunksCount + 1 : fullChunksCount;
     uint64_t bytesReceived = 0;
     bool done = false;
 
-    for (uint32_t currentChunk = 0; currentChunk < fullChunksCount && !done; ++currentChunk)
+    for (uint32_t currentChunk = 0; (currentChunk < fullChunksCount || fullChunksCount == 0) && !done; ++currentChunk)
     {
         uint32_t retry = 0;
 
         while (retry < 3)
         {
-            if(currentChunk != fullChunksCount-1)
+            if(currentChunk != fullChunksCount-1 && fullChunksCount != 0)
                 ftStatus = geckoRead(readBuffer.data() + currentChunk * _packetSize, _packetSize, reinterpret_cast<LPDWORD>(&bytesReceived));
             else
                 ftStatus = geckoRead(readBuffer.data() + currentChunk * _packetSize, lastChunkSize, reinterpret_cast<LPDWORD>(&bytesReceived));
 
             if (ftStatus == FT_OK)
+            {
+                if (fullChunksCount == 0)
+                    done = true;
+
                 break;
+            }
 
             sendGeckoCommand(GCRETRY);
             ++retry;
@@ -340,12 +362,13 @@ FT_STATUS MungPlex::USBGecko::dump(const uint32_t memoryStart, const uint32_t me
             return FT_OTHER_ERROR;
         }
 
-        if (currentChunk != fullChunksCount - 1)
-            dump.insert(dump.end(), readBuffer.begin(), readBuffer.end());
+        if (currentChunk != fullChunksCount - 1 && fullChunksCount != 0)
+            std::memcpy(buf + _packetSize * currentChunk, readBuffer.data(), _packetSize);
+           // dump.insert(dump.end(), readBuffer.begin(), readBuffer.end());
         else
-            dump.insert(dump.end(), readBuffer.begin(), readBuffer.begin() + lastChunkSize);
+            std::memcpy(buf + _packetSize * currentChunk, readBuffer.data(), lastChunkSize);
+            //dump.insert(dump.end(), readBuffer.begin(), readBuffer.begin() + lastChunkSize);
 
         return ftStatus;
     }
-
 }

@@ -99,7 +99,10 @@ namespace MungPlex
 		FT_STATUS Init();
 		FT_STATUS Connect();
 		FT_STATUS Reset();
-
+		FT_STATUS Disconnect();
+		FT_STATUS Read(char* buf, const uint64_t rangeStart, const uint64_t readSize);
+		FT_STATUS Write(char* buf, const uint64_t rangeStart, const uint64_t writeSize);
+		FT_STATUS Unfreeze();
 
 	private:
 		std::string _serialNumber = "GECKUSB0";
@@ -122,7 +125,7 @@ namespace MungPlex
 		FT_STATUS sendDumpInformation(const uint32_t memoryStart = 0x80000000, const uint32_t memoryEnd = 0x817FFFFF);
 		FT_STATUS geckoRead(char* buf, const uint64_t readSize, LPDWORD bytesReceived);
 		FT_STATUS geckoWrite(char* buf, const uint64_t writeSize, LPDWORD bytesWritten);
-		FT_STATUS dump(const uint32_t memoryStart = 0x80000000, const uint32_t memoryEnd = 0x817FFFFF);
+		FT_STATUS dump(char* buf, const uint32_t memoryStart = 0x80000000, const uint32_t memoryEnd = 0x817FFFFF);
 		
 	};
 }

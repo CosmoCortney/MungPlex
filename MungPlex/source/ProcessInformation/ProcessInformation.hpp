@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 #include <stdio.h>
 #include <string>
+#include "USBGecko.hpp"
 #include "Xertz.hpp"
 
 namespace MungPlex
@@ -55,7 +56,9 @@ namespace MungPlex
         static bool ConnectToEmulator(int EmulatorIndex);
         static bool ConnectToProcess(int processIndex);
         static bool ConnectToApplicationProcess(int applicationProcessIndex);
+        static bool ConnectToRealConsole(const int type);
         static const std::vector<EMUPAIR>& GetEmulatorList();
+        static const std::vector<std::pair<std::string, int>>& GetConsoleConnectionTypeList();
         static int32_t GetProcessType();
         static int32_t GetPID();
         static bool IsX64();
@@ -108,15 +111,37 @@ namespace MungPlex
             void* readAddress = nullptr;
             dataType readValue = (dataType)0;
 
-            if (GetInstance()._processType == EMULATOR)
+            switch (GetInstance()._processType)
             {
-                if (GetRegionIndex(address) == -1)
-                    return 0;
+                case EMULATOR:
+                {
+                    if (GetRegionIndex(address) == -1)
+                        return 0;
 
-                readAddress = reinterpret_cast<void*>(EmuAddrToProcessAddr<uint64_t>(address));
+                    readAddress = reinterpret_cast<void*>(EmuAddrToProcessAddr<uint64_t>(address));
+                } break;
+                case CONSOLE:
+                {
+                    if (GetRegionIndex(address) == -1)
+                        return 0;
+
+                    readAddress = reinterpret_cast<void*>(address);
+                }
+                default:
+                    readAddress = reinterpret_cast<void*>(address);
             }
-            else
-                readAddress = reinterpret_cast<void*>(address);
+
+            if (GetInstance()._processType == CONSOLE)
+            {
+                switch (GetInstance()._currentConsoleConnectionType)
+                {
+                    case CON_USBGecko:
+                        GetInstance()._usbGecko->Read(reinterpret_cast<char*>(&readValue), address, sizeof(dataType));
+                        return readValue;
+                    default: //CON_UNDEF
+                        return 0;
+                }
+            }
 
             if constexpr (std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, int8_t>)
             {
@@ -245,6 +270,18 @@ namespace MungPlex
             { SATURN, "Saturn" }, { DREAMCAST, "Dreamcast" }, { GG, "GamesGear" },
             { XBOX, "XBOX" }, { XBOX360, "XBOX 360" }, { XBOXONE, "XBOX One" }, { XBOXSERIES, "XBOX Series" },
             { X86, "PC" }, { X64, "PC" }
+        };
+        int _currentConsoleConnectionType = CON_UNDEF;
+        std::shared_ptr<USBGecko> _usbGecko;
+        enum ConnectionTypeIDs
+        {
+            CON_UNDEF = -1,
+            CON_USBGecko
+        };
+
+        static inline std::vector<std::pair<std::string, int>> _consoleConnectionTypes
+        {
+            { "USB Gecko", CON_USBGecko }
         };
 
         void drawModuleList();
