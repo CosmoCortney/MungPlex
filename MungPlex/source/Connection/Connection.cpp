@@ -27,154 +27,14 @@ void MungPlex::Connection::drawConnectionSelect()
 
 	if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
 	{
-		static std::string emuSelect;
-
-		if (ImGui::BeginTabItem("Emulator"))
-		{
-			ImGui::Dummy(ImVec2(0.0f, 5.0f));
-			SetUpCombo("Emulator:", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex, 1.0f, 0.35f, true, "Emulators are always in development and therefore crucial things may change that will prevent MungPlex from finding the needed memory regions and game ID. If this is the case report it at the MungPlex discord server so it can be fixed :)");
-
-			ImGui::Dummy(ImVec2(0.0f, 5.0f));
-
-			if (ImGui::Button("Connect"))
-			{
-				_connected = ProcessInformation::ConnectToEmulator(_selectedEmulatorIndex);
-
-				if (_connected)
-				{
-					_connectionMessage = "Connected to emulator: " + MT::Convert<std::wstring, std::string>(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first, MT::UTF16LE, MT::UTF8);
-					std::string details = std::string("Messing with "
-						+ ProcessInformation::GetTitle()
-						+ " (" + ProcessInformation::GetPlatform() + ", "
-						+ ProcessInformation::GetRpcGameID() + ", "
-						+ ProcessInformation::GetRegion() + ") "
-						+ "running on " + ProcessInformation::GetProcessName());
-					_discord.SetRichPresenceDetails(details);
-
-
-
-					if (Settings::GetGeneralSettings().EnableRichPresence)
-						_discord.InitRichPresence();
-
-					startConnectionCheck();
-				}
-			}
-
-			if (_selectedEmulatorIndex == ProcessInformation::MESEN || _selectedEmulatorIndex == ProcessInformation::LIME3DS || _selectedEmulatorIndex == ProcessInformation::RPCS3 || _selectedEmulatorIndex == ProcessInformation::YUZU)
-			{
-				ImGui::SameLine();
-				ImGui::Text("Important:");
-				ImGui::SameLine();
-
-				switch (_selectedEmulatorIndex)
-				{
-				case ProcessInformation::MESEN:
-					HelpMarker("SNES support only. In order to connect to Mesen disable rewind by going to \"Settings/Preferences/Advanced/\" and uncheck \"Allow rewind to use up to...\". Also apply the lua script \"MungPlex/resources/setMesenMungPlexFlag.lua\"");
-					break;
-				case ProcessInformation::RPCS3:
-					HelpMarker("Rpcs3 has unique memory mapping for each game(?) so you may need to figure out how much of each range is mapped.");
-					break;
-				case ProcessInformation::YUZU:
-					HelpMarker("Experimental, base adresses are not yet figured out.");
-					break;
-				case ProcessInformation::LIME3DS:
-					HelpMarker("A special version of Lime3DS is required. You can download it from https://github.com/CosmoCortney/Lime3DS-for-MungPlex");
-					break; 
-				}
-			}
-
-			ImGui::EndTabItem();
-		}
-
-		if (ImGui::BeginTabItem("Native Application"))
-		{
-			ImGui::Dummy(ImVec2(0.0f, 5.0f));
-			static bool app = true;
-
-			if (ImGui::BeginTabBar("ProcessesTab", tab_bar_flags))
-			{
-				if (Xertz::SystemInfo::GetProcessInfoList().size() == 0)
-					Xertz::SystemInfo::RefreshProcessInfoList();
-
-				if (Xertz::SystemInfo::GetApplicationProcessInfoList().size() == 0)
-					Xertz::SystemInfo::RefreshApplicationProcessInfoList();
-
-				if (ImGui::BeginTabItem("Applications"))
-				{
-					app = true;
-					SetUpCombo("Application:", Xertz::SystemInfo::GetApplicationProcessInfoList(), _selectedApplicationProcessIndex, 0.75f, 0.4f);
-					ImGui::EndTabItem();
-				}
-
-				if (ImGui::BeginTabItem("Processes"))
-				{
-					app = false;
-					SetUpCombo("Process:", Xertz::SystemInfo::GetProcessInfoList(), _selectedProcessIndex, 0.75f, 0.4f);
-					ImGui::EndTabItem();
-				}
-
-				ImGui::EndTabBar();
-			}
-
-			if (ImGui::Button("Connect"))
-			{
-				if (app)
-					_connected = MungPlex::ProcessInformation::ConnectToApplicationProcess(_selectedApplicationProcessIndex);
-				else
-					_connected = MungPlex::ProcessInformation::ConnectToProcess(_selectedProcessIndex);
-
-				if (_connected)
-				{
-					_connectionMessage = "Connected to Process: " + ProcessInformation::GetProcessName();
-					std::string details = "Messing with " + ProcessInformation::GetProcessName();
-					_discord.SetRichPresenceDetails(details);
-
-					if (Settings::GetGeneralSettings().EnableRichPresence)
-						_discord.InitRichPresence();
-				}
-
-				startConnectionCheck();
-			}
-
-			ImGui::SameLine();
-
-			if (ImGui::Button("Refresh List"))
-			{
-				Xertz::SystemInfo::RefreshProcessInfoList();
-				Xertz::SystemInfo::RefreshApplicationProcessInfoList();
-			}
-
-			ImGui::EndTabItem();
-		}
-		
-		if (ImGui::BeginTabItem("Physical Console"))
-		{
-			static int sel = 0;
-			SetUpCombo("Connection Type:", _connectionTypes, sel, 1.0f, 0.35f);
-
-			if (ImGui::Button("Connect"))
-			{
-				switch (_connectionTypes[sel].second)
-				{
-				case CON_USBGecko:
-					if (_usbGecko.Init() != FT_OK)
-						break;
-
-					_usbGecko.Connect();
-					break;
-				default:
-					;
-				}
-			}
-
-
-			ImGui::EndTabItem();
-		}
+		drawEmulatorsTabItem();
+		drawAppTabItem();
+		drawConsoleTabItem();
 		ImGui::EndTabBar();
-
-		if (Settings::GetGeneralSettings().EnableRichPresence)
-			_discord.CheckGameState(_connected);
 	}
+
+	if (Settings::GetGeneralSettings().EnableRichPresence)
+		_discord.CheckGameState(_connected);
 
 	ImGui::Text(_connectionMessage.c_str());
 
@@ -214,4 +74,147 @@ void MungPlex::Connection::checkConnection()
 	}
 
 	ProcessInformation::ResetWindowTitle();
+}
+
+void MungPlex::Connection::drawEmulatorsTabItem()
+{
+	static std::string emuSelect;
+
+	if (ImGui::BeginTabItem("Emulator"))
+	{
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
+		SetUpCombo("Emulator:", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex, 1.0f, 0.35f, true, "Emulators are always in development and therefore crucial things may change that will prevent MungPlex from finding the needed memory regions and game ID. If this is the case report it at the MungPlex discord server so it can be fixed :)");
+
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+		if (ImGui::Button("Connect"))
+		{
+			_connected = ProcessInformation::ConnectToEmulator(_selectedEmulatorIndex);
+
+			if (_connected)
+			{
+				_connectionMessage = "Connected to emulator: " + MT::Convert<std::wstring, std::string>(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first, MT::UTF16LE, MT::UTF8);
+				std::string details = std::string("Messing with "
+					+ ProcessInformation::GetTitle()
+					+ " (" + ProcessInformation::GetPlatform() + ", "
+					+ ProcessInformation::GetRpcGameID() + ", "
+					+ ProcessInformation::GetRegion() + ") "
+					+ "running on " + ProcessInformation::GetProcessName());
+				_discord.SetRichPresenceDetails(details);
+
+
+
+				if (Settings::GetGeneralSettings().EnableRichPresence)
+					_discord.InitRichPresence();
+
+				startConnectionCheck();
+			}
+		}
+
+		if (_selectedEmulatorIndex == ProcessInformation::MESEN || _selectedEmulatorIndex == ProcessInformation::LIME3DS || _selectedEmulatorIndex == ProcessInformation::RPCS3 || _selectedEmulatorIndex == ProcessInformation::YUZU)
+		{
+			ImGui::SameLine();
+			ImGui::Text("Important:");
+			ImGui::SameLine();
+
+			switch (_selectedEmulatorIndex)
+			{
+			case ProcessInformation::MESEN:
+				HelpMarker("SNES support only. In order to connect to Mesen disable rewind by going to \"Settings/Preferences/Advanced/\" and uncheck \"Allow rewind to use up to...\". Also apply the lua script \"MungPlex/resources/setMesenMungPlexFlag.lua\"");
+				break;
+			case ProcessInformation::RPCS3:
+				HelpMarker("Rpcs3 has unique memory mapping for each game(?) so you may need to figure out how much of each range is mapped.");
+				break;
+			case ProcessInformation::YUZU:
+				HelpMarker("Experimental, base adresses are not yet figured out.");
+				break;
+			case ProcessInformation::LIME3DS:
+				HelpMarker("A special version of Lime3DS is required. You can download it from https://github.com/CosmoCortney/Lime3DS-for-MungPlex");
+				break;
+			}
+		}
+
+		ImGui::EndTabItem();
+	}
+}
+
+void MungPlex::Connection::drawAppTabItem()
+{
+	if (ImGui::BeginTabItem("Native App"))
+	{
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
+		static bool app = true;
+		static ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+
+		if (ImGui::BeginTabBar("ProcessesTab", tab_bar_flags))
+		{
+			if (Xertz::SystemInfo::GetProcessInfoList().size() == 0)
+				Xertz::SystemInfo::RefreshProcessInfoList();
+
+			if (Xertz::SystemInfo::GetApplicationProcessInfoList().size() == 0)
+				Xertz::SystemInfo::RefreshApplicationProcessInfoList();
+
+			if (ImGui::BeginTabItem("Applications"))
+			{
+				app = true;
+				SetUpCombo("Application:", Xertz::SystemInfo::GetApplicationProcessInfoList(), _selectedApplicationProcessIndex, 0.75f, 0.4f);
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("Processes"))
+			{
+				app = false;
+				SetUpCombo("Process:", Xertz::SystemInfo::GetProcessInfoList(), _selectedProcessIndex, 0.75f, 0.4f);
+				ImGui::EndTabItem();
+			}
+
+			ImGui::EndTabBar();
+		}
+
+		if (ImGui::Button("Connect"))
+		{
+			if (app)
+				_connected = MungPlex::ProcessInformation::ConnectToApplicationProcess(_selectedApplicationProcessIndex);
+			else
+				_connected = MungPlex::ProcessInformation::ConnectToProcess(_selectedProcessIndex);
+
+			if (_connected)
+			{
+				_connectionMessage = "Connected to Process: " + ProcessInformation::GetProcessName();
+				std::string details = "Messing with " + ProcessInformation::GetProcessName();
+				_discord.SetRichPresenceDetails(details);
+
+				if (Settings::GetGeneralSettings().EnableRichPresence)
+					_discord.InitRichPresence();
+			}
+
+			startConnectionCheck();
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Refresh List"))
+		{
+			Xertz::SystemInfo::RefreshProcessInfoList();
+			Xertz::SystemInfo::RefreshApplicationProcessInfoList();
+		}
+
+		ImGui::EndTabItem();
+	}
+}
+
+void MungPlex::Connection::drawConsoleTabItem()
+{
+	if (ImGui::BeginTabItem("Real Console"))
+	{
+		static int sel = 0;
+		SetUpCombo("Connection Type:", ProcessInformation::GetConsoleConnectionTypeList(), sel, 1.0f, 0.35f);
+
+		if (ImGui::Button("Connect"))
+		{
+			_connected = ProcessInformation::ConnectToRealConsole(ProcessInformation::GetConsoleConnectionTypeList()[sel].second);
+		}
+
+		ImGui::EndTabItem();
+	}
 }

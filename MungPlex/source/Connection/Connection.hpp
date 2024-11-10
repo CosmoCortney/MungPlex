@@ -2,7 +2,6 @@
 #include <boost/asio.hpp>
 #include "MemoryViewer.hpp"
 #include "Discord.hpp"
-#include "USBGecko.hpp"
 
 namespace MungPlex
 {
@@ -28,15 +27,6 @@ namespace MungPlex
             return Instance;
         }
 
-        enum ConnectionTypeIDs
-        {
-            CON_USBGecko
-        };
-
-        std::vector<std::pair<std::string, int>> _connectionTypes
-        {
-            { "USB Gecko", CON_USBGecko }
-        };
         bool _connected = false;
         int _selectedEmulatorIndex = 0;
         int _selectedProcessIndex = 0;
@@ -44,10 +34,12 @@ namespace MungPlex
         std::string _connectionMessage = "Not connected...";
         std::vector<MemoryViewer> _memoryViewers;
         DiscordRPC _discord;
-        USBGecko _usbGecko;
 
         void drawConnectionSelect();
         void startConnectionCheck();
         void checkConnection();
+        void drawEmulatorsTabItem();
+        void drawAppTabItem();
+        void drawConsoleTabItem();
     };
 }
