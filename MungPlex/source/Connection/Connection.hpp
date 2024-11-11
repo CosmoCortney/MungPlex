@@ -12,6 +12,7 @@ namespace MungPlex
     public:
         static void DrawWindow();
         static bool IsConnected();
+        static void SetConnectedStatus(const bool isConnected);
         static DiscordRPC GetDiscordRichPresence();
 
     private:

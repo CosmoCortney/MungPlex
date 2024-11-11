@@ -52,6 +52,11 @@ bool MungPlex::Connection::IsConnected()
 	return GetInstance()._connected;
 }
 
+void MungPlex::Connection::SetConnectedStatus(const bool isConnected)
+{
+	GetInstance()._connected = isConnected;
+}
+
 MungPlex::DiscordRPC MungPlex::Connection::GetDiscordRichPresence()
 {
 	return GetInstance()._discord;

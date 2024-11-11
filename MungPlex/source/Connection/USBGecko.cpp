@@ -1,4 +1,6 @@
+#include "Connection.hpp"
 #include <iostream>
+#include <thread>
 #include "USBGecko.hpp"
 #include <vector>
 #pragma comment(lib, "setupapi.lib")
@@ -6,19 +8,30 @@
 FT_STATUS MungPlex::USBGecko::Init()
 {
     static FT_STATUS ftStatus = 0;
-    if ((ftStatus = findUsbGecko()) != FT_OK) return ftStatus; //assignments are intentional
-    if ((ftStatus = openUsbGecko()) != FT_OK) return ftStatus;
-    if ((ftStatus = setLatencyTimeouts(2000, 2000)) != FT_OK) return ftStatus;
-    if ((ftStatus = setLatencyTimer(2)) != FT_OK) return ftStatus;
-    return setUsbParameters(1000, 0);
+        
+    if ((ftStatus = resetDevice()) != FT_OK) return ftStatus; //assignments are intentional
+    if ((ftStatus = purge(1)) != FT_OK) return ftStatus; //RX
+    if ((ftStatus = purge(2)) != FT_OK) return ftStatus; //TX
+    return ftStatus;
 }
 
 FT_STATUS MungPlex::USBGecko::Connect()
 {
     static FT_STATUS ftStatus = 0;
 
-    if((ftStatus = Reset()) != FT_OK) 
-        return ftStatus;
+    if (_connected)
+    {
+        Connection::SetConnectedStatus(false);
+
+        if ((ftStatus = Disconnect()) != FT_OK)
+            return ftStatus;
+    }
+
+    if ((ftStatus = findUsbGecko()) != FT_OK) return ftStatus;   
+    if ((ftStatus = openUsbGecko()) != FT_OK) return ftStatus;
+    if ((ftStatus = setLatencyTimeouts(2000, 2000)) != FT_OK) return ftStatus;
+    if ((ftStatus = setLatencyTimer(2)) != FT_OK) return ftStatus;
+    if ((ftStatus = setUsbParameters(0x10000, 0)) != FT_OK) return ftStatus;
 
     if ((ftStatus = sendGeckoCommand(cmd_hook)) != FT_OK)
     {
@@ -27,6 +40,8 @@ FT_STATUS MungPlex::USBGecko::Connect()
 #endif
         return ftStatus;
     }
+
+    wait(200);
 
     if ((ftStatus = sendGeckoCommand(0xCD)) != FT_OK)
     {
@@ -44,7 +59,13 @@ FT_STATUS MungPlex::USBGecko::Connect()
         return ftStatus;
     }
 
-    return Unfreeze();
+    if ((ftStatus = Init()) != FT_OK)
+        return ftStatus;
+
+    wait(150);
+    _connected = true;
+    Connection::SetConnectedStatus(true);
+    return ftStatus;
 }
 
 FT_STATUS MungPlex::USBGecko::Reset()
@@ -57,16 +78,22 @@ FT_STATUS MungPlex::USBGecko::Reset()
 
 FT_STATUS MungPlex::USBGecko::Disconnect()
 {
-    static FT_STATUS ftStatus = 0;
-    if ((ftStatus = Reset()) != FT_OK) return ftStatus;
+    _connected = false;
     return closeUsbGecko();
 }
 
 FT_STATUS MungPlex::USBGecko::Read(char* buf, const uint64_t rangeStart, const uint64_t readSize)
 {
     static FT_STATUS ftStatus = 0;
-    if ((ftStatus = dump(buf, rangeStart, rangeStart + readSize)) != FT_OK) return ftStatus;
-    return Unfreeze();
+    Connection::SetConnectedStatus(false);
+
+    if ((ftStatus = Init()) != FT_OK) 
+        return ftStatus;
+
+    ftStatus = dump(buf, rangeStart, rangeStart + readSize);
+
+    Connection::SetConnectedStatus(true);
+    return ftStatus;
 }
 
 FT_STATUS MungPlex::USBGecko::Unfreeze()
@@ -364,11 +391,15 @@ FT_STATUS MungPlex::USBGecko::dump(char* buf, const uint32_t memoryStart, const 
 
         if (currentChunk != fullChunksCount - 1 && fullChunksCount != 0)
             std::memcpy(buf + _packetSize * currentChunk, readBuffer.data(), _packetSize);
-           // dump.insert(dump.end(), readBuffer.begin(), readBuffer.end());
         else
             std::memcpy(buf + _packetSize * currentChunk, readBuffer.data(), lastChunkSize);
-            //dump.insert(dump.end(), readBuffer.begin(), readBuffer.begin() + lastChunkSize);
 
+        sendGeckoCommand(GCACK);
         return ftStatus;
     }
+}
+
+void MungPlex::USBGecko::wait(const int milliseconds) const
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }

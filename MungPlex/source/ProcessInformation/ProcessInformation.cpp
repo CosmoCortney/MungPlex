@@ -330,9 +330,6 @@ bool MungPlex::ProcessInformation::ConnectToProcess(int processIndex)
 	 default: //CON_USBGECKO
 		 GetInstance()._usbGecko = std::make_shared<USBGecko>();
 
-		 if (GetInstance()._usbGecko->Init() != FT_OK)
-			 return false;
-
 		 if(GetInstance()._usbGecko->Connect() != FT_OK)
 			 return false;
 

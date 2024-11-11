@@ -111,6 +111,7 @@ namespace MungPlex
 		const uint32_t _packetSize = 0xF800;
 		const uint32_t _uplPacketSize = 0xF80;
 		bool _rvlMode = false;
+		bool _connected = false;
 
 		FT_STATUS findUsbGecko();
 		FT_STATUS openUsbGecko();
@@ -126,6 +127,6 @@ namespace MungPlex
 		FT_STATUS geckoRead(char* buf, const uint64_t readSize, LPDWORD bytesReceived);
 		FT_STATUS geckoWrite(char* buf, const uint64_t writeSize, LPDWORD bytesWritten);
 		FT_STATUS dump(char* buf, const uint32_t memoryStart = 0x80000000, const uint32_t memoryEnd = 0x817FFFFF);
-		
+		void wait(const int milliseconds) const;
 	};
 }
