@@ -232,7 +232,7 @@ void MungPlex::Connection::drawConsoleTabItem()
 				if (Settings::GetGeneralSettings().EnableRichPresence)
 					_discord.InitRichPresence();
 
-				//startConnectionCheck();
+				startConnectionCheck();
 			}
 		}
 

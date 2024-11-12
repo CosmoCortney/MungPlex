@@ -611,7 +611,19 @@ bool MungPlex::ProcessInformation::IsConnectionValid()
 
 	switch (GetInstance()._processType)
 	{
-	case EMULATOR: {
+	case CONSOLE:
+	{
+		switch (GetInstance()._currentConsoleConnectionType)
+		{
+		case CON_USBGecko:
+			return Connection::IsConnected();
+			break;
+		default:
+			return false;
+		}
+	}break;
+	case EMULATOR: 
+	{
 
 		switch (GetInstance()._platformID)
 		{

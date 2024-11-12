@@ -79,6 +79,7 @@ FT_STATUS MungPlex::USBGecko::Reset()
 FT_STATUS MungPlex::USBGecko::Disconnect()
 {
     _connected = false;
+    Connection::SetConnectedStatus(false);
     return closeUsbGecko();
 }
 
@@ -90,7 +91,8 @@ FT_STATUS MungPlex::USBGecko::Read(char* buf, const uint64_t rangeStart, const u
     if ((ftStatus = Init()) != FT_OK) 
         return ftStatus;
 
-    ftStatus = dump(buf, rangeStart, rangeStart + readSize);
+    if ((ftStatus = dump(buf, rangeStart, rangeStart + readSize)) != FT_OK)
+        return ftStatus;
 
     Connection::SetConnectedStatus(true);
     return ftStatus;
