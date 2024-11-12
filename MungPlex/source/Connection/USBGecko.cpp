@@ -403,3 +403,31 @@ void MungPlex::USBGecko::wait(const int milliseconds) const
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
+
+MungPlex::USBGecko::RvlStatus MungPlex::USBGecko::GetCurrentStatus()
+{
+    static FT_STATUS ftStatus = 0;
+
+    if ((ftStatus = Init()) != FT_OK)
+        return RvlStatus::Unknown;
+
+    if ((ftStatus = sendGeckoCommand(cmd_status)) != FT_OK)
+        return RvlStatus::Unknown;
+   
+    wait(69);
+
+    char result = RvlStatus::Unknown;
+    uint64_t bytesReceived = 0;
+
+    if ((ftStatus = geckoRead(&result, 1, reinterpret_cast<LPDWORD>(&bytesReceived))) != FT_OK)
+        return RvlStatus::Unknown;
+
+    switch (static_cast<uint32_t>(result))
+    {
+        case 0: return RvlStatus::Running;
+        case 1: return RvlStatus::Paused;
+        case 2: return RvlStatus::Breakpoint;
+        case 3: return RvlStatus::Loader;
+        default: return RvlStatus::Unknown;
+    }
+}

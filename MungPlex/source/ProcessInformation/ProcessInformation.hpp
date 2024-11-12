@@ -137,7 +137,7 @@ namespace MungPlex
                 {
                     case CON_USBGecko:
                         GetInstance()._usbGecko->Read(reinterpret_cast<char*>(&readValue), address, sizeof(dataType));
-                        return Xertz::SwapBytes<dataType>(readValue);;
+                        return Xertz::SwapBytes<dataType>(readValue);
                     default: //CON_UNDEF
                         return 0;
                 }
@@ -294,5 +294,6 @@ namespace MungPlex
         void setupCheats();
         void refreshModuleList();
         bool connectToProcessFR();
+        bool connectToUsbGecko();
     };
 }

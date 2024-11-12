@@ -103,6 +103,7 @@ namespace MungPlex
 		FT_STATUS Read(char* buf, const uint64_t rangeStart, const uint64_t readSize);
 		FT_STATUS Write(char* buf, const uint64_t rangeStart, const uint64_t writeSize);
 		FT_STATUS Unfreeze();
+		RvlStatus GetCurrentStatus();
 
 	private:
 		std::string _serialNumber = "GECKUSB0";

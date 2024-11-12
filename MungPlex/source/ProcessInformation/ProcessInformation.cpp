@@ -1,3 +1,4 @@
+#include "BigNHelpers.hpp"
 #include "Fusion_Impl.hpp"
 #include "Cemu_Impl.hpp"
 #include "Cheats.hpp"
@@ -18,6 +19,7 @@
 #include "ProcessInformation.hpp"
 #include "Project64_Impl.hpp"
 #include "Search.hpp"
+#include "USBGeckoConnectionWrapper_Impl.hpp"
 #include "WatchControl.hpp"
 #include <Windows.h>
 
@@ -324,18 +326,38 @@ bool MungPlex::ProcessInformation::ConnectToProcess(int processIndex)
  bool MungPlex::ProcessInformation::ConnectToRealConsole(const int type)
  {
 	 GetInstance()._currentConsoleConnectionType = type;
+	 GetInstance()._gameID.clear();
+	 GetInstance()._gameRegion.clear();
+	 GetInstance()._platform.clear();
+	 GetInstance()._rpcGameID.clear();
+	 GetInstance()._gameName.clear();
+	 USBGeckoConnectionWrapper usbGeckoWrapper;
+	 bool connected;
 
 	 switch (type)
 	 {
 	 default: //CON_USBGECKO
 		 GetInstance()._usbGecko = std::make_shared<USBGecko>();
-
-		 if(GetInstance()._usbGecko->Connect() != FT_OK)
+		 GetInstance().connectToUsbGecko();
+		 
+		 if (!usbGeckoWrapper.Init(GetInstance()._usbGecko.get(), GetInstance()._gameEntities, GetInstance()._systemRegions))
 			 return false;
-
-		 GetInstance()._processType = CONSOLE;
 	 }
 
+	 GetInstance()._processType = CONSOLE;
+	 GetInstance()._gameID = usbGeckoWrapper.GetGameID();
+	 GetInstance()._gameRegion = usbGeckoWrapper.GetGameRegion();
+	 GetInstance()._rpcGameID = usbGeckoWrapper.GetRrpGameID();
+	 GetInstance()._gameName = usbGeckoWrapper.GetGameName();
+	 GetInstance()._platformID = usbGeckoWrapper.GetPlatformID();
+	 GetInstance()._platform = GetSystemNameByID(GetInstance()._platformID);
+
+	 PointerSearch::SelectPreset(GetInstance()._platformID);
+	 GetInstance().setupSearch();
+	 Search::SetDefaultSearchSettings();
+	 GetInstance().setupCheats();
+	 WatchControl::InitWatchFile();
+	 DeviceControl::InitDevicesFile();
 	 return true;
 }
 
@@ -355,6 +377,12 @@ bool MungPlex::ProcessInformation::connectToProcessFR()
 	 DeviceControl::InitDevicesFile();
 	 Search::SetNativeAppSearchSettings();
 	 return connected;
+ }
+
+bool MungPlex::ProcessInformation::connectToUsbGecko()
+{
+	return false;
+
  }
 
 void MungPlex::ProcessInformation::setupSearch()

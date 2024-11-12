@@ -30,6 +30,10 @@ add_executable (MungPlex
     source/Connection/Discord.hpp
     source/Connection/USBGecko.hpp
     source/Connection/USBGecko.cpp
+    source/Connection/ConsoleConnectionWrappers/IConsoleConnectionWrapper.cpp
+    source/Connection/ConsoleConnectionWrappers/IConsoleConnectionWrapper.hpp
+    source/Connection/ConsoleConnectionWrappers/USBGeckoConnectionWrapper_Impl.cpp
+    source/Connection/ConsoleConnectionWrappers/USBGeckoConnectionWrapper_Impl.hpp
     source/ContextMenu/ContextMenu.cpp
     source/ContextMenu/ContextMenu.hpp
     source/DataConversion/DataConversion.hpp
@@ -44,6 +48,7 @@ add_executable (MungPlex
     source/DeviceControl/LovenseToy.hpp
     source/Helpers/BigNHelpers.hpp
     source/Helpers/HelperFunctions.hpp
+    source/Helpers/ResourcesHelpers.hpp
     Log.hpp
     Log.cpp
     main.cpp

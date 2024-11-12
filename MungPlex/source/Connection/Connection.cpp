@@ -218,6 +218,22 @@ void MungPlex::Connection::drawConsoleTabItem()
 		if (ImGui::Button("Connect"))
 		{
 			_connected = ProcessInformation::ConnectToRealConsole(ProcessInformation::GetConsoleConnectionTypeList()[sel].second);
+		
+			if (_connected)
+			{
+				_connectionMessage = "Connected to console: " + ProcessInformation::GetPlatform() + " via USB Gecko.";
+				std::string details = std::string("Messing with "
+					+ ProcessInformation::GetTitle()
+					+ " (" + ProcessInformation::GetRpcGameID() + ", "
+					+ ProcessInformation::GetRegion() + ") "
+					+ " on " + ProcessInformation::GetPlatform() + " via USB Gecko");
+				_discord.SetRichPresenceDetails(details);
+
+				if (Settings::GetGeneralSettings().EnableRichPresence)
+					_discord.InitRichPresence();
+
+				//startConnectionCheck();
+			}
 		}
 
 		ImGui::EndTabItem();

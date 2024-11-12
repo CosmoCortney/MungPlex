@@ -116,6 +116,7 @@ target_include_directories(MungPlex PRIVATE
     "MungPlex/source/Cheats"
     "MungPlex/source/CheatSearch"
     "MungPlex/source/Connection"
+    "MungPlex/source/Connection/ConsoleConnectionWrappers"
     "MungPlex/source/ContextMenu"
     "MungPlex/source/DataConversion"
     "MungPlex/source/DeviceControl/lovense-win-sdk-${LOVENSE_SDK_VERSION}/WinSDK_Release/includes"

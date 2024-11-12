@@ -298,7 +298,7 @@ Find the latest release [here](https://github.com/CosmoCortney/MungPlex/releases
 
 <a name="compiling"></a>
 ## Compiling and Deployment
-- update the C++ redistrubutable
+- update the C++ redistrubutable (preferable through Visual Studio 2022)
 - [install vcpkg](https://learn.microsoft.com/de-de/vcpkg/get_started/get-started?pivots=shell-powershell) if not done already
 - use vcpkg to install the following packages (``vcpkg install xxx:x64-windows``): 
   - glfw3
@@ -308,6 +308,7 @@ Find the latest release [here](https://github.com/CosmoCortney/MungPlex/releases
   - nlohmann-json
   - discord-game-sdk
 - open the project in Visual Studio as "Open as local folder" or in VSCode, Rider as a cmake project
+- run cmake. It will download some source files and libraries that are not available on GitHub or not properly maintained. If cmake fails run it again (press <kbd>CTRL + S</kbd>). IDK why it fails first
 - set ``main.cpp`` as startup item (VS: right click, ``Set as startup item``)
 - compile
 - if you get *compiler is out of heap space* errors, reduce the amount of cores/threads and/or RAM the compiler uses
