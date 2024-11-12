@@ -1,4 +1,5 @@
 #include "mGBA_Impl.hpp"
+#include "BigNHelpers.hpp"
 
 bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {
@@ -64,7 +65,7 @@ bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEnt
 			process.ReadMemorySafe(id.data(), romBasePtr + 0xAC, 6);
 			_rpcGameID = _gameID = id;
 
-			_gameRegion = getRegionFromBigNRegionCode(id[3]);
+			_gameRegion = GetRegionFromBigNRegionCode(id[3]);
 			systemRegions[0].BaseLocationProcess = romBasePtr;
 			romFound = true;
 			obtainGameEntities("GBA", gameEntities);

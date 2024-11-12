@@ -1,3 +1,4 @@
+#include "BigNHelpers.hpp"
 #include "Dolphin_Impl.hpp"
 
 bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
@@ -68,7 +69,7 @@ bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<Game
 	_gameID = _rpcGameID = tempID;
 	_gameID.append("-").append(std::to_string(discNo));
 	_gameID.append("-").append(std::to_string(discVer));
-	_gameRegion = getRegionFromBigNRegionCode(_gameID[3]);
+	_gameRegion = GetRegionFromBigNRegionCode(_gameID[3]);
 
 	if (flagGCN == 0xC2339F3D || (flagWii != 0 && flagGCN == 0))
 	{

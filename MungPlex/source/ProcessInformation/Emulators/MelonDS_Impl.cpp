@@ -1,3 +1,4 @@
+#include "BigNHelpers.hpp"
 #include "MelonDS_Impl.hpp"
 
 bool MungPlex::MelonDS::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
@@ -24,7 +25,7 @@ bool MungPlex::MelonDS::Init(const Xertz::ProcessInfo& process, std::vector<Game
 			_connectionCheckValue = romFlag;
 			const uint32_t romBase = i - 0xC0;
 			_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[romBase + 0xC]);
-			_gameRegion = getRegionFromBigNRegionCode(_gameID[3]);
+			_gameRegion = GetRegionFromBigNRegionCode(_gameID[3]);
 			uint32_t titleOffset = *reinterpret_cast<uint32_t*>(&buf[romBase + 0x68]);
 
 			if (_gameID[3] == 'J')

@@ -1,4 +1,5 @@
 #include "Project64_Impl.hpp"
+#include "BigNHelpers.hpp"
 
 bool MungPlex::Project64::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& entities, std::vector<SystemRegion>& regions)
 {
@@ -53,7 +54,7 @@ bool MungPlex::Project64::Init(const Xertz::ProcessInfo& process, std::vector<Ga
 		ReadFromReorderedRangeEx(process, reinterpret_cast<uint32_t*>(tempID), romRegion + 0x3B);
 		_rpcGameID = _gameID = std::string(tempID);
 		_gameName.resize(20);
-		_gameRegion = getRegionFromBigNRegionCode(_gameID[3]);
+		_gameRegion = GetRegionFromBigNRegionCode(_gameID[3]);
 
 		for (int i = 0; i <= 20; i += 4)
 			ReadFromReorderedRangeEx(process, reinterpret_cast<uint32_t*>(_gameName.data() + i), romRegion + 0x20 + i);

@@ -42,6 +42,7 @@ add_executable (MungPlex
     source/DeviceControl/IDevice.hpp
     source/DeviceControl/LovenseToy.cpp
     source/DeviceControl/LovenseToy.hpp
+    source/Helpers/BigNHelpers.hpp
     source/Helpers/HelperFunctions.hpp
     Log.hpp
     Log.cpp

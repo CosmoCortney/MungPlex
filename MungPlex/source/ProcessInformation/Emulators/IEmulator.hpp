@@ -22,7 +22,6 @@ namespace MungPlex
 		void* _connectionCheckPtr = nullptr;
 		int _platformID = ProcessInformation::UNK;
 
-		std::string getRegionFromBigNRegionCode(const char code) const;
 		bool loadSystemInformationJSON(const std::string& system, std::vector<SystemRegion>& systemRegions);
 		bool obtainGameEntities(const std::string& systemName, std::vector<GameEntity>& gameEntities);
 
