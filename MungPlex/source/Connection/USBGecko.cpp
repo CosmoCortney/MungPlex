@@ -368,7 +368,6 @@ FT_STATUS MungPlex::USBGecko::dump(char* buf, const uint32_t memoryStart, const 
     uint32_t lastChunkSize = dumpSize % _packetSize;
     uint32_t totalChunksCount = (lastChunkSize > 0) ? fullChunksCount + 1 : fullChunksCount;
     uint64_t bytesReceived = 0;
-    bool done = false;
 
     if (fullChunksCount == 0)
     {
@@ -379,12 +378,7 @@ FT_STATUS MungPlex::USBGecko::dump(char* buf, const uint32_t memoryStart, const 
             ftStatus = geckoRead(readBuffer.data(), lastChunkSize, reinterpret_cast<LPDWORD>(&bytesReceived));
 
             if (ftStatus == FT_OK)
-            {
-                if (fullChunksCount == 0)
-                    done = true;
-
                 break;
-            }
 
             sendGeckoCommand(GCRETRY);
             ++retry;
