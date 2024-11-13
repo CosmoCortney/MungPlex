@@ -288,12 +288,12 @@ namespace MungPlex
         void drawRegionList();
         void drawMiscInformation();
         void drawGameInformation();
-        bool initEmulator(int emulatorIndex);
+        bool initEmulator(const int emulatorIndex);
         bool initProcess(const std::wstring& processName);
+        bool initConsoleConnection(const int connectionType);
         void setupSearch();
         void setupCheats();
         void refreshModuleList();
         bool connectToProcessFR();
-        bool connectToUsbGecko();
     };
 }

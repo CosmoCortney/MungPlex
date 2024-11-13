@@ -325,39 +325,25 @@ bool MungPlex::ProcessInformation::ConnectToProcess(int processIndex)
 
  bool MungPlex::ProcessInformation::ConnectToRealConsole(const int type)
  {
-	 GetInstance()._currentConsoleConnectionType = type;
-	 GetInstance()._gameID.clear();
-	 GetInstance()._gameRegion.clear();
-	 GetInstance()._platform.clear();
-	 GetInstance()._rpcGameID.clear();
-	 GetInstance()._gameName.clear();
-	 USBGeckoConnectionWrapper usbGeckoWrapper;
-	 bool connected;
-
-	 switch (type)
-	 {
-	 default: //CON_USBGECKO
-		 GetInstance()._usbGecko = std::make_shared<USBGecko>();
-		 GetInstance().connectToUsbGecko();
-		 
-		 if (!usbGeckoWrapper.Init(GetInstance()._usbGecko.get(), GetInstance()._gameEntities, GetInstance()._systemRegions))
-			 return false;
-	 }
-
 	 GetInstance()._processType = CONSOLE;
-	 GetInstance()._gameID = usbGeckoWrapper.GetGameID();
-	 GetInstance()._gameRegion = usbGeckoWrapper.GetGameRegion();
-	 GetInstance()._rpcGameID = usbGeckoWrapper.GetRrpGameID();
-	 GetInstance()._gameName = usbGeckoWrapper.GetGameName();
-	 GetInstance()._platformID = usbGeckoWrapper.GetPlatformID();
-	 GetInstance()._platform = GetSystemNameByID(GetInstance()._platformID);
 
-	 PointerSearch::SelectPreset(GetInstance()._platformID);
-	 GetInstance().setupSearch();
-	 Search::SetDefaultSearchSettings();
-	 GetInstance().setupCheats();
-	 WatchControl::InitWatchFile();
-	 DeviceControl::InitDevicesFile();
+	 if (!GetInstance().initConsoleConnection(type))
+		 return false;
+
+	 GetInstance()._exePath = GetInstance()._process.GetFilePath();
+	 std::string msg("Connected to "
+	 + GetInstance()._processName + " ("
+     + GetInstance()._platform + ") - Game ID: "
+	 + GetInstance()._gameID);
+	 Log::LogInformation(msg.c_str());
+
+	 std::string windowTitle(GetWindowTitleBase()
+	 + " | " + GetInstance()._processName
+	 + " | " + GetInstance()._gameName
+	 + " | " + GetInstance()._gameID
+	 + " (" + GetInstance()._platform + ")");
+	 glfwSetWindowTitle(GetInstance()._window, windowTitle.c_str());
+
 	 return true;
 }
 
@@ -379,12 +365,6 @@ bool MungPlex::ProcessInformation::connectToProcessFR()
 	 return connected;
  }
 
-bool MungPlex::ProcessInformation::connectToUsbGecko()
-{
-	return false;
-
- }
-
 void MungPlex::ProcessInformation::setupSearch()
 {
 	Search::SetRereorderRegion(_rereorderRegion);
@@ -404,6 +384,50 @@ bool MungPlex::ProcessInformation::initProcess(const std::wstring& processName)
 	if (_process.GetPID() == -1)
 		return false;
 
+	return true;
+}
+
+bool MungPlex::ProcessInformation::initConsoleConnection(const int connectionType)
+{
+	_currentConsoleConnectionType = connectionType;
+	_gameID.clear();
+	_gameRegion.clear();
+	_platform.clear();
+	_rpcGameID.clear();
+	_gameName.clear();
+	std::shared_ptr<IConsoleConnectionWrapper> iConsoleConnectionWrapper;
+	bool connected;
+
+	switch (connectionType)
+	{
+	case CON_USBGecko:
+	{
+		_usbGecko = std::make_shared<USBGecko>();
+
+		if (_usbGecko->Connect() != FT_OK)
+			return false;
+
+		iConsoleConnectionWrapper = std::make_shared<USBGeckoConnectionWrapper>();
+	}break;
+	default:
+		return false;
+	}
+
+	if (!iConsoleConnectionWrapper->Init(_usbGecko.get(), _gameEntities, _systemRegions))
+		return false;
+
+	_gameID = iConsoleConnectionWrapper->GetGameID();
+	_gameRegion = iConsoleConnectionWrapper->GetGameRegion();
+	_rpcGameID = iConsoleConnectionWrapper->GetRrpGameID();
+	_gameName = iConsoleConnectionWrapper->GetGameName();
+	_platformID = iConsoleConnectionWrapper->GetPlatformID();
+	_platform = GetSystemNameByID(_platformID);
+	PointerSearch::SelectPreset(_platformID);
+	setupSearch();
+	Search::SetDefaultSearchSettings();
+	setupCheats();
+	WatchControl::InitWatchFile();
+	DeviceControl::InitDevicesFile();
 	return true;
 }
 
