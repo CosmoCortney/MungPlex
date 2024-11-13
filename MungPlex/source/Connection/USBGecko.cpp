@@ -296,7 +296,15 @@ FT_STATUS MungPlex::USBGecko::geckoRead(char* buf, const uint64_t readSize, LPDW
 
     FT_STATUS ftStatus = FT_Read(_ftdiHandle, buf, readSize, bytesReceived);
 
-    if (ftStatus == FT_OK && *bytesReceived > 0)
+    if (ftStatus != FT_OK)
+    {
+#ifndef NDEBUG
+        std::cout << "Failed to read\n";
+#endif
+        return ftStatus;
+    }
+
+    if (*bytesReceived == readSize)
     {
 #ifndef NDEBUG
         std::cout << "Received " << *bytesReceived << " bytes\n";
@@ -305,7 +313,7 @@ FT_STATUS MungPlex::USBGecko::geckoRead(char* buf, const uint64_t readSize, LPDW
     else 
     {
 #ifndef NDEBUG
-        std::cout << "No response or failed to read\n";
+        std::cout << "Failed to read all bytes\n";
 #endif
     }
 
@@ -362,16 +370,13 @@ FT_STATUS MungPlex::USBGecko::dump(char* buf, const uint32_t memoryStart, const 
     uint64_t bytesReceived = 0;
     bool done = false;
 
-    for (uint32_t currentChunk = 0; (currentChunk < fullChunksCount || fullChunksCount == 0) && !done; ++currentChunk)
+    if (fullChunksCount == 0)
     {
         uint32_t retry = 0;
 
         while (retry < 3)
         {
-            if(currentChunk != fullChunksCount-1 && fullChunksCount != 0)
-                ftStatus = geckoRead(readBuffer.data() + currentChunk * _packetSize, _packetSize, reinterpret_cast<LPDWORD>(&bytesReceived));
-            else
-                ftStatus = geckoRead(readBuffer.data() + currentChunk * _packetSize, lastChunkSize, reinterpret_cast<LPDWORD>(&bytesReceived));
+            ftStatus = geckoRead(readBuffer.data(), lastChunkSize, reinterpret_cast<LPDWORD>(&bytesReceived));
 
             if (ftStatus == FT_OK)
             {
@@ -394,14 +399,50 @@ FT_STATUS MungPlex::USBGecko::dump(char* buf, const uint32_t memoryStart, const 
             return FT_OTHER_ERROR;
         }
 
-        if (currentChunk != fullChunksCount - 1 && fullChunksCount != 0)
-            std::memcpy(buf + _packetSize * currentChunk, readBuffer.data(), _packetSize);
-        else
-            std::memcpy(buf + _packetSize * currentChunk, readBuffer.data(), lastChunkSize);
-
+        std::memcpy(buf, readBuffer.data(), lastChunkSize);
         sendGeckoCommand(GCACK);
-        return ftStatus;
     }
+    else
+    {
+        for (uint32_t currentChunk = 0; currentChunk <= fullChunksCount; ++currentChunk)
+        {
+            uint32_t retry = 0;
+
+            while (retry < 3)
+            {
+                wait(10);
+
+                if (currentChunk < fullChunksCount)
+                    ftStatus = geckoRead(readBuffer.data(), _packetSize, reinterpret_cast<LPDWORD>(&bytesReceived));
+                else
+                    ftStatus = geckoRead(readBuffer.data(), lastChunkSize, reinterpret_cast<LPDWORD>(&bytesReceived));
+
+                if (ftStatus == FT_OK)
+                    break;
+
+                sendGeckoCommand(GCRETRY);
+                ++retry;
+            }
+
+            if (ftStatus != FT_OK)
+            {
+                sendGeckoCommand(GCFAIL);
+#ifndef NDEBUG
+                std::cout << "Error: Too many tries\n";
+#endif
+                return FT_OTHER_ERROR;
+            }
+
+            if (currentChunk < fullChunksCount)
+                std::memcpy(buf + _packetSize * currentChunk, readBuffer.data(), _packetSize);
+            else
+                std::memcpy(buf + _packetSize * currentChunk, readBuffer.data(), lastChunkSize);
+
+            sendGeckoCommand(GCACK);
+        }
+    }
+
+    return ftStatus;
 }
 
 void MungPlex::USBGecko::wait(const int milliseconds) const
