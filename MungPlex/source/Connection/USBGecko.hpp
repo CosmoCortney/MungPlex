@@ -96,6 +96,7 @@ namespace MungPlex
 		};
 
 		USBGecko() = default;
+		~USBGecko();
 		FT_STATUS Init();
 		FT_STATUS Connect();
 		FT_STATUS Reset();
@@ -104,6 +105,7 @@ namespace MungPlex
 		FT_STATUS Write(char* buf, const uint64_t rangeStart, const uint64_t writeSize);
 		FT_STATUS Unfreeze();
 		RvlStatus GetCurrentStatus();
+		bool IsConnectedAndReady();
 
 	private:
 		std::string _serialNumber = "GECKUSB0";
@@ -112,7 +114,7 @@ namespace MungPlex
 		const uint32_t _packetSize = 0xF800;
 		const uint32_t _uplPacketSize = 0xF80;
 		bool _rvlMode = false;
-		bool _connected = false;
+		bool _connectedAndReady = false;
 
 		FT_STATUS findUsbGecko();
 		FT_STATUS openUsbGecko();

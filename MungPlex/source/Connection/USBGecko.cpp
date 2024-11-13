@@ -1,9 +1,14 @@
-#include "Connection.hpp"
 #include <iostream>
 #include <thread>
 #include "USBGecko.hpp"
 #include <vector>
 #pragma comment(lib, "setupapi.lib")
+
+MungPlex::USBGecko::~USBGecko()
+{
+    resetDevice();
+    Disconnect();
+}
 
 FT_STATUS MungPlex::USBGecko::Init()
 {
@@ -19,9 +24,9 @@ FT_STATUS MungPlex::USBGecko::Connect()
 {
     static FT_STATUS ftStatus = 0;
 
-    if (_connected)
+    if (_connectedAndReady)
     {
-        Connection::SetConnectedStatus(false);
+        _connectedAndReady = false;
 
         if ((ftStatus = Disconnect()) != FT_OK)
             return ftStatus;
@@ -63,8 +68,7 @@ FT_STATUS MungPlex::USBGecko::Connect()
         return ftStatus;
 
     wait(150);
-    _connected = true;
-    Connection::SetConnectedStatus(true);
+    _connectedAndReady = true;
     return ftStatus;
 }
 
@@ -78,15 +82,14 @@ FT_STATUS MungPlex::USBGecko::Reset()
 
 FT_STATUS MungPlex::USBGecko::Disconnect()
 {
-    _connected = false;
-    Connection::SetConnectedStatus(false);
+    _connectedAndReady = false;
     return closeUsbGecko();
 }
 
 FT_STATUS MungPlex::USBGecko::Read(char* buf, const uint64_t rangeStart, const uint64_t readSize)
 {
     static FT_STATUS ftStatus = 0;
-    Connection::SetConnectedStatus(false);
+    _connectedAndReady = false;
 
     if ((ftStatus = Init()) != FT_OK) 
         return ftStatus;
@@ -94,7 +97,7 @@ FT_STATUS MungPlex::USBGecko::Read(char* buf, const uint64_t rangeStart, const u
     if ((ftStatus = dump(buf, rangeStart, rangeStart + readSize)) != FT_OK)
         return ftStatus;
 
-    Connection::SetConnectedStatus(true);
+    _connectedAndReady = true;
     return ftStatus;
 }
 
@@ -432,4 +435,9 @@ MungPlex::USBGecko::RvlStatus MungPlex::USBGecko::GetCurrentStatus()
         case 3: return RvlStatus::Loader;
         default: return RvlStatus::Unknown;
     }
+}
+
+bool MungPlex::USBGecko::IsConnectedAndReady()
+{
+    return _connectedAndReady;
 }

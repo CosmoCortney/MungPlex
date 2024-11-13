@@ -266,6 +266,8 @@ namespace MungPlex
         void prepareLiveUpdateValueList();
         void setLiveUpdateRefreshRate();
         void updateLivePreview();
+        void updateLivePreviewOnce();
+        void updateLivePreviewConditional();
         void drawResultsArea();
         void performSearch();
         void primitiveTypeSearchLog();

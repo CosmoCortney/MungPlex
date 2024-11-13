@@ -107,8 +107,6 @@ void MungPlex::Connection::drawEmulatorsTabItem()
 					+ "running on " + ProcessInformation::GetProcessName());
 				_discord.SetRichPresenceDetails(details);
 
-
-
 				if (Settings::GetGeneralSettings().EnableRichPresence)
 					_discord.InitRichPresence();
 

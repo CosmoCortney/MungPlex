@@ -396,25 +396,20 @@ bool MungPlex::ProcessInformation::initConsoleConnection(const int connectionTyp
 	_rpcGameID.clear();
 	_gameName.clear();
 	std::shared_ptr<IConsoleConnectionWrapper> iConsoleConnectionWrapper;
-	bool connected;
 
 	switch (connectionType)
 	{
 	case CON_USBGecko:
 	{
 		_usbGecko = std::make_shared<USBGecko>();
-
-		if (_usbGecko->Connect() != FT_OK)
-			return false;
-
 		iConsoleConnectionWrapper = std::make_shared<USBGeckoConnectionWrapper>();
+
+		if (!iConsoleConnectionWrapper->Init(_usbGecko.get(), _gameEntities, _systemRegions)) //also establishes connection
+			return false;
 	}break;
 	default:
 		return false;
 	}
-
-	if (!iConsoleConnectionWrapper->Init(_usbGecko.get(), _gameEntities, _systemRegions))
-		return false;
 
 	_gameID = iConsoleConnectionWrapper->GetGameID();
 	_gameRegion = iConsoleConnectionWrapper->GetGameRegion();
@@ -441,6 +436,11 @@ void MungPlex::ProcessInformation::SetMiscProcessInfo(const std::string processN
 	GetInstance()._addressWidth = addressWidth;
 	GetInstance()._rereorderRegion = rereorder;
 	GetInstance()._alignment = alignment;
+}
+
+MungPlex::USBGecko* MungPlex::ProcessInformation::GetUsbGecko()
+{
+	return GetInstance()._usbGecko.get();
 }
 
 std::string& MungPlex::ProcessInformation::GetGameID()
@@ -490,6 +490,11 @@ const std::vector<std::pair<std::string, int>>& MungPlex::ProcessInformation::Ge
 int32_t MungPlex::ProcessInformation::GetProcessType()
 {
 	return GetInstance()._processType;
+}
+
+int32_t MungPlex::ProcessInformation::GetConsoleConnectionType()
+{
+	return GetInstance()._currentConsoleConnectionType;
 }
 
 int32_t MungPlex::ProcessInformation::GetPID()
@@ -628,10 +633,13 @@ std::vector<MungPlex::SystemRegion>& MungPlex::ProcessInformation::GetSystemRegi
 
 bool MungPlex::ProcessInformation::IsConnectionValid()
 {
-	const bool processOK = GetInstance()._process.GetPID() > 0 && GetInstance()._process.IsRunning();
+	if (GetInstance()._processType != CONSOLE)
+	{
+		const bool processOK = GetInstance()._process.GetPID() > 0 && GetInstance()._process.IsRunning();
 
-	if (!processOK)
-		return false;
+		if (!processOK)
+			return false;
+	}
 
 	switch (GetInstance()._processType)
 	{
@@ -640,7 +648,7 @@ bool MungPlex::ProcessInformation::IsConnectionValid()
 		switch (GetInstance()._currentConsoleConnectionType)
 		{
 		case CON_USBGecko:
-			return Connection::IsConnected();
+			return GetInstance()._usbGecko->IsConnectedAndReady();
 			break;
 		default:
 			return false;
@@ -648,7 +656,6 @@ bool MungPlex::ProcessInformation::IsConnectionValid()
 	}break;
 	case EMULATOR: 
 	{
-
 		switch (GetInstance()._platformID)
 		{
 		case PSP: {
@@ -705,7 +712,6 @@ const std::vector<std::pair<int, std::string>>& MungPlex::ProcessInformation::Ge
 {
 	return _systemPairs;
 }
-
 
 std::string MungPlex::ProcessInformation::GetSystemNameByID(const int id)
 {

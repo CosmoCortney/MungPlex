@@ -639,6 +639,14 @@ void MungPlex::Search::drawResultsArea()
 					}
 					}
 				}
+
+				if (ProcessInformation::GetProcessType() == ProcessInformation::CONSOLE)
+				{
+					ImGui::SameLine();
+
+					if (ImGui::Button("Update Real-Time column"))
+						updateLivePreviewOnce();
+				}
 			}
 			if (MemoryCompare::MemCompare::GetResultCount() == 0) ImGui::EndDisabled();
 
@@ -659,10 +667,13 @@ void MungPlex::Search::performSearch()
 {
 	Log::LogInformation("Search: Iteration " + std::to_string(MemoryCompare::MemCompare::GetIterationCount() + 1));
 
-	_updateThreadFlag = false;
+	if (ProcessInformation::GetProcessType() != ProcessInformation::CONSOLE)
+	{
+		_updateThreadFlag = false;
 
-	if(_updateThread.joinable())
-		_updateThread.join();
+		if (_updateThread.joinable())
+			_updateThread.join();
+	}
 
 	switch (_currentValueTypeSelect)
 	{
@@ -690,145 +701,157 @@ void MungPlex::Search::performSearch()
 	if(MemoryCompare::MemCompare::GetIterationCount() < 2)
 		prepareLiveUpdateValueList();
 
-	_updateThreadFlag = true;
-	_updateThread = boost::thread(&MungPlex::Search::updateLivePreview, this);
+	if (ProcessInformation::GetProcessType() != ProcessInformation::CONSOLE)
+	{
+		_updateThreadFlag = true;
+		_updateThread = boost::thread(&MungPlex::Search::updateLivePreviewConditional, this);
+	}
 }
 
 void MungPlex::Search::updateLivePreview()
 {
 	static int rows = 0;
 
-	while (_updateThreadFlag)
+	if (Connection::IsConnected())
 	{
-		if (Connection::IsConnected())
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(_liveUpdateMilliseconds));
+
+		if (_currentPageValue < _pagesAmountValue)
+			rows = _maxResultsPerPage;
+		else
+			rows = MemoryCompare::MemCompare::GetResultCount() % _maxResultsPerPage;
+
+		for (int row = 0; row < rows; ++row)
 		{
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(_liveUpdateMilliseconds));
+			static uint64_t address = 0;
+			uint64_t addressIndex = (_currentPageValue - 1) * _maxResultsPerPage + row;
+			uint8_t* updateArrayPtr = _updateValues.data();
 
-			if (_currentPageValue < _pagesAmountValue)
-				rows = _maxResultsPerPage;
-			else
-				rows = MemoryCompare::MemCompare::GetResultCount() % _maxResultsPerPage;
-
-			for (int row = 0; row < rows; ++row)
+			switch (ProcessInformation::GetAddressWidth())
 			{
-				static uint64_t address = 0;
-				uint64_t addressIndex = (_currentPageValue - 1) * _maxResultsPerPage + row;
-				uint8_t* updateArrayPtr = _updateValues.data();
+			case 1:
+				address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint8_t>(addressIndex);
+				break;
+			case 2:
+				address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint16_t>(addressIndex);
+				break;
+			case 8:
+				address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint64_t>(addressIndex);
+				break;
+			default: //4
+				address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint32_t>(addressIndex);
+			}
 
-				switch (ProcessInformation::GetAddressWidth())
-				{
-				case 1:
-					address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint8_t>(addressIndex);
-					break;
-				case 2:
-					address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint16_t>(addressIndex);
-					break;
-				case 8:
-					address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint64_t>(addressIndex);
-					break;
-				default: //4
-					address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint32_t>(addressIndex);
-				}
-
-				switch (_currentValueTypeSelect)
-				{
-				case ARRAY:
-				{
-					for (int i = 0; i < _arrayItemCount; ++i)
-						switch (_currentArrayTypeSelect)
-						{
-						case INT8:
-							*(updateArrayPtr + row * _arrayItemCount + i) = ProcessInformation::ReadValue<uint8_t>(address + i);
-							break;
-						case INT16:
-							*reinterpret_cast<uint16_t*>(updateArrayPtr + row * _arrayItemCount * sizeof(uint16_t) + i * sizeof(uint16_t))
-								= ProcessInformation::ReadValue<uint16_t>(address + i * sizeof(uint16_t));
-							break;
-						case INT64:
-							*reinterpret_cast<uint64_t*>(updateArrayPtr + row * _arrayItemCount * sizeof(uint64_t) + i * sizeof(uint64_t))
-								= ProcessInformation::ReadValue<uint64_t>(address + i * sizeof(uint64_t));
-							break;
-							/*case FLOAT:
-								break;
-							case DOUBLE:
-								break;*/
-						default: //INT32
-							*reinterpret_cast<uint32_t*>(updateArrayPtr + row * _arrayItemCount * sizeof(uint32_t) + i * sizeof(uint32_t))
-								= ProcessInformation::ReadValue<uint32_t>(address + i * sizeof(uint32_t));
-						}
-				}break;
-				case COLOR:
-				{
-					static int updateValuesSize = 0;
-
-					switch (_currentColorTypeSelect)
-					{
-					case LitColor::RGBF:
-					{
-						for (int i = 0; i < 3; ++i)
-						{
-							*reinterpret_cast<float*>(updateArrayPtr + row * 3 * sizeof(float) + i * sizeof(float))
-								= ProcessInformation::ReadValue<float>(address + i * sizeof(float));
-						}
-					} break;
-					case LitColor::RGBAF:
-					{
-						for (int i = 0; i < 4; ++i)
-						{
-							*reinterpret_cast<float*>(updateArrayPtr + row * 4 * sizeof(float) + i * sizeof(float))
-								= ProcessInformation::ReadValue<float>(address + i * sizeof(float));
-						}
-					} break;
-					case LitColor::RGB565: case LitColor::RGB5A3:
-						*reinterpret_cast<uint16_t*>(updateArrayPtr + row * sizeof(uint16_t))
-							= ProcessInformation::ReadValue<uint16_t>(address);
-						break;
-					default: //RGB888, RGBA8888
-						*reinterpret_cast<uint32_t*>(updateArrayPtr + row * sizeof(uint32_t))
-							= ProcessInformation::ReadValue<uint32_t>(address);
-					}
-				}break;
-				case TEXT:
-				{
-					static int strLength = 0;
-					if (!strLength)
-						strLength = MemoryCompare::MemCompare::GetResults().GetValueWidth();
-
-					for (int i = 0; i < strLength; ++i)
-						*(updateArrayPtr + row * strLength + i) = ProcessInformation::ReadValue<uint8_t>(address + i);
-				}break;
-				default: //PRIMITIVE
-				{
-					switch (_currentPrimitiveTypeSelect)
+			switch (_currentValueTypeSelect)
+			{
+			case ARRAY:
+			{
+				for (int i = 0; i < _arrayItemCount; ++i)
+					switch (_currentArrayTypeSelect)
 					{
 					case INT8:
-						*(updateArrayPtr + row) = ProcessInformation::ReadValue<uint8_t>(address);
+						*(updateArrayPtr + row * _arrayItemCount + i) = ProcessInformation::ReadValue<uint8_t>(address + i);
 						break;
 					case INT16:
-						*reinterpret_cast<uint16_t*>(updateArrayPtr + row * sizeof(uint16_t))
-							= ProcessInformation::ReadValue<uint16_t>(address);
+						*reinterpret_cast<uint16_t*>(updateArrayPtr + row * _arrayItemCount * sizeof(uint16_t) + i * sizeof(uint16_t))
+							= ProcessInformation::ReadValue<uint16_t>(address + i * sizeof(uint16_t));
 						break;
 					case INT64:
-						*reinterpret_cast<uint64_t*>(updateArrayPtr + row * sizeof(uint64_t))
-							= ProcessInformation::ReadValue<uint64_t>(address);
+						*reinterpret_cast<uint64_t*>(updateArrayPtr + row * _arrayItemCount * sizeof(uint64_t) + i * sizeof(uint64_t))
+							= ProcessInformation::ReadValue<uint64_t>(address + i * sizeof(uint64_t));
 						break;
-					case FLOAT:
-						*reinterpret_cast<float*>(updateArrayPtr + row * sizeof(float))
-							= ProcessInformation::ReadValue<float>(address);
-						break;
-					case DOUBLE:
-						*reinterpret_cast<double*>(updateArrayPtr + row * sizeof(double))
-							= ProcessInformation::ReadValue<double>(address);
-						break;
+						/*case FLOAT:
+							break;
+						case DOUBLE:
+							break;*/
 					default: //INT32
-						*reinterpret_cast<uint32_t*>(updateArrayPtr + row * sizeof(uint32_t))
-							= ProcessInformation::ReadValue<uint32_t>(address);
+						*reinterpret_cast<uint32_t*>(updateArrayPtr + row * _arrayItemCount * sizeof(uint32_t) + i * sizeof(uint32_t))
+							= ProcessInformation::ReadValue<uint32_t>(address + i * sizeof(uint32_t));
 					}
+			}break;
+			case COLOR:
+			{
+				static int updateValuesSize = 0;
+
+				switch (_currentColorTypeSelect)
+				{
+				case LitColor::RGBF:
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						*reinterpret_cast<float*>(updateArrayPtr + row * 3 * sizeof(float) + i * sizeof(float))
+							= ProcessInformation::ReadValue<float>(address + i * sizeof(float));
+					}
+				} break;
+				case LitColor::RGBAF:
+				{
+					for (int i = 0; i < 4; ++i)
+					{
+						*reinterpret_cast<float*>(updateArrayPtr + row * 4 * sizeof(float) + i * sizeof(float))
+							= ProcessInformation::ReadValue<float>(address + i * sizeof(float));
+					}
+				} break;
+				case LitColor::RGB565: case LitColor::RGB5A3:
+					*reinterpret_cast<uint16_t*>(updateArrayPtr + row * sizeof(uint16_t))
+						= ProcessInformation::ReadValue<uint16_t>(address);
+					break;
+				default: //RGB888, RGBA8888
+					*reinterpret_cast<uint32_t*>(updateArrayPtr + row * sizeof(uint32_t))
+						= ProcessInformation::ReadValue<uint32_t>(address);
 				}
+			}break;
+			case TEXT:
+			{
+				static int strLength = 0;
+				if (!strLength)
+					strLength = MemoryCompare::MemCompare::GetResults().GetValueWidth();
+
+				for (int i = 0; i < strLength; ++i)
+					*(updateArrayPtr + row * strLength + i) = ProcessInformation::ReadValue<uint8_t>(address + i);
+			}break;
+			default: //PRIMITIVE
+			{
+				switch (_currentPrimitiveTypeSelect)
+				{
+				case INT8:
+					*(updateArrayPtr + row) = ProcessInformation::ReadValue<uint8_t>(address);
+					break;
+				case INT16:
+					*reinterpret_cast<uint16_t*>(updateArrayPtr + row * sizeof(uint16_t))
+						= ProcessInformation::ReadValue<uint16_t>(address);
+					break;
+				case INT64:
+					*reinterpret_cast<uint64_t*>(updateArrayPtr + row * sizeof(uint64_t))
+						= ProcessInformation::ReadValue<uint64_t>(address);
+					break;
+				case FLOAT:
+					*reinterpret_cast<float*>(updateArrayPtr + row * sizeof(float))
+						= ProcessInformation::ReadValue<float>(address);
+					break;
+				case DOUBLE:
+					*reinterpret_cast<double*>(updateArrayPtr + row * sizeof(double))
+						= ProcessInformation::ReadValue<double>(address);
+					break;
+				default: //INT32
+					*reinterpret_cast<uint32_t*>(updateArrayPtr + row * sizeof(uint32_t))
+						= ProcessInformation::ReadValue<uint32_t>(address);
 				}
 			}
+			}
 		}
+		
 	}
+}
+
+void MungPlex::Search::updateLivePreviewOnce()
+{
+	updateLivePreviewOnce();
+}
+
+void MungPlex::Search::updateLivePreviewConditional()
+{
+	while (_updateThreadFlag)
+		updateLivePreviewOnce();
 }
 
 void MungPlex::Search::setUpIterationSelect()
@@ -1673,14 +1696,27 @@ void MungPlex::Search::setUpAndIterate()
 
 	for (SystemRegion& dumpRegion : _dumpRegions)
 	{
-		char* buf = new char[dumpRegion.Size];
-		ProcessInformation::GetProcess().ReadMemoryFast(buf, dumpRegion.BaseLocationProcess, dumpRegion.Size, 0x1000);
-		
-		if (_rereorderRegion)
-			Rereorder4BytesReorderedMemory(buf, dumpRegion.Size);
+		std::vector<char> buf(dumpRegion.Size);
 
-		MemoryCompare::MemDump dump(buf, dumpRegion.Base, dumpRegion.Size);
-		delete[] buf;
+		if (ProcessInformation::GetProcessType() == ProcessInformation::CONSOLE)
+		{
+			switch (ProcessInformation::GetConsoleConnectionType())
+			{
+			case ProcessInformation::CON_USBGecko:
+			{
+				ProcessInformation::GetUsbGecko()->Read(buf.data(), dumpRegion.Base, dumpRegion.Size);
+			};
+			}
+		}
+		else
+		{
+			ProcessInformation::GetProcess().ReadMemoryFast(buf.data(), dumpRegion.BaseLocationProcess, dumpRegion.Size, 0x1000);
+		
+			if (_rereorderRegion)
+				Rereorder4BytesReorderedMemory(buf.data(), dumpRegion.Size);
+		}
+
+		MemoryCompare::MemDump dump(buf.data(), dumpRegion.Base, dumpRegion.Size);
 		MemoryCompare::MemCompare::ProcessNextRange(&dump);
 	}
 }

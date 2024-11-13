@@ -51,6 +51,12 @@ namespace MungPlex
             XBOXSERIES, X86, X64, UNK = -1
         };
 
+        enum ConnectionTypeIDs
+        {
+            CON_UNDEF = -1,
+            CON_USBGecko
+        };
+
         static void DrawWindow();
         static void RefreshRegionlistPC();
         static bool ConnectToEmulator(int EmulatorIndex);
@@ -60,6 +66,7 @@ namespace MungPlex
         static const std::vector<EMUPAIR>& GetEmulatorList();
         static const std::vector<std::pair<std::string, int>>& GetConsoleConnectionTypeList();
         static int32_t GetProcessType();
+        static int32_t GetConsoleConnectionType();
         static int32_t GetPID();
         static bool IsX64();
         static bool UnderlyingIsBigEndian();
@@ -87,6 +94,7 @@ namespace MungPlex
         static void ResetWindowTitle();
         static void* GetPointerFromPointerPathExpression(const std::vector<int64_t>& pointerPath, const bool useModule = false, const int64_t moduleAddress = 0);
         static void SetMiscProcessInfo(const std::string processName, const bool bigEndian, const bool rereorder, const int addressWidth, const int alignment);
+        static USBGecko* GetUsbGecko();
 
         template<typename addressType> static addressType GetModuleAddress(const std::wstring& moduleName)
         {
@@ -273,11 +281,6 @@ namespace MungPlex
         };
         int _currentConsoleConnectionType = CON_UNDEF;
         std::shared_ptr<USBGecko> _usbGecko;
-        enum ConnectionTypeIDs
-        {
-            CON_UNDEF = -1,
-            CON_USBGecko
-        };
 
         static inline std::vector<std::pair<std::string, int>> _consoleConnectionTypes
         {
