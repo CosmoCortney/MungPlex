@@ -71,9 +71,6 @@ void MungPlex::Connection::startConnectionCheck()
 
 	_checkConnectionThreadFlag = true;
 	_checkConnectionThread = boost::thread(&MungPlex::Connection::checkConnection, this);
-
-	//std::thread waitNcheck(&MungPlex::Connection::checkConnection, this);
-	//waitNcheck.detach();
 }
 
 void MungPlex::Connection::checkConnection()

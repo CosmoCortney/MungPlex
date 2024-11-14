@@ -852,13 +852,13 @@ void MungPlex::Search::updateLivePreview()
 
 void MungPlex::Search::updateLivePreviewOnce()
 {
-	updateLivePreviewOnce();
+	updateLivePreview();
 }
 
 void MungPlex::Search::updateLivePreviewConditional()
 {
 	while (_updateThreadFlag)
-		updateLivePreviewOnce();
+		updateLivePreview();
 }
 
 void MungPlex::Search::setUpIterationSelect()
