@@ -26,7 +26,7 @@ void MungPlex::Search::DrawWindow()
 
 	if (ImGui::Begin("Search"))
 	{
-		if (!Connection::IsConnected())
+		if (!Connection::IsConnected() || GetInstance()._busySearching)
 			ImGui::BeginDisabled();
 		else
 		{
@@ -49,7 +49,7 @@ void MungPlex::Search::DrawWindow()
 		GetInstance().drawSearchOptions();
 		GetInstance().drawResultsArea();
 
-		if (!Connection::IsConnected())
+		if (!Connection::IsConnected() || GetInstance()._busySearching)
 			ImGui::EndDisabled();
 	}
 	else
@@ -448,7 +448,11 @@ void MungPlex::Search::drawSearchOptions()
 		if (ImGui::Button("Search"))
 		{
 			_searchActive = true;
-			performSearch();
+
+			if (_searchThread.joinable())
+				_searchThread.join();
+
+			_searchThread = boost::thread(&MungPlex::Search::performSearch, this);
 		}
 
 		ImGui::SameLine();
@@ -665,6 +669,7 @@ void MungPlex::Search::drawResultsArea()
 
 void MungPlex::Search::performSearch()
 {
+	_busySearching = true;
 	Log::LogInformation("Search: Iteration " + std::to_string(MemoryCompare::MemCompare::GetIterationCount() + 1));
 
 	if (ProcessInformation::GetProcessType() != ProcessInformation::CONSOLE)
@@ -706,6 +711,8 @@ void MungPlex::Search::performSearch()
 		_updateThreadFlag = true;
 		_updateThread = boost::thread(&MungPlex::Search::updateLivePreviewConditional, this);
 	}
+
+	_busySearching = false;
 }
 
 void MungPlex::Search::updateLivePreview()
@@ -1705,7 +1712,7 @@ void MungPlex::Search::setUpAndIterate()
 			case ProcessInformation::CON_USBGecko:
 			{
 				ProcessInformation::GetUsbGecko()->Read(buf.data(), dumpRegion.Base, dumpRegion.Size);
-			};
+			} break;
 			}
 		}
 		else

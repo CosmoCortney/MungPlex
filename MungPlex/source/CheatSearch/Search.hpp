@@ -211,6 +211,8 @@ namespace MungPlex
         bool _useColorWheel = false;
         std::wstring _resultsPath = {};
         bool _searchActive = false;
+        boost::thread _searchThread;
+        bool _busySearching = false;
 
         //value options
         FloorString _knownValueText = FloorString("", 256);
