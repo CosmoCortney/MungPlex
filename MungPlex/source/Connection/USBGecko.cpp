@@ -1,4 +1,3 @@
-#include <iostream>
 #include <thread>
 #include "USBGecko.hpp"
 #include <vector>
@@ -95,6 +94,21 @@ FT_STATUS MungPlex::USBGecko::Read(char* buf, const uint64_t rangeStart, const u
         return ftStatus;
 
     if ((ftStatus = dump(buf, rangeStart, rangeStart + readSize)) != FT_OK)
+        return ftStatus;
+
+    _connectedAndReady = true;
+    return ftStatus;
+}
+
+FT_STATUS MungPlex::USBGecko::Write(char* buf, const uint64_t rangeStart, const uint64_t writeSize)
+{
+    static FT_STATUS ftStatus = 0;
+    _connectedAndReady = false;
+
+    if ((ftStatus = Init()) != FT_OK)
+        return ftStatus;
+
+    if ((ftStatus = upload(buf, rangeStart, rangeStart + writeSize)) != FT_OK)
         return ftStatus;
 
     _connectedAndReady = true;
@@ -256,13 +270,13 @@ FT_STATUS MungPlex::USBGecko::getCommandResponce(char* out)
     return ftStatus;
 }
 
-FT_STATUS MungPlex::USBGecko::sendDumpInformation(const uint32_t memoryStart, const uint32_t memoryEnd)
+FT_STATUS MungPlex::USBGecko::geckoSetMemoryRegion(const uint32_t memoryStart, const uint32_t memoryEnd)
 {
     static std::vector<char> memoryRange(8); //contains first and last address as big endian each
     *reinterpret_cast<uint32_t*>(memoryRange.data()) = std::byteswap(memoryStart);
     *reinterpret_cast<uint32_t*>(&memoryRange[4]) = std::byteswap(memoryEnd);
 
-    uint64_t bytesWritten = 0;
+    static uint64_t bytesWritten = 0;
     FT_STATUS ftStatus = geckoWrite(memoryRange.data(), 8, reinterpret_cast<LPDWORD>(&bytesWritten));
 
     if(ftStatus != FT_OK)
@@ -332,16 +346,16 @@ FT_STATUS MungPlex::USBGecko::geckoWrite(char* buf, const uint64_t writeSize, LP
 
     FT_STATUS ftStatus = FT_Write(_ftdiHandle, buf, writeSize, bytesWritten);
 
-    if (ftStatus == FT_OK && *bytesWritten > 0)
+    if (*bytesWritten == writeSize)
     {
 #ifndef NDEBUG
-        std::cout << *bytesWritten << "Bytes written\n";
+        std::cout << *bytesWritten << " bytes written\n";
 #endif
     }
     else
     {
 #ifndef NDEBUG
-        std::cout << "No response or failed to write\n";
+        std::cout << "Failed to write all bytes\n";
 #endif
     }
 
@@ -357,17 +371,16 @@ FT_STATUS MungPlex::USBGecko::dump(char* buf, const uint32_t memoryStart, const 
     if (responce != static_cast<char>(GCACK))
         return ftStatus;
 
-    ftStatus = sendDumpInformation(memoryStart, memoryEnd);
+    ftStatus = geckoSetMemoryRegion(memoryStart, memoryEnd);
 
     if (ftStatus != FT_OK)
         return ftStatus;
 
-    std::vector<char> readBuffer(_packetSize);
+    static std::vector<char> readBuffer(_packetSize);
     uint32_t dumpSize = memoryEnd - memoryStart;
     uint32_t fullChunksCount = dumpSize / _packetSize;
     uint32_t lastChunkSize = dumpSize % _packetSize;
-    uint32_t totalChunksCount = (lastChunkSize > 0) ? fullChunksCount + 1 : fullChunksCount;
-    uint64_t bytesReceived = 0;
+    static uint64_t bytesReceived = 0;
 
     if (fullChunksCount == 0)
     {
@@ -394,7 +407,7 @@ FT_STATUS MungPlex::USBGecko::dump(char* buf, const uint32_t memoryStart, const 
         }
 
         std::memcpy(buf, readBuffer.data(), lastChunkSize);
-        sendGeckoCommand(GCACK);
+        ftStatus = sendGeckoCommand(GCACK);
     }
     else
     {
@@ -414,7 +427,7 @@ FT_STATUS MungPlex::USBGecko::dump(char* buf, const uint32_t memoryStart, const 
                 if (ftStatus == FT_OK)
                     break;
 
-                sendGeckoCommand(GCRETRY);
+                ftStatus = sendGeckoCommand(GCRETRY);
                 ++retry;
             }
 
@@ -432,7 +445,98 @@ FT_STATUS MungPlex::USBGecko::dump(char* buf, const uint32_t memoryStart, const 
             else
                 std::memcpy(buf + _packetSize * currentChunk, readBuffer.data(), lastChunkSize);
 
-            sendGeckoCommand(GCACK);
+            ftStatus = sendGeckoCommand(GCACK);
+        }
+    }
+
+    return ftStatus;
+}
+
+FT_STATUS MungPlex::USBGecko::upload(char* buf, const uint32_t memoryStart, const uint32_t memoryEnd)
+{
+    FT_STATUS ftStatus = sendGeckoCommand(cmd_upload);
+    char responce = 0;
+    ftStatus = getCommandResponce(&responce);
+
+    if (responce != static_cast<char>(GCACK))
+        return ftStatus;
+
+    ftStatus = geckoSetMemoryRegion(memoryStart, memoryEnd);
+
+    if (ftStatus != FT_OK)
+        return ftStatus;
+
+    static std::vector<char> writeBuffer(_uplPacketSize);
+    uint32_t uploadSize = memoryEnd - memoryStart;
+    uint32_t fullChunksCount = uploadSize / _uplPacketSize;
+    uint32_t lastChunkSize = uploadSize % _uplPacketSize;
+    static uint64_t bytesWritten = 0;
+
+    if (fullChunksCount == 0)
+    {
+        uint32_t retry = 0;
+        std::memcpy(writeBuffer.data(), buf, lastChunkSize);
+
+        while (retry < 3)
+        {
+            ftStatus = geckoWrite(writeBuffer.data(), lastChunkSize, reinterpret_cast<LPDWORD>(&bytesWritten));
+
+            if (ftStatus == FT_OK)
+                break;
+
+            ftStatus = sendGeckoCommand(GCRETRY);
+            ++retry;
+        }
+
+        if (ftStatus != FT_OK)
+        {
+            sendGeckoCommand(GCFAIL);
+#ifndef NDEBUG
+            std::cout << "Error: Too many tries\n";
+#endif
+            return FT_OTHER_ERROR;
+        }
+
+        ftStatus = sendGeckoCommand(GCACK);
+    }
+    else
+    {
+        for (uint32_t currentChunk = 0; currentChunk <= fullChunksCount; ++currentChunk)
+        {
+            uint32_t retry = 0;
+
+            if (currentChunk < fullChunksCount)
+                std::memcpy(writeBuffer.data(), buf + _packetSize * currentChunk, _packetSize);
+            else
+                std::memcpy(writeBuffer.data(), buf + _packetSize * currentChunk, lastChunkSize);
+
+            while (retry < 3)
+            {
+                wait(10);
+
+                if (currentChunk < fullChunksCount)
+                    ftStatus = geckoWrite(writeBuffer.data(), _packetSize, reinterpret_cast<LPDWORD>(&bytesWritten));
+                else
+                    ftStatus = geckoWrite(writeBuffer.data(), lastChunkSize, reinterpret_cast<LPDWORD>(&bytesWritten));
+
+                if (ftStatus == FT_OK)
+                    break;
+
+                sendGeckoCommand(GCRETRY);
+                ++retry;
+            }
+
+            if (ftStatus != FT_OK)
+            {
+                sendGeckoCommand(GCFAIL);
+#ifndef NDEBUG
+                std::cout << "Error: Too many tries\n";
+#endif
+                return FT_OTHER_ERROR;
+            }
+
+            ftStatus = sendGeckoCommand(GCACK);
+            ftStatus = sendGeckoCommand(GCDONE);
         }
     }
 

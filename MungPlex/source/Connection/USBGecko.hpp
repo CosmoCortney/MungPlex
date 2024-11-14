@@ -10,6 +10,7 @@ The Project can be found here: https://github.com/MasterofGalaxies/geckowii
 */
 
 #pragma once
+#include <iostream>
 #include <string>
 #include "ftd2xx.h"
 #include <windows.h>
@@ -107,6 +108,58 @@ namespace MungPlex
 		RvlStatus GetCurrentStatus();
 		bool IsConnectedAndReady();
 
+		template <typename dataType> FT_STATUS Poke(const dataType pokeVal, const uint64_t address)
+		{
+			static FT_STATUS ftStatus = 0;
+			static uint32_t pokeAddress = 0;
+			pokeAddress = address;
+			static uint64_t bytesWritten = 0;
+			static std::vector<char> pokeAddrValPair(8);
+			*reinterpret_cast<uint32_t*>(pokeAddrValPair.data()) = std::byteswap(pokeAddress);
+			*reinterpret_cast<dataType*>(&pokeAddrValPair[8 - sizeof(dataType)]) = pokeVal;
+
+			if constexpr (std::is_same_v<dataType, int8_t> || std::is_same_v<dataType, uint8_t>)
+			{
+				if ((ftStatus = sendGeckoCommand(cmd_poke08)) != FT_OK)
+					return ftStatus;
+			}
+			else if constexpr (std::is_same_v<dataType, int16_t> || std::is_same_v<dataType, uint16_t>)
+			{
+				if ((ftStatus = sendGeckoCommand(cmd_poke16)) != FT_OK)
+					return ftStatus;
+			}
+			else if constexpr (std::is_same_v<dataType, int32_t> || std::is_same_v<dataType, uint32_t> || std::is_same_v<dataType, float>)
+			{
+				if ((ftStatus = sendGeckoCommand(cmd_pokemem)) != FT_OK)
+					return ftStatus;
+			}
+			else if constexpr (std::is_same_v<dataType, int64_t> || std::is_same_v<dataType, uint64_t> || std::is_same_v<dataType, double>)
+			{
+				static std::vector<char> longVal(8);
+				*reinterpret_cast<dataType*>(longVal.data()) = pokeVal;
+
+				ftStatus = Poke<uint32_t>(*reinterpret_cast<uint32_t*>(longVal.data()), address);
+
+				if (ftStatus != FT_OK)
+					return ftStatus;
+
+				return Poke<uint32_t>(*reinterpret_cast<uint32_t*>(&longVal[4]), address + 4);
+			}
+			else
+				return FT_OTHER_ERROR; //invalid datatype
+
+			ftStatus = geckoWrite(pokeAddrValPair.data(), 8, reinterpret_cast<LPDWORD>(&bytesWritten));
+
+			if (ftStatus != FT_OK)
+			{
+#ifndef NDEBUG
+				std::cout << "Failed to poke value of size " << sizeof(dataType) << '\n';
+#endif
+			}
+				
+			return ftStatus;
+		}
+
 	private:
 		std::string _serialNumber = "GECKUSB0";
 		FT_HANDLE _ftdiHandle = nullptr;
@@ -126,10 +179,11 @@ namespace MungPlex
 		FT_STATUS purge(const uint32_t mask);
 		FT_STATUS sendGeckoCommand(uint8_t cmd);
 		FT_STATUS getCommandResponce(char* out);
-		FT_STATUS sendDumpInformation(const uint32_t memoryStart = 0x80000000, const uint32_t memoryEnd = 0x817FFFFF);
+		FT_STATUS geckoSetMemoryRegion(const uint32_t memoryStart, const uint32_t memoryEnd);
 		FT_STATUS geckoRead(char* buf, const uint64_t readSize, LPDWORD bytesReceived);
 		FT_STATUS geckoWrite(char* buf, const uint64_t writeSize, LPDWORD bytesWritten);
-		FT_STATUS dump(char* buf, const uint32_t memoryStart = 0x80000000, const uint32_t memoryEnd = 0x817FFFFF);
+		FT_STATUS dump(char* buf, const uint32_t memoryStart, const uint32_t memoryEnd);
+		FT_STATUS upload(char* buf, const uint32_t memoryStart, const uint32_t memoryEnd);
 		void wait(const int milliseconds) const;
 	};
 }

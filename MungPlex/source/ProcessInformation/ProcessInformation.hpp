@@ -134,21 +134,37 @@ namespace MungPlex
                         return 0;
 
                     readAddress = reinterpret_cast<void*>(address);
-                }
+                } break;
                 default:
                     readAddress = reinterpret_cast<void*>(address);
             }
 
             if (GetInstance()._processType == CONSOLE)
             {
-                switch (GetInstance()._currentConsoleConnectionType)
+                if constexpr (std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, int8_t>)
                 {
-                    case CON_USBGecko:
-                        GetInstance()._usbGecko->Read(reinterpret_cast<char*>(&readValue), address, sizeof(dataType));
-                        return Xertz::SwapBytes<dataType>(readValue);
-                    default: //CON_UNDEF
-                        return 0;
+                    switch (GetInstance()._currentConsoleConnectionType)
+                    {
+                        case CON_USBGecko:
+                            GetInstance()._usbGecko->Read(reinterpret_cast<char*>(&readValue), address, sizeof(dataType));
+                            return readValue;
+                        default: //CON_UNDEF
+                            return 0;
+                    }
                 }
+                else if constexpr (std::is_integral_v<dataType> || std::is_floating_point_v<dataType>)
+                {
+                    switch (GetInstance()._currentConsoleConnectionType)
+                    {
+                        case CON_USBGecko:
+                            GetInstance()._usbGecko->Read(reinterpret_cast<char*>(&readValue), address, sizeof(dataType));
+                            return Xertz::SwapBytes<dataType>(readValue);
+                        default: //CON_UNDEF
+                            return 0;
+                    }
+                }
+                else
+                    return 0;
             }
 
             if constexpr (std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, int8_t>)
@@ -181,15 +197,54 @@ namespace MungPlex
             void* writeAddress = nullptr;
             dataType writeValue = value;
 
-            if (GetInstance()._processType == EMULATOR)
+            switch (GetInstance()._processType)
             {
-                if (GetRegionIndex(address) == -1)
-                    return;
+                case EMULATOR:
+                {
+                    if (GetRegionIndex(address) == -1)
+                        return;
 
-                writeAddress = reinterpret_cast<void*>(EmuAddrToProcessAddr<uint64_t>(address));
+                    writeAddress = reinterpret_cast<void*>(EmuAddrToProcessAddr<uint64_t>(address));
+                } break;
+                case CONSOLE:
+                {
+                    if (GetRegionIndex(address) == -1)
+                        return;
+
+                    writeAddress = reinterpret_cast<void*>(address);
+                } break;
+                default: //PC
+                    writeAddress = reinterpret_cast<void*>(address);
             }
-            else
-                writeAddress = reinterpret_cast<void*>(address);
+                
+            if (GetInstance()._processType == CONSOLE)
+            {
+                if constexpr (std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, int8_t>)
+                {
+                    switch (GetInstance()._currentConsoleConnectionType)
+                    {
+                        case CON_USBGecko:
+                            GetInstance()._usbGecko->Poke(writeValue, address);
+                            return;
+                        default: //CON_UNDEF
+                            return;
+                    }
+                }
+                else if constexpr (std::is_integral_v<dataType> || std::is_floating_point_v<dataType>)
+                {
+                    switch (GetInstance()._currentConsoleConnectionType)
+                    {
+                        case CON_USBGecko:
+                            writeValue = Xertz::SwapBytes<dataType>(writeValue);
+                            GetInstance()._usbGecko->Poke(writeValue, address);
+                            return;
+                        default: //CON_UNDEF
+                            return;
+                    }
+                }
+                else
+                    return;
+            }
 
             if constexpr (std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, int8_t>)
             {
