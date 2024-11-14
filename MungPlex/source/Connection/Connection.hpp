@@ -1,5 +1,7 @@
 #pragma once
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
+#include <boost/atomic.hpp>
 #include "MemoryViewer.hpp"
 #include "Discord.hpp"
 
@@ -35,6 +37,8 @@ namespace MungPlex
         std::string _connectionMessage = "Not connected...";
         std::vector<MemoryViewer> _memoryViewers;
         DiscordRPC _discord;
+        boost::thread _checkConnectionThread;
+        boost::atomic<bool> _checkConnectionThreadFlag = false;
 
         void drawConnectionSelect();
         void startConnectionCheck();

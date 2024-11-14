@@ -64,15 +64,23 @@ MungPlex::DiscordRPC MungPlex::Connection::GetDiscordRichPresence()
 
 void MungPlex::Connection::startConnectionCheck()
 {
-	std::thread waitNcheck(&MungPlex::Connection::checkConnection, this);
-	waitNcheck.detach();
+	_checkConnectionThreadFlag = false;
+
+	if (_checkConnectionThread.joinable())
+		_checkConnectionThread.join();
+
+	_checkConnectionThreadFlag = true;
+	_checkConnectionThread = boost::thread(&MungPlex::Connection::checkConnection, this);
+
+	//std::thread waitNcheck(&MungPlex::Connection::checkConnection, this);
+	//waitNcheck.detach();
 }
 
 void MungPlex::Connection::checkConnection()
 {
-	static const auto millisecondsToWait = std::chrono::seconds(1);
+	static const auto millisecondsToWait = std::chrono::milliseconds(1000);
 
-	while (_connected)
+	while (_checkConnectionThreadFlag)
 	{
 		std::this_thread::sleep_for(millisecondsToWait);
 		_connected = ProcessInformation::IsConnectionValid();
