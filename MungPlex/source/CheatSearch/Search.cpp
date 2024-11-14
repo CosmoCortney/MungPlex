@@ -1052,7 +1052,7 @@ void MungPlex::Search::drawResultsTableNew()
 	else
 		literal = GetStringLiteral(_currentArrayTypeSelect, _signed, _hex);
 
-	for (int row = 0; row < resultCount; ++row)
+	for (int row = 0; row < resultCount && !_busySearching; ++row)
 	{
 		if (row >= _maxResultsPerPage)
 			break;
