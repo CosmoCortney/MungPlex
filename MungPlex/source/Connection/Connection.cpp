@@ -83,6 +83,7 @@ void MungPlex::Connection::checkConnection()
 		_connected = ProcessInformation::IsConnectionValid();
 	}
 
+	_connected = false;
 	ProcessInformation::ResetWindowTitle();
 }
 
@@ -93,9 +94,13 @@ void MungPlex::Connection::drawEmulatorsTabItem()
 	if (ImGui::BeginTabItem("Emulator"))
 	{
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
-		SetUpCombo("Emulator:", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex, 1.0f, 0.35f, true, "Emulators are always in development and therefore crucial things may change that will prevent MungPlex from finding the needed memory regions and game ID. If this is the case report it at the MungPlex discord server so it can be fixed :)");
+
+		SetUpCombo("Emulator:", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex, 1.0f, 0.5f, true, "Emulators are always in development and therefore crucial things may change that will prevent MungPlex from finding the needed memory regions and game ID. If this is the case report it at the MungPlex discord server so it can be fixed :)");
 
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+		bool disable = _checkConnectionThreadFlag;
+		if (disable) ImGui::BeginDisabled();
 
 		if (ImGui::Button("Connect"))
 		{
@@ -117,7 +122,11 @@ void MungPlex::Connection::drawEmulatorsTabItem()
 
 				startConnectionCheck();
 			}
-		}
+		} if (disable) ImGui::EndDisabled();
+
+		ImGui::SameLine();
+
+		drawDisconnectButton();
 
 		if (_selectedEmulatorIndex == ProcessInformation::MESEN || _selectedEmulatorIndex == ProcessInformation::LIME3DS || _selectedEmulatorIndex == ProcessInformation::RPCS3 || _selectedEmulatorIndex == ProcessInformation::YUZU)
 		{
@@ -164,20 +173,27 @@ void MungPlex::Connection::drawAppTabItem()
 
 			if (ImGui::BeginTabItem("Applications"))
 			{
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				app = true;
-				SetUpCombo("Application:", Xertz::SystemInfo::GetApplicationProcessInfoList(), _selectedApplicationProcessIndex, 0.75f, 0.4f);
+				SetUpCombo("Application:", Xertz::SystemInfo::GetApplicationProcessInfoList(), _selectedApplicationProcessIndex, 1.0f, 0.5f);
 				ImGui::EndTabItem();
 			}
 
 			if (ImGui::BeginTabItem("Processes"))
 			{
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				app = false;
-				SetUpCombo("Process:", Xertz::SystemInfo::GetProcessInfoList(), _selectedProcessIndex, 0.75f, 0.4f);
+				SetUpCombo("Process:", Xertz::SystemInfo::GetProcessInfoList(), _selectedProcessIndex, 1.0f, 0.5f);
 				ImGui::EndTabItem();
 			}
 
 			ImGui::EndTabBar();
 		}
+
+		bool disable = _checkConnectionThreadFlag;
+		if (disable) ImGui::BeginDisabled();
+
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 		if (ImGui::Button("Connect"))
 		{
@@ -197,7 +213,11 @@ void MungPlex::Connection::drawAppTabItem()
 			}
 
 			startConnectionCheck();
-		}
+		} if (disable) ImGui::EndDisabled();
+		
+		ImGui::SameLine();
+		
+		drawDisconnectButton();
 
 		ImGui::SameLine();
 
@@ -216,7 +236,11 @@ void MungPlex::Connection::drawConsoleTabItem()
 	if (ImGui::BeginTabItem("Real Console"))
 	{
 		static int sel = 0;
-		SetUpCombo("Connection Type:", ProcessInformation::GetConsoleConnectionTypeList(), sel, 1.0f, 0.35f);
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
+		SetUpCombo("Connection Type:", ProcessInformation::GetConsoleConnectionTypeList(), sel, 1.0f, 0.5f);
+
+		bool disable = _checkConnectionThreadFlag;
+		if (disable) ImGui::BeginDisabled();
 
 		if (ImGui::Button("Connect"))
 		{
@@ -237,8 +261,28 @@ void MungPlex::Connection::drawConsoleTabItem()
 
 				startConnectionCheck();
 			}
-		}
+		} if (disable) ImGui::EndDisabled();
 
+		ImGui::SameLine();
+		drawDisconnectButton();
 		ImGui::EndTabItem();
 	}
+}
+
+void MungPlex::Connection::drawDisconnectButton()
+{
+	static bool disable = true;
+	disable = !_checkConnectionThreadFlag;
+
+	if (disable) ImGui::BeginDisabled();
+
+	if (ImGui::Button("Disconnect"))
+	{
+		_connected = false;
+		_checkConnectionThreadFlag = false;
+
+		if (_checkConnectionThread.joinable())
+			_checkConnectionThread.detach();
+	}
+	if (disable) ImGui::EndDisabled();
 }
