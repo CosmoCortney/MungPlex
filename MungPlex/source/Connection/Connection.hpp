@@ -2,7 +2,6 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/atomic.hpp>
-#include <boost/thread/condition_variable.hpp>
 #include "MemoryViewer.hpp"
 #include "Discord.hpp"
 
@@ -40,8 +39,6 @@ namespace MungPlex
         DiscordRPC _discord;
         boost::thread _checkConnectionThread;
         boost::atomic<bool> _checkConnectionThreadFlag = false;
-        boost::mutex _mutex;
-        boost::condition_variable _cv;
 
         void drawConnectionSelect();
         void startConnectionCheck();

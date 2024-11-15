@@ -26,5 +26,6 @@ namespace MungPlex
         FloorString _name = FloorString("", 128);
         bool _delete = false;
         bool _active = false;
+
     };
 }

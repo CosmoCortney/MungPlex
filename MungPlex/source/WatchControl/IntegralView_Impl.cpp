@@ -26,6 +26,26 @@ MungPlex::IntegralView::IntegralView(const int id, const nlohmann::json elem)
 	_formatPlot = _hex ? "%llX/%llX" : "%lld/%lld";
 }
 
+MungPlex::IntegralView::IntegralView(const IntegralView& other)
+{
+	assign(other);
+}
+
+MungPlex::IntegralView& MungPlex::IntegralView::operator=(const IntegralView& other)
+{
+	return *this;
+}
+
+MungPlex::IntegralView::IntegralView(IntegralView&& other) noexcept
+{
+	assign(other);
+}
+
+MungPlex::IntegralView& MungPlex::IntegralView::operator=(IntegralView&& other) noexcept
+{
+	return *this;
+}
+
 nlohmann::json MungPlex::IntegralView::GetJSON()
 {
 	nlohmann::json elemJson = GetBasicJSON();
@@ -60,52 +80,44 @@ void MungPlex::IntegralView::Draw()
 		WatchControl::DeleteItem(_id);
 }
 
+void MungPlex::IntegralView::assign(const IntegralView& other)
+{
+	_moduleW = other._moduleW;
+	_module = other._module;
+	_pointerPathText = other._pointerPathText;
+	_label = other._label;
+	_pointerPath = other._pointerPath;
+	_useModulePath = other._useModulePath;
+	_moduleAddress = other._moduleAddress;
+	_freeze = other._freeze;
+	_active = other._active;
+	_enableSignal = other._enableSignal;
+	_disableSignal = other._disableSignal;
+	_id = other._id;
+	_delete = other._delete;
+	_idText = other._idText;
+	_rangeMin = other._rangeMin;
+	_rangeMax = other._rangeMax;
+	_typeSelect = other._typeSelect;
+
+	_val = other._val;
+	_hex = other._hex;
+	_plotCount = other._plotCount;
+	_plotVals = other._plotVals;
+	_plotMin = other._plotMin;
+	_plotMax = other._plotMax;
+	_plotMinF = other._plotMinF;
+	_plotMaxF = other._plotMaxF;
+	_plotBuf = other._plotBuf;
+	_formatPlot = other._formatPlot;
+	_format = other._format;
+}
+
 void MungPlex::IntegralView::drawValueSetup(const float itemWidth, const float itemHeight, const int type)
 {
 	ImGui::BeginChild("child_view", ImVec2(itemWidth * 0.5f, itemHeight * 1.5f), true);
 	{
-		if (_active)
-		{
-			uint64_t valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
-
-			if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
-			{
-				if (_freeze)
-				{
-					switch (_typeSelect)
-					{
-					case ImGuiDataType_S8: case ImGuiDataType_U8:
-						ProcessInformation::WriteValue<uint8_t>(valptr, _val);
-						break;
-					case ImGuiDataType_S16: case ImGuiDataType_U16:
-						ProcessInformation::WriteValue<uint16_t>(valptr, _val);
-						break;
-					case ImGuiDataType_S32: case ImGuiDataType_U32:
-						ProcessInformation::WriteValue<uint32_t>(valptr, _val);
-						break;
-					default:
-						ProcessInformation::WriteValue<uint64_t>(valptr, _val);
-					}
-				}
-				else
-				{
-					switch (_typeSelect)
-					{
-					case ImGuiDataType_S8: case ImGuiDataType_U8:
-						_val = ProcessInformation::ReadValue<uint8_t>(valptr);
-						break;
-					case ImGuiDataType_S16: case ImGuiDataType_U16:
-						_val = ProcessInformation::ReadValue<uint16_t>(valptr);
-						break;
-					case ImGuiDataType_S32: case ImGuiDataType_U32:
-						_val = ProcessInformation::ReadValue<uint32_t>(valptr);
-						break;
-					default:
-						_val = ProcessInformation::ReadValue<uint64_t>(valptr);
-					}
-				}
-			}
-		}
+		manageProcessValueThread();
 
 		if (ImGui::Checkbox("Hex", &_hex))
 			setFormatting();
@@ -195,4 +207,68 @@ void MungPlex::IntegralView::setFormatting()
 	}
 
 	_formatPlot = _hex ? "%llX/%llX" : "%lld/%lld";
+}
+
+void MungPlex::IntegralView::processValue()
+{
+	while (_processValueThreadFlag)
+	{
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(13));
+		uint64_t valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
+
+		if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
+		{
+			if (_freeze)
+			{
+				switch (_typeSelect)
+				{
+				case ImGuiDataType_S8: case ImGuiDataType_U8:
+					ProcessInformation::WriteValue<uint8_t>(valptr, _val);
+					break;
+				case ImGuiDataType_S16: case ImGuiDataType_U16:
+					ProcessInformation::WriteValue<uint16_t>(valptr, _val);
+					break;
+				case ImGuiDataType_S32: case ImGuiDataType_U32:
+					ProcessInformation::WriteValue<uint32_t>(valptr, _val);
+					break;
+				default:
+					ProcessInformation::WriteValue<uint64_t>(valptr, _val);
+				}
+			}
+			else
+			{
+				switch (_typeSelect)
+				{
+				case ImGuiDataType_S8: case ImGuiDataType_U8:
+					_val = ProcessInformation::ReadValue<uint8_t>(valptr);
+					break;
+				case ImGuiDataType_S16: case ImGuiDataType_U16:
+					_val = ProcessInformation::ReadValue<uint16_t>(valptr);
+					break;
+				case ImGuiDataType_S32: case ImGuiDataType_U32:
+					_val = ProcessInformation::ReadValue<uint32_t>(valptr);
+					break;
+				default:
+					_val = ProcessInformation::ReadValue<uint64_t>(valptr);
+				}
+			}
+		}
+	}
+}
+
+void MungPlex::IntegralView::manageProcessValueThread()
+{
+	if (_enableSignal || _disableSignal)
+	{
+		_processValueThreadFlag = false;
+
+		if (_processValueThread.joinable())
+			_processValueThread.detach();
+	}
+
+	if (_enableSignal)
+	{
+		_processValueThread = boost::thread(&MungPlex::IntegralView::processValue, this);
+		_processValueThreadFlag = true;
+	}
 }

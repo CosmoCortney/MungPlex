@@ -72,6 +72,7 @@ bool MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHe
 	ImGui::BeginChild("child_setup", ImVec2(itemWidth * 0.15f, itemHeight * 1.5f), true);
 	{
 		SetUpInputText("Title:", _label.Data(), _label.Size(), 1.0f, 0.3f);
+		_enableSignal = _disableSignal = false;
 
 		if (ImGui::Checkbox("Active", &_active))
 		{
@@ -84,6 +85,9 @@ bool MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHe
 				if(_useModulePath)
 					_moduleAddress = ProcessInformation::GetModuleAddress<uint64_t>(_moduleW);
 			}
+
+			_enableSignal = _active;
+			_disableSignal = !_enableSignal;
 		}
 
 

@@ -3,6 +3,8 @@
 #include "nlohmann/json.hpp"
 #include <string>
 #include <vector>
+#include <boost/thread.hpp>
+#include <boost/atomic.hpp>
 
 namespace MungPlex
 {
@@ -35,15 +37,21 @@ namespace MungPlex
         uint64_t _moduleAddress = 0;
         bool _freeze = false;
         bool _active = false;
+        bool _enableSignal = false;
+        bool _disableSignal = false;
         int _id;
         bool _delete = false;
         std::string _idText;
         uint64_t _rangeMin = 0;
         uint64_t _rangeMax = 0;
         int _typeSelect = 0;
+        boost::thread _processValueThread;
+        boost::atomic<bool> _processValueThreadFlag = false;
 
         virtual void drawValueSetup(const float itemWidth, const float itemHeight, const int type) = 0;
         virtual void drawPlotArea(const float itemWidth, const float itemHeight, const int type) = 0;
+        virtual void processValue() = 0;
+        virtual void manageProcessValueThread() = 0;
 
     private:
         bool drawGeneralSetup(const float itemWidth, const float itemHeight, const int type);

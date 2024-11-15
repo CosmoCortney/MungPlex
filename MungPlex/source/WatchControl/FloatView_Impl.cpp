@@ -21,6 +21,26 @@ MungPlex::FloatView::FloatView(const int id, const nlohmann::json elem)
 	_plotVals.resize(_plotCount);
 }
 
+MungPlex::FloatView::FloatView(const FloatView& other)
+{
+	assign(other);
+}
+
+MungPlex::FloatView& MungPlex::FloatView::operator=(const FloatView& other)
+{
+	return *this;
+}
+
+MungPlex::FloatView::FloatView(FloatView&& other) noexcept
+{
+	assign(other);
+}
+
+MungPlex::FloatView& MungPlex::FloatView::operator=(FloatView&& other) noexcept
+{
+	return *this;
+}
+
 void MungPlex::FloatView::Draw()
 {
 	float itemWidth = ImGui::GetContentRegionAvail().x;
@@ -50,38 +70,41 @@ nlohmann::json MungPlex::FloatView::GetJSON()
 	return elemJson;
 }
 
+void MungPlex::FloatView::assign(const FloatView& other)
+{
+	_moduleW = other._moduleW;
+	_module = other._module;
+	_pointerPathText = other._pointerPathText;
+	_label = other._label;
+	_pointerPath = other._pointerPath;
+	_useModulePath = other._useModulePath;
+	_moduleAddress = other._moduleAddress;
+	_freeze = other._freeze;
+	_active = other._active;
+	_enableSignal = other._enableSignal;
+	_disableSignal = other._disableSignal;
+	_id = other._id;
+	_delete = other._delete;
+	_idText = other._idText;
+	_rangeMin = other._rangeMin;
+	_rangeMax = other._rangeMax;
+	_typeSelect = other._typeSelect;
+
+	_val = other._val;
+	DoublePrecision = other.DoublePrecision;
+	_useSlider = other._useSlider;
+	_min = other._min;
+	_max = other._max;
+	_plotCount = other._plotCount;
+	_plotVals = other._plotVals;
+	_plotMin = other._plotMin;
+	_plotMax = other._plotMax;
+	_plotBuf = other._plotBuf;
+}
+
 void MungPlex::FloatView::drawValueSetup(const float itemWidth, const float itemHeight, const int type)
 {
-	if (_active)
-	{
-		uint64_t valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
-
-		if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
-		{
-			if (_freeze)
-			{
-				switch (s_FloatTypes[_typeSelect].second)
-				{
-				case ImGuiDataType_Double:
-					ProcessInformation::WriteValue<double>(valptr, _val);
-					break;
-				default: // float
-					ProcessInformation::WriteValue<float>(valptr, static_cast<float>(_val));
-				}
-			}
-			else
-			{
-				switch (s_FloatTypes[_typeSelect].second)
-				{
-				case ImGuiDataType_Double:
-					_val = ProcessInformation::ReadValue<double>(valptr);
-					break;
-				default: // float
-					_val = static_cast<double>(ProcessInformation::ReadValue<float>(valptr));
-				}
-			}
-		}
-	}
+	manageProcessValueThread();
 
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(itemWidth * 0.15f);
@@ -141,4 +164,56 @@ void MungPlex::FloatView::drawPlotArea(const float itemWidth, const float itemHe
 			ImGui::ProgressBar(progVal, ImVec2(0.0f, 0.0f), _plotBuf.data());
 	}
 	ImGui::EndChild();
+}
+
+void MungPlex::FloatView::processValue()
+{
+	while (_processValueThreadFlag)
+	{
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(13));
+		uint64_t valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
+
+		if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
+		{
+			if (_freeze)
+			{
+				switch (s_FloatTypes[_typeSelect].second)
+				{
+				case ImGuiDataType_Double:
+					ProcessInformation::WriteValue<double>(valptr, _val);
+					break;
+				default: // float
+					ProcessInformation::WriteValue<float>(valptr, static_cast<float>(_val));
+				}
+			}
+			else
+			{
+				switch (s_FloatTypes[_typeSelect].second)
+				{
+				case ImGuiDataType_Double:
+					_val = ProcessInformation::ReadValue<double>(valptr);
+					break;
+				default: // float
+					_val = static_cast<double>(ProcessInformation::ReadValue<float>(valptr));
+				}
+			}
+		}
+	}
+}
+
+void MungPlex::FloatView::manageProcessValueThread()
+{
+	if (_enableSignal || _disableSignal)
+	{
+		_processValueThreadFlag = false;
+
+		if (_processValueThread.joinable())
+			_processValueThread.detach();
+	}
+
+	if (_enableSignal)
+	{
+		_processValueThread = boost::thread(&MungPlex::FloatView::processValue, this);
+		_processValueThreadFlag = true;
+	}
 }
