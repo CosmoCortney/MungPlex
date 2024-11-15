@@ -14,12 +14,16 @@ The Project can be found here: https://github.com/MasterofGalaxies/geckowii
 #include <string>
 #include "ftd2xx.h"
 #include <windows.h>
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 namespace MungPlex
 {
 	class USBGecko
 	{
 	public:
+		static boost::mutex s_AccessMutex;
+
 		enum GeckoCommands : uint8_t
 		{
 			cmd_poke08 = 0x01,
@@ -110,6 +114,7 @@ namespace MungPlex
 
 		template <typename dataType> FT_STATUS Poke(const dataType pokeVal, const uint64_t address)
 		{
+			boost::lock_guard<boost::mutex> lock(s_AccessMutex);
 			static FT_STATUS ftStatus = 0;
 			static uint32_t pokeAddress = 0;
 			pokeAddress = address;

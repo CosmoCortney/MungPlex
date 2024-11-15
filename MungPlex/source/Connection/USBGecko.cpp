@@ -3,6 +3,8 @@
 #include <vector>
 #pragma comment(lib, "setupapi.lib")
 
+boost::mutex MungPlex::USBGecko::s_AccessMutex;
+
 MungPlex::USBGecko::~USBGecko()
 {
     resetDevice();
@@ -21,6 +23,7 @@ FT_STATUS MungPlex::USBGecko::Init()
 
 FT_STATUS MungPlex::USBGecko::Connect()
 {
+    boost::lock_guard<boost::mutex> lock(s_AccessMutex);
     static FT_STATUS ftStatus = 0;
 
     if (_connectedAndReady)
@@ -73,6 +76,7 @@ FT_STATUS MungPlex::USBGecko::Connect()
 
 FT_STATUS MungPlex::USBGecko::Reset()
 {
+    boost::lock_guard<boost::mutex> lock(s_AccessMutex);
     static FT_STATUS ftStatus = 0;
     if ((ftStatus = resetDevice()) != FT_OK) return ftStatus; //Assignmens are intentional
     if ((ftStatus = purge(1)) != FT_OK) return ftStatus; //RX
@@ -81,14 +85,18 @@ FT_STATUS MungPlex::USBGecko::Reset()
 
 FT_STATUS MungPlex::USBGecko::Disconnect()
 {
+    boost::lock_guard<boost::mutex> lock(s_AccessMutex);
     _connectedAndReady = false;
     return closeUsbGecko();
 }
 
 FT_STATUS MungPlex::USBGecko::Read(char* buf, const uint64_t rangeStart, const uint64_t readSize)
 {
+    boost::lock_guard<boost::mutex> lock(s_AccessMutex);
     static FT_STATUS ftStatus = 0;
-    _connectedAndReady = false;
+
+    if(readSize > 8)
+        _connectedAndReady = false;
 
     if ((ftStatus = Init()) != FT_OK) 
         return ftStatus;
@@ -102,6 +110,7 @@ FT_STATUS MungPlex::USBGecko::Read(char* buf, const uint64_t rangeStart, const u
 
 FT_STATUS MungPlex::USBGecko::Write(char* buf, const uint64_t rangeStart, const uint64_t writeSize)
 {
+    boost::lock_guard<boost::mutex> lock(s_AccessMutex);
     static FT_STATUS ftStatus = 0;
     _connectedAndReady = false;
 
@@ -117,6 +126,7 @@ FT_STATUS MungPlex::USBGecko::Write(char* buf, const uint64_t rangeStart, const 
 
 FT_STATUS MungPlex::USBGecko::Unfreeze()
 {
+    boost::lock_guard<boost::mutex> lock(s_AccessMutex);
     static FT_STATUS ftStatus = 0;
     if ((ftStatus = sendGeckoCommand(cmd_unfreeze)) != FT_OK)
     {
@@ -550,6 +560,7 @@ void MungPlex::USBGecko::wait(const int milliseconds) const
 
 MungPlex::USBGecko::RvlStatus MungPlex::USBGecko::GetCurrentStatus()
 {
+    boost::lock_guard<boost::mutex> lock(s_AccessMutex);
     static FT_STATUS ftStatus = 0;
 
     if ((ftStatus = Init()) != FT_OK)
