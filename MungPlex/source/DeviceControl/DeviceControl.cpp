@@ -104,7 +104,7 @@ void MungPlex::DeviceControl::drawList()
 	{
 		static int typeSelect = 0;
 
-		SetUpCombo("New Device Type:", IDevice::s_DeviceTypes, typeSelect, 0.3f);
+		SetUpPairCombo(IDevice::s_DeviceTypes, &typeSelect, 0.3f);
 
 		ImGui::SameLine();
 
@@ -121,7 +121,7 @@ void MungPlex::DeviceControl::drawList()
 				}
 			}
 
-			switch (IDevice::s_DeviceTypes[typeSelect].second)
+			switch (IDevice::s_DeviceTypes.GetId(typeSelect))
 			{
 			case IDevice::LOVENSE:
 				_devices.emplace_back(IDevice::LOVENSE, DeviceLovense(_devices.size()));

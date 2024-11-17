@@ -18,15 +18,7 @@ MungPlex::DeviceLovense::DeviceLovense(const int id, const nlohmann::json& json)
 	_deviceTypeID = IDevice::LOVENSE;
 	_valueType = json["valueType"];
 	_name = json["name"];
-
-	for (int i = 0; i < s_ValueTypes.size(); ++i)
-	{
-		if (s_ValueTypes[i].second == _valueType)
-		{
-			_valueTypeIndex = i;
-			break;
-		}
-	}
+	_valueTypeIndex = s_ValueTypes.GetIndexById(_valueType);
 
 	switch (_valueType)
 	{
@@ -293,8 +285,8 @@ void MungPlex::DeviceLovense::drawToyInfo()
 
 void MungPlex::DeviceLovense::drawValueTypeOptions()
 {
-	if (SetUpCombo("Value Type:", s_ValueTypes, _valueTypeIndex, 0.5f))
-		_valueType = s_ValueTypes[_valueTypeIndex].second;
+	if (SetUpPairCombo(s_ValueTypes, &_valueTypeIndex, 0.5f))
+		_valueType = s_ValueTypes.GetId(_valueTypeIndex);
 
 	if(_valueType != BOOL)
 		ImGui::SameLine();

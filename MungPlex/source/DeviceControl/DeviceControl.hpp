@@ -37,6 +37,5 @@ namespace MungPlex
 
         void drawList();
         bool saveList();
-
 	};
 }

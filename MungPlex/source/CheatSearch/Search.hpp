@@ -23,7 +23,6 @@
 #include "OperativeArray.hpp"
 #include "Settings.hpp"
 #include <stdio.h>
-#include <string>
 #include <thread>
 
 typedef MemoryCompare::MemCompare MC;
@@ -88,109 +87,22 @@ namespace MungPlex
             return Instance;
         }
 
-        const std::vector<std::pair<std::string, int>> _searchValueTypes
-        {
-            { "Primitive", PRIMITIVE },
-            { "Array", ARRAY },
-            { "Text", TEXT },
-            { "Color", COLOR }
-        };
-
-        const std::vector<std::pair<std::string, int>> _endiannesses
-        {
-            { "Little", LITTLE },
-            { "Big", BIG }
-        };
-
-        const std::vector<std::pair<std::string, int>> _searchPrimitiveTypes
-        { 
-            { "Int 8 (1 Byte)", INT8 },
-            { "Int 16 (2 Bytes)", INT16 },
-            { "Int 32 (4 Bytes)", INT32 }, 
-            { "Int 64 (8 Bytes)", INT64 },
-            { "Float Single", FLOAT },
-            { "Float Double", DOUBLE } 
-        };
-        
-        const std::vector<std::pair<std::string, int>> _searchArrayTypes
-        {
-            { "Int 8 (1 Byte)", INT8 },
-            { "Int 16 (2 Bytes)", INT16 },
-            { "Int 32 (4 Bytes)", INT32 },
-            { "Int 64 (8 Bytes)", INT64 }
-        }; //remove once Arrays support floats
-
-        const std::vector<std::pair<std::string, int>> _searchColorTypes
-        {
-            { "RGB 888 (3 Bytes)", LitColor::RGB888 },
-            { "RGBA 8888 (4 Bytes)", LitColor::RGBA8888 },
-            { "RGBF (3 Floats)", LitColor::RGBF },
-            { "RGBAF (4 Floats)", LitColor::RGBAF },
-            { "RGB 565 (2 Bytes)", LitColor::RGB565 },
-            { "RGB 5A3 (2 Bytes)", LitColor::RGB5A3 }
-        };
-
-        const std::vector<std::pair<std::string, int>> _searchConditionTypes
-        {
-            { "Equal (==)", MemoryCompare::EQUAL },
-            { "Unequal (!=)", MemoryCompare::UNEQUAL },
-            { "Greater (>)", MemoryCompare::GREATER },
-            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL },
-            { "Lower (<)", MemoryCompare::LOWER },
-            { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL },
-            { "Increased by", MemoryCompare::INCREASED_BY },
-            { "Decreased by", MemoryCompare::DECREASED_BY },
-            { "Value Between", MemoryCompare::BETWEEN },
-            { "Value Not Between", MemoryCompare::NOT_BETWEEN },
-            { "AND (has all true bits)", MemoryCompare::AND },
-            { "OR (has at least 1 true bit)", MemoryCompare::OR }
-        };
-
-        const std::vector<std::pair<std::string, int>> _searchConditionTypesArray
-        {
-            { "Equal (==)", MemoryCompare::EQUAL }, 
-            { "Unequal (!=)", MemoryCompare::UNEQUAL }
-        };
-
-        const std::vector<std::pair<std::string, int>> _searchConditionTypesFloat
-        {
-            { "Equal (==)", MemoryCompare::EQUAL },
-            { "Unequal (!=)", MemoryCompare::UNEQUAL },
-            { "Greater (>)", MemoryCompare::GREATER },
-            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL },
-            { "Lower (<)", MemoryCompare::LOWER },
-            { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL },
-            { "Increased by", MemoryCompare::INCREASED_BY },
-            { "Decreased by", MemoryCompare::DECREASED_BY },
-            { "Value Between", MemoryCompare::BETWEEN },
-            { "Value Not Between", MemoryCompare::NOT_BETWEEN }
-        };
-
-        const std::vector<std::pair<std::string, int>> _searchConditionTypesColor
-        {
-            { "Equal (==)", MemoryCompare::EQUAL },
-            { "Unequal (!=)", MemoryCompare::UNEQUAL },
-            { "Greater (>)", MemoryCompare::GREATER },
-            { "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL },
-            { "Lower (<)", MemoryCompare::LOWER },
-            { "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL }
-        };
-
-        const std::vector<std::pair<std::string, int>> _searchConditionTypesText{
-            { "Equal (==)", MemoryCompare::EQUAL }
-        };
-
-        const std::vector<std::pair<std::string, int>> _searchComparasionType
-        {
-            { "Unknown/Initial", 0 },
-            { "Known Value", MemoryCompare::KNOWN }
-        };
-
-        int _currentcomparisonTypeSelect = 0;
-        int _currentConditionTypeSelect = 0;
+        static const StringIdPairs _searchValueTypes;
+        static const StringIdPairs _endiannesses;
+        static const StringIdPairs _searchPrimitiveTypes;
+        static const StringIdPairs _searchArrayTypes;
+        static const StringIdPairs _searchColorTypes;
+        static const StringIdPairs _searchConditionTypes;
+        static const StringIdPairs _searchConditionTypesArray;
+        static const StringIdPairs _searchConditionTypesFloat;
+        static const StringIdPairs _searchConditionTypesColor;
+        static const StringIdPairs _searchConditionTypesText;
+        static const StringIdPairs _searchComparasionType;
         ImVec4 _colorVec;
 
         //search settings
+        int _currentcomparisonTypeSelect = 0;
+        int _currentConditionTypeSelect = 0;
         int _alignmentValue = 4;
         int _lastRangeSelect = -1;
         bool _signed = false;
@@ -217,7 +129,7 @@ namespace MungPlex
         //value options
         FloorString _knownValueText = FloorString("", 256);
         FloorString _secondaryKnownValueText = FloorString("", 256);
-        std::vector<std::string> _iterations;
+        StringIdPairs _iterations = { {}, {}, "Counter Iteration:"};
         int _iterationIndex = 0;
         bool _updateLabels = true;
 
@@ -330,7 +242,7 @@ namespace MungPlex
                     }
                 }
 
-                Log::LogInformation((std::string("Multi-poked ") + TextTypes[_currentTextTypeIndex].first + " text values").c_str());
+                Log::LogInformation((std::string("Multi-poked ") + TextTypes.GetStdStringById(_currentTextTypeIndex) + " text values").c_str());
                 return true;
             }
 
@@ -356,7 +268,7 @@ namespace MungPlex
                             success = WriteTextEx(pid, pokeValue.GetString<char*>(_currentTextTypeSelect), address);
                     }
 
-                    Log::LogInformation((std::string("Poked ") + TextTypes[_currentTextTypeIndex].first + " text value").c_str());
+                    Log::LogInformation((std::string("Poked ") + TextTypes.GetStdStringById(_currentTextTypeIndex) + " text value").c_str());
                     return success;
                 }
             }
@@ -416,7 +328,7 @@ namespace MungPlex
                     }
                 }
 
-                Log::LogInformation((std::string("Multi-poked ") + _searchColorTypes[_currentColorTypeSelect].first + " color values").c_str());
+                Log::LogInformation((std::string("Multi-poked ") + _searchColorTypes.GetStdStringById(_currentColorTypeSelect) + " color values").c_str());
                 return true;
             }
 
@@ -489,7 +401,7 @@ namespace MungPlex
                             ProcessInformation::WriteValue<uType>(address + sizeof(uType) * i, pokeArray[i]);
                 }
 
-                Log::LogInformation((std::string("Multi-poked ") + _searchArrayTypes[_currentArrayTypeSelect].first + " array values").c_str());
+                Log::LogInformation((std::string("Multi-poked ") + _searchArrayTypes.GetStdStringById(_currentArrayTypeSelect) + " array values").c_str());
                 return true;
             }
             
@@ -497,7 +409,7 @@ namespace MungPlex
                 if (!pokeArray.IsIgnoredIndex(i))
                     ProcessInformation::WriteValue<uType>(_pokeAddress + sizeof(uType) * i, pokeArray[i]);
 
-            Log::LogInformation((std::string("Poked ") + _searchArrayTypes[_currentArrayTypeSelect].first + " array value").c_str());
+            Log::LogInformation((std::string("Poked ") + _searchArrayTypes.GetStdStringById(_currentArrayTypeSelect) + " array value").c_str());
             return true;
         }
 
@@ -527,12 +439,12 @@ namespace MungPlex
                     ProcessInformation::WriteValue<dataType>(address, *reinterpret_cast<dataType*>(pokeValuePtr));
                 }
 
-                Log::LogInformation((std::string("Multi-poked ") + _searchPrimitiveTypes[_currentPrimitiveTypeSelect].first + " values").c_str());
+                Log::LogInformation((std::string("Multi-poked ") + _searchPrimitiveTypes.GetStdStringById(_currentPrimitiveTypeSelect) + " values").c_str());
                 return true;
             }
 
             ProcessInformation::WriteValue<dataType>(_pokeAddress, *reinterpret_cast<dataType*>(_pokeValue.data()));
-            Log::LogInformation((std::string("Poked ") + _searchPrimitiveTypes[_currentPrimitiveTypeSelect].first + " value").c_str());
+            Log::LogInformation((std::string("Poked ") + _searchPrimitiveTypes.GetStdStringById(_currentPrimitiveTypeSelect) + " value").c_str());
             return true;
         }
 

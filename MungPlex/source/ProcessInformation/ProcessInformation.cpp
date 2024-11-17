@@ -23,6 +23,31 @@
 #include "WatchControl.hpp"
 #include <Windows.h>
 
+inline const MungPlex::StringIdPairs MungPlex::ProcessInformation::_emulators =
+{
+	{ "Mesen", "Project64", "Dolphin", "Cemu", "Yuzu", "mGBA", "melonDS", "Lime3DS", "No$psx", "pcsx2", "Rpcs3", "PPSSPP", "Fusion" }, 
+	{ MESEN,   PROJECT64,   DOLPHIN,   CEMU,   YUZU,   mGBA,   MELONDS,   LIME3DS,   NO$PSX,   PCSX2,   RPCS3,   PPSSPP,   FUSION }, 
+	"Emulator:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::ProcessInformation::_systems =
+{
+	{ "NES",  "SNES",  "N64",  "GCN",  "Triforce",  "RVL",  "Cafe",  "Switch",  "GB",  "GBC",  "GBA",  "NDS",  "CTR",  
+	  "PS1",  "PS2",  "PS3",  "PS4",  "PS5",  "PSP",  "PSV",  
+	  "SMS",  "Genesis",  "32X",  "Mega CD",  "Saturn",  "DC",  "GG",  
+	  "XBOX",  "360", "XBONE", "Series", "PC (x86)", "PC (x64)"},
+	{ NES, SNES, N64, GAMECUBE, TRIFORCE, WII, WIIU, SWITCH, GB, GBC, GBA, NDS, N3DS, 
+	  PS1, PS2, PS3, PS4, PS5, PSP, PSV, 
+	  SMS, GENESIS, S32X, SMCD, SATURN, DREAMCAST, GG, 
+	  XBOX, XBOX360, XBOXONE, XBOXSERIES, X86, X64 },
+	  "System:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::ProcessInformation::_consoleConnectionTypes =
+{ 
+	{"USB Gecko"}, {CON_USBGecko}, "Connection Type:"
+};
+
 void MungPlex::ProcessInformation::DrawWindow()
 {
 	if (ImGui::Begin("Process Information"))
@@ -231,19 +256,19 @@ void MungPlex::ProcessInformation::drawGameInformation()
 bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 {
 	std::shared_ptr<IEmulator> iemulator;
-	const EMUPAIR emulator = _emulators[emulatorIndex];
+	const std::wstring emuName = MT::Convert<const char*, std::wstring>(_emulators.GetCString(emulatorIndex), MT::UTF8, MT::UTF16LE);
 	_gameID.clear();
 	_gameRegion.clear();
 	_platform.clear();
 	_rpcGameID.clear();
 	_gameName.clear();
 
-	if (!initProcess(emulator.first))
+	if (!initProcess(emuName))
 		return false;
 	
 	bool connected;
 
-	switch (emulator.second)
+	switch (_emulators.GetId(emulatorIndex))
 	{
 		case DOLPHIN:
 		{
@@ -295,7 +320,7 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	_rpcGameID = iemulator->GetRrpGameID();
 	_gameName = iemulator->GetGameName();
 	_platformID = iemulator->GetPlatformID();
-	_platform = GetSystemNameByID(_platformID);
+	_platform = _systems.GetStdStringById(_platformID);
 
 	PointerSearch::SelectPreset(_platformID);
 	setupSearch();
@@ -416,7 +441,7 @@ bool MungPlex::ProcessInformation::initConsoleConnection(const int connectionTyp
 	_rpcGameID = iConsoleConnectionWrapper->GetRrpGameID();
 	_gameName = iConsoleConnectionWrapper->GetGameName();
 	_platformID = iConsoleConnectionWrapper->GetPlatformID();
-	_platform = GetSystemNameByID(_platformID);
+	_platform = _systems.GetStdStringById(_platformID);
 	PointerSearch::SelectPreset(_platformID);
 	setupSearch();
 	Search::SetDefaultSearchSettings();
@@ -477,12 +502,12 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	return true; 
 }
 
-const std::vector<EMUPAIR>& MungPlex::ProcessInformation::GetEmulatorList()
+const MungPlex::StringIdPairs& MungPlex::ProcessInformation::GetEmulatorList()
 {
 	return _emulators;
 }
 
-const std::vector<std::pair<std::string, int>>& MungPlex::ProcessInformation::GetConsoleConnectionTypeList()
+const MungPlex::StringIdPairs& MungPlex::ProcessInformation::GetConsoleConnectionTypeList()
 {
 	return _consoleConnectionTypes;
 }
@@ -708,23 +733,9 @@ bool MungPlex::ProcessInformation::IsConnectionValid()
 	}
 }
 
-const std::vector<std::pair<int, std::string>>& MungPlex::ProcessInformation::GetSystemPairs()
+const MungPlex::StringIdPairs& MungPlex::ProcessInformation::GetSystemList()
 {
-	return _systemPairs;
-}
-
-std::string MungPlex::ProcessInformation::GetSystemNameByID(const int id)
-{
-	auto name = std::find_if(_systemPairs.begin(), _systemPairs.end(), 
-		[id](const std::pair<int, std::string>& pair) { return pair.first == id; 
-	});
-
-	if (name != _systemPairs.end())
-	{
-		return name->second;
-	}
-
-	return "Undefined";
+	return _systems;
 }
 
 void MungPlex::ProcessInformation::SetWindowRef(GLFWwindow* window)

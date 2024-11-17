@@ -1,18 +1,16 @@
 #pragma once
-
-// TODO No defines like this, define a "proper" class
-#define EMUPAIR std::pair<const std::wstring, const int>
 #include <boost/asio.hpp>
 #include <GLFW/glfw3.h>
 #include "HelperFunctions.hpp"
 #include <nlohmann/json.hpp>
 #include <stdio.h>
-#include <string>
 #include "USBGecko.hpp"
 #include "Xertz.hpp"
 
 namespace MungPlex
 {
+    class StringIdPairs;
+
     struct GameEntity
     {
         std::string Entity;
@@ -63,8 +61,8 @@ namespace MungPlex
         static bool ConnectToProcess(int processIndex);
         static bool ConnectToApplicationProcess(int applicationProcessIndex);
         static bool ConnectToRealConsole(const int type);
-        static const std::vector<EMUPAIR>& GetEmulatorList();
-        static const std::vector<std::pair<std::string, int>>& GetConsoleConnectionTypeList();
+        static const StringIdPairs& GetEmulatorList();
+        static const StringIdPairs& GetConsoleConnectionTypeList();
         static int32_t GetProcessType();
         static int32_t GetConsoleConnectionType();
         static int32_t GetPID();
@@ -88,8 +86,7 @@ namespace MungPlex
         static REGION_LIST& GetRegionList();
         static std::vector<SystemRegion>& GetSystemRegionList();
         static bool IsConnectionValid();
-        static const std::vector<std::pair<int, std::string>>& GetSystemPairs();
-        static std::string GetSystemNameByID(const int id);
+        static const StringIdPairs& GetSystemList();
         static void SetWindowRef(GLFWwindow* window);
         static void ResetWindowTitle();
         static void* GetPointerFromPointerPathExpression(const std::vector<int64_t>& pointerPath, const bool useModule = false, const int64_t moduleAddress = 0);
@@ -299,22 +296,9 @@ namespace MungPlex
         std::vector<SystemRegion> _systemRegions;
         std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
         int32_t _currentEmulatorNumber;
-        static inline const std::vector<EMUPAIR> _emulators = 
-        {
-            { L"Mesen", MESEN },
-            { L"Project64", PROJECT64 },
-            { L"Dolphin", DOLPHIN },
-            { L"Cemu", CEMU },
-            { L"Yuzu", YUZU },
-            { L"mGBA", mGBA },
-            { L"melonDS", MELONDS },
-            { L"Lime3DS", LIME3DS },
-            { L"No$psx", NO$PSX },
-            { L"pcsx2", PCSX2 },
-            { L"Rpcs3", RPCS3 },
-            { L"PPSSPP", PPSSPP },
-            { L"Fusion", FUSION }
-        };
+        static const StringIdPairs _emulators;
+        static const StringIdPairs _systems;
+        static const StringIdPairs _consoleConnectionTypes;
         std::wstring _exePath;
         bool _read = true;
         bool _write = true;
@@ -322,25 +306,8 @@ namespace MungPlex
         int _platformID = UNK;
         int _connectionCheckValue = 0;
         void* _connectionCheckPtr = nullptr;
-        static inline const std::vector<std::pair<int, std::string>> _systemPairs
-        {
-            { NES, "NES" }, { SNES, "SNES" }, { N64, "N64" }, { GAMECUBE, "GameCube" },
-            { TRIFORCE, "Triforce" }, { WII, "Wii" }, { WIIU, "Wii U" }, { SWITCH, "Switch"}, 
-            { GB, "GameBoy" }, { GBC, "GameBoy Color" }, { GBA, "GameBoy Advance" }, { NDS, "NDS" }, {N3DS, "N3DS"},
-            { PS1, "PS1" }, { PS2, "PS2" }, { PS3 , "PS3" }, { PS4, "PS4" }, { PS5, "PS5", },
-            { PSP, "PSP" }, { PSV, "PS Vita" }, 
-            { SMS, "Master System" }, { GENESIS, "Mega Drive" }, { S32X, "32X" }, { SMCD, "Mega-CD" },
-            { SATURN, "Saturn" }, { DREAMCAST, "Dreamcast" }, { GG, "GamesGear" },
-            { XBOX, "XBOX" }, { XBOX360, "XBOX 360" }, { XBOXONE, "XBOX One" }, { XBOXSERIES, "XBOX Series" },
-            { X86, "PC" }, { X64, "PC" }
-        };
         int _currentConsoleConnectionType = CON_UNDEF;
         std::shared_ptr<USBGecko> _usbGecko;
-
-        static inline std::vector<std::pair<std::string, int>> _consoleConnectionTypes
-        {
-            { "USB Gecko", CON_USBGecko }
-        };
 
         void drawModuleList();
         void drawRegionList();

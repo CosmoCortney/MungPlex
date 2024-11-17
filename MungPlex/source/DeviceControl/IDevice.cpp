@@ -1,21 +1,18 @@
 #include "IDevice.hpp"
 #include "HelperFunctions.hpp"
 
-const std::vector<std::pair<std::string, int>> MungPlex::IDevice::s_DeviceTypes =
+inline const MungPlex::StringIdPairs MungPlex::IDevice::s_DeviceTypes =
 {
-	//{ "XInput", XINPUT},
-	{ "Lovense", LOVENSE}
+	{ "Lovense" },
+	{ LOVENSE },
+	"Device Type:"
 };
 
-const std::vector<std::pair<std::string, int>> MungPlex::IDevice::s_ValueTypes =
+inline const MungPlex::StringIdPairs MungPlex::IDevice::s_ValueTypes =
 {
-	{ "Int 8 (1 Byte)", INT8 },
-	{ "Int 16 (2 Bytes)", INT16 },
-	{ "Int 32 (4 Bytes)", INT32 },
-	{ "Int 64 (8 Bytes)", INT64 },
-	{ "Float Single", FLOAT },
-	{ "Float Double", DOUBLE },
-	{ "Bool", BOOL }
+	{ "Int 8 (1 Byte)", "Int 16 (2 Bytes)", "Int 32 (4 Bytes)", "Int 64 (8 Bytes)", "Float Single", "Float Double", "Bool" },
+	{ INT8,             INT16,              INT32,              INT64,              FLOAT,          DOUBLE,         BOOL },
+	"Value Type:"
 };
 
 int MungPlex::IDevice::GetID()

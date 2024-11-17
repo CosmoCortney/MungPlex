@@ -1,6 +1,83 @@
-#pragma once
+﻿#pragma once
 #include <algorithm>
 #include "Search.hpp"
+
+inline const MungPlex::StringIdPairs MungPlex::Search::_searchValueTypes =
+{
+	{ "Primitive", "Array", "Text", "Color"}, 
+	{ PRIMITIVE,   ARRAY,   TEXT,   COLOR },
+	"Value Types:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::Search::_endiannesses =
+{
+	{ "Little", "Big" },
+	{  LITTLE,  BIG },
+	"Endianness:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::Search::_searchPrimitiveTypes =
+{
+	{ "Int 8 (1 Byte)", "Int 16 (2 Bytes)", "Int 32 (4 Bytes)", "Int 64 (8 Bytes)", "Float Single", "Float Double" },
+	{ INT8,             INT16,              INT32,              INT64,              FLOAT,           DOUBLE },
+	"Primitive Type:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::Search::_searchArrayTypes =
+{
+	{ "Int 8 (1 Byte)", "Int 16 (2 Bytes)", "Int 32 (4 Bytes)", "Int 64 (8 Bytes)" },
+	{ INT8,             INT16,              INT32,              INT64 },
+	"Array Type:"
+}; //remove once Arrays support floats
+
+ inline const MungPlex::StringIdPairs MungPlex::Search::_searchColorTypes =
+{
+	{ "RGB 888 (3 Bytes)", "RGBA 8888 (4 Bytes)", "RGBF (3 Floats)", "RGBAF (4 Floats)", "RGB 565 (2 Bytes)", "RGB 5A3 (2 Bytes)" },
+	{ LitColor::RGB888,    LitColor::RGBA8888,    LitColor::RGBF,    LitColor::RGBAF,    LitColor::RGB565,    LitColor::RGB5A3 },
+	"Color Type:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypes =
+{
+	{ "Equal (==)",         "Unequal (!=)",         "Greater (>)",          "Greater or Equal (>=)",      "Lower (<))",         "Lower or Equal (<=)",      "Increased by",              "Decreased by",              "Value Between",        "Value Not Between",        "AND (has all true bits)", "OR (has at least 1 true bit)" },
+	{ MemoryCompare::EQUAL, MemoryCompare::UNEQUAL, MemoryCompare::GREATER, MemoryCompare::GREATER_EQUAL, MemoryCompare::LOWER, MemoryCompare::LOWER_EQUAL, MemoryCompare::INCREASED_BY, MemoryCompare::DECREASED_BY, MemoryCompare::BETWEEN, MemoryCompare::NOT_BETWEEN, MemoryCompare::AND,        MemoryCompare::OR  },
+	"Condition:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypesArray =
+{
+	{ "Equal (==)",         "Unequal (!=)" },
+	{ MemoryCompare::EQUAL, MemoryCompare::UNEQUAL },
+	"Condition:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypesFloat =
+{
+	{ "Equal (==)",         "Unequal (!=)",         "Greater (>)",          "Greater or Equal (>=)",      "Lower (<))",         "Lower or Equal (<=)",      "Increased by",              "Decreased by",              "Value Between",        "Value Not Between" },
+	{ MemoryCompare::EQUAL, MemoryCompare::UNEQUAL, MemoryCompare::GREATER, MemoryCompare::GREATER_EQUAL, MemoryCompare::LOWER, MemoryCompare::LOWER_EQUAL, MemoryCompare::INCREASED_BY, MemoryCompare::DECREASED_BY, MemoryCompare::BETWEEN, MemoryCompare::NOT_BETWEEN },
+	"Condition:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypesColor =
+{
+	{ "Equal (==)",         "Unequal (!=)",         "Greater (>)",          "Greater or Equal (>=)",      "Lower (<))",         "Lower or Equal (<=)" },
+	{ MemoryCompare::EQUAL, MemoryCompare::UNEQUAL, MemoryCompare::GREATER, MemoryCompare::GREATER_EQUAL, MemoryCompare::LOWER, MemoryCompare::LOWER_EQUAL },
+	"Condition:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypesText =
+{
+	{ "Equal (==)" },
+	{ MemoryCompare::EQUAL },
+	"Condition:"
+};
+
+ inline const MungPlex::StringIdPairs MungPlex::Search::_searchComparasionType =
+{
+	{ "Unknwon/Initial", "Known Value" },
+	{ 0,                 MemoryCompare::KNOWN },
+	"Comparison:"
+};
 
 MungPlex::Search::Search()
 {
@@ -76,7 +153,7 @@ void MungPlex::Search::drawValueTypeOptions()
 		{
 			ImGui::BeginGroup();
 			{
-				if (SetUpCombo("Value Type:", _searchValueTypes, _currentValueTypeSelect, 0.5f, 0.4f))
+				if (SetUpPairCombo(_searchValueTypes, &_currentValueTypeSelect, 0.5f, 0.4f))
 				{
 					_updateLabels = true;
 					_knownValueText = "";
@@ -89,12 +166,12 @@ void MungPlex::Search::drawValueTypeOptions()
 				switch (_currentValueTypeSelect)
 				{
 				case ARRAY:
-					if (SetUpCombo("Array Type:", _searchArrayTypes, _currentArrayTypeSelect, 0.5f, 0.4f)) //use primitive types here once Arrays support floats
+					if (SetUpPairCombo(_searchArrayTypes, &_currentArrayTypeSelect, 0.5f, 0.4f)) //use primitive types here once Arrays support floats
 						setRecommendedValueSettings(ARRAY);
 					break;
 				case COLOR:
 				{
-					if (SetUpCombo("Color Type:", _searchColorTypes, _currentColorTypeSelect, 0.5f, 0.4f))
+					if (SetUpPairCombo(_searchColorTypes, &_currentColorTypeSelect, 0.5f, 0.4f))
 						setRecommendedValueSettings(COLOR);
 
 					if (_currentColorTypeSelect != LitColor::RGB5A3)
@@ -107,18 +184,16 @@ void MungPlex::Search::drawValueTypeOptions()
 					if (_currentColorTypeSelect != LitColor::RGB5A3) ImGui::EndDisabled();
 				}break;
 				case TEXT:
-					if (SetUpCombo("Text Type:", TextTypes, _currentTextTypeIndex, 0.5f, 0.4f))
+					if (SetUpPairCombo(TextTypes, &_currentTextTypeIndex, 0.5f, 0.4f))
 					{
-						_currentTextTypeSelect = TextTypes[_currentTextTypeIndex].second;
+						_currentTextTypeSelect = TextTypes.GetId(_currentTextTypeIndex);
 						setRecommendedValueSettings(TEXT);
 					} 
 					break;
 				default: //PRIMITIVE
-					if (SetUpCombo("Primitive Type:", _searchPrimitiveTypes, _currentPrimitiveTypeSelect, 0.5f, 0.4f))
+					if (SetUpPairCombo(_searchPrimitiveTypes, &_currentPrimitiveTypeSelect, 0.5f, 0.4f))
 						setRecommendedValueSettings(PRIMITIVE);
 				}
-
-
 
 				ImGui::SameLine();
 
@@ -148,7 +223,7 @@ void MungPlex::Search::drawRangeOptions()
 
 			ImGui::SameLine();
 
-			SetUpCombo("Endianness:", _endiannesses, _endiannessSelect, 1.0f, 0.4f);
+			SetUpPairCombo(_endiannesses, &_endiannessSelect, 1.0f, 0.4f);
 
 			if(_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText.Data(), _rangeStartText.Size(), 0.5f, 0.4f))
 			{
@@ -261,17 +336,17 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 		_updateLabels = false;
 	}
 
-	if (MungPlex::SetUpCombo("Comparison Type:", _searchComparasionType, _currentcomparisonTypeSelect, 0.5f, 0.4f))
+	if (MungPlex::SetUpPairCombo(_searchComparasionType, &_currentcomparisonTypeSelect, 0.5f, 0.4f))
 		_updateLabels = true;
 
-	const std::vector<std::pair<std::string, int>>* conditionTypeItems;
+	static const StringIdPairs* conditionTypeItems;
 
 	if (_currentPrimitiveTypeSelect < FLOAT)
 		conditionTypeItems = &_searchConditionTypes;
 	else
 		conditionTypeItems = &_searchConditionTypesFloat;
 
-	if (SetUpCombo("Condition Type:", *conditionTypeItems, _currentConditionTypeSelect, 0.5f, 0.4f))
+	if (SetUpPairCombo(*conditionTypeItems, &_currentConditionTypeSelect, 0.5f, 0.4f))
 		_updateLabels = true;
 
 	if (!_diableBecauseUnknownAndNotRangebased)
@@ -291,7 +366,7 @@ void MungPlex::Search::drawArraySearchOptions()
 
 	ImGui::BeginGroup();
 	
-	if (SetUpCombo("Condition Type:", _searchConditionTypesArray, _currentConditionTypeSelect, 0.5f, 0.4f))
+	if (SetUpPairCombo(_searchConditionTypesArray, &_currentConditionTypeSelect, 0.5f, 0.4f))
 		_updateLabels = true;
 
 	SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 0.5f, 0.4f);
@@ -309,9 +384,9 @@ void MungPlex::Search::drawColorSearchOptions()
 
 	ImGui::BeginGroup();
 	{
-		MungPlex::SetUpCombo("Comparison Type:", _searchComparasionType, _currentcomparisonTypeSelect, 0.5f, 0.4f);
+		MungPlex::SetUpPairCombo(_searchComparasionType, &_currentcomparisonTypeSelect, 0.5f, 0.4f);
 
-		if (SetUpCombo("Condition Type:", _searchConditionTypesText, _currentConditionTypeSelect, 0.5f, 0.4f))
+		if (SetUpPairCombo(_searchConditionTypesText, &_currentConditionTypeSelect, 0.5f, 0.4f))
 			_updateLabels = true;
 
 		if (!_diableBecauseUnknownAndNotRangebased)
@@ -404,7 +479,7 @@ void MungPlex::Search::drawSearchOptions()
 		ImGui::BeginGroup();
 
 		if (!iterationCount || _disableUndo) ImGui::BeginDisabled();
-			SetUpCombo("Counter Iteration:", _iterations, _iterationIndex, 0.5f, 0.4f);
+			SetUpPairCombo(_iterations, &_iterationIndex, 0.5f, 0.4f);
 		if (!iterationCount || _disableUndo) ImGui::EndDisabled();
 
 		ImGui::SameLine();
@@ -464,7 +539,7 @@ void MungPlex::Search::drawSearchOptions()
 		if (ImGui::Button("Reset"))
 		{
 			MemoryCompare::MemCompare::Reset();
-			_iterations.clear();
+			_iterations.Clear();
 			_iterationIndex = 0;
 			_searchActive = false;
 			_currentPageValue = 0;
@@ -868,12 +943,11 @@ void MungPlex::Search::setUpIterationSelect()
 {
 	int iter = MemoryCompare::MemCompare::GetIterationCount();
 
-	if (iter < _iterations.size())
-		_iterations.erase(_iterations.begin() + iter - 1, _iterations.end());
+	if (iter < _iterations.GetCount())
+		_iterations.PopBack(_iterations.GetCount() - iter);
 
-	_iterations.emplace_back(std::to_string(iter) + ": " 
-		+ _searchComparasionType[_currentcomparisonTypeSelect].first
-		+ (iter < 2 && _currentcomparisonTypeSelect == 0 ? "" : ", " + _searchConditionTypes[_currentConditionTypeSelect].first));
+	_iterations.PushBack(std::to_string(iter) + ": " + _searchComparasionType.GetStdString(_currentcomparisonTypeSelect)
+		+ (iter < 2 && _currentcomparisonTypeSelect == 0 ? "" : ", " + _searchConditionTypes.GetStdString(_currentConditionTypeSelect)), _currentConditionTypeSelect);
 	_iterationIndex = --iter;
 	_selectedIndices.resize(_maxResultsPerPage);
 }
@@ -1020,17 +1094,17 @@ void MungPlex::Search::primitiveTypeSearchLog()
 
 void MungPlex::Search::arrayTypeSearchLog()
 {
-	Log::LogInformation("Array<" + _searchArrayTypes[_currentArrayTypeSelect].first + ">: " + _knownValueText.StdStr(), true, 4);
+	Log::LogInformation("Array<" + _searchArrayTypes.GetStdString(_currentArrayTypeSelect) + ">: " + _knownValueText.StdStr(), true, 4);
 }
 
 void MungPlex::Search::textTypeSearchLog()
 {
-	Log::LogInformation("Text<" + TextTypes[_currentTextTypeIndex].first + ">: " + _knownValueText.StdStr(), true, 4);
+	Log::LogInformation("Text<" + TextTypes.GetStdString(_currentTextTypeIndex) + ">: " + _knownValueText.StdStr(), true, 4);
 }
 
 void MungPlex::Search::colorTypeSearchLog()
 {
-	Log::LogInformation("Text<" + _searchColorTypes[_currentColorTypeSelect].first + ">: " + _knownValueText.StdStr(), true, 4);
+	Log::LogInformation("Text<" + _searchColorTypes.GetStdString(_currentColorTypeSelect) + ">: " + _knownValueText.StdStr(), true, 4);
 }
 
 void MungPlex::Search::drawResultsTableNew()

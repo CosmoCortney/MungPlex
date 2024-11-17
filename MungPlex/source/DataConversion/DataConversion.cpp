@@ -1,11 +1,31 @@
 #include "DataConversion.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "HelperFunctions.hpp"
 #include "MorphText.hpp"
 #include "Settings.hpp"
 #include <utility>
 #include "Xertz.hpp"
+
+inline const MungPlex::StringIdPairs MungPlex::DataConversion::_specializedColorTypes =
+{
+	{ "RGBF (3 Floats)", "RGBAF (4 Floats)", "RGB 565 (2 Bytes)", "RGB 5A3 (2 Bytes)" },
+	{ LitColor::RGBF,    LitColor::RGBAF,    LitColor::RGB565,    LitColor::RGB5A3 },
+	"Color Type:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::DataConversion::_floatTypes =
+{
+	{ "Float Single",    "Float Double" },
+	{ FloatTypes::FLOAT, FloatTypes::DOUBLE },
+	"Float Type:"
+};
+
+inline const MungPlex::StringIdPairs MungPlex::DataConversion::_intTypes =
+{
+	{ "Int 16",        "Int 32",        "Int 64" },
+	{ IntTypes::INT16, IntTypes::INT32, IntTypes::INT64},
+	"Integer Type:"
+};
 
 MungPlex::DataConversion::DataConversion()
 {
@@ -70,9 +90,9 @@ void MungPlex::DataConversion::drawTextConversion()
 
 		ImGui::BeginGroup();
 		{
-			if (SetUpCombo("Text Type:", TextTypes, textTypeIndex, 0.5f, 0.35f))
+			if (SetUpPairCombo(TextTypes, &textTypeIndex, 0.5f, 0.35f))
 			{
-				textTypeSelect = TextTypes[textTypeIndex].second;
+				textTypeSelect = TextTypes.GetIndexById(textTypeIndex);
 				update = true;
 			}
 
@@ -207,9 +227,9 @@ void MungPlex::DataConversion::drawColorConversion()
 
 		ImGui::BeginGroup();
 		{
-			if (SetUpCombo("Specialized Color Type:", _specializedColorTypes, selectedSpecializedColorTypeIndex, 1.0f, 0.5f))
+			if (SetUpPairCombo(_specializedColorTypes, &selectedSpecializedColorTypeIndex, 1.0f, 0.5f))
 			{
-				selectedColorID = _specializedColorTypes[selectedSpecializedColorTypeIndex].second;
+				selectedColorID = _specializedColorTypes.GetId(selectedSpecializedColorTypeIndex);
 				update = true;
 			}
 
@@ -269,7 +289,7 @@ void MungPlex::DataConversion::drawHexFloatConversion()
 		static bool isDouble = false;
 		static bool update = true;
 
-		if (SetUpCombo("Float Type:", _floatTypes, selectedFloatType, 1.0f, 0.35f))
+		if (SetUpPairCombo(_floatTypes, &selectedFloatType, 1.0f, 0.35f))
 		{
 			isDouble = selectedFloatType == FloatTypes::DOUBLE;
 			update = true;
@@ -329,7 +349,7 @@ void MungPlex::DataConversion::drawEndiannessConversion()
 		static int intSelect = IntTypes::INT16;
 		static bool update = true;
 
-		if (SetUpCombo("Int Type:", _intTypes, intSelect, 1.0f, 0.35f) || update)
+		if (SetUpPairCombo(_intTypes, &intSelect, 1.0f, 0.35f) || update)
 		{
 			leStr.resize(4 << intSelect);
 			beStr.resize(4 << intSelect);

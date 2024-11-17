@@ -13,47 +13,22 @@
 #include "LitColor.hpp"
 #include "MorphText.hpp"
 #include "OperativeArray.hpp"
+#include "Pairs.hpp"
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
-#include <vector>
 
 typedef MorphText MT;
 
 namespace MungPlex
 {
-    static const std::vector<std::pair<std::string, int>> TextTypes
+    struct SystemRegion;
+
+    inline static const MungPlex::StringIdPairs TextTypes =
     {
-        { "UTF-8", MorphText::UTF8 },
-        { "UTF-16 Little Endian", MorphText::UTF16LE },
-        { "UTF-16 Big Endian", MorphText::UTF16BE },
-        { "UTF-32 Little Endian", MorphText::UTF32LE },
-        { "UTF-32 Big Endian", MorphText::UTF32BE },
-        { "ASCII", MorphText::ASCII },
-        { "ISO-8859-1 (Latin 1)", MorphText::ISO_8859_1 },
-        { "ISO-8859-2 (Latin 2)", MorphText::ISO_8859_2 },
-        { "ISO-8859-3 (Latin 3)", MorphText::ISO_8859_3 },
-        { "ISO-8859-4 (Latin 4)", MorphText::ISO_8859_4 },
-        { "ISO-8859-5 (Cyrillic)", MorphText::ISO_8859_5 },
-        { "ISO-8859-6 (Arabic)", MorphText::ISO_8859_6 },
-        { "ISO-8859-7 (Greek)", MorphText::ISO_8859_7 },
-        { "ISO-8859-8 (Hebrew)", MorphText::ISO_8859_8 },
-        { "ISO-8859-9 (Turkish)", MorphText::ISO_8859_9 },
-        { "ISO-8859-10 (Nordic)", MorphText::ISO_8859_10 },
-        { "ISO-8859-11 (Thai)", MorphText::ISO_8859_11 },
-        { "ISO-8859-13 (Baltic)", MorphText::ISO_8859_13 },
-        { "ISO-8859-14 (Celtic", MorphText::ISO_8859_14 },
-        { "ISO-8859-15 (West European)", MorphText::ISO_8859_15 },
-        { "ISO-8859-16 (South-East European)", MorphText::ISO_8859_16 },
-        { "Shift-Jis CP932", MorphText::SHIFTJIS_CP932 },
-        { "KS X 1001 (EUC-KR)", MorphText::KS_X_1001 },
-        { "Jis X 0201 Full Width", MorphText::JIS_X_0201_FULLWIDTH },
-        { "Jis X 0201 Half Width", MorphText::JIS_X_0201_HALFWIDTH },
-        { "Pokémon Gen I English", MorphText::POKEMON_GEN1_ENGLISH },
-        { "Pokémon Gen I French/German", MorphText::POKEMON_GEN1_FRENCH_GERMAN },
-        { "Pokémon Gen I Italian/Spanish", MorphText::POKEMON_GEN1_ITALIAN_SPANISH },
-        { "Pokémon Gen I Japanese", MorphText::POKEMON_GEN1_JAPANESE }
+        { "UTF-8",  "UTF-16 Little Endian", "UTF-16 Big Endian", "UTF-32 Little Endian", "UTF-32 Big Endian", "ASCII",  "ISO-8859-1 (Latin 1)", "ISO-8859-2 (Latin 2)", "ISO-8859-3 (Latin 3)", "ISO-8859-4 (Latin 4)", "ISO-8859-5 (Cyrillic)", "ISO-8859-6 (Arabic)", "ISO-8859-7 (Greek)",  "ISO-8859-8 (Hebrew)", "ISO-8859-9 (Turkish)", "ISO-8859-10 (Nordic)", "ISO-8859-11 (Thai)", "ISO-8859-13 (Baltic)", "ISO-8859-14 (Celtic)", "ISO-8859-15 (West European)", "ISO-8859-16 (South-East European)", "Shift-Jis CP932",  "KS X 1001 (EUC-KR)", "Jis X 0201 Full Width",  "Jis X 0201 Half Width",  "PKMN Gen I English",     "PKMN Gen I French/German",     "PKMN Gen I Italian/Spanish",     "PKMN Gen I Japanese" },
+        { MT::UTF8, MT::UTF16LE,            MT::UTF16BE,         MT::UTF32LE,            MT::UTF32BE,         MT::ASCII, MT::ISO_8859_1,        MT::ISO_8859_2,         MT::ISO_8859_3,         MT::ISO_8859_4,         MT::ISO_8859_5,          MT::ISO_8859_6,        MT::ISO_8859_7,        MT::ISO_8859_8,        MT::ISO_8859_9,         MT::ISO_8859_10,        MT::ISO_8859_11,      MT::ISO_8859_13,        MT::ISO_8859_14,        MT::ISO_8859_15,               MT::ISO_8859_16,                     MT::SHIFTJIS_CP932, MT::KS_X_1001,        MT::JIS_X_0201_FULLWIDTH, MT::JIS_X_0201_HALFWIDTH, MT::POKEMON_GEN1_ENGLISH, MT::POKEMON_GEN1_FRENCH_GERMAN, MT::POKEMON_GEN1_ITALIAN_SPANISH, MT::POKEMON_GEN1_JAPANESE },
+        "Text Types:"
     };
 
     template<typename addressType> static addressType TranslatePtrTo4BytesReorderingPtr(addressType ptr)
@@ -122,15 +97,6 @@ namespace MungPlex
         {
             swapPtr[offset] = Xertz::SwapBytes<uint32_t>(swapPtr[offset]);
         }
-    }
-
-    static std::wstring GetStringFromID(const std::vector<EMUPAIR>& pairs, const int ID)
-    {
-        auto tmpPair = std::ranges::find_if(pairs.begin(), pairs.end(),
-            [&](const auto& pair) { return pair.second == ID; }
-        );
-
-        return (tmpPair != pairs.end()) ? tmpPair->first : L"";
     }
 
     static bool WriteTextEx(const uint32_t pid, char* text, const uint64_t address)
@@ -322,8 +288,7 @@ namespace MungPlex
             ImGui::EndTooltip();
         }
     }
-    struct SystemRegion; //forward declaration for compiler
-    struct ColorScheme; //forward declaration for compiler
+
     static int s_globalWindowFlag = 0;
 	
     static void SetWindowToForeground(HWND hWnd)// todo: make this work ):
@@ -421,10 +386,39 @@ namespace MungPlex
 			ImGui::PushItemWidth(absoluteWidth);
     }
 
+    static void PrepareWidgetLabel(const char* name, const float paneWidth, const float labelPortion, bool printLabel, const char* helpText = nullptr)
+    {
+        const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;
+        const float curserPos = ImGui::GetCursorPos().x;
+
+        if (printLabel)
+        {
+            ImGui::Text(name);
+            ImGui::SameLine();
+            if (helpText != nullptr)
+            {
+                HelpMarker(helpText);
+                ImGui::SameLine();
+            }
+
+            ImGui::SetCursorPosX(curserPos + absoluteWidth * labelPortion);
+            ImGui::PushItemWidth(absoluteWidth * (1.0f - labelPortion));
+        }
+        else
+            ImGui::PushItemWidth(absoluteWidth);
+    }
+
+    static bool SetUpPairCombo(const IPairs& pairs, int* currentSelect, const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true, const char* helpText = nullptr)
+    {
+        PrepareWidgetLabel(pairs.GetLabelCString(), paneWidth, labelPortion, printLabel, helpText);
+        return ImGui::Combo(pairs.GetComboLabelCString(), currentSelect, pairs.GetData(), pairs.GetCount());
+    }
+
     template<typename T> static bool SetUpCombo(const std::string& name, const std::vector<T>& items, int& select, const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true, const char* helpText = nullptr)
     {
         std::vector<std::string> items_str;
         items_str.reserve(items.size());
+
         for (const auto& item : items)
         {
             if constexpr (std::is_same_v<T, std::string>)
@@ -435,12 +429,8 @@ namespace MungPlex
                 items_str.emplace_back(item.first.c_str());
             else if constexpr (std::is_same_v<T, std::pair<int, std::pair<std::string, std::string>>>)
                 items_str.emplace_back(item.second.second.c_str());
-            else if constexpr (std::is_same_v<T, std::pair<std::string, ColorScheme>>)
-                items_str.emplace_back(item.first.c_str());
             else if constexpr (std::is_same_v<T, std::wstring>)
                 items_str.emplace_back(std::string(item.begin(), item.end()).c_str());
-            else if constexpr (std::is_same_v<T, std::pair<std::wstring, int>> || std::is_same_v<T, EMUPAIR>)
-                items_str.emplace_back(std::string(item.first.begin(), item.first.end()).c_str());
             else if constexpr (std::is_same_v<T, std::tuple<std::string, int, bool>>)
                 items_str.emplace_back(std::get<std::string>(item).c_str());
             else if constexpr (std::is_same_v<T, Xertz::ProcessInfo>)
@@ -455,10 +445,10 @@ namespace MungPlex
         }
 
 		PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
-        const bool indexChanged = ImGui::Combo(("##" + name).c_str(), &select, [](void* data, int idx, const char** out_text)
+        const bool indexChanged = ImGui::Combo(("##" + name).c_str(), &select, [](void* data, int idx, const char** outText)
                                             {
                                                 auto& items = *static_cast<std::vector<std::string>*>(data);
-                                                *out_text = items[idx].c_str();
+                                                *outText = items[idx].c_str();
                                                 return true;
                                             }, static_cast<void*>(&items_str), items.size());
         ImGui::PopItemWidth();

@@ -8,6 +8,12 @@
 #include <thread>
 
 static float scale = 2.0f;
+inline const MungPlex::StringIdPairs MungPlex::Cheats::_cheatTypes =
+{
+	{ "GCN Action Replay"},
+	{ CheatConvert::GCN_AR },
+	"Cheat Format:"
+};
 
 MungPlex::Cheats::Cheats()
 {
@@ -114,7 +120,6 @@ MungPlex::Cheats::Cheats()
 	_perSecond = Settings::GetCheatsSettings().DefaultInterval;
 	_documentsPath = MT::Convert<char*, std::wstring>(Settings::GetGeneralSettings().DocumentsPath, MT::UTF8, MT::UTF16LE);
 
-	_cheatTypes.emplace_back("GameCube Action Replay", CheatConvert::GCN_AR);
 	//initCheatFile();
 }
 
@@ -696,7 +701,7 @@ void MungPlex::Cheats::drawCheatConverter()
 	{
 		ImGui::SeparatorText("Cheat Convert");
 
-		SetUpCombo("Cheat Format:", _cheatTypes, cheatTypeSelect, 1.0f, 0.333f);
+		SetUpPairCombo(_cheatTypes, &cheatTypeSelect, 1.0f, 0.333f);
 
 		SetUpInputTextMultiline("Cheat to be converted", CheatConvert::GetOldSchoolCheat().data(), CheatConvert::GetOldSchoolCheat().size(), 1.0f, 0.8f);
 

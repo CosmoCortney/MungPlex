@@ -67,7 +67,7 @@ namespace MungPlex
             
         };
 
-        std::vector<std::pair<std::string, int>> _cheatTypes;
+        static const StringIdPairs _cheatTypes;
         std::string _textCheatTitle = std::string(TITLE, 0);
         std::string _textCheatHacker = std::string(HACKER, 0);
         std::string _textCheatLua = std::string(CHEAT, 0);

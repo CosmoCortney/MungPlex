@@ -90,13 +90,14 @@ void MungPlex::Connection::checkConnection()
 void MungPlex::Connection::drawEmulatorsTabItem()
 {
 	static std::string emuSelect;
+	static StringIdPairs emulators = ProcessInformation::GetEmulatorList();
 
 	if (ImGui::BeginTabItem("Emulator"))
 	{
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-		SetUpCombo("Emulator:", ProcessInformation::GetEmulatorList(), _selectedEmulatorIndex, 1.0f, 0.5f, true, "Emulators are always in development and therefore crucial things may change that will prevent MungPlex from finding the needed memory regions and game ID. If this is the case report it at the MungPlex discord server so it can be fixed :)");
-
+		SetUpPairCombo(emulators, &_selectedEmulatorIndex, 1.0f, 0.5f, true, "Emulators are always in development and therefore crucial things may change that will prevent MungPlex from finding the needed memory regions and game ID. If this is the case report it at the MungPlex discord server so it can be fixed :)");
+		
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 		bool disable = _checkConnectionThreadFlag;
@@ -108,7 +109,7 @@ void MungPlex::Connection::drawEmulatorsTabItem()
 
 			if (_connected)
 			{
-				_connectionMessage = "Connected to emulator: " + MT::Convert<std::wstring, std::string>(ProcessInformation::GetEmulatorList()[_selectedEmulatorIndex].first, MT::UTF16LE, MT::UTF8);
+				_connectionMessage = "Connected to emulator: " + ProcessInformation::GetEmulatorList().GetStdString(_selectedEmulatorIndex);
 				std::string details = std::string("Messing with "
 					+ ProcessInformation::GetTitle()
 					+ " (" + ProcessInformation::GetPlatform() + ", "
@@ -162,20 +163,22 @@ void MungPlex::Connection::drawAppTabItem()
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 		static bool app = true;
 		static ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+		static ProcessInforPairs processInfoList("Process:");
+		static ProcessApplicationInforPairs applicationProcessInfoList("Application:");
 
 		if (ImGui::BeginTabBar("ProcessesTab", tab_bar_flags))
 		{
-			if (Xertz::SystemInfo::GetProcessInfoList().size() == 0)
-				Xertz::SystemInfo::RefreshProcessInfoList();
+			if (processInfoList.GetCount() == 0)
+				processInfoList.RefreshProcessInfo();
 
-			if (Xertz::SystemInfo::GetApplicationProcessInfoList().size() == 0)
-				Xertz::SystemInfo::RefreshApplicationProcessInfoList();
+			if (applicationProcessInfoList.GetCount() == 0)
+				applicationProcessInfoList.RefreshApplicationProcessInfo();
 
 			if (ImGui::BeginTabItem("Applications"))
 			{
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				app = true;
-				SetUpCombo("Application:", Xertz::SystemInfo::GetApplicationProcessInfoList(), _selectedApplicationProcessIndex, 1.0f, 0.5f);
+				SetUpPairCombo(applicationProcessInfoList, &_selectedApplicationProcessIndex, 1.0f, 0.5f);
 				ImGui::EndTabItem();
 			}
 
@@ -183,7 +186,7 @@ void MungPlex::Connection::drawAppTabItem()
 			{
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				app = false;
-				SetUpCombo("Process:", Xertz::SystemInfo::GetProcessInfoList(), _selectedProcessIndex, 1.0f, 0.5f);
+				SetUpPairCombo(processInfoList, &_selectedProcessIndex, 1.0f, 0.5f);
 				ImGui::EndTabItem();
 			}
 
@@ -236,15 +239,16 @@ void MungPlex::Connection::drawConsoleTabItem()
 	if (ImGui::BeginTabItem("Real Console"))
 	{
 		static int sel = 0;
+		static StringIdPairs connectionTypes = ProcessInformation::GetConsoleConnectionTypeList();
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
-		SetUpCombo("Connection Type:", ProcessInformation::GetConsoleConnectionTypeList(), sel, 1.0f, 0.5f);
+		SetUpPairCombo(connectionTypes, &sel, 1.0f, 0.5f);
 
 		bool disable = _checkConnectionThreadFlag;
 		if (disable) ImGui::BeginDisabled();
 
 		if (ImGui::Button("Connect"))
 		{
-			_connected = ProcessInformation::ConnectToRealConsole(ProcessInformation::GetConsoleConnectionTypeList()[sel].second);
+			_connected = ProcessInformation::ConnectToRealConsole(connectionTypes.GetId(sel));
 		
 			if (_connected)
 			{
