@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <algorithm>
 #include "Search.hpp"
 
@@ -23,10 +23,13 @@ MungPlex::Search::Search()
 void MungPlex::Search::DrawWindow()
 {
 	static bool stateSet = false;
+	static bool busySearching = false;
 
 	if (ImGui::Begin("Search"))
 	{
-		if (!Connection::IsConnected() || GetInstance()._busySearching)
+		busySearching = GetInstance()._busySearching;
+
+		if (!Connection::IsConnected() || busySearching)
 			ImGui::BeginDisabled();
 		else
 		{
@@ -49,7 +52,7 @@ void MungPlex::Search::DrawWindow()
 		GetInstance().drawSearchOptions();
 		GetInstance().drawResultsArea();
 
-		if (!Connection::IsConnected() || GetInstance()._busySearching)
+		if (!Connection::IsConnected() || busySearching)
 			ImGui::EndDisabled();
 	}
 	else
