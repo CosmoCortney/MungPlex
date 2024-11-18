@@ -5,29 +5,13 @@
 #include <nlohmann/json.hpp>
 #include <stdio.h>
 #include "USBGecko.hpp"
-#include "Xertz.hpp"
 
 namespace MungPlex
 {
+    struct SystemRegion;
+    struct GameEntity;
     class StringIdPairs;
-
-    struct GameEntity
-    {
-        std::string Entity;
-        uint64_t Location;
-        std::string Datatype;
-        int Size;
-        bool Hex;
-        std::string Value;
-    };
-    
-    struct SystemRegion
-    {
-        std::string Label;
-        uint64_t Base;
-        uint64_t Size;
-        void* BaseLocationProcess = nullptr;
-    };
+    class RegionPairs;
 
     class ProcessInformation
     {
@@ -84,6 +68,7 @@ namespace MungPlex
         static PROCESS_INFO& GetProcess();
         static MODULE_LIST& GetModuleList();
         static REGION_LIST& GetRegionList();
+        static const RegionPairs& GetSystemRegionList_();
         static std::vector<SystemRegion>& GetSystemRegionList();
         static bool IsConnectionValid();
         static const StringIdPairs& GetSystemList();
@@ -296,6 +281,7 @@ namespace MungPlex
         std::vector<SystemRegion> _systemRegions;
         std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
         int32_t _currentEmulatorNumber;
+        static RegionPairs __systemRegions;
         static const StringIdPairs _emulators;
         static const StringIdPairs _systems;
         static const StringIdPairs _consoleConnectionTypes;

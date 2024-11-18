@@ -3,6 +3,15 @@
 #include "MungPlexConfig.hpp"
 #include <shlobj_core.h>
 
+inline const MungPlex::DoubleStringIdPairs MungPlex::Settings::_colorSettings =
+{
+	{ "Text",        "TextDisabled",        "TextSelectedBg",           "Background",      "ChildBG",          "PopupBG",          "FrameBG",          "FrameBGHovered",           "FrameBGActive",           "TitleBG",              "TitleBGActive",               "TitleBGCollapsed",               "ScrollbarBg",          "ScrollbarGrab",        "ScrollbarGrabHovered",        "ScrollbarGrabActive",        "CheckMark",        "SliderGrab",        "SliderGrabActive",        "Button",        "ButtonHovered",        "ButtonActive",        "Header",        "HeaderHovered",        "HeaderActive",        "Separator",	    "SeparatorHovered",       "SeparatorActive",         "ResizeGrip",        "ResizeGripHovered",        "ResizeGripActive",        "Tab",        "TabHovered",        "TabActive",        "TabUnfocused",        "TabUnfocusedActive",        "DockingPreview",        "DockingEmptyBG",           "TableHeaderBg",           "TableBorderStrong",         "TableBorderLight",        "TableRowBg",           "TableRowBgAlt",                  "WindowDim",                "PlotLines",        "PlotLinesHovered",        "PlotHistogram",        "PlotHistogramHovered" },
+	{ "Text",        "Text Disabled",       "Selected Text Background", "Background",      "Panel Background", "Popup Background", "Frame Background", "Frame Background Hovered", "Frame Background Active", "Title Bar Background", "Title Bar Background Active", "Title Bar Background Collapsed", "Scrollbar Background", "Scrollbar Grab",       "Scrollbar Grab Hovered",      "Scrollbar Grab Active",      "Check Mark",       "Slider Grab",       "Slider Grab Active",      "Button",        "Button Hovered",       "Button Active",       "Header" ,       "Header Hovered",       "Header Active",       "Separator" ,       "Separator Hovered",	  "Separator Active",        "Grip Resize",       "Grip Resize Hovered",      "Grip Resize Active",      "Tab",        "Tab Hovered",       "Tab Active",       "Tab Unfocused",       "Tab Unfocused Active",      "Docking Preview",       "Docking Empty Background", "Table Header Background", "Table Border Strong",       "Table Border Light" ,     "Table Row Background", "Table Row Background Alternate", "Window Dim",               "Plot Lines",       "Plot Lines Hovered",      "Plot Histogram",       "Plot Histogram Hovered" },
+	{ ImGuiCol_Text, ImGuiCol_TextDisabled, ImGuiCol_TextSelectedBg,    ImGuiCol_WindowBg, ImGuiCol_ChildBg,   ImGuiCol_PopupBg,   ImGuiCol_FrameBg,   ImGuiCol_FrameBgHovered,    ImGuiCol_FrameBgActive, 	  ImGuiCol_TitleBg,       ImGuiCol_TitleBgActive,         ImGuiCol_TitleBgCollapsed,       ImGuiCol_ScrollbarBg,   ImGuiCol_ScrollbarGrab, ImGuiCol_ScrollbarGrabHovered, ImGuiCol_ScrollbarGrabActive, ImGuiCol_CheckMark,	ImGuiCol_SliderGrab, ImGuiCol_SliderGrabActive, ImGuiCol_Button, ImGuiCol_ButtonHovered, ImGuiCol_ButtonActive, ImGuiCol_Header, ImGuiCol_HeaderHovered, ImGuiCol_HeaderActive, ImGuiCol_Separator,	ImGuiCol_SeparatorHovered, ImGuiCol_SeparatorActive, ImGuiCol_ResizeGrip, ImGuiCol_ResizeGripHovered, ImGuiCol_ResizeGripActive, ImGuiCol_Tab, ImGuiCol_TabHovered, ImGuiCol_TabActive, ImGuiCol_TabUnfocused, ImGuiCol_TabUnfocusedActive, ImGuiCol_DockingPreview, ImGuiCol_DockingEmptyBg,    ImGuiCol_TableHeaderBg, 	 ImGuiCol_TableBorderStrong, ImGuiCol_TableBorderLight, ImGuiCol_TableRowBg,    ImGuiCol_TableRowBgAlt,            ImGuiCol_ModalWindowDimBg, ImGuiCol_PlotLines, ImGuiCol_PlotLinesHovered, ImGuiCol_PlotHistogram, ImGuiCol_PlotHistogramHovered },
+	"Set Color:"
+};
+
+
 MungPlex::Settings::Settings()
 {
 	_defaultStyle.Colors[ImGuiCol_WindowBg] = { 0.1f, 0.1f, 0.1f, 1.0f };
@@ -51,13 +60,6 @@ void MungPlex::Settings::InitSettings()
 	SearchSettings& searchSettings = GetInstance()._searchSettings;
 	CheatsSettings& cheatsSettings = GetInstance()._cheatsSettings;
 	DeviceControlSettings& deviceControlSettings = GetInstance()._deviceControlSettings;
-
-	generalSettings.Windows.emplace_back("Search");
-	generalSettings.Windows.emplace_back("Cheats");
-	generalSettings.Windows.emplace_back("Pointer Search");
-	generalSettings.Windows.emplace_back("Device Control");
-	generalSettings.Windows.emplace_back("Process Information");
-	generalSettings.Windows.emplace_back("Settings");
 
 	try
 	{
@@ -165,12 +167,12 @@ void MungPlex::Settings::drawGeneralSettings()
 			static ImVec4 color = style.Colors[ImGuiCol_Text];
 			static int colorSelect = ImGuiCol_Text;
 
-			if (SetUpCombo("Set Color:", _colorSettings, colorSelect, 0.2f, 0.5f))
-				color = style.Colors[_colorSettings[colorSelect].first];
+			if (SetUpPairCombo(_colorSettings, &colorSelect, 0.2f, 0.5f))
+				color = style.Colors[_colorSettings.GetId(colorSelect)];
 
 			ImGui::PushItemWidth(childYX.x * 0.2f);
 			ImGui::ColorPicker4("##ColorPickerUi", (float*)&color, ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview);
-			style.Colors[_colorSettings[colorSelect].first] = color;
+			style.Colors[_colorSettings.GetId(colorSelect)] = color;
 		}
 		ImGui::EndGroup();
 
@@ -189,7 +191,7 @@ void MungPlex::Settings::drawGeneralSettings()
 			//if (ImGui::Button("Apply Scale"))
 			//	style.ScaleAllSizes(_generalSettings.Scale);
 
-			SetUpCombo("Default Active Window", _generalSettings.Windows, _generalSettings.DefaultWindowSelect, 1.0f, 0.2f, true, "Window to be active on startup (Search, Cheats, ...).");
+			SetUpPairCombo(_generalSettings.Windows, &_generalSettings.DefaultWindowSelect, 1.0f, 0.2f, true, "Window to be active on startup (Search, Cheats, ...).");
 		
 		if (ImGui::Checkbox("Enable Discord Rich Presence", &_generalSettings.EnableRichPresence))
 			if (Connection::IsConnected() && _generalSettings.EnableRichPresence)
@@ -371,17 +373,19 @@ void MungPlex::Settings::setUi(const nlohmann::json& uiJson)
 		return;
 	}
 
-	if(uiJson["Colors"].size() < _colorSettings.size())
+	if(uiJson["Colors"].size() < _colorSettings.GetCount())
 	{
 		style = _defaultStyle;
 		return;
 	}
 
-	for (const auto& colorSetting : _colorSettings)
+	for (int i = 0; i < _colorSettings.GetCount(); ++i)
 	{
-		if (uiJson["Colors"].contains(colorSetting.second.first))
+		const auto& entity = _colorSettings.GetStdStringEntity(i);
+
+		if (uiJson["Colors"].contains(entity))
 		{
-			style.Colors[colorSetting.first] = getColorVec(uiJson["Colors"][colorSetting.second.first][0]);
+			style.Colors[_colorSettings.GetId(i)] = getColorVec(uiJson["Colors"][entity][0]);
 		}
 	}
 }
@@ -416,10 +420,10 @@ nlohmann::json MungPlex::Settings::generateColorsJson() const
 	nlohmann::json colors;
 	ImGuiStyle& style = ImGui::GetStyle();
 
-	for (auto& colorSetting : _colorSettings)
+	for (int i = 0; i < _colorSettings.GetCount(); ++i)
 	{
-		const std::string& identifier = colorSetting.second.first;
-		const ImVec4& color = style.Colors[colorSetting.first];
+		const std::string& identifier = _colorSettings.GetStdStringEntity(i);
+		const ImVec4& color = style.Colors[_colorSettings.GetId(i)];
 		nlohmann::json colorArray = { imVec4ToStdVector(color) };
 		colors[identifier] = colorArray;
 	}

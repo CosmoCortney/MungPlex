@@ -1,8 +1,6 @@
 #pragma once
 #include "HelperFunctions.hpp"
 #include "nlohmann/json.hpp"
-#include <string>
-#include <vector>
 #include <boost/thread.hpp>
 #include <boost/atomic.hpp>
 
@@ -16,9 +14,9 @@ namespace MungPlex
             INTEGRAL, FLOAT, BOOL, MOUSEPIANO, MAP2D, MAP3D, COLOR
         };
 
-        static const std::vector<std::pair<std::string, int>> s_IntTypes;
-        static const std::vector<std::pair<std::string, int>> s_FloatTypes;
-        static const std::vector<std::pair<std::string, int>> s_SuperiorTypes;
+        static const StringIdPairs s_IntTypes;
+        static const StringIdPairs s_FloatTypes;
+        static const StringIdPairs s_SuperiorTypes;
 
         int GetID();
         nlohmann::json GetBasicJSON();

@@ -3,6 +3,25 @@
 #include "PointerSearch.hpp"
 #include "Settings.hpp"
 
+inline const MungPlex::StringIdBoolPairs MungPlex::PointerSearch::_systemPresets =
+{
+    { "NES", "SNES", "N64", "GCN", "Triforce", "RVL", "Cafe", "Switch", "GB", "GBC", "GBA", "NDS", "CTR", 
+      "PS1", "PS2", "PS3", "PS4", "PS5", "PSP", "PSV", 
+      "SMS", "Genesis", "32X", "Mega CD", "Saturn", "Dreamcast", "GG", 
+      "XBOX", "360", "XBone", "Series", "PC x86", "PC x64" },
+    { 1, 1, 2, 2, 2, 2, 2, 3, 1, 1, 2, 2, 2,
+      2, 2, 2, 3, 3, 2, 2,
+      1, 1, 1, 1, 2, 2, 1,
+      2, 2, 3, 3, 2, 3 },
+    { false, false, true, true, true, true, true, false, false, false, false, false, false,
+      false, false, true, false, false, false, false,
+      false, true, true, true, true, false, false,
+      false, true, false, false, false, false },
+    "System Preset:"
+};
+
+
+
 MungPlex::PointerSearch::PointerSearch()
 {
     _defaultPath = Settings::GetGeneralSettings().DocumentsPath;
@@ -49,7 +68,7 @@ void MungPlex::PointerSearch::drawSettings()
 
     ImGui::BeginChild("PointerSearchSettings", childXY);
     {
-        if (SetUpCombo("System Preset:", _systemPresets, _presetSelect, 1.0f, 0.3f))
+        if (SetUpPairCombo(_systemPresets, &_presetSelect, 1.0f, 0.3f))
         {
             SelectPreset(_presetSelect);
         }
@@ -80,14 +99,15 @@ void MungPlex::PointerSearch::drawSettings()
                 _maxPointerDepth = _minPointerDepth;
         }
 
-        static std::vector<std::string> addressWidthSelect = { "1 Byte", "2 Bytes", "4 Bytes", "8 Bytes" };
-        if (SetUpCombo("Address Width:", addressWidthSelect, _addressWidthIndex, 1.0f, 0.3f, true, "Address width of the dump's system."))
+        static const StringIdPairs addressWidthSelect = { { "1 Byte", "2 Bytes", "4 Bytes", "8 Bytes" }, { 0, 1, 2, 3 }, "Address Width:" };
+
+        if (SetUpPairCombo(addressWidthSelect, &_addressWidthIndex, 1.0f, 0.3f, true, "Address width of the dump's system."))
             _addressWidth = 1 << _addressWidthIndex;
 
         SetUpInputText("Results File:", _resultsPath.data(), _resultsPath.size(), 1.0f, 0.3f, true, "Where to save the results file.");
         SetUpSliderFloat("Max. Memory Utilization Fraction:", &_maxMemUtilizationFraction, 0.1f, 0.95f, "%2f", 1.0f, 0.5f);
         SetUpInputInt("Max. Pointer Count:", &_maxPointerCount, 100, 1000, 1.0f, 0.3f, 0, true, "Maximum amount of pointers to be generated. Smaller values may decrease scan time and but also the likeability to find working pointer paths.");
-        SetUpCombo("Input Filetype:", _inputTypeSelect, _selectedInputType, 1.0f, 0.3f);
+        SetUpPairCombo(_inputTypeSelect, &_selectedInputType, 1.0f, 0.3f);
 
         if (ImGui::Button("Add File"))
         {
@@ -132,7 +152,7 @@ void MungPlex::PointerSearch::drawSettings()
         ImGui::Dummy(ImVec2(0.0f, ImGui::GetContentRegionAvail().y - 40.0f));
 
         _regions = ProcessInformation::GetSystemRegionList();
-        SetUpCombo("Region:", _regions, _regionSelect, 0.5f, 0.4f);
+        SetUpPairCombo(ProcessInformation::GetSystemRegionList_(), &_regionSelect, 0.5f, 0.4f);
         
         ImGui::SameLine();
         
@@ -452,8 +472,8 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
 void MungPlex::PointerSearch::SelectPreset(const int presetIndex)
 {
     GetInstance()._presetSelect = presetIndex;
-    GetInstance()._addressWidthIndex = std::get<int>(GetInstance()._systemPresets[presetIndex]);
-    GetInstance()._isBigEndian = std::get<bool>(GetInstance()._systemPresets[presetIndex]);
+    GetInstance()._addressWidthIndex = _systemPresets.GetId(presetIndex);
+    GetInstance()._isBigEndian = _systemPresets.GetFlag(presetIndex);
 }
 
 bool MungPlex::PointerSearch::loadResults()

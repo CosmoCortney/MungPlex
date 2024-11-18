@@ -177,7 +177,7 @@ void MungPlex::FloatView::processValue()
 		{
 			if (_freeze)
 			{
-				switch (s_FloatTypes[_typeSelect].second)
+				switch (s_FloatTypes.GetId(_typeSelect))
 				{
 				case ImGuiDataType_Double:
 					ProcessInformation::WriteValue<double>(valptr, _val);
@@ -188,7 +188,7 @@ void MungPlex::FloatView::processValue()
 			}
 			else
 			{
-				switch (s_FloatTypes[_typeSelect].second)
+				switch (s_FloatTypes.GetId(_typeSelect))
 				{
 				case ImGuiDataType_Double:
 					_val = ProcessInformation::ReadValue<double>(valptr);

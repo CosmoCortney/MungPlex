@@ -414,47 +414,6 @@ namespace MungPlex
         return ImGui::Combo(pairs.GetComboLabelCString(), currentSelect, pairs.GetData(), pairs.GetCount());
     }
 
-    template<typename T> static bool SetUpCombo(const std::string& name, const std::vector<T>& items, int& select, const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true, const char* helpText = nullptr)
-    {
-        std::vector<std::string> items_str;
-        items_str.reserve(items.size());
-
-        for (const auto& item : items)
-        {
-            if constexpr (std::is_same_v<T, std::string>)
-                items_str.emplace_back(item.c_str());
-            else if constexpr (std::is_same_v<T, const char*>)
-                items_str.emplace_back(item);
-            else if constexpr (std::is_same_v<T, std::pair<std::string, int>>)
-                items_str.emplace_back(item.first.c_str());
-            else if constexpr (std::is_same_v<T, std::pair<int, std::pair<std::string, std::string>>>)
-                items_str.emplace_back(item.second.second.c_str());
-            else if constexpr (std::is_same_v<T, std::wstring>)
-                items_str.emplace_back(std::string(item.begin(), item.end()).c_str());
-            else if constexpr (std::is_same_v<T, std::tuple<std::string, int, bool>>)
-                items_str.emplace_back(std::get<std::string>(item).c_str());
-            else if constexpr (std::is_same_v<T, Xertz::ProcessInfo>)
-            {
-                Xertz::ProcessInfo x = item;
-                items_str.emplace_back(x.GetProcessName());
-            }
-            else if constexpr (std::is_same_v<T, SystemRegion>)
-            {
-                items_str.emplace_back(std::string(item.Label).append(": ").append(ToHexString(item.Base, 0)).c_str());
-            }
-        }
-
-		PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
-        const bool indexChanged = ImGui::Combo(("##" + name).c_str(), &select, [](void* data, int idx, const char** outText)
-                                            {
-                                                auto& items = *static_cast<std::vector<std::string>*>(data);
-                                                *outText = items[idx].c_str();
-                                                return true;
-                                            }, static_cast<void*>(&items_str), items.size());
-        ImGui::PopItemWidth();
-        return indexChanged;
-    }
-
     static void SetUpSliderFloat(const std::string& name, float* val, const float min, const float max, const char* format = "%3f", const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true, const char* helpText = nullptr)
     {
         PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
@@ -589,7 +548,7 @@ namespace MungPlex
         }
     };
 
-    template<typename T> class SignalCombo //yes I know this is against the purpose of ImGui. But it makes my life easier here. Please don't call the code cops
+    class SignalCombo //yes I know this is against the purpose of ImGui. But it makes my life easier here. Please don't call the code cops
     {
     public:
         typedef std::function<void()> Slot;
@@ -603,10 +562,10 @@ namespace MungPlex
         std::vector<Slot> _slotsOnTextChanged{};
 
     public: 
-        SignalCombo<T>(){}
-        void Draw(const std::string& name, const std::vector<T>& items, int& select, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
+        SignalCombo(){}
+        void Draw(const IPairs& pair, int& select, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
         {
-            if (items.size() > 0)
+            if (pair.GetCount() > 0)
             {
                 if (_slotsOnIndexChanged.size() > 0 && _index != select)
                 {
@@ -616,24 +575,24 @@ namespace MungPlex
                     _index = select;
                 }
  
-                if (_slotsOnItemCountChanged.size() > 0 && _itemCount != items.size())
+                if (_slotsOnItemCountChanged.size() > 0 && _itemCount != pair.GetCount())
                 {
                     for (const auto& slot : _slotsOnItemCountChanged)
                         slot();
 
-                    _itemCount = items.size();
+                    _itemCount = pair.GetCount();
                 }
 
-                if (_slotsOnTextChanged.size() > 0 && _text.compare(items[_index].Label) != 0)//todo: make this using a boolean flag instead
+                if (_slotsOnTextChanged.size() > 0 && _text.compare(pair.GetData()[_index]) != 0)//todo: make this using a boolean flag instead
                 {
                     for (const auto& slot : _slotsOnTextChanged)
                         slot();
 
-                    _text = items[select].Label;
+                    _text = pair.GetData()[_index];
                 }
 
             }
-            SetUpCombo(name, items, select, paneWidth, labelPortion);
+            SetUpPairCombo(pair, &select, paneWidth, labelPortion);
         }
 
         void ConnectOnIndexChanged(const Slot slot)

@@ -70,6 +70,9 @@ int main()
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	ImGui::StyleColorsDark();
 
+	MungPlex::Settings::InitSettings();
+	clearSearchResultsDir();
+
 	std::string windowTitle = MungPlex::GetWindowTitleBase();
 	const auto window = glfwCreateWindow(1280, 720, windowTitle.c_str(), nullptr, nullptr);
 	glfwMakeContextCurrent(window);
@@ -78,8 +81,7 @@ int main()
 	MungPlex::ProcessInformation::SetWindowRef(window);
 
 	ImGuiStyle& style = ImGui::GetStyle();
-	MungPlex::Settings::InitSettings();
-	clearSearchResultsDir();
+
 
 	int channels;
 
@@ -139,8 +141,8 @@ int main()
 		ImGui::DockSpace(dockspace_id);
 		ImGui::End();
 
-		MungPlex::WatchControl::DrawWindow();
 		MungPlex::Settings::DrawWindow();
+		MungPlex::WatchControl::DrawWindow();
 		MungPlex::ProcessInformation::DrawWindow();
 		MungPlex::Connection::DrawWindow();
 		MungPlex::Search::DrawWindow();
@@ -171,7 +173,7 @@ int main()
 		static bool setWindowFocused = true;
 		if (setWindowFocused)
 		{
-			ImGui::SetWindowFocus(MungPlex::Settings::GetGeneralSettings().Windows[MungPlex::Settings::GetGeneralSettings().DefaultWindowSelect].c_str());
+			ImGui::SetWindowFocus(MungPlex::Settings::GetGeneralSettings().Windows.GetCString(MungPlex::Settings::GetGeneralSettings().DefaultWindowSelect));
 			setWindowFocused = false;
 		}
 

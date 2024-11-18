@@ -2,30 +2,25 @@
 #include "imgui.h"
 #include "ProcessInformation.hpp"
 
-const std::vector<std::pair<std::string, int>> MungPlex::IView::s_IntTypes =
+inline const MungPlex::StringIdPairs MungPlex::IView::s_IntTypes =
 {
-	{ "Int 8", ImGuiDataType_S8 },
-	{ "UInt 8", ImGuiDataType_U8 },
-	{ "Int 16", ImGuiDataType_S16 },
-	{ "UInt 16", ImGuiDataType_U16 },
-	{ "Int 32", ImGuiDataType_S32 },
-	{ "UInt 32", ImGuiDataType_U32 },
-	{ "Int 64", ImGuiDataType_S64 },
-	{ "UInt 64", ImGuiDataType_U64 }
+	{ "Int 8",          "UInt 8",         "Int 16",          "UInt 16",         "Int 32",          "UInt 32",         "Int 64",          "UInt 64" },
+	{ ImGuiDataType_S8, ImGuiDataType_U8, ImGuiDataType_S16, ImGuiDataType_U16, ImGuiDataType_S32, ImGuiDataType_U32, ImGuiDataType_S64, ImGuiDataType_U64 },
+	"Int Type:"
 };
 
-const std::vector<std::pair<std::string, int>> MungPlex::IView::s_FloatTypes =
+inline const MungPlex::StringIdPairs  MungPlex::IView::s_FloatTypes =
 {
-	{ "Float", ImGuiDataType_Float },
-	{ "Double", ImGuiDataType_Double }
+	{ "Single", "Double" },
+	{ ImGuiDataType_Float, ImGuiDataType_Double },
+	"Float Type:"
 };
 
-const std::vector<std::pair<std::string, int>> MungPlex::IView::s_SuperiorTypes =
+inline const MungPlex::StringIdPairs  MungPlex::IView::s_SuperiorTypes =
 {
-	{ "Integral", INTEGRAL },
-	{ "Floats", FLOAT },
-	{ "Bool", BOOL },
-	{ "DIP Switch", MOUSEPIANO }
+	{ "Integral", "Float", "Bool", "DIP Switch" },
+	{ INTEGRAL, FLOAT, BOOL, MOUSEPIANO },
+	"Item Type:"
 };
 
 int MungPlex::IView::GetID()
@@ -94,10 +89,10 @@ bool MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHe
 		switch (type)
 		{
 		case ViewTypes::FLOAT:
-			res |= SetUpCombo("Float Type:", s_FloatTypes, _typeSelect, 1.0f, 0.5f);
+			res |= SetUpPairCombo(s_FloatTypes, &_typeSelect, 1.0f, 0.5f);
 			break;
 		case ViewTypes::INTEGRAL:
-			res |= SetUpCombo("Int Type:", s_IntTypes, _typeSelect, 1.0f, 0.5f);
+			res |= SetUpPairCombo(s_IntTypes, &_typeSelect, 1.0f, 0.5f);
 			break;
 		}
 

@@ -49,6 +49,10 @@ add_executable (MungPlex
     source/Helpers/BigNHelpers.hpp
     source/Helpers/HelperFunctions.hpp
     source/Helpers/ResourcesHelpers.hpp
+    source/Helpers/Pairs.cpp
+    source/Helpers/Pairs.hpp
+    #source/Helpers/WidgetHelpers.cpp
+    #source/Helpers/WidgetHelpers.hpp
     Log.hpp
     Log.cpp
     main.cpp

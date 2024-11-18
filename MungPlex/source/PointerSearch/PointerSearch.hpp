@@ -56,45 +56,10 @@ namespace MungPlex
         bool _printModuleNames = false;
         float _maxMemUtilizationFraction = 0.9f;
         int _maxPointerCount = 100000;
-        const std::vector<std::tuple< std::string, int, bool>> _systemPresets
-        {
-            { "Nintendo Entertainment Systen / Famicom", 1, false },
-            { "Super Nintendo Entertainment Systen / Super Famicom", 1, false },
-            { "Nintendo 64", 2, true },
-            { "Nintendo GameCube", 2, true },
-            { "Triforce Arcade", 2, true },
-            { "Nintendo Wii", 2, true },
-            { "Nintendo Wii U", 2, true },
-            { "Nintendo Switch", 3, false },
-            { "Nintendo GameBoy", 1, false },
-            { "Nintendo GameBoy Color", 1, false },
-            { "Nintendo GameBoy Advance", 2, false },
-            { "Nintendo DS", 2, false },
-            { "Nintendo 3DS", 2, false },
-            { "Sony Playstation", 2, false },
-            { "Sony Playstation 2", 2, false },
-            { "Sony Playstation 3", 2, true },
-            { "Sony Playstation 4", 3, false },
-            { "Sony Playstation 5", 3, false },
-            { "Sony Playstation Portable", 2, false },
-            { "Sony Playstation Vita", 2, false },
-            { "Sega Master System", 1, false },
-            { "Sega Mega Drive / Genesis", 1, true },
-            { "Sega Mega 32X", 1, true },
-            { "Sega Mega CD", 1, true },
-            { "Sega Saturn", 2, true },
-            { "Sega Dreamcast", 2, false },
-            { "Sega GameGear", 1, false },
-            { "Microsoft XBOX", 2, false },
-            { "Microsoft XBOX 360", 2, true },
-            { "Microsoft XBOX One", 3, false },
-            { "Microsoft XBOX Series", 3, false },
-            { "Microsoft Windows x86", 2, false },
-            { "Microsoft Windows x64", 3, false },
-        };
+        static const StringIdBoolPairs _systemPresets;
         int _presetSelect = 0;
         int _selectedInputType = 0;
-        const std::vector<std::string> _inputTypeSelect = { "Memory Dump", "Pointer Map" };
+        inline static const StringIdPairs _inputTypeSelect = { { "Memory Dump", "Pointer Map" }, { 0, 0}, "Input File Type:" };
         std::vector<SystemRegion> _regions{};
         int _regionSelect = 0;
         bool _disableUI = false;

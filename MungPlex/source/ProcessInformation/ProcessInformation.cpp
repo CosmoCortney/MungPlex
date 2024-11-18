@@ -48,6 +48,8 @@ inline const MungPlex::StringIdPairs MungPlex::ProcessInformation::_consoleConne
 	{"USB Gecko"}, {CON_USBGecko}, "Connection Type:"
 };
 
+inline MungPlex::RegionPairs MungPlex::ProcessInformation::__systemRegions = { "Regions:" };
+
 void MungPlex::ProcessInformation::DrawWindow()
 {
 	if (ImGui::Begin("Process Information"))
@@ -555,6 +557,8 @@ bool MungPlex::ProcessInformation::GetRereorderFlag()
 void MungPlex::ProcessInformation::RefreshRegionlistPC()
 {
 	GetInstance()._systemRegions.clear();
+	__systemRegions.Clear();
+
 	int flags = 0;
 
 	if (GetInstance()._write || GetInstance()._execute)
@@ -588,11 +592,11 @@ void MungPlex::ProcessInformation::RefreshRegionlistPC()
 			label.append(": ");
 			int lj = region.GetBaseAddress<uint64_t>() < 0x100000000 ? 8 : 16;
 			label.append(ToHexString(region.GetBaseAddress<uint64_t>(), lj, false));
-
-
 			GetInstance()._systemRegions.emplace_back(label, region.GetBaseAddress<uint64_t>(), region.GetRegionSize(), region.GetBaseAddress<void*>());
 		}
 	}
+
+	__systemRegions.SetRegions(GetInstance()._systemRegions);
 }
 
 std::string& MungPlex::ProcessInformation::GetProcessName()
@@ -654,6 +658,11 @@ MODULE_LIST& MungPlex::ProcessInformation::GetModuleList()
 REGION_LIST& MungPlex::ProcessInformation::GetRegionList()
 {
 	return GetInstance()._process.GetRegionList();
+}
+
+const MungPlex::RegionPairs& MungPlex::ProcessInformation::GetSystemRegionList_()
+{
+	return __systemRegions;
 }
 
 std::vector<MungPlex::SystemRegion>& MungPlex::ProcessInformation::GetSystemRegionList()

@@ -218,8 +218,7 @@ void MungPlex::Search::drawRangeOptions()
 		if (_searchActive) ImGui::BeginDisabled();
 		{
 			static std::stringstream stream;
-			_regions = ProcessInformation::GetSystemRegionList();
-			_RegionSelectSignalCombo.Draw("Region:", _regions, _currentRegionSelect, 0.5f, 0.4f);
+			_RegionSelectSignalCombo.Draw(ProcessInformation::GetSystemRegionList_(), _currentRegionSelect, 0.5f, 0.4f);
 
 			ImGui::SameLine();
 

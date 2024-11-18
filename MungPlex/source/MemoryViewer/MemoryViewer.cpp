@@ -60,7 +60,7 @@ void MungPlex::MemoryViewer::drawControlPanel()
 
     ImGui::BeginChild("child_MemoryViewerControlPanel", childXY);
     {
-        if (SetUpCombo("Region:", ProcessInformation::GetSystemRegionList(), _regionSelect, 1.0f, 0.4f))
+        if (SetUpPairCombo(ProcessInformation::GetSystemRegionList_(), &_regionSelect, 1.0f, 0.4f))
         {
             SetUpByRegionSelect(_regionSelect);
         }

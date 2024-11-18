@@ -151,7 +151,7 @@ void MungPlex::WatchControl::drawList()
 	{
 		static int typeSelect = 0;
 
-		SetUpCombo("New Item's Type:", IView::s_SuperiorTypes, typeSelect);
+		SetUpPairCombo(IView::s_SuperiorTypes, &typeSelect);
 		ImGui::SameLine();
 
 		if (ImGui::Button("Add Item"))
@@ -167,7 +167,7 @@ void MungPlex::WatchControl::drawList()
 				}
 			}
 
-			switch (IView::s_SuperiorTypes[typeSelect].second)
+			switch (IView::s_SuperiorTypes.GetId(typeSelect))
 			{
 			case IView::FLOAT:
 				_views.emplace_back(IView::FLOAT, FloatView(_ids.back()));

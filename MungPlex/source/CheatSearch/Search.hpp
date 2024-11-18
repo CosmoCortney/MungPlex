@@ -29,6 +29,8 @@ typedef MemoryCompare::MemCompare MC;
 
 namespace MungPlex
 {
+    class RegionPairs;
+
     class Search
     {
     public:
@@ -39,7 +41,7 @@ namespace MungPlex
         static void SetNativeAppSearchSettings();
         static void SetDefaultSearchSettings();
 
-        SignalCombo<SystemRegion> _RegionSelectSignalCombo;
+        SignalCombo _RegionSelectSignalCombo;
         SignalInputText _SignalInputTextRangeStart;
         SignalInputText _SignalInputTextRangeEnd;
 
@@ -66,11 +68,12 @@ namespace MungPlex
 
         std::function<void()> Slot_TextChanged = []()
             {
+                auto& region = ProcessInformation::GetSystemRegionList_().GetRegion(GetInstance()._currentRegionSelect);
                 std::stringstream stream;
-                stream << std::hex << GetInstance()._regions[GetInstance()._currentRegionSelect].Base;
+                stream << std::hex << region.Base;
                 const std::string hexBegStr = stream.str();
                 GetInstance()._rangeStartText = hexBegStr;
-                const std::string hexEndStr = ToHexString(GetInstance()._regions[GetInstance()._currentRegionSelect].Base + GetInstance()._regions[GetInstance()._currentRegionSelect].Size - 1, 0);
+                const std::string hexEndStr = ToHexString(region.Base + region.Size - 1, 0);
                 GetInstance()._rangeEndText = hexEndStr;
             };
 
