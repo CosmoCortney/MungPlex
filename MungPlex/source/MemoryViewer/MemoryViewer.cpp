@@ -12,6 +12,9 @@ MungPlex::MemoryViewer::MemoryViewer(const uint32_t id)
     _hexView = std::string("", _readSize);
     _dummy = std::string("Invalid Memory Region");
     SetUpByRegionSelect(0);
+
+    if (Connection::IsConnected())
+        refreshMemory();
 }
 
 void MungPlex::MemoryViewer::SetIndex(const uint32_t id)
@@ -66,8 +69,10 @@ void MungPlex::MemoryViewer::drawControlPanel()
         }
 
         static bool refresh = false;
+        static int processType = 0;
+        processType = ProcessInformation::GetProcessType();
 
-        if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::BeginDisabled();
+        if (processType != ProcessInformation::NATIVE) ImGui::BeginDisabled();
 
         if (ImGui::Checkbox("Write", ProcessInformation::GetRangeFlagWrite()))
             refresh = true;
@@ -79,7 +84,7 @@ void MungPlex::MemoryViewer::drawControlPanel()
         if (refresh)
             ProcessInformation::RefreshRegionlistPC();
 
-        if (ProcessInformation::GetProcessType() != ProcessInformation::NATIVE) ImGui::EndDisabled();
+        if (processType != ProcessInformation::NATIVE) ImGui::EndDisabled();
 
         if (SetUpInputText("Jump to Address:", _bufAddress.data(), 17, 1.0f, 0.4f))
         {
@@ -92,6 +97,21 @@ void MungPlex::MemoryViewer::drawControlPanel()
                 _readSize = 0x10;
 
             _hexView = std::string(_hexView.data(), _readSize);
+            refreshMemory();
+        }
+
+        if (processType == ProcessInformation::CONSOLE)
+        {
+            switch (ProcessInformation::GetConsoleConnectionType())
+            {
+                case ProcessInformation::CON_USBGecko:
+                {
+                    if (ImGui::Button("Refresh Memory"))
+                    {
+                        refreshMemory();
+                    }
+                } break;
+            }
         }
     }
     ImGui::EndChild();
@@ -101,8 +121,30 @@ void MungPlex::MemoryViewer::drawHexEditor()
 {
     ImGui::BeginChild("child_hexeditor");
     {
-        if(_validAddress)
-            _memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, ProcessInformation::GetHandle(), _readAddressEx, _rereorder);
+        if (_validAddress)
+        {
+            if(ProcessInformation::GetConsoleConnectionType() != ProcessInformation::CONSOLE)
+                _memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, ProcessInformation::GetHandle(), _readAddressEx, _rereorder);
+            else
+            {
+                switch (ProcessInformation::GetConsoleConnectionType())
+                {
+                case ProcessInformation::CON_USBGecko:
+                {
+                    static uint64_t byteWriteAddress = 0;
+
+                    if (_memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, NULL, nullptr, false, 0, &byteWriteAddress))
+                    {
+                        USBGecko* gecko = ProcessInformation::GetUsbGecko();
+                        gecko->Poke<char>(_hexView[byteWriteAddress - _viewAddress], byteWriteAddress);
+                        refreshMemory();
+                    }
+                } break;
+                default:
+                    _memEdit.DrawContents(_dummy.data(), _dummy.size(), 0, 0, 0);
+                }
+            }
+        }
         else
             _memEdit.DrawContents(_dummy.data(), _dummy.size(), 0, 0, 0);
     }
@@ -122,6 +164,17 @@ void MungPlex::MemoryViewer::processBufferAddress()
     std::stringstream stream;
     stream << std::hex << _bufAddress.data();
     stream >> _viewAddress;
+    _validAddress = false;
+
+    if (ProcessInformation::GetProcessType() == ProcessInformation::CONSOLE)
+    {
+        if (ProcessInformation::GetRegionIndex(_viewAddress) == -1)
+            return;
+
+        _validAddress = true;
+        refreshMemory();
+        return;
+    }
 
     for (SystemRegion& region : ProcessInformation::GetSystemRegionList())
     {
@@ -133,6 +186,19 @@ void MungPlex::MemoryViewer::processBufferAddress()
             return;
         }
     }
+}
 
-    _validAddress = false;
+void MungPlex::MemoryViewer::refreshMemory()
+{
+    if (ProcessInformation::GetProcessType() != ProcessInformation::CONSOLE)
+        return;
+
+    switch (ProcessInformation::GetConsoleConnectionType())
+    {
+        case ProcessInformation::CON_USBGecko:
+        {
+            USBGecko* gecko = ProcessInformation::GetUsbGecko();
+            gecko->Read(_hexView.data(), _viewAddress, _readSize);
+        } break;
+    }
 }

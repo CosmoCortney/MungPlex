@@ -47,5 +47,6 @@ namespace MungPlex
         void drawControlPanel();
         void drawHexEditor();
         void processBufferAddress();
+        void refreshMemory();
     };
 }
