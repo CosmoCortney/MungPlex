@@ -585,6 +585,11 @@ void MungPlex::ProcessInformation::RefreshRegionlistPC()
 			if (region.GetProtect() & (PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE) & flags)
 				label.append("E");
 
+			label.append(": ");
+			int lj = region.GetBaseAddress<uint64_t>() < 0x100000000 ? 8 : 16;
+			label.append(ToHexString(region.GetBaseAddress<uint64_t>(), lj, false));
+
+
 			GetInstance()._systemRegions.emplace_back(label, region.GetBaseAddress<uint64_t>(), region.GetRegionSize(), region.GetBaseAddress<void*>());
 		}
 	}
