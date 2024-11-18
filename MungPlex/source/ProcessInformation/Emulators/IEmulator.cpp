@@ -27,6 +27,10 @@ bool MungPlex::IEmulator::loadSystemInformationJSON(const std::string& system, s
 			auto label = region["Label"].get<std::string>();
 			uint64_t base = std::stoll(region["Base"].get<std::string>(), 0, 0);
 			uint64_t size = std::stoll(region["Size"].get<std::string>(), 0, 0);
+
+			int lj = base < 0x100000000 ? 8 : 16;
+			label.append(": ");
+			label.append(ToHexString(base, lj, false));
 			systemRegions.emplace_back(SystemRegion(label, base, size));
 		}
 

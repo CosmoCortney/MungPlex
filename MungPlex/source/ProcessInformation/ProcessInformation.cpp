@@ -357,6 +357,7 @@ bool MungPlex::ProcessInformation::ConnectToProcess(int processIndex)
 	 if (!GetInstance().initConsoleConnection(type))
 		 return false;
 
+	 __systemRegions.SetRegions(GetInstance()._systemRegions);
 	 GetInstance()._exePath = GetInstance()._process.GetFilePath();
 	 std::string msg("Connected to "
 	 + GetInstance()._processName + " ("
@@ -487,6 +488,7 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	if (!GetInstance().initEmulator(emulatorIndex))
 		return false;
 	
+	__systemRegions.SetRegions(GetInstance()._systemRegions);
 	GetInstance()._exePath = GetInstance()._process.GetFilePath();
 	std::string msg("Connected to ");
 	msg.append(GetInstance()._processName + " (");
