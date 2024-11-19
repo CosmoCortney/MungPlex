@@ -195,3 +195,11 @@ target_include_directories(MungPlex PRIVATE
 
 # Install target
 install(TARGETS MungPlex DESTINATION "MungPlex/bin")
+
+if (WIN32)
+    set(APP_MANIFEST "${CMAKE_CURRENT_SOURCE_DIR}/MungPlex.manifest")
+    set_target_properties(
+        MungPlex PROPERTIES 
+        LINK_FLAGS "/MANIFEST /MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\""
+    )
+endif()
