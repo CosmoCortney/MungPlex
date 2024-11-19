@@ -131,10 +131,17 @@ void MungPlex::Settings::DrawWindow()
 {
 	if (ImGui::Begin("Settings"))
 	{
-		GetInstance().drawGeneralSettings();
-		GetInstance().drawSearchSettings();
-		GetInstance().drawCheatSettings();
-		GetInstance().drawDeviceControlSettings();
+		static ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+
+		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
+		{
+			GetInstance().drawGeneralSettings();
+			GetInstance().drawSearchSettings();
+			GetInstance().drawCheatSettings();
+			GetInstance().drawDeviceControlSettings();
+			ImGui::EndTabBar();
+		}
+
 		ImGui::Separator();
 
 		if (ImGui::Button("Save"))
@@ -157,9 +164,10 @@ void MungPlex::Settings::DrawWindow()
 void MungPlex::Settings::drawGeneralSettings()
 {
 	const ImVec2 childYX(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f);
-	ImGui::BeginChild("child", childYX);
+
+	if (ImGui::BeginTabItem("General"))
 	{
-		ImGui::SeparatorText("General Settings");
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 		static ImGuiStyle& style = ImGui::GetStyle();
 
 		ImGui::BeginGroup();
@@ -200,16 +208,17 @@ void MungPlex::Settings::drawGeneralSettings()
 				Connection::GetDiscordRichPresence().StopRichPresence();
 		}
 		ImGui::EndGroup();
+		ImGui::EndTabItem();
 	}
-	ImGui::EndChild();
 }
 
 void MungPlex::Settings::drawSearchSettings()
 {
 	const ImVec2 childYX(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f);
-	ImGui::BeginChild("child_SearchSettings", childYX);
+
+	if (ImGui::BeginTabItem("Search"))
 	{
-		ImGui::SeparatorText("Search Settings");
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 		ImGui::Checkbox("Case Senstive by default", &_searchSettings.DefaultCaseSensitive);
 		ImGui::Checkbox("Color Wheel by default", &_searchSettings.DefaultColorWheel);
 
@@ -224,17 +233,17 @@ void MungPlex::Settings::drawSearchSettings()
 		ImGui::Checkbox("Disable Undo by default", &_searchSettings.DefaultDisableUndo);
 		ImGui::SameLine();
 		HelpMarker("Whether search results shall be kept in RAM (uses more RAM, but faster) or saved to local starage (uses less RAM but slower).");
+		ImGui::EndTabItem();
 	}
-	ImGui::EndChild();
 }
 
 void MungPlex::Settings::drawCheatSettings()
 {
 	const ImVec2 childYX(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f);
-	ImGui::BeginChild("child_CheatSettings", childYX);
+	
+	if (ImGui::BeginTabItem("Cheats"))
 	{
-		ImGui::SeparatorText("Cheats Settings");
-
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 		ImGui::Checkbox("Cheat List by default", &_cheatsSettings.DefaultCheatList);
 
 		if (SetUpInputInt("Default Cheat interval", &_cheatsSettings.DefaultInterval, 1, 10, 1.0f, 0.2f))
@@ -244,19 +253,20 @@ void MungPlex::Settings::drawCheatSettings()
 			else if (_cheatsSettings.DefaultInterval > 240)
 				_cheatsSettings.DefaultInterval = 240;
 		}
+		ImGui::EndTabItem();
 	}
-	ImGui::EndChild();
 }
 
 void MungPlex::Settings::drawDeviceControlSettings()
 {
 	const ImVec2 childYX(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.8f);
-	ImGui::BeginChild("child_DeviceControlSettings", childYX);
+
+	if (ImGui::BeginTabItem("Device Control"))
 	{
-		ImGui::SeparatorText("Device Control Settings");
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 		SetUpInputText("Lovense Token", _deviceControlSettings.LovenseToken.Data(), _deviceControlSettings.LovenseToken.Size(), 1.0f, 0.2f);
+		ImGui::EndTabItem();
 	}
-	ImGui::EndChild();
 }
 
 bool MungPlex::Settings::saveSettings()
