@@ -206,7 +206,9 @@ namespace MungPlex
                     switch (GetInstance()._currentConsoleConnectionType)
                     {
                         case CON_USBGecko:
-                            GetInstance()._usbGecko->Poke(writeValue, address);
+                            if (GetInstance()._usbGecko->Poke(writeValue, address) != FT_OK)
+                                GetInstance()._usbGecko->Disconnect();
+
                             return;
                         default: //CON_UNDEF
                             return;
@@ -218,7 +220,10 @@ namespace MungPlex
                     {
                         case CON_USBGecko:
                             writeValue = Xertz::SwapBytes<dataType>(writeValue);
-                            GetInstance()._usbGecko->Poke(writeValue, address);
+
+                            if (GetInstance()._usbGecko->Poke(writeValue, address) != FT_OK)
+                                GetInstance()._usbGecko->Disconnect();
+
                             return;
                         default: //CON_UNDEF
                             return;
