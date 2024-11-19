@@ -90,7 +90,6 @@ add_executable (MungPlex
     source/ProcessInformation/Emulators/RPCS3_Impl.hpp
     source/ProcessInformation/Emulators/Yuzu_Impl.cpp
     source/ProcessInformation/Emulators/Yuzu_Impl.hpp
-    resources.rc
     source/Settings/Settings.hpp
     source/Settings/Settings.cpp
     source/WatchControl/BoolView_Impl.cpp
@@ -138,10 +137,15 @@ add_executable (MungPlex
     ${LOVENSE_SDK_FOLDER}/WinSDK_Release/includes/LovenseDef.h
     ${LOVENSE_SDK_FOLDER}/WinSDK_Release/includes/LovenseToyInfo.h
     ${FT_LIB_FOLDER}/ftd2xx.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/img/icon/resources.rc
 )
 
 # Link Icon
-target_sources(MungPlex PRIVATE resources.rc)
+target_sources(MungPlex PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/resources/img/icon/resources.rc")
+
+if(WIN32)
+    set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/resources/img/icon/resources.rc" PROPERTIES LANGUAGE RC)
+endif()
 
 find_package(OpenGL REQUIRED)
 

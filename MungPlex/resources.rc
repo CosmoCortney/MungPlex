@@ -1,3 +1,0 @@
-#define IDI_APP_ICON 101
-
-ICON IDI_APP_ICON, "resources\\img\\icon\\icon.ico"
