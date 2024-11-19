@@ -1832,6 +1832,11 @@ void MungPlex::Search::SetDefaultSearchSettings()
 	GetInstance()._disableUndo = Settings::GetSearchSettings().DefaultDisableUndo;
 }
 
+bool MungPlex::Search::IsBusySearching()
+{
+	return GetInstance()._busySearching;
+}
+
 void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 {
 	switch (valueType)

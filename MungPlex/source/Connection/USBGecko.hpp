@@ -109,6 +109,7 @@ namespace MungPlex
 		FT_STATUS Read(char* buf, const uint64_t rangeStart, const uint64_t readSize);
 		FT_STATUS Write(char* buf, const uint64_t rangeStart, const uint64_t writeSize);
 		FT_STATUS Unfreeze();
+		FT_STATUS SendCommand(const uint8_t cmd);
 		RvlStatus GetCurrentStatus();
 		bool IsConnectedAndReady();
 

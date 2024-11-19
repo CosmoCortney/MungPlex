@@ -9,6 +9,7 @@
 #include "../../Log.hpp"
 #include "MungPlexConfig.hpp"
 #include "ProcessInformation.hpp"
+#include "search.hpp"
 #include "Settings.hpp"
 #include <thread>
 
@@ -17,6 +18,7 @@ void MungPlex::Connection::DrawWindow()
 	if (ImGui::Begin("Connection"))
 	{
 		GetInstance().drawConnectionSelect();
+		GetInstance().drawProcessControl();
 	}
 	ImGui::End();
 }
@@ -289,4 +291,39 @@ void MungPlex::Connection::drawDisconnectButton()
 			_checkConnectionThread.detach();
 	}
 	if (disable) ImGui::EndDisabled();
+}
+
+void MungPlex::Connection::drawProcessControl()
+{
+	if (ProcessInformation::GetProcessType() != ProcessInformation::CONSOLE)
+		return;
+
+	if (ProcessInformation::GetConsoleConnectionType() != ProcessInformation::CON_USBGecko)
+		return;
+
+	ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+	static bool busySearching = false;
+	busySearching = Search::IsBusySearching();
+
+	if (!Connection::IsConnected() || busySearching)
+		ImGui::BeginDisabled();
+
+	static USBGecko* gecko = nullptr;
+	gecko = ProcessInformation::GetUsbGecko();
+
+	if (ImGui::Button("Pause"))
+	{
+		gecko->SendCommand(USBGecko::cmd_pause);
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("Resume"))
+	{
+		gecko->SendCommand(USBGecko::cmd_unfreeze);
+	}
+
+	if (!Connection::IsConnected() || busySearching)
+		ImGui::EndDisabled();
 }

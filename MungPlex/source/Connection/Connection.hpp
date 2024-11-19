@@ -47,5 +47,6 @@ namespace MungPlex
         void drawAppTabItem();
         void drawConsoleTabItem();
         void drawDisconnectButton();
+        void drawProcessControl();
     };
 }

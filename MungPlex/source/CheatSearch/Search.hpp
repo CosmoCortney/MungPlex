@@ -40,6 +40,7 @@ namespace MungPlex
         static void SetAlignment(const int alignment);
         static void SetNativeAppSearchSettings();
         static void SetDefaultSearchSettings();
+        static bool IsBusySearching();
 
         SignalCombo _RegionSelectSignalCombo;
         SignalInputText _SignalInputTextRangeStart;

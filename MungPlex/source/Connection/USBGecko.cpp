@@ -138,6 +138,12 @@ FT_STATUS MungPlex::USBGecko::Unfreeze()
     return ftStatus;
 }
 
+FT_STATUS MungPlex::USBGecko::SendCommand(const uint8_t cmd)
+{
+    boost::lock_guard<boost::mutex> lock(s_AccessMutex);
+    return sendGeckoCommand(cmd);
+}
+
 FT_STATUS MungPlex::USBGecko::findUsbGecko()
 {
     DWORD numDevices = 0;
