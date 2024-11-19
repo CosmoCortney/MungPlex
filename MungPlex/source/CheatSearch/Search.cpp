@@ -524,6 +524,9 @@ void MungPlex::Search::drawSearchOptions()
 
 		if (ImGui::Button("Search"))
 		{
+			if(MemoryCompare::MemCompare::GetIterationCount() < 1)
+				_regions = ProcessInformation::GetSystemRegionList();
+
 			_searchActive = true;
 
 			if (_searchThread.joinable())
