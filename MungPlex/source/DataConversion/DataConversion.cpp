@@ -206,7 +206,7 @@ void MungPlex::DataConversion::drawColorConversion()
 	static int selectedSpecializedColorTypeIndex = 0;
 	static ImVec4 specializedColorVal = { 0.0f, 0.0f, 0.0f, 1.0f };
 	static std::string specializedColorValueStr = std::string(48, 0);
-
+	static bool useColorWheel = false;
 	ImVec2 childXY = ImGui::GetContentRegionAvail();
 	//childXY.x *= 0.666f;
 	childXY.y *= 0.5f;
@@ -214,10 +214,9 @@ void MungPlex::DataConversion::drawColorConversion()
 	ImGui::BeginChild("Color Conversion", childXY);
 	{
 		ImGui::SeparatorText("Color Conversion");
-
 		ImVec2 spaceAvail = ImGui::GetContentRegionAvail();
-		ImGui::PushItemWidth(spaceAvail.x * 0.4f);
-		if (ImGui::ColorPicker4("##ColorPickerSpecialized", (float*)&specializedColorVal, specializedColorPickerFlags) || update)
+
+		if (DrawColorPicker(selectedColorID, alpha, &specializedColorVal, useColorWheel, 0.4f))
 		{
 			update = false;
 			ColorValuesToCString(specializedColorVal, selectedColorID, specializedColorValueStr.data(), alpha);
@@ -233,6 +232,8 @@ void MungPlex::DataConversion::drawColorConversion()
 				update = true;
 			}
 
+			DrawExtraColorPickerOptions(&useColorWheel, &specializedColorVal);
+
 			if (ImGui::Checkbox("Enable Alpha", &alpha))
 			{
 				if (alpha)
@@ -247,14 +248,6 @@ void MungPlex::DataConversion::drawColorConversion()
 				}
 
 				update = true;
-			}
-
-			if(ImGui::Button("Pick Color From Screen"))
-			{
-				//HWND windowHandle = GetForegroundWindow(); todo: make this work ):
-				specializedColorVal = PickColorFromScreen();
-				update = true;
-				//MungPlex::SetWindowToForeground(windowHandle);
 			}
 
 			ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 2.0f));

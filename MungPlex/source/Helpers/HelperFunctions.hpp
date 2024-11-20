@@ -786,7 +786,7 @@ namespace MungPlex
         );
     }
 
-    static void DrawColorPicker(const uint32_t colorTypeSelect, const bool forceAlpha, ImVec4* colorVec, const bool useColorWheel, const float width = 1.0f)
+    static bool DrawColorPicker(const uint32_t colorTypeSelect, const bool forceAlpha, ImVec4* colorVec, const bool useColorWheel, const float width = 1.0f)
     {
         int colorPickerFlags = ImGuiColorEditFlags_NoOptions;
         colorPickerFlags |= useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar;
@@ -809,10 +809,12 @@ namespace MungPlex
                 colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
         }
 
+        bool changed = false;
         const ImVec2 childXY = ImGui::GetContentRegionAvail();
         ImGui::PushItemWidth(childXY.x * width);
-        ImGui::ColorPicker4("##SearchColorPicker", (float*)colorVec, colorPickerFlags);
+        changed = ImGui::ColorPicker4("##SearchColorPicker", (float*)colorVec, colorPickerFlags);
         ImGui::PopItemWidth();
+        return changed;
     }
 
     static void DrawExtraColorPickerOptions(bool* useColorWheel, ImVec4* colorVec)
