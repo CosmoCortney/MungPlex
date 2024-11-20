@@ -180,6 +180,7 @@ namespace MungPlex
         void drawPrimitiveSearchOptions();
         void drawArraySearchOptions();
         void drawColorSearchOptions();
+        void drawColorSelectOptions();
         void drawTextSearchOptions();
         void prepareLiveUpdateValueList();
         void setLiveUpdateRefreshRate();
@@ -198,6 +199,7 @@ namespace MungPlex
         void setRecommendedValueSettings(const int valueType);
         void setUpIterationSelect();
         void setUpResultPaging();
+        void performValuePoke();
 
         template<typename addressType> bool pokeText()
         {

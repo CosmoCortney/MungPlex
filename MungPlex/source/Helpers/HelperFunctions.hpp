@@ -34,7 +34,7 @@ namespace MungPlex
     template<typename addressType> static addressType TranslatePtrTo4BytesReorderingPtr(addressType ptr)
     {
         uint64_t tempPtr;
-        
+
         if constexpr (std::is_same_v<uint64_t, addressType>)
             tempPtr = ptr;
         else
@@ -71,7 +71,7 @@ namespace MungPlex
             char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
             process.ReadMemoryFast(dest + i, reorderedAddress, 1);
         }
-        
+
         return;
     }
 
@@ -117,7 +117,7 @@ namespace MungPlex
         if (text[textLength - 1] == '\n')
             --textLength;
 
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteMemoryFast(text, reinterpret_cast<void*>(address), textLength*2);
+        Xertz::SystemInfo::GetProcessInfo(pid).WriteMemoryFast(text, reinterpret_cast<void*>(address), textLength * 2);
         return true;
     }
 
@@ -144,7 +144,7 @@ namespace MungPlex
 
     static ImU32 ImVec4ToPackedColor(const ImVec4& colorVec)
     {
-	    return IM_COL32(int(colorVec.x * 255), int(colorVec.y * 255), int(colorVec.z * 255), int(colorVec.w * 255));
+        return IM_COL32(int(colorVec.x * 255), int(colorVec.y * 255), int(colorVec.z * 255), int(colorVec.w * 255));
     }
 
     static ImVec4 PickColorFromScreen()
@@ -203,7 +203,7 @@ namespace MungPlex
         case LitColor::RGBAF:
             cstream << rgba.x << ", " << rgba.y << ", " << rgba.z << ", " << rgba.w;
             break;
-        case LitColor::RGB565:{
+        case LitColor::RGB565: {
             LitColor color((float*)&rgba);
             cstream << "#" << std::hex << std::setfill('0') << std::setw(4) << color.GetRGB565();
         }break;
@@ -214,8 +214,8 @@ namespace MungPlex
         default: //RGB888
             cstream << "#" << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(rgba.x * 255.0f) << std::setw(2) << static_cast<int>(rgba.y * 255.0f) << std::setw(2) << static_cast<int>(rgba.z * 255.0f);
         }
-        
-        strcpy_s(destination, 48,cstream.str().c_str());
+
+        strcpy_s(destination, 48, cstream.str().c_str());
     }
 
     template<typename uType> static void SwapBytesArray(OperativeArray<uType>& arr)
@@ -253,7 +253,7 @@ namespace MungPlex
                 return "%08X";
             }
         }
-        
+
         switch (valueType)
         {
         case INT8:
@@ -290,7 +290,7 @@ namespace MungPlex
     }
 
     static int s_globalWindowFlag = 0;
-	
+
     static void SetWindowToForeground(HWND hWnd)// todo: make this work ):
     {
         SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -301,7 +301,7 @@ namespace MungPlex
 
         LONG_PTR style = GetWindowLongPtr(hWnd, GWL_STYLE);
         style &= ~WS_EX_TOPMOST;
-       SetWindowLongPtr(hWnd, GWL_STYLE, style);
+        SetWindowLongPtr(hWnd, GWL_STYLE, style);
         SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         SetForegroundWindow(hWnd);
         ImGui::SetWindowFocus();
@@ -341,7 +341,7 @@ namespace MungPlex
         {
             for (int i = 0; i < input.size(); ++i)
             {
-                if(input[i] != 0x20)
+                if (input[i] != 0x20)
                     output += input[i];
             }
         }
@@ -366,10 +366,10 @@ namespace MungPlex
 
     static void PrepareWidgetLabel(const std::string& name, const float paneWidth, const float labelPortion, bool printLabel, const char* helpText = nullptr)
     {
-    	const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;
+        const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;
         const float curserPos = ImGui::GetCursorPos().x;
 
-        if(printLabel)
+        if (printLabel)
         {
             ImGui::Text(name.c_str());
             ImGui::SameLine();
@@ -383,7 +383,7 @@ namespace MungPlex
             ImGui::PushItemWidth(absoluteWidth * (1.0f - labelPortion));
         }
         else
-			ImGui::PushItemWidth(absoluteWidth);
+            ImGui::PushItemWidth(absoluteWidth);
     }
 
     static void PrepareWidgetLabel(const char* name, const float paneWidth, const float labelPortion, bool printLabel, const char* helpText = nullptr)
@@ -491,7 +491,7 @@ namespace MungPlex
         std::string _str;
         int _floor;
 
-    public: 
+    public:
         FloorString(const std::string& str, const int lowerLimit)
         {
             _str = str;
@@ -553,7 +553,7 @@ namespace MungPlex
     public:
         typedef std::function<void()> Slot;
 
-    private: 
+    private:
         int _index = 0;
         int _itemCount = 0;
         std::string _text = "";
@@ -561,8 +561,8 @@ namespace MungPlex
         std::vector<Slot> _slotsOnItemCountChanged{};
         std::vector<Slot> _slotsOnTextChanged{};
 
-    public: 
-        SignalCombo(){}
+    public:
+        SignalCombo() {}
         void Draw(const IPairs& pair, int& select, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
         {
             if (pair.GetCount() > 0)
@@ -574,7 +574,7 @@ namespace MungPlex
 
                     _index = select;
                 }
- 
+
                 if (_slotsOnItemCountChanged.size() > 0 && _itemCount != pair.GetCount())
                 {
                     for (const auto& slot : _slotsOnItemCountChanged)
@@ -603,7 +603,7 @@ namespace MungPlex
         void ConnectOnItemCountChanged(const Slot slot)
         {
             _slotsOnItemCountChanged.emplace_back(slot);
-        }  
+        }
 
         void ConnectOnTextChanged(const Slot slot)
         {
@@ -643,7 +643,7 @@ namespace MungPlex
         }
     };
 
-    inline std::filesystem::path GetResourcesFilePath(const std::filesystem::path &resourceFileName)
+    inline std::filesystem::path GetResourcesFilePath(const std::filesystem::path& resourceFileName)
     {
         const auto resourcesDirectory = "resources" / resourceFileName;
 
@@ -666,13 +666,13 @@ namespace MungPlex
             0x0020, 0xFFFF, //Just get all of it. IDK if this is a good idea, but it works
             0,
         };
-        
+
         return io.Fonts->AddFontFromFileTTF(GetResourcesFilePath("NotoSansJP-KR-SC-TH_black.ttf").string().data(), scale, nullptr, ranges);
     }
 
     static void PopBackTrailingChars(std::string& str, const char ch)
     {
-        while(str.back() == ch)
+        while (str.back() == ch)
             str.pop_back();
     }
 
@@ -768,6 +768,67 @@ namespace MungPlex
 
                 pointerPath.push_back(stoll(line, 0, 16));
             }
+        }
+    }
+
+    static void DrawBottomLine()
+    {
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+        ImVec2 childMin = ImGui::GetWindowPos();
+        ImVec2 childMax = ImVec2(childMin.x + ImGui::GetWindowWidth(), childMin.y + ImGui::GetWindowHeight());
+        ImU32 borderColor = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyle().Colors[ImGuiCol_Border]);
+
+        draw_list->AddLine(
+            ImVec2(childMin.x, childMax.y - 1.0f),
+            ImVec2(childMax.x, childMax.y - 1.0f),
+            borderColor,
+            1.0f
+        );
+    }
+
+    static void DrawColorPicker(const uint32_t colorTypeSelect, const bool forceAlpha, ImVec4* colorVec, const bool useColorWheel, const float width = 1.0f)
+    {
+        int colorPickerFlags = ImGuiColorEditFlags_NoOptions;
+        colorPickerFlags |= useColorWheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar;
+
+        switch (colorTypeSelect)
+        {
+        case LitColor::RGBA8888:
+            colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf;
+            break;
+        case LitColor::RGBF:
+            colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoAlpha;
+            break;
+        case LitColor::RGBAF:
+            colorPickerFlags |= ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf;
+            break;
+        default: //RGB888, RGB565, RGB5A3
+            if (forceAlpha)
+                colorPickerFlags |= ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf;
+            else
+                colorPickerFlags |= ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_NoAlpha;
+        }
+
+        const ImVec2 childXY = ImGui::GetContentRegionAvail();
+        ImGui::PushItemWidth(childXY.x * width);
+        ImGui::ColorPicker4("##SearchColorPicker", (float*)colorVec, colorPickerFlags);
+        ImGui::PopItemWidth();
+    }
+
+    static void DrawExtraColorPickerOptions(bool* useColorWheel, ImVec4* colorVec)
+    {
+        ImGui::Checkbox("Color Wheel", useColorWheel);
+
+        if (colorVec == nullptr)
+            return;
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Pick screen color"))
+        {
+            //HWND windowHandle = GetForegroundWindow(); todo: make this work ): 
+            *colorVec = PickColorFromScreen();
+            //MungPlex::SetWindowToForeground(windowHandle);
         }
     }
 }
