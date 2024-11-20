@@ -404,7 +404,8 @@ void MungPlex::Search::drawColorSearchOptions()
 			_updateLabels = true;
 
 		if (!_diableBecauseUnknownAndNotRangebased)
-			SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 1.0f, 0.4f);
+			if(SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 1.0f, 0.4f))
+				LitColorExpressionToImVec4(_knownValueText.CStr(), &_searchColorVec);
 
 		SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 1.0f, 0.4f);
 	}
@@ -417,13 +418,13 @@ void MungPlex::Search::drawColorSelectOptions()
 
 	ImGui::BeginChild("child_colorSelect");
 	ImGui::BeginGroup();
-	DrawExtraColorPickerOptions(&_useColorWheel, &_colorVec);
+	DrawExtraColorPickerOptions(&_useColorWheel, &_searchColorVec);
 	ImGui::EndGroup();
 
 	ImGui::BeginGroup();
 	{
-		DrawColorPicker(_currentColorTypeSelect, _forceAlpha, &_colorVec, _useColorWheel, 0.75f);
-		ColorValuesToCString(_colorVec, _currentColorTypeSelect, _knownValueText.Data(), _forceAlpha);
+		if (DrawColorPicker(_currentColorTypeSelect, _forceAlpha, &_searchColorVec, _useColorWheel, 0.75f))
+			ColorValuesToCString(_searchColorVec, _currentColorTypeSelect, _knownValueText.Data(), _forceAlpha);
 	}
 	ImGui::EndGroup();
 	ImGui::EndChild();
@@ -568,7 +569,12 @@ void MungPlex::Search::drawResultsArea()
 				ImGui::BeginGroup();
 				{
 					SetUpInputText("Address:", _pokeAddressText.Data(), _pokeAddressText.Size(), 1.0f, 0.2f);
-					SetUpInputText("Value:", _pokeValueText.Data(), _pokeValueText.Size(), 1.0f, 0.2f);
+
+					if (SetUpInputText("Value:", _pokeValueText.Data(), _pokeValueText.Size(), 1.0f, 0.2f))
+					{
+						if(_currentValueTypeSelect == COLOR)
+							LitColorExpressionToImVec4(_pokeValueText.CStr(), &_pokeColorVec);
+					}
 				}
 				ImGui::EndGroup();
 
@@ -614,10 +620,9 @@ void MungPlex::Search::drawResultsArea()
 
 				if (_currentValueTypeSelect == COLOR)
 				{
-					static ImVec4 pokeColor;
-					DrawExtraColorPickerOptions(&_useColorWheel, &pokeColor);
-					DrawColorPicker(_currentColorTypeSelect, _forceAlpha, &pokeColor, _useColorWheel, 0.8f);
-					ColorValuesToCString(pokeColor, _currentColorTypeSelect, _pokeValueText.Data(), _forceAlpha);
+					DrawExtraColorPickerOptions(&_useColorWheel, &_pokeColorVec);
+					if(DrawColorPicker(_currentColorTypeSelect, _forceAlpha, &_pokeColorVec, _useColorWheel, 0.8f))
+						ColorValuesToCString(_pokeColorVec, _currentColorTypeSelect, _pokeValueText.Data(), _forceAlpha);
 				}
 			}
 			if (MemoryCompare::MemCompare::GetResultCount() == 0) ImGui::EndDisabled();
@@ -1657,6 +1662,9 @@ void MungPlex::Search::drawResultsTableNew()
 		{
 			_pokeAddressText = tempAddress;
 			_pokeValueText = tempValue;
+
+			if (_currentValueTypeSelect == COLOR)
+				LitColorExpressionToImVec4(_pokeValueText.CStr(), &_pokeColorVec);
 		}
 	}
 

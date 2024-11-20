@@ -254,13 +254,7 @@ void MungPlex::DataConversion::drawColorConversion()
 			ImGui::Text("Specialized Value:");
 
 			if (SetUpInputText("##Specialized Val:", specializedColorValueStr.data(), specializedColorValueStr.size(), 1.0f, 0.333f, false))
-			{
-				LitColor specialized(specializedColorValueStr);
-				specializedColorVal.x = specialized.GetColorValue<float>(0);
-				specializedColorVal.y = specialized.GetColorValue<float>(1);
-				specializedColorVal.z = specialized.GetColorValue<float>(2);
-				specializedColorVal.w = specialized.GetColorValue<float>(3);
-			}
+				LitColorExpressionToImVec4(specializedColorValueStr.c_str(), &specializedColorVal);
 		}
 		ImGui::EndGroup();
 	}

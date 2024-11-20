@@ -136,6 +136,8 @@ namespace MungPlex
         StringIdPairs _iterations = { {}, {}, "Counter Iteration:"};
         int _iterationIndex = 0;
         bool _updateLabels = true;
+        ImVec4 _searchColorVec = { 0.0f, 0.0f, 0.0f, 1.0f };
+        ImVec4 _pokeColorVec = { 0.0f, 0.0f, 0.0f, 1.0f };
 
         //range options
         std::vector<SystemRegion> _regions{};

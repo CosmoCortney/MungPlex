@@ -833,4 +833,16 @@ namespace MungPlex
             //MungPlex::SetWindowToForeground(windowHandle);
         }
     }
+
+    static void LitColorExpressionToImVec4(const std::string str, ImVec4* colorVec)
+    {
+        if (colorVec == nullptr)
+            return;
+
+        LitColor specialized(str);
+        colorVec->x = specialized.GetColorValue<float>(0);
+        colorVec->y = specialized.GetColorValue<float>(1);
+        colorVec->z = specialized.GetColorValue<float>(2);
+        colorVec->w = specialized.GetColorValue<float>(3);
+    }
 }
