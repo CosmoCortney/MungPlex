@@ -100,8 +100,28 @@ void MungPlex::ContextMenu::drawHelpMenuItems()
         if (ImGui::MenuItem("Cheat Code Database"))
             GetInstance().openWebPage("https://lawnmeower.de");
 
-        if (ImGui::MenuItem("Get your Lovense token"))
-            GetInstance().openWebPage("https://en.lovense.com/user/developer/info");
+        if (ImGui::BeginMenu("USB Gecko"))
+        {
+            if (ImGui::MenuItem("Get your USB Gecko"))
+                GetInstance().openWebPage("https://store.webhdx.dev");
+
+            if (ImGui::MenuItem("Download the required FTDI drivers"))
+                GetInstance().openWebPage("https://ftdichip.com/drivers/d2xx-drivers/");
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Device Control"))
+        {
+            if (ImGui::MenuItem("Get your Lovense token"))
+                GetInstance().openWebPage("https://en.lovense.com/user/developer/info");
+            
+
+            if (ImGui::MenuItem("Get your Lovense USB Bluetooth Adapter"))
+                GetInstance().openWebPage("https://lovense.com/bluetooth-adapter");
+
+            ImGui::EndMenu();
+        } 
 
         ImGui::EndMenu();
     }
