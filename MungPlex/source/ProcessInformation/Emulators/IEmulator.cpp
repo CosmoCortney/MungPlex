@@ -124,4 +124,6 @@ bool MungPlex::IEmulator::obtainGameEntities(const std::string& systemName, std:
 
 		Value = entityValue;
 	}
+
+	return true;
 }

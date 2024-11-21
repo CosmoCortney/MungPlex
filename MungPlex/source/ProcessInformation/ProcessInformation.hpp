@@ -269,23 +269,23 @@ namespace MungPlex
             return Instance;
         }
 
-        int32_t _processType;
+        int32_t _processType = NONE;
         PROCESS_INFO _process;
-        bool _underlyingIsBigEndian;
-        bool _rereorderRegion;
-        int _alignment;
-        GLFWwindow* _window;
+        bool _underlyingIsBigEndian = false;
+        bool _rereorderRegion = false;
+        int _alignment = 4;
+        GLFWwindow* _window = nullptr;
         std::string _gameID;
         std::string _rpcGameID;
         std::string _platform;
         std::string _processName;
         std::string _gameName;
         std::string _gameRegion;
-        int32_t _addressWidth;
+        int32_t _addressWidth = 4;
         std::vector<GameEntity> _gameEntities;
         std::vector<SystemRegion> _systemRegions;
         std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
-        int32_t _currentEmulatorNumber;
+        int32_t _currentEmulatorNumber = -1;
         static RegionPairs __systemRegions;
         static const StringIdPairs _emulators;
         static const StringIdPairs _systems;

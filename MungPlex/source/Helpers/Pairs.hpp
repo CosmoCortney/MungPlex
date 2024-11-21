@@ -30,7 +30,7 @@ namespace MungPlex
     public:
         const char* GetCString(const uint32_t index) const;
         const char* const* GetData() const;
-        const uint32_t GetCount() const;
+        const uint64_t GetCount() const;
         const std::string& GetLabelStdString() const;
         const char* GetLabelCString() const;
         const std::string& GetComboLabelStdString() const;
@@ -57,12 +57,15 @@ namespace MungPlex
         const int GetId(const uint32_t index) const;
         const int GetIndexById(const int id) const;
         void PushBack(const std::string& str, const int id);
-        void PopBack(const uint32_t count);
+        void PopBack(const int64_t count);
         void Clear();
 
     protected:
         std::vector<std::string> _strings;
         std::vector<int> _ids;
+
+    private:
+        const std::string _dummy = "";
     };
 
     class ProcessInforPairs: public IPairs
@@ -113,13 +116,14 @@ namespace MungPlex
         const int GetId(const uint32_t index) const;
         const int GetIndexById(const int id) const;
         void PushBack(const std::string& entity, const std::string& label, const int id);
-        void PopBack(const uint32_t count);
+        void PopBack(const int64_t count);
         void Clear();
 
     private:
         std::vector<std::string> _labelList;
         std::vector<std::string> _entityNames;
         std::vector<int> _ids;
+        const std::string _dummy = "";
     };
 
     class StringIdBoolPairs: public StringIdPairs
@@ -128,7 +132,7 @@ namespace MungPlex
         StringIdBoolPairs(const std::vector<std::string>& strings, const std::vector<int32_t>& ids, const std::vector<bool>& flags, const std::string& label);
 
         void PushBack(const std::string& str, const int id, const bool flag);
-        void PopBack(const uint32_t count);
+        void PopBack(const int64_t count);
         bool GetFlag(const uint32_t index) const;
         void Clear();
 

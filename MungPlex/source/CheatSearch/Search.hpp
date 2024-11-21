@@ -102,7 +102,6 @@ namespace MungPlex
         static const StringIdPairs _searchConditionTypesColor;
         static const StringIdPairs _searchConditionTypesText;
         static const StringIdPairs _searchComparasionType;
-        ImVec4 _colorVec;
 
         //search settings
         int _currentcomparisonTypeSelect = 0;

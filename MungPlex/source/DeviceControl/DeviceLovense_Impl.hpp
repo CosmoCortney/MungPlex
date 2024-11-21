@@ -35,8 +35,11 @@ namespace MungPlex
             else
                 factor = static_cast<double>(max) / 20.1;
 
-            int res = val / factor;
+            const double temp = static_cast<const double>(val) / factor;
+            const int res = static_cast<const int>(temp / factor);
+#ifndef NDEBUG
             std::cout << "res: " << res << ", val: " << val << ", factor: " << factor << std::endl;
+#endif
             return std::clamp(res, 0, 20);
         }
 

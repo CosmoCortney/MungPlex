@@ -31,7 +31,7 @@ void key_callback(GLFWwindow* window, const int key, const int scancode, const i
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
-glfwSetWindowShouldClose(window, GL_TRUE);
+		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 }
 
@@ -133,7 +133,7 @@ int main()
 
 		int displayWidth, displayHeight;
 		glfwGetWindowSize(window, &displayWidth, &displayHeight);
-		ImGui::SetNextWindowSize(ImVec2(displayWidth,displayHeight));
+		ImGui::SetNextWindowSize(ImVec2(static_cast<float>(displayWidth), static_cast<float>(displayHeight)));
 
 		//Container window
 		ImGui::Begin("MungPlex", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);

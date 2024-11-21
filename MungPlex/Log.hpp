@@ -32,7 +32,7 @@ namespace MungPlex
         
         static std::string _logMessage;
         bool _logToFile = true;
-        std::fstream* _logFile;
+        std::fstream* _logFile = nullptr;
         bool _initialized = false;
         std::string _logPath;
 

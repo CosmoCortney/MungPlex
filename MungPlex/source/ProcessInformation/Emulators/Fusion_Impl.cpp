@@ -7,8 +7,8 @@ bool MungPlex::Fusion::Init(const Xertz::ProcessInfo& process, std::vector<GameE
 	bool romFound = false;
 	uint64_t modAddr = process.GetModuleAddress(L"Fusion.exe");
 	uint16_t headerSize = 0x200;
-	uint32_t romPTR = 0;
-	uint32_t ramPTR = 0;
+	uint64_t romPTR = 0;
+	uint64_t ramPTR = 0;
 	static const uint32_t AGES = 0x41474553;
 	std::vector<uint32_t> romHeader(headerSize / sizeof(uint32_t));
 

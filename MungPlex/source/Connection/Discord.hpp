@@ -22,8 +22,8 @@ namespace MungPlex
 		bool createCore();
 		bool isCoreValid();
 		bool getCurrentUser(discord::User& currentUser);
-		bool _discordRunningPreviously;
-		discord::Core* _core;
+		bool _discordRunningPreviously = false;
+		discord::Core* _core = nullptr;
 		discord::Result _result;
 		discord::Activity _activity;
 		std::string _richPresenceDetails;

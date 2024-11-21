@@ -1194,8 +1194,10 @@ bool MungPlex::Cheats::convertToLua()
 {
 	switch (_selectedCheatType)
 	{
-	case CheatConvert::GCN_AR:
-		return CheatConvert::GcnArToLua();
+		case CheatConvert::GCN_AR:
+			return CheatConvert::GcnArToLua();
+		default:
+			return 0;
 	}
 }
 

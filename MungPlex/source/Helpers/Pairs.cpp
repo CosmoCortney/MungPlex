@@ -10,7 +10,7 @@ const char* const* MungPlex::IPairs::GetData() const
 	return _stringPointers.data();
 }
 
-const uint32_t MungPlex::IPairs::GetCount() const
+const uint64_t MungPlex::IPairs::GetCount() const
 {
 	return _stringPointers.size();
 }
@@ -66,7 +66,7 @@ const std::string& MungPlex::StringIdPairs::GetStdStringById(const int32_t id) c
 		if (id == _ids[i])
 			return _strings[i];
 
-	return "";
+	return _dummy;
 }
 
 const int MungPlex::StringIdPairs::GetId(const uint32_t index) const
@@ -90,9 +90,14 @@ void MungPlex::StringIdPairs::PushBack(const std::string& str, const int id)
 	_ids.push_back(id);
 }
 
-void MungPlex::StringIdPairs::PopBack(const uint32_t count)
+void MungPlex::StringIdPairs::PopBack(const int64_t count)
 {
-	for (int i = _ids.size() - 1; i < _ids.size() - count - 1; --i)
+	if (count <= 0)
+		throw "Error: Cannot pop-back 0 or less elements.";
+
+	const int64_t size = static_cast<int64_t>(_ids.size());
+
+	for (int64_t i = size - 1; i < size - count - 1; --i)
 	{
 		_strings.pop_back();
 		_stringPointers.pop_back();
@@ -198,7 +203,7 @@ const std::string& MungPlex::DoubleStringIdPairs::GetStdStringLabelById(const in
 		if (id == _ids[i])
 			return _labelList[i];
 
-	return "";
+	return _dummy;
 }
 
 const std::string& MungPlex::DoubleStringIdPairs::GetStdStrinEntityById(const int32_t id) const
@@ -207,7 +212,7 @@ const std::string& MungPlex::DoubleStringIdPairs::GetStdStrinEntityById(const in
 		if (id == _ids[i])
 			return _entityNames[i];
 
-	return "";
+	return _dummy;
 }
 
 const int MungPlex::DoubleStringIdPairs::GetId(const uint32_t index) const
@@ -232,9 +237,14 @@ void MungPlex::DoubleStringIdPairs::PushBack(const std::string& entity, const st
 	_ids.push_back(id);
 }
 
-void MungPlex::DoubleStringIdPairs::PopBack(const uint32_t count)
+void MungPlex::DoubleStringIdPairs::PopBack(const int64_t count)
 {
-	for (int i = _ids.size() - 1; i < _ids.size() - count - 1; --i)
+	if (count <= 0)
+		throw "Error: Cannot pop-back 0 or less elements.";
+
+	const int64_t size = static_cast<int64_t>(_ids.size());
+
+	for (int64_t i = size - 1; i < size - count - 1; --i)
 	{
 		_entityNames.pop_back();
 		_labelList.pop_back();
@@ -268,9 +278,14 @@ void MungPlex::StringIdBoolPairs::PushBack(const std::string& str, const int id,
 	_flags.push_back(flag);
 }
 
-void MungPlex::StringIdBoolPairs::PopBack(const uint32_t count)
+void MungPlex::StringIdBoolPairs::PopBack(const int64_t count)
 {
-	for (int i = _ids.size() - 1; i < _ids.size() - count - 1; --i)
+	if (count <= 0)
+		throw "Error: Cannot pop-back 0 or less elements.";
+
+	const int64_t size = static_cast<int64_t>(_ids.size());
+
+	for (int64_t i = size - 1; i < size - count - 1; --i)
 	{
 		_strings.pop_back();
 		_stringPointers.pop_back();

@@ -699,7 +699,12 @@ namespace MungPlex
     {
         auto now = std::chrono::system_clock::now();
         std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
-        std::tm now_tm = *std::localtime(&now_time_t);
+
+        std::tm* nowTm = std::localtime(&now_time_t);
+
+        if (nowTm == nullptr)
+            throw "Error: Could not get local time.";
+
         std::string timeArgs;
 
         if (flags & YEAR)
@@ -722,7 +727,7 @@ namespace MungPlex
 
         PopBackTrailingChars(timeArgs, '-');
         std::ostringstream stream;
-        stream << std::put_time(&now_tm, timeArgs.c_str());
+        stream << std::put_time(nowTm, timeArgs.c_str());
         return stream.str();
     }
 
