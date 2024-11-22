@@ -178,6 +178,7 @@ namespace MungPlex
 
         //value type options
         void drawValueTypeOptions();
+        void setFormatting();
 
         //range options
         void drawRangeOptions();

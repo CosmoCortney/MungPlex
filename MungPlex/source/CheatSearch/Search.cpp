@@ -95,6 +95,7 @@ MungPlex::Search::Search()
 	_useColorWheel = Settings::GetSearchSettings().DefaultColorWheel;
 	_hex = Settings::GetSearchSettings().DefaultValuesHex;
 	_resultsPath = MT::Convert<char*, std::wstring>(Settings::GetGeneralSettings().DocumentsPath, MT::UTF8, MT::UTF16LE) + L"\\MungPlex\\Search\\";
+	setFormatting();
 }
 
 void MungPlex::Search::DrawWindow()
@@ -167,6 +168,7 @@ void MungPlex::Search::drawValueTypeOptions()
 					_updateLabels = true;
 					_knownValueText = "";
 					_secondaryKnownValueText = "";
+					setFormatting();
 				}
 
 				if (_currentValueTypeSelect == TEXT || _currentValueTypeSelect == COLOR)
@@ -175,7 +177,8 @@ void MungPlex::Search::drawValueTypeOptions()
 				if (_currentValueTypeSelect == PRIMITIVE || _currentPrimitiveTypeSelect >= FLOAT)
 				{
 					ImGui::SameLine();
-					ImGui::Checkbox("Hex", &GetInstance()._hex);
+					if (ImGui::Checkbox("Hex", &GetInstance()._hex))
+						setFormatting();
 				}
 
 				switch (_currentValueTypeSelect)
@@ -220,6 +223,14 @@ void MungPlex::Search::drawValueTypeOptions()
 		if (_searchActive) ImGui::EndDisabled();
 	}
 	ImGui::EndChild();
+}
+
+void MungPlex::Search::setFormatting()
+{
+	if (_currentValueTypeSelect == PRIMITIVE)
+		_formatting = GetStringFormatting(_currentPrimitiveTypeSelect, _signed, _hex);
+	else if (_currentValueTypeSelect == ARRAY)
+		_formatting = GetStringFormatting(_currentArrayTypeSelect, _signed, _hex);
 }
 
 void MungPlex::Search::drawRangeOptions()
@@ -1876,15 +1887,12 @@ bool MungPlex::Search::IsBusySearching()
 
 void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 {
-	if (_currentValueTypeSelect == PRIMITIVE)
-		_formatting = GetStringFormatting(_currentPrimitiveTypeSelect, _signed, _hex);
-	else
-		_formatting = GetStringFormatting(_currentArrayTypeSelect, _signed, _hex);
+	setFormatting();
 
 	switch (valueType)
 	{
 		case ARRAY:
-			_currentColorTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeIndex= 0;
+			_currentColorTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeIndex = 0;
 		break;	
 		case COLOR:
 			_currentArrayTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeIndex = 0;
