@@ -538,8 +538,10 @@ void MungPlex::Search::drawSearchOptions()
 		}
 
 		ImGui::SameLine();
+		static bool disableResetButton = true;
+		disableResetButton = _iterationCount < 1;
 
-		if (_iterationCount < 1) ImGui::BeginDisabled();
+		if (disableResetButton) ImGui::BeginDisabled();
 		if (ImGui::Button("Reset"))
 		{
 			MemoryCompare::MemCompare::Reset();
@@ -549,8 +551,7 @@ void MungPlex::Search::drawSearchOptions()
 			_searchActive = false;
 			_currentPageValue = 0;
 		}
-
-		if (_iterationCount < 1) ImGui::EndDisabled();
+		if (disableResetButton) ImGui::EndDisabled();
 
 		ImGui::EndChild();
 
