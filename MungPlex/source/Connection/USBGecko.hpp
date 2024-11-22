@@ -124,7 +124,7 @@ namespace MungPlex
 			*reinterpret_cast<uint32_t*>(pokeAddrValPair.data()) = std::byteswap(pokeAddress);
 			*reinterpret_cast<dataType*>(&pokeAddrValPair[8 - sizeof(dataType)]) = pokeVal;
 
-			if constexpr (std::is_same_v<dataType, int8_t> || std::is_same_v<dataType, uint8_t>)
+			if constexpr (std::is_same_v<dataType, int8_t> || std::is_same_v<dataType, uint8_t> || std::is_same_v<dataType, char>)
 			{
 				if ((ftStatus = sendGeckoCommand(cmd_poke08)) != FT_OK)
 					return ftStatus;

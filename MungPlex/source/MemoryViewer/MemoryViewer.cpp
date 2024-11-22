@@ -123,7 +123,7 @@ void MungPlex::MemoryViewer::drawHexEditor()
     {
         if (_validAddress)
         {
-            if(ProcessInformation::GetConsoleConnectionType() != ProcessInformation::CONSOLE)
+            if(ProcessInformation::GetProcessType() != ProcessInformation::CONSOLE)
                 _memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, ProcessInformation::GetHandle(), _readAddressEx, _rereorder);
             else
             {
@@ -131,12 +131,12 @@ void MungPlex::MemoryViewer::drawHexEditor()
                 {
                 case ProcessInformation::CON_USBGecko:
                 {
-                    static uint64_t byteWriteAddress = 0;
+                    static uint64_t byteWriteOffset = 0;
 
-                    if (_memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, NULL, nullptr, false, 0, &byteWriteAddress))
+                    if (_memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, NULL, nullptr, false, 0, &byteWriteOffset))
                     {
                         USBGecko* gecko = ProcessInformation::GetUsbGecko();
-                        gecko->Poke<char>(_hexView[byteWriteAddress - _viewAddress], byteWriteAddress);
+                        gecko->Poke<char>(_hexView[byteWriteOffset], byteWriteOffset + _viewAddress);
                         refreshMemory();
                     }
                 } break;
