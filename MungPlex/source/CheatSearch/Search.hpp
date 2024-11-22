@@ -133,7 +133,8 @@ namespace MungPlex
         FloorString _knownValueText = FloorString("", 256);
         FloorString _secondaryKnownValueText = FloorString("", 256);
         StringIdPairs _iterations = { {}, {}, "Counter Iteration:"};
-        int _iterationIndex = 0;
+        int _iterationIndex = 0; 
+        uint32_t _iterationCount = 0;
         bool _updateLabels = true;
         ImVec4 _searchColorVec = { 0.0f, 0.0f, 0.0f, 1.0f };
         ImVec4 _pokeColorVec = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -173,33 +174,52 @@ namespace MungPlex
         uint64_t _lastPageResultCount = 0;
         uint16_t _arrayItemCount = 0;
         uint32_t _liveUpdateMilliseconds = 16;
+        std::string _formatting;
 
-        void setUpAndIterate();
+        //value type options
         void drawValueTypeOptions();
+
+        //range options
         void drawRangeOptions();
-        void drawSearchOptions();
-        void drawPrimitiveSearchOptions();
-        void drawArraySearchOptions();
-        void drawColorSearchOptions();
-        void drawColorSelectOptions();
-        void drawTextSearchOptions();
-        void prepareLiveUpdateValueList();
-        void setLiveUpdateRefreshRate();
-        void updateLivePreview();
-        void updateLivePreviewOnce();
-        void updateLivePreviewConditional();
-        void drawResultsArea();
+
+        //setup search
+        void setUpAndIterate();
         void performSearch();
         void primitiveTypeSearchLog();
         void arrayTypeSearchLog();
         void textTypeSearchLog();
         void colorTypeSearchLog();
-        void drawResultsTableNew();
         void generateDumpRegionMap();
         void emplaceDumpRegion(const uint16_t index);
         void setRecommendedValueSettings(const int valueType);
+
+        //search options
+        void drawSearchOptions();
+        void drawPrimitiveSearchOptions();
+        void drawArraySearchOptions();
+        void drawColorSelectOptions();
+        void drawColorSearchOptions();
+        void drawTextSearchOptions();
         void setUpIterationSelect();
+
+        //results
         void setUpResultPaging();
+        void drawResultsArea();
+        void drawResultsTable();
+        bool isSelectionOrIndexOurOfBounds(const uint64_t row, const uint64_t resultCount);
+        void drawPrimitiveTableRow(const int col, const uint64_t row, const uint64_t pageIndexWithRowCount, FloorString& buf, FloorString& tempValue);
+        void drawArrayTableRow(const int col, const uint64_t pageIndexWithRowCount, FloorString& buf, FloorString& tempValue);
+        void drawColorTableRow(const int col, const uint64_t row, const uint64_t pageIndexWithRowCount, FloorString& buf, FloorString& tempValue);
+        void drawTextTableRow(const int col, const uint64_t row, const uint64_t pageIndexWithRowCount, FloorString& buf, FloorString& tempValue);
+        void drawSelectedTableRowColor(const uint64_t row, FloorString& buf);
+        void selectRows(const uint64_t row, bool& rowClicked, FloorString& tempAddress);
+        void prepareLiveUpdateValueList();
+        void setLiveUpdateRefreshRate();
+        void updateLivePreview();
+        void updateLivePreviewOnce();
+        void updateLivePreviewConditional();
+
+        //value poke
         void performValuePoke();
 
         template<typename addressType> bool pokeText()
@@ -506,8 +526,6 @@ namespace MungPlex
                 if(i < itemCount-1)
                     strcat_s(buf.Data(), buf.Size(), ", ");
             }
-
-            //std::puts(buf);
         }
 
     };

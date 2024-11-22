@@ -234,7 +234,7 @@ namespace MungPlex
         }
     }
 
-    static const char* GetStringLiteral(const int valueType, const bool isSigned, const bool hex)
+    static const std::string GetStringFormatting(const int valueType, const bool isSigned, const bool hex)
     {
         if (valueType == FLOAT || valueType == DOUBLE)
             return "%.4f";
