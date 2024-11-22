@@ -97,7 +97,7 @@ void MungPlex::StringIdPairs::PopBack(const int64_t count)
 
 	const int64_t size = static_cast<int64_t>(_ids.size());
 
-	for (int64_t i = size - 1; i < size - count - 1; --i)
+	for (int64_t i = size; i > size - count; --i)
 	{
 		_strings.pop_back();
 		_stringPointers.pop_back();
@@ -244,7 +244,7 @@ void MungPlex::DoubleStringIdPairs::PopBack(const int64_t count)
 
 	const int64_t size = static_cast<int64_t>(_ids.size());
 
-	for (int64_t i = size - 1; i < size - count - 1; --i)
+	for (int64_t i = size; i > size - count; --i)
 	{
 		_entityNames.pop_back();
 		_labelList.pop_back();
@@ -285,7 +285,7 @@ void MungPlex::StringIdBoolPairs::PopBack(const int64_t count)
 
 	const int64_t size = static_cast<int64_t>(_ids.size());
 
-	for (int64_t i = size - 1; i < size - count - 1; --i)
+	for (int64_t i = size; i > size - count; --i)
 	{
 		_strings.pop_back();
 		_stringPointers.pop_back();

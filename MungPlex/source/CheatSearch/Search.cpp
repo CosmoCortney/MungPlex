@@ -835,12 +835,14 @@ void MungPlex::Search::updateLivePreviewConditional()
 
 void MungPlex::Search::setUpIterationSelect()
 {
+	_iterationCount = MemoryCompare::MemCompare::GetIterationCount();
+
 	if (_iterationCount < _iterations.GetCount())
-		_iterations.PopBack(_iterations.GetCount() - _iterationCount);
+		_iterations.PopBack(1 + _iterations.GetCount() - _iterationCount);
 
 	_iterations.PushBack(std::to_string(_iterationCount) + ": " + _searchComparasionType.GetStdString(_currentcomparisonTypeSelect)
 		+ (_iterationCount < 2 && _currentcomparisonTypeSelect == 0 ? "" : ", " + _searchConditionTypes.GetStdString(_currentConditionTypeSelect)), _currentConditionTypeSelect);
-	_iterationIndex = _iterationCount;
+	_iterationIndex = _iterationCount-1;
 	_selectedIndices.resize(_maxResultsPerPage);
 }
 
