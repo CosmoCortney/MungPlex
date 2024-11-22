@@ -21,6 +21,10 @@ bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<Game
 			continue;
 
 		int posEnd = wTitleBuf.find(L"(");
+
+		if (posEnd < 0)
+			continue;
+
 		int posBeg = 0;
 
 		if (posEnd < 0)
