@@ -173,14 +173,17 @@ void MungPlex::Search::drawValueTypeOptions()
 
 				if (_currentValueTypeSelect == TEXT || _currentValueTypeSelect == COLOR)
 					_currentcomparisonTypeSelect = MemoryCompare::KNOWN;
+			} if (_searchActive) ImGui::EndDisabled();
 
-				if (_currentValueTypeSelect == PRIMITIVE || _currentPrimitiveTypeSelect >= FLOAT)
-				{
-					ImGui::SameLine();
-					if (ImGui::Checkbox("Hex", &GetInstance()._hex))
-						setFormatting();
-				}
+			if (_currentValueTypeSelect == PRIMITIVE || _currentPrimitiveTypeSelect >= FLOAT)
+			{
+				ImGui::SameLine();
+				if (ImGui::Checkbox("Hex", &GetInstance()._hex))
+					setFormatting();
+			}
 
+			if (_searchActive) ImGui::BeginDisabled();
+			{
 				switch (_currentValueTypeSelect)
 				{
 				case ARRAY:
