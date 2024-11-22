@@ -181,6 +181,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${LOVENSE_LIB_DIR}/Debug/LovenseToys.dll
         ${OUT_DIR}/x64-Debug/MungPlex)
+
+    add_custom_command(TARGET MungPlex POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${FT_LIB_FOLDER}/amd64/ftd2xx64.dll
+        ${OUT_DIR}/x64-Debug/MungPlex/ftd2xx.dll)
 elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
     target_link_libraries(MungPlex PRIVATE ${LOVENSE_LIB_DIR}/Release/LovenseToys.lib)
 
@@ -188,6 +193,11 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${LOVENSE_LIB_DIR}/Release/LovenseToys.dll
         ${OUT_DIR}/x64-Release/MungPlex)
+
+    add_custom_command(TARGET MungPlex POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${FT_LIB_FOLDER}/amd64/ftd2xx64.dll
+        ${OUT_DIR}/x64-Release/MungPlex/ftd2xx.dll)
 endif()
 
 # Set C++ version
