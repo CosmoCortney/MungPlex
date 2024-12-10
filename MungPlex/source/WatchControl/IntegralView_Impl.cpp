@@ -77,7 +77,10 @@ void MungPlex::IntegralView::Draw()
 	ImGui::EndChild();
 
 	if (_delete)
+	{
 		WatchControl::DeleteItem(_id);
+		_delete = false;
+	}
 }
 
 void MungPlex::IntegralView::assign(const IntegralView& other)

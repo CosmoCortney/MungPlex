@@ -79,7 +79,10 @@ void MungPlex::MousePianoView::Draw()
 	ImGui::EndChild();
 
 	if (_delete)
+	{
 		WatchControl::DeleteItem(_id);
+		_delete = false;
+	}
 }
 
 nlohmann::json MungPlex::MousePianoView::GetJSON()

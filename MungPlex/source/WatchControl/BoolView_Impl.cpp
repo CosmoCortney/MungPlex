@@ -57,7 +57,10 @@ void MungPlex::BoolView::Draw()
 	ImGui::EndChild();
 
 	if (_delete)
+	{
 		WatchControl::DeleteItem(_id);
+		_delete = false;
+	}
 }
 
 nlohmann::json MungPlex::BoolView::GetJSON()

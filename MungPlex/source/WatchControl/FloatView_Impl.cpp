@@ -54,7 +54,10 @@ void MungPlex::FloatView::Draw()
 	ImGui::EndChild();
 
 	if (_delete)
+	{
 		WatchControl::DeleteItem(_id);
+		_delete = false;
+	}
 }
 
 nlohmann::json MungPlex::FloatView::GetJSON()
