@@ -31,7 +31,7 @@ namespace MungPlex
         static void DeleteItem(const int id);
 
     private:
-        WatchControl() {}
+        WatchControl();
         ~WatchControl() {}
         WatchControl(const WatchControl&) = delete;
         WatchControl(WatchControl&&) = delete;

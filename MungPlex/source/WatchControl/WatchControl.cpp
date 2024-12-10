@@ -4,6 +4,11 @@
 #include "ProcessInformation.hpp"
 #include "Settings.hpp"
 
+MungPlex::WatchControl::WatchControl()
+{ 
+	_views.reserve(100); 
+}
+
 void MungPlex::WatchControl::DrawWindow()
 {
 	static bool stateSet = false;
@@ -150,13 +155,17 @@ void MungPlex::WatchControl::drawList()
 	ImGui::BeginChild("Watch List");
 	{
 		static int typeSelect = 0;
+		static uint64_t viewsCount = 0;
+		viewsCount = _views.size();
 
 		SetUpPairCombo(IView::s_SuperiorTypes, &typeSelect);
 		ImGui::SameLine();
 
+		if (viewsCount >= 100) ImGui::BeginDisabled();
+
 		if (ImGui::Button("Add Item"))
 		{
-			_ids.push_back(_views.size());
+			_ids.push_back(viewsCount);
 
 			for (int i = 0; i < _ids.size()-1; ++i)
 			{
@@ -181,7 +190,7 @@ void MungPlex::WatchControl::drawList()
 			default: //IView::INTEGRAL
 				_views.emplace_back(IView::INTEGRAL, IntegralView(_ids.back()));
 			}
-		}
+		} if (viewsCount >= 100) ImGui::EndDisabled();
 
 		ImGui::SameLine();
 
