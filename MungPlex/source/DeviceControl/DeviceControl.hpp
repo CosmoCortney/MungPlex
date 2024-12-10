@@ -18,7 +18,7 @@ namespace MungPlex
         static void DeleteItem(const int id);
 
     private:
-        DeviceControl() = default;
+        DeviceControl();
         ~DeviceControl() = default;
        /* DeviceControl(const DeviceControl&) = delete;
         DeviceControl(DeviceControl&&) = delete;

@@ -6,6 +6,11 @@
 
 //std::vector<std::pair<int, std::variant</*DeviceXInput, */MungPlex::DeviceLovense>>> MungPlex::DeviceControl::_devices;
 
+MungPlex::DeviceControl::DeviceControl()
+{
+	_devices.reserve(50);
+}
+
 void MungPlex::DeviceControl::DrawWindow()
 {
 	static bool stateSet = false;
@@ -103,14 +108,18 @@ void MungPlex::DeviceControl::drawList()
 	ImGui::BeginChild("Device List", ImGui::GetContentRegionAvail(), true);
 	{
 		static int typeSelect = 0;
+		static uint64_t devicesCount = 0;
+		devicesCount = _devices.size();
 
 		SetUpPairCombo(IDevice::s_DeviceTypes, &typeSelect, 0.3f);
 
 		ImGui::SameLine();
 
+		if (devicesCount >= 50) ImGui::BeginDisabled();
+
 		if (ImGui::Button("Add Device"))
 		{
-			_deviceIds.push_back(_devices.size());
+			_deviceIds.push_back(devicesCount);
 
 			for (int i = 0; i < _deviceIds.size() - 1; ++i)
 			{
@@ -124,12 +133,12 @@ void MungPlex::DeviceControl::drawList()
 			switch (IDevice::s_DeviceTypes.GetId(typeSelect))
 			{
 			case IDevice::LOVENSE:
-				_devices.emplace_back(IDevice::LOVENSE, DeviceLovense(_devices.size()));
+				_devices.emplace_back(IDevice::LOVENSE, DeviceLovense(devicesCount));
 				break;
 			//default: //XInput
 				//_devices.emplace_back(XINPUT, DeviceXInput(_deviceIds.back()));
 			}
-		}
+		} if (devicesCount >= 50) ImGui::EndDisabled();
 
 		ImGui::SameLine();
 
