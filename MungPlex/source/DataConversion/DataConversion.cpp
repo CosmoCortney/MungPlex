@@ -92,7 +92,7 @@ void MungPlex::DataConversion::drawTextConversion()
 		{
 			if (SetUpPairCombo(TextTypes, &textTypeIndex, 0.5f, 0.35f))
 			{
-				textTypeSelect = TextTypes.GetIndexById(textTypeIndex);
+				textTypeSelect = TextTypes.GetId(textTypeIndex);
 				update = true;
 			}
 
