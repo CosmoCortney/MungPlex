@@ -136,8 +136,10 @@ void MungPlex::PointerSearch::drawSettings()
 
         if (ImGui::Button("Clear List"))
         {
-            Log::LogInformation("Pointer list cleared");
             _memDumps.clear();
+            _bufStartingAddress.clear();
+            _bufTargetAddress.clear();
+            Log::LogInformation("Pointer list cleared");
         }
 
         ImGui::SameLine();
@@ -320,35 +322,14 @@ void MungPlex::PointerSearch::waitAndLoadResults()
     _disableUI = false;
 }
 
-// TODO Maybe his helper method is redundant if it already exists somewhere else
-void remove_trailing_nulls(std::string& str) {
-    // Find the position of the last character that is not a null character
-    if (const std::size_t end_pos = str.find_last_not_of('\0');
-        end_pos != std::string::npos) {
-        // Erase characters after the last non-null character
-        str.erase(end_pos + 1);
-    }
-    else {
-        // If the entire string is null characters, clear it
-        str.clear();
-    }
-}
-
 void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing flags
 {
     _args.clear();
     auto memDumpsSorted = _memDumps; //this is needed because sorting _memDumps messes up the table
     std::ranges::sort(memDumpsSorted, comparePairs);
-
-    auto resultsPath = _resultsPath;
-    remove_trailing_nulls(resultsPath);
-
-    auto minOffset = _minOffset;
-    remove_trailing_nulls(minOffset);
-
-    auto maxOffset = _maxOffset;
-    remove_trailing_nulls(maxOffset);
-
+    std::string resultsPath = _resultsPath.c_str();
+    std::string minOffset = _minOffset.c_str();
+    std::string maxOffset = _maxOffset.c_str();
     std::stringstream stream;
 
     if (!memDumpsSorted.empty())
@@ -423,8 +404,7 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
             if (second[3] != lastCorrespondence && second[3] > 1)
                 _args.push_back("%%");
 
-            auto first_copy = first;
-            remove_trailing_nulls(first_copy);
+            std::string first_copy = first.c_str();
             _args.push_back(first_copy);
             lastCorrespondence = second[3];
         }
