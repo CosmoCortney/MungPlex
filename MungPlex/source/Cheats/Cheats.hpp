@@ -2,6 +2,7 @@
 #define SOL_ALL_SAFETIES_ON 1
 #include "Connection.hpp"
 #include "sol/sol.hpp"
+#include "WidgetHelpers.hpp"
 
 namespace MungPlex
 {
@@ -36,10 +37,10 @@ namespace MungPlex
 
         enum StrLengths
         {
-            TITLE = 256,
-            HACKER = 128,
-            CHEAT = 1024 * 64,
-            DESCRIPTION = 1024 * 16
+            TITLE_LENGTH = 256,
+            HACKER_LENGTH = 128,
+            CHEAT_LENGTH = 1024 * 64,
+            DESCRIPTION_LENGTH = 1024 * 16
         };
 
         enum class ButtonsGcnController
@@ -68,10 +69,10 @@ namespace MungPlex
         };
 
         static const StringIdPairs _cheatTypes;
-        std::string _textCheatTitle = std::string(TITLE, 0);
-        std::string _textCheatHacker = std::string(HACKER, 0);
-        std::string _textCheatLua = std::string(CHEAT, 0);
-        std::string _textCheatDescription = std::string(DESCRIPTION, 0);
+        InputText _cheatTitleInput = InputText("Title:", "", TITLE_LENGTH);
+        InputText _hackerInput = InputText("Hacker(s):", "", HACKER_LENGTH);
+        std::string _textCheatLua = std::string(CHEAT_LENGTH, 0);
+        std::string _textCheatDescription = std::string(DESCRIPTION_LENGTH, 0);
         std::wstring _cheatListPath;
         sol::state _lua{};
         int _perSecond = 60;
