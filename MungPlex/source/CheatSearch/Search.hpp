@@ -24,6 +24,7 @@
 #include "Settings.hpp"
 #include <stdio.h>
 #include <thread>
+#include "WidgetHelpers.hpp"
 
 typedef MemoryCompare::MemCompare MC;
 
@@ -43,18 +44,18 @@ namespace MungPlex
         static bool IsBusySearching();
 
         SignalCombo _RegionSelectSignalCombo;
-        SignalInputText _SignalInputTextRangeStart;
-        SignalInputText _SignalInputTextRangeEnd;
 
         std::function<void(const char*, uint64_t&)> Slot_RangeTextChanged = [](const char* in, uint64_t& out)
             {
-                /*if (in == nullptr)
+                if (in == nullptr)
                     return;
 
                 std::stringstream stream;
                 stream << std::hex << std::string(in);
                 stream >> out;
-                std::cout << in << std::endl;*/
+#ifndef NDEBUG
+                std::cout << in << std::endl;
+#endif
             };
 
         std::function<void()> Slot_IndexChanged = []()
@@ -73,9 +74,9 @@ namespace MungPlex
                 std::stringstream stream;
                 stream << std::hex << region.Base;
                 const std::string hexBegStr = stream.str();
-                GetInstance()._rangeStartText = hexBegStr;
+                GetInstance()._rangeStartInput.SetText(hexBegStr);
                 const std::string hexEndStr = ToHexString(region.Base + region.Size - 1, 0);
-                GetInstance()._rangeEndText = hexEndStr;
+                GetInstance()._rangeEndInput.SetText(hexEndStr);
             };
 
     private:
@@ -130,8 +131,8 @@ namespace MungPlex
         bool _busySearching = false;
 
         //value options
-        FloorString _knownValueText = FloorString("", 256);
-        FloorString _secondaryKnownValueText = FloorString("", 256);
+        InputText _knownValueInput = InputText("Value:", "", 256);
+        InputText _secondaryKnownValueInput = InputText("Not applicable", "", 256);
         StringIdPairs _iterations = { {}, {}, "Counter Iteration:"};
         int _iterationIndex = 0; 
         uint32_t _iterationCount = 0;
@@ -143,13 +144,15 @@ namespace MungPlex
         std::vector<SystemRegion> _regions{};
         std::vector<SystemRegion> _dumpRegions{};
         int _currentRegionSelect = 0;
-        FloorString _rangeStartText = FloorString("", 17);
+        //FloorString _rangeStartText = FloorString("", 17);
         uint64_t _rangeStartValue = 0;
-        FloorString _rangeEndText = FloorString("", 17);
+        //FloorString _rangeEndText = FloorString("", 17);
         uint64_t _rangeEndValue = 0;
         bool _crossRegion = false;
         bool _rereorderRegion = false;
         int _endiannessSelect = 0;
+        InputText _rangeStartInput = InputText("Start at (hex):", "", 17);
+        InputText _rangeEndInput = InputText("End at (hex):", "", 17);
 
         //results
         uint32_t _pagesAmountValue = 0;
@@ -161,9 +164,9 @@ namespace MungPlex
         bool _multiPoke = false;
         bool _pokePrevious = false;
         std::vector<char> _pokeValue;
-        FloorString  _pokeValueText = FloorString("", 256);
+        InputText  _pokeValueInput = InputText("Value:", "", 256);
         uint64_t _pokeAddress = 0;
-        FloorString  _pokeAddressText = FloorString("", 17);
+        InputText  _pokeAddressInput = InputText("Address:", "", 17);
         std::tuple<uint64_t, int> _searchStats;
         bool _deselectedIllegalSelection = false;
         std::vector<MemoryCompare::MemDump> _currentMemoryDumps{};
@@ -226,7 +229,7 @@ namespace MungPlex
         template<typename addressType> bool pokeText()
         {
             const int pid = ProcessInformation::GetPID();
-            const std::string pokeTextp = _pokeValueText.StdStr();
+            const std::string pokeTextp = _pokeValueInput.GetStdStringNoZeros();
             MorphText pokeValue(pokeTextp);
             auto& results = MemoryCompare::MemCompare::GetResults();
 
@@ -306,7 +309,7 @@ namespace MungPlex
 
         template<typename addressType> bool pokeColor()
         {
-            const std::string colorString = _pokeValueText.StdStr();
+            const std::string colorString = _pokeValueInput.GetStdStringNoZeros();
             LitColor pokeValue(colorString);
             const int selectedType = pokeValue.GetSelectedType();
             auto& results = MemoryCompare::MemCompare::GetResults();
@@ -393,8 +396,8 @@ namespace MungPlex
 
         template<typename uType, typename addressType> bool pokeArray()
         {
-            const uint64_t itemCount = OperativeArray<uType>(_knownValueText.StdStr()).ItemCount();
-            std::string arrayString = _pokeValueText.StdStr();
+            const uint64_t itemCount = OperativeArray<uType>(_knownValueInput.GetStdStringNoZeros()).ItemCount();
+            std::string arrayString = _pokeValueInput.GetStdStringNoZeros();
             OperativeArray<uType> pokeArray(arrayString);
             auto& results = MemoryCompare::MemCompare::GetResults();
             

@@ -611,38 +611,6 @@ namespace MungPlex
         }
     };
 
-    class SignalInputText //ImGui's InputTexts don't return true if the text was changed due to accessing the variable instead of keyboard input
-    {
-    public:
-        typedef std::function<void()> Slot;
-
-    private:
-        char _text[1024] = "";
-        std::vector<Slot> _slotsOnTextChanged{};
-
-    public:
-        SignalInputText() {}
-        bool Draw(const char* name, char* buf, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
-        {
-            bool changedByFlow = false;
-            if (std::strcmp(_text, buf) != 0)
-            {
-                for (const auto& slot : _slotsOnTextChanged)
-                    slot();
-
-                strcpy_s(_text, buf);
-                changedByFlow = true;
-            }
-
-            return SetUpInputText(name, buf, bufSize, paneWidth, labelPortion) || changedByFlow;
-        }
-
-        void ConnectOnTextChanged(const Slot slot)
-        {
-            _slotsOnTextChanged.emplace_back(slot);
-        }
-    };
-
     inline std::filesystem::path GetResourcesFilePath(const std::filesystem::path& resourceFileName)
     {
         const auto resourcesDirectory = "resources" / resourceFileName;

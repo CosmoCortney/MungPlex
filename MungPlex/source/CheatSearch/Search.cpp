@@ -84,8 +84,8 @@ MungPlex::Search::Search()
 	_RegionSelectSignalCombo.ConnectOnIndexChanged(Slot_IndexChanged);
 	_RegionSelectSignalCombo.ConnectOnItemCountChanged(Slot_ItemCountChanged);
 	_RegionSelectSignalCombo.ConnectOnTextChanged(Slot_TextChanged);
-	_SignalInputTextRangeStart.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeStartText.Data(), std::ref(_rangeStartValue)));
-	_SignalInputTextRangeEnd.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeEndText.Data(), std::ref(_rangeEndValue)));
+	_rangeStartInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeStartInput.GetData(), std::ref(_rangeStartValue)));
+	_rangeEndInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeEndInput.GetData(), std::ref(_rangeEndValue)));
 
 	_selectedIndices.resize(_maxResultsPerPage);
 	_alignmentValue = Settings::GetSearchSettings().DefaultAlignment;
@@ -166,8 +166,24 @@ void MungPlex::Search::drawValueTypeOptions()
 				if (SetUpPairCombo(_searchValueTypes, &_currentValueTypeSelect, 0.5f, 0.4f))
 				{
 					_updateLabels = true;
-					_knownValueText = "";
-					_secondaryKnownValueText = "";
+					_knownValueInput.SetText("");
+
+					switch (_searchValueTypes.GetId(_currentValueTypeSelect))
+					{
+					case ARRAY:
+						_knownValueInput.SetLabel("Array Expression:");
+						break;
+					case COLOR:
+						_knownValueInput.SetLabel("Color Expression:");
+						break;
+					case TEXT:
+						_knownValueInput.SetLabel("Text:");
+						break;
+					default:
+						_knownValueInput.SetLabel("Value:");
+					}
+
+					_secondaryKnownValueInput.SetText("");
 					setFormatting();
 				}
 
@@ -253,18 +269,18 @@ void MungPlex::Search::drawRangeOptions()
 
 			SetUpPairCombo(_endiannesses, &_endiannessSelect, 1.0f, 0.4f);
 
-			if(_SignalInputTextRangeStart.Draw("Start at (hex):", _rangeStartText.Data(), _rangeStartText.Size(), 0.5f, 0.4f))
+			if(_rangeStartInput.Draw(0.5f, 0.4f))
 			{
-				stream << _rangeStartText.StdStr();
+				stream << _rangeStartInput.GetStdStringNoZeros();
 				stream >> std::hex >> _rangeStartValue;
 				stream.str(std::string());
 			}
 
 			ImGui::SameLine();
 
-			if(_SignalInputTextRangeEnd.Draw("End at (hex):", _rangeEndText.Data(), _rangeEndText.Size(), 1.0f, 0.4f))
+			if(_rangeEndInput.Draw(1.0f, 0.4f))
 			{
-				stream << _rangeEndText.StdStr();
+				stream << _rangeEndInput.GetStdStringNoZeros();
 				stream >> std::hex >> _rangeEndValue;
 				stream.str(std::string());
 			}
@@ -285,8 +301,8 @@ void MungPlex::Search::drawRangeOptions()
 					hexEndStr = ToHexString(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1, 0);
 				}
 
-				_rangeStartText = hexStartStr;
-				_rangeEndText = hexEndStr;
+				_rangeStartInput.SetText(hexStartStr);
+				_rangeEndInput.SetText(hexEndStr);
 			}
 
 			ImGui::SameLine();
@@ -321,8 +337,6 @@ void MungPlex::Search::drawRangeOptions()
 
 void MungPlex::Search::drawPrimitiveSearchOptions()
 {
-	static std::string knownPrimaryValueLabel;
-	static std::string knownSecondaryValueLabel;
 	static bool disablePrimaryValueText = false;
 	static bool disableSecondaryValueText = true;
 
@@ -332,32 +346,32 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 		{
 			case MemoryCompare::BETWEEN:
 			{
-				knownPrimaryValueLabel = "Lowest:";
-				knownSecondaryValueLabel = "Highest:";
+				_knownValueInput.SetLabel("Lowest:");
+				_knownValueInput.SetLabel("Highest:");
 				disableSecondaryValueText = false;
 			} break;
 			case MemoryCompare::NOT_BETWEEN:
 			{
-				knownPrimaryValueLabel = "Below:";
-				knownSecondaryValueLabel = "Above:";
+				_knownValueInput.SetLabel("Below:");
+				_knownValueInput.SetLabel("Above:");
 				disableSecondaryValueText = false;
 			} break;
 			case MemoryCompare::INCREASED_BY:
 			{
-				knownPrimaryValueLabel = "Increased by:";
-				knownSecondaryValueLabel = "Not applicable";
+				_knownValueInput.SetLabel("Increased by:");
+				_knownValueInput.SetLabel("Not applicable");
 				disableSecondaryValueText = true;
 			} break;
 			case MemoryCompare::DECREASED_BY:
 			{
-				knownPrimaryValueLabel = "Decreased by:";
-				knownSecondaryValueLabel = "Not applicable";
+				_knownValueInput.SetLabel("Decreased by:");
+				_knownValueInput.SetLabel("Not applicable");
 				disableSecondaryValueText = true;
 			} break;
 			default:
 			{
-				knownPrimaryValueLabel = "Value:";
-				knownSecondaryValueLabel = "Not applicable";
+				_knownValueInput.SetLabel("Value:");
+				_knownValueInput.SetLabel("Not applicable");
 				disableSecondaryValueText = true;
 			}
 		}
@@ -378,10 +392,10 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 		_updateLabels = true;
 
 	if (!_diableBecauseUnknownAndNotRangebased)
-		SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 1.0f, 0.4f);
+		_knownValueInput.Draw(1.0f, 0.4f);
 
 	if (_currentConditionTypeSelect >= MemoryCompare::BETWEEN && _currentConditionTypeSelect <= MemoryCompare::NOT_BETWEEN)
-		SetUpInputText(knownSecondaryValueLabel, _secondaryKnownValueText.Data(), _secondaryKnownValueText.Size(), 1.0f, 0.4f);
+		_secondaryKnownValueInput.Draw(1.0f, 0.4f);
 
 	if (_currentPrimitiveTypeSelect >= FLOAT)
 		SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 1.0f, 0.4f);
@@ -389,7 +403,6 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 
 void MungPlex::Search::drawArraySearchOptions()
 {
-	static std::string knownPrimaryValueLabel = "Array Expression:";
 	static bool disablePrimaryValueText = false;
 
 	ImGui::BeginGroup();
@@ -397,7 +410,7 @@ void MungPlex::Search::drawArraySearchOptions()
 	if (SetUpPairCombo(_searchConditionTypesArray, &_currentConditionTypeSelect, 1.0f, 0.4f))
 		_updateLabels = true;
 
-	SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 1.0f, 0.4f);
+	_knownValueInput.Draw(1.0f, 0.4f);
 
 	//keep just in case float arrays will ever happen
 	//if (_disableBecauseNoInt)
@@ -408,7 +421,7 @@ void MungPlex::Search::drawArraySearchOptions()
 
 void MungPlex::Search::drawColorSearchOptions()
 {
-	static std::string knownPrimaryValueLabel = "Color Expression:";
+	//static std::string knownPrimaryValueLabel = "Color Expression:";
 
 	ImGui::BeginGroup();
 	{
@@ -418,8 +431,8 @@ void MungPlex::Search::drawColorSearchOptions()
 			_updateLabels = true;
 
 		if (!_diableBecauseUnknownAndNotRangebased)
-			if(SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 1.0f, 0.4f))
-				LitColorExpressionToImVec4(_knownValueText.CStr(), &_searchColorVec);
+			if(_knownValueInput.Draw(1.0f, 0.4f))
+				LitColorExpressionToImVec4(_knownValueInput.GetCString(), &_searchColorVec);
 
 		SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 1.0f, 0.4f);
 	}
@@ -438,7 +451,7 @@ void MungPlex::Search::drawColorSelectOptions()
 	ImGui::BeginGroup();
 	{
 		if (DrawColorPicker(_currentColorTypeSelect, _forceAlpha, &_searchColorVec, _useColorWheel, 0.75f))
-			ColorValuesToCString(_searchColorVec, _currentColorTypeSelect, _knownValueText.Data(), _forceAlpha);
+			ColorValuesToCString(_searchColorVec, _currentColorTypeSelect, _knownValueInput.GetData(), _forceAlpha);
 	}
 	ImGui::EndGroup();
 	ImGui::EndChild();
@@ -446,7 +459,6 @@ void MungPlex::Search::drawColorSelectOptions()
 
 void MungPlex::Search::drawTextSearchOptions()
 {
-	static std::string knownPrimaryValueLabel = "Text Value:";
 	static bool disablePrimaryValueText = false;
 
 	_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
@@ -454,7 +466,7 @@ void MungPlex::Search::drawTextSearchOptions()
 	ImGui::BeginGroup();
 	{
 		if (_diableBecauseUnknownAndNotRangebased) ImGui::BeginDisabled();
-			SetUpInputText(knownPrimaryValueLabel, _knownValueText.Data(), _knownValueText.Size(), 1.0f, 0.4f);
+			_knownValueInput.Draw(1.0f, 0.4f);
 		if (_diableBecauseUnknownAndNotRangebased) ImGui::EndDisabled();
 
 		ImGui::Checkbox("Case Sensitive", &_caseSensitive);
@@ -582,12 +594,12 @@ void MungPlex::Search::drawResultsArea()
 
 				ImGui::BeginGroup();
 				{
-					SetUpInputText("Address:", _pokeAddressText.Data(), _pokeAddressText.Size(), 1.0f, 0.2f);
+					_pokeAddressInput.Draw(1.0f, 0.2f);
 
-					if (SetUpInputText("Value:", _pokeValueText.Data(), _pokeValueText.Size(), 1.0f, 0.2f))
+					if (_pokeValueInput.Draw(1.0f, 0.2f))
 					{
 						if(_currentValueTypeSelect == COLOR)
-							LitColorExpressionToImVec4(_pokeValueText.CStr(), &_pokeColorVec);
+							LitColorExpressionToImVec4(_pokeValueInput.GetCString(), &_pokeColorVec);
 					}
 				}
 				ImGui::EndGroup();
@@ -636,7 +648,7 @@ void MungPlex::Search::drawResultsArea()
 				{
 					DrawExtraColorPickerOptions(&_useColorWheel, &_pokeColorVec);
 					if(DrawColorPicker(_currentColorTypeSelect, _forceAlpha, &_pokeColorVec, _useColorWheel, 0.8f))
-						ColorValuesToCString(_pokeColorVec, _currentColorTypeSelect, _pokeValueText.Data(), _forceAlpha);
+						ColorValuesToCString(_pokeColorVec, _currentColorTypeSelect, _pokeValueInput.GetData(), _forceAlpha);
 				}
 			}
 			if (MemoryCompare::MemCompare::GetResultCount() == 0) ImGui::EndDisabled();
@@ -878,7 +890,7 @@ void MungPlex::Search::prepareLiveUpdateValueList()
 	{
 		case ARRAY:
 		{
-			_arrayItemCount = std::ranges::count(_knownValueText.StdStr(), ',') + 1;
+			_arrayItemCount = std::ranges::count(_knownValueInput.GetStdStringNoZeros(), ',') + 1;
 
 			switch (_currentArrayTypeSelect)
 			{
@@ -914,7 +926,7 @@ void MungPlex::Search::prepareLiveUpdateValueList()
 		} break;
 		case TEXT:
 		{
-			updateValuesSize = _knownValueText.StdStr().size();
+			updateValuesSize = _knownValueInput.GetStdStringNoZeros().size();
 
 			switch (_currentTextTypeSelect)
 			{
@@ -965,7 +977,7 @@ void MungPlex::Search::performValuePoke()
 
 	if (!_multiPoke)
 	{
-		std::string test = std::string(_pokeAddressText.CStr());
+		std::string test = _pokeAddressInput.GetStdStringNoZeros();
 		stream << std::hex << test;
 		stream >> _pokeAddress;
 	}
@@ -1031,11 +1043,11 @@ void MungPlex::Search::performValuePoke()
 
 		if (_hex && _currentPrimitiveTypeSelect < FLOAT)
 		{
-			streamV << std::hex << _pokeValueText.CStr();
+			streamV << std::hex << _pokeValueInput.GetStdStringNoZeros();
 			streamV >> tempVal;
 		}
 		else
-			tempVal = std::stoll(_pokeValueText.CStr());
+			tempVal = std::stoll(_pokeValueInput.GetStdStringNoZeros());
 
 		switch (_currentPrimitiveTypeSelect)
 		{
@@ -1053,13 +1065,13 @@ void MungPlex::Search::performValuePoke()
 			break;
 		case FLOAT:
 		{
-			float temp = std::stof(_pokeValueText.CStr());
+			float temp = std::stof(_pokeValueInput.GetCString());
 			_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&temp), reinterpret_cast<char*>(&temp) + 4);
 			ProcessInformation::GetAddressWidth() > 4 ? pokeValue<float, uint64_t>() : pokeValue<float, uint32_t>();
 		}   break;
 		case DOUBLE:
 		{
-			double temp = std::stod(_pokeValueText.CStr());
+			double temp = std::stod(_pokeValueInput.GetCString());
 			_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&temp), reinterpret_cast<char*>(&temp) + 8);
 			ProcessInformation::GetAddressWidth() > 4 ? pokeValue<double, uint64_t>() : pokeValue<double, uint32_t>();
 		}
@@ -1592,7 +1604,7 @@ void MungPlex::Search::primitiveTypeSearchLog()
 
 	if (_currentcomparisonTypeSelect == MemoryCompare::KNOWN)
 	{
-		Log::LogInformation("Known: " + _knownValueText.StdStr() + ", " + _secondaryKnownValueText.StdStr(), true);
+		Log::LogInformation("Known: " + _knownValueInput.GetStdStringNoZeros() + ", " + _secondaryKnownValueInput.GetStdStringNoZeros(), true);
 	}
 	else
 		Log::LogInformation("Unknown", true);
@@ -1600,17 +1612,17 @@ void MungPlex::Search::primitiveTypeSearchLog()
 
 void MungPlex::Search::arrayTypeSearchLog()
 {
-	Log::LogInformation("Array<" + _searchArrayTypes.GetStdString(_currentArrayTypeSelect) + ">: " + _knownValueText.StdStr(), true, 4);
+	Log::LogInformation("Array<" + _searchArrayTypes.GetStdString(_currentArrayTypeSelect) + ">: " + _knownValueInput.GetStdStringNoZeros(), true, 4);
 }
 
 void MungPlex::Search::textTypeSearchLog()
 {
-	Log::LogInformation("Text<" + TextTypes.GetStdString(_currentTextTypeIndex) + ">: " + _knownValueText.StdStr(), true, 4);
+	Log::LogInformation("Text<" + TextTypes.GetStdString(_currentTextTypeIndex) + ">: " + _knownValueInput.GetStdStringNoZeros(), true, 4);
 }
 
 void MungPlex::Search::colorTypeSearchLog()
 {
-	Log::LogInformation("Text<" + _searchColorTypes.GetStdString(_currentColorTypeSelect) + ">: " + _knownValueText.StdStr(), true, 4);
+	Log::LogInformation("Text<" + _searchColorTypes.GetStdString(_currentColorTypeSelect) + ">: " + _knownValueInput.GetStdStringNoZeros(), true, 4);
 }
 
 void MungPlex::Search::drawResultsTable()
@@ -1699,11 +1711,11 @@ void MungPlex::Search::drawResultsTable()
 		//set poke address and value if row is clicked
 		if (rowClicked)
 		{
-			_pokeAddressText = tempAddress;
-			_pokeValueText = tempValue;
+			_pokeAddressInput.SetText(tempAddress.StdStrNoLeadinZeros());
+			_pokeValueInput.SetText(tempValue.StdStrNoLeadinZeros());
 
 			if (_currentValueTypeSelect == COLOR)
-				LitColorExpressionToImVec4(_pokeValueText.CStr(), &_pokeColorVec);
+				LitColorExpressionToImVec4(_pokeValueInput.GetCString(), &_pokeColorVec);
 		}
 	}
 
@@ -1792,8 +1804,8 @@ void MungPlex::Search::setUpAndIterate()
 		subsidiaryDatatype = _currentPrimitiveTypeSelect;
 	}
 
-	std::string tempprimary(_knownValueText.CStr());
-	std::string tempsecondary(_secondaryKnownValueText.CStr());
+	std::string tempprimary = _knownValueInput.GetStdStringNoZeros();
+	std::string tempsecondary = _secondaryKnownValueInput.GetStdStringNoZeros();
 
 	if (_iterationCount < 1)
 	{
