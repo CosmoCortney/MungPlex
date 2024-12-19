@@ -17,7 +17,7 @@ MungPlex::StringIdPairCombo MungPlex::StringIdPairCombo::operator=(const StringI
 
 bool MungPlex::StringIdPairCombo::Draw(const std::string& label, int* currentSelect, const float paneWidth, const float labelPortion, bool printLabel, const char* helpText) const
 {
-	PrepareWidgetLabel(label.c_str(), paneWidth, labelPortion, printLabel, helpText);
+	DrawLabel(label.c_str(), paneWidth, labelPortion, printLabel, helpText);
 	return ImGui::Combo(label.c_str(), currentSelect, _stringsPointers.data(), _pairs.size());
 }
 
@@ -53,4 +53,78 @@ uint32_t MungPlex::StringIdPairCombo::GetIndexById(const int id) const
 uint32_t MungPlex::StringIdPairCombo::GetCount() const
 {
 	return _pairs.size();
+}
+
+MungPlex::InputText::InputText(const std::string& label, const std::string text, const uint64_t maxLength, const bool printLabel, const ImGuiInputTextFlags flags)
+{
+	_label = label;
+	_id = "##" + label;
+	_text = text;
+	_maxLength = maxLength;
+	_text.resize(_maxLength);
+	_printLabel = printLabel;
+	_flags = flags;
+}
+
+bool MungPlex::InputText::Draw(const float paneWidth, const float labelPortion)
+{
+	static bool edited = false;
+	DrawLabel(_label.c_str(), paneWidth, labelPortion, _printLabel, _showHelpText ? _helpText.c_str() : nullptr);
+	edited = ImGui::InputText(_id.c_str(), _text.data(), _maxLength, _flags);
+	ImGui::PopItemWidth();
+	return edited;
+}
+
+void MungPlex::InputText::SetText(const std::string& text)
+{
+	_text = text;
+	_text.resize(_maxLength);
+}
+
+void MungPlex::InputText::SetLabel(const std::string& label)
+{
+	_label = label;
+	_id = "##" + label;
+}
+
+void MungPlex::InputText::SetHelpText(const std::string& helpText, const bool show)
+{
+	_helpText = helpText;
+	_showHelpText = show;
+}
+
+void MungPlex::InputText::SetShowHelpText(const bool show)
+{
+	_showHelpText = show;
+}
+
+void MungPlex::InputText::SetMaxLength(const uint64_t maxLength)
+{
+	_maxLength = maxLength;
+	_text.resize(_maxLength);
+}
+
+std::string MungPlex::InputText::GetStdString() const
+{
+	return _text;
+}
+
+std::string MungPlex::InputText::GetStdStringNoZeros() const
+{
+	return _text.c_str();
+}
+
+const char* MungPlex::InputText::GetCString() const
+{
+	return _text.c_str();
+}
+
+char* MungPlex::InputText::GetData()
+{
+	return _text.data();
+}
+
+uint64_t MungPlex::InputText::GetMaxLength() const
+{
+	return _maxLength;
 }

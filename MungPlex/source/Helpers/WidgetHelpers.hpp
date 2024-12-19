@@ -7,7 +7,7 @@
 
 namespace MungPlex
 {
-	static void HelpMarker(const char* desc) //© ImGui devs
+	static void DrawHelpMarker(const char* desc) //© ImGui devs
 	{
 		ImGui::TextDisabled("(?)");
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
@@ -20,7 +20,7 @@ namespace MungPlex
 		}
 	}
 
-	static void PrepareWidgetLabel(const char* label, const float paneWidth, const float labelPortion, bool printLabel, const char* helpText = nullptr)
+	static void DrawLabel(const char* label, const float paneWidth, const float labelPortion, bool printLabel, const char* helpText = nullptr)
 	{
 		const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;
 		const float curserPos = ImGui::GetCursorPos().x;
@@ -31,7 +31,7 @@ namespace MungPlex
 			ImGui::SameLine();
 			if (helpText != nullptr)
 			{
-				HelpMarker(helpText);
+				DrawHelpMarker(helpText);
 				ImGui::SameLine();
 			}
 
@@ -61,6 +61,31 @@ namespace MungPlex
 		std::vector<const char*> _stringsPointers;
 	};
 
+	class InputText
+	{
+	public:
+		InputText();
+		InputText(const std::string& label, const std::string text = "", const uint64_t maxLength = 256, const bool printLabel = true, const ImGuiInputTextFlags flags = ImGuiInputTextFlags_None);
+		bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
+		void SetText(const std::string& text);
+		void SetLabel(const std::string& label);
+		void SetHelpText(const std::string& helpText, const bool show = true);
+		void SetShowHelpText(const bool show);
+		void SetMaxLength(const uint64_t maxLength);
+		std::string GetStdString() const;
+		std::string GetStdStringNoZeros() const;
+		const char* GetCString() const;
+		char* GetData();
+		uint64_t GetMaxLength() const;
 
-
+	private:
+		std::string _text = std::string(256, '\0');
+		std::string _helpText = "";
+		std::string _id = "";
+		std::string _label = "";
+		uint64_t _maxLength = 256;
+		bool _printLabel = true;
+		bool _showHelpText = false;
+		ImGuiInputTextFlags _flags = ImGuiInputTextFlags_None;
+	};
 }
