@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 #include <string>
@@ -64,7 +65,7 @@ namespace MungPlex
 	class InputText
 	{
 	public:
-		InputText();
+		typedef std::function<void()> Slot;
 		InputText(const std::string& label, const std::string text = "", const uint64_t maxLength = 256, const bool printLabel = true, const ImGuiInputTextFlags flags = ImGuiInputTextFlags_None);
 		bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
 		void SetText(const std::string& text);
@@ -77,6 +78,7 @@ namespace MungPlex
 		const char* GetCString() const;
 		char* GetData();
 		uint64_t GetMaxLength() const;
+		void ConnectOnTextChanged(const Slot slot);
 
 	private:
 		std::string _text = std::string(256, '\0');
@@ -87,5 +89,6 @@ namespace MungPlex
 		bool _printLabel = true;
 		bool _showHelpText = false;
 		ImGuiInputTextFlags _flags = ImGuiInputTextFlags_None;
+		std::vector<Slot> _slotsOnTextChanged{};
 	};
 }

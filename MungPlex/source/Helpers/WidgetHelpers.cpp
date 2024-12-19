@@ -79,6 +79,9 @@ void MungPlex::InputText::SetText(const std::string& text)
 {
 	_text = text;
 	_text.resize(_maxLength);
+
+	for (Slot& slot : _slotsOnTextChanged)
+		slot();
 }
 
 void MungPlex::InputText::SetLabel(const std::string& label)
@@ -127,4 +130,9 @@ char* MungPlex::InputText::GetData()
 uint64_t MungPlex::InputText::GetMaxLength() const
 {
 	return _maxLength;
+}
+
+void MungPlex::InputText::ConnectOnTextChanged(const Slot slot)
+{
+	_slotsOnTextChanged.emplace_back(slot);
 }
