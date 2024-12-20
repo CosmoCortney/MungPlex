@@ -20,6 +20,9 @@ bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<Game
 		if (wTitleBuf.find(L"Dolphin") != 0)
 			continue;
 
+		if (wTitleBuf.find(L"|") == std::string::npos)
+			continue;
+
 		int posEnd = wTitleBuf.find(L"(");
 
 		if (posEnd < 0)
