@@ -9,15 +9,17 @@ MungPlex::DeviceLovense::DeviceLovense(const int id)
 	_deviceTypeID = IDevice::LOVENSE;
 	_deviceId = id;
 	_idText = std::to_string(id);
-	_token = Settings::GetDeviceControlSettings().LovenseToken;
+	_tokenInput.SetText(Settings::GetDeviceControlSettings().LovenseToken.StdStrNoLeadinZeros());
+	_tokenInput.SetHelpText(_tokenHelpText, true);
 }
 
 MungPlex::DeviceLovense::DeviceLovense(const int id, const nlohmann::json& json)
 {
-	_token = Settings::GetDeviceControlSettings().LovenseToken;
+	_tokenInput.SetText(Settings::GetDeviceControlSettings().LovenseToken.StdStrNoLeadinZeros());
+	_tokenInput.SetHelpText(_tokenHelpText, true);
 	_deviceTypeID = IDevice::LOVENSE;
 	_valueType = json["valueType"];
-	_name = json["name"];
+	_nameInput.SetText(json["name"]);
 	_valueTypeIndex = s_ValueTypes.GetIndexById(_valueType);
 
 	switch (_valueType)
@@ -37,8 +39,8 @@ MungPlex::DeviceLovense::DeviceLovense(const int id, const nlohmann::json& json)
 	}
 
 	_useModulePath = json["useModulePath"];
-	_module = json["module"];
-	_pointerPathText = json["pointerPathText"];
+	_moduleInput.SetText(json["module"]);
+	_pointerPathInput.SetText(json["pointerPathText"]);
 	_rangeMin = json["rangeMin"];
 	_rangeMax = json["rangeMax"];
 }
@@ -76,9 +78,9 @@ MungPlex::DeviceLovense& MungPlex::DeviceLovense::operator=(DeviceLovense&& othe
 void MungPlex::DeviceLovense::assign(const DeviceLovense& other)
 {
 	_deviceTypeID = other._deviceTypeID;
-	_name = other._name;
+	_nameInput = other._nameInput;
 	_lovenseToy = other._lovenseToy;
-	_token = other._token;
+	_tokenInput = other._tokenInput;
 	_toyError = other._toyError;
 	_deviceId = other._deviceId;
 	_idText = other._idText;
@@ -90,9 +92,9 @@ void MungPlex::DeviceLovense::assign(const DeviceLovense& other)
 	_maxL = other._maxL;
 	_useModulePath = other._useModulePath;
 	_moduleAddress = other._moduleAddress;
-	_module = other._module;
+	_moduleInput = other._moduleInput;
 	_moduleW = other._moduleW;
-	_pointerPathText = other._pointerPathText;
+	_pointerPathInput = other._pointerPathInput;
 	_rangeMin = other._rangeMin;
 	_rangeMax = other._rangeMax;
 	_vibrationValue = other._vibrationValue;
@@ -101,7 +103,7 @@ void MungPlex::DeviceLovense::assign(const DeviceLovense& other)
 	_valueTypeIndex = other._valueTypeIndex;
 	_plotVals = other._plotVals;
 	_abortPlot = other._abortPlot;
-	ParsePointerPath(_pointerPath, _pointerPathText.StdStrNoLeadinZeros());
+	ParsePointerPath(_pointerPath, _pointerPathInput.GetStdStringNoZeros());
 }
 
 void MungPlex::DeviceLovense::Draw()
@@ -142,7 +144,7 @@ nlohmann::json MungPlex::DeviceLovense::GetJSON()
 	nlohmann::json elemJson;
 	elemJson["deviceType"] = LOVENSE;
 	elemJson["valueType"] = _valueType;
-	elemJson["name"] = _name.StdStrNoLeadinZeros();
+	elemJson["name"] = _nameInput.GetStdStringNoZeros();
 
 	switch (_valueType)
 	{
@@ -161,8 +163,8 @@ nlohmann::json MungPlex::DeviceLovense::GetJSON()
 	}
 
 	elemJson["useModulePath"] = _useModulePath;
-	elemJson["module"] = _module.StdStrNoLeadinZeros();
-	elemJson["pointerPathText"] = _pointerPathText.StdStrNoLeadinZeros();
+	elemJson["module"] = _moduleInput.GetStdStringNoZeros();
+	elemJson["pointerPathText"] = _pointerPathInput.GetStdStringNoZeros();
 	elemJson["rangeMin"] = _rangeMin;
 	elemJson["rangeMax"] = _rangeMax;
 	return elemJson;
@@ -181,7 +183,7 @@ void MungPlex::DeviceLovense::test()
 
 void MungPlex::DeviceLovense::drawToyConnectionOptions()
 {
-	SetUpInputText("Name:", _name.Data(), _name.Size(), 1.0f, 0.3f);
+	_nameInput.Draw(1.0f, 0.3f);
 	if (_lovenseToy.GetToyInfo()->toy_connected)
 	{
 		if (ImGui::Button("Disconnect"))
@@ -194,7 +196,7 @@ void MungPlex::DeviceLovense::drawToyConnectionOptions()
 	{
 		if (ImGui::Button("Search Toy"))
 		{
-			_lovenseToy.InitManager(_token.CStr());
+			_lovenseToy.InitManager(_tokenInput.GetCString());
 			_toyError = _lovenseToy.SearchToy();
 		}
 	}
@@ -238,7 +240,7 @@ void MungPlex::DeviceLovense::drawToyConnectionOptions()
 	if (ImGui::Button("Delete"))
 		DeviceControl::DeleteItem(_deviceId);
 
-	SetUpInputText("Token:", _token.Data(), _token.Size(), 1.0f, 0.3f, true, "You need a token from the Lovense dev portal in order to use this feature. Go to Help/Get Lovense Token.", ImGuiInputTextFlags_Password);
+	_tokenInput.Draw(1.0f, 0.3f);
 }
 
 void MungPlex::DeviceLovense::drawToyInfo()
@@ -320,13 +322,13 @@ void MungPlex::DeviceLovense::drawPointerSettings()
 
 	if (!_useModulePath) ImGui::BeginDisabled();
 	{
-		if (SetUpInputText("Module", _module.Data(), _module.Size(), 1.0f, 0.0f, false))
-			_moduleW = MT::Convert<const char*, std::wstring>(_module.CStr(), MT::UTF8, MT::UTF16LE);
+		if (_moduleInput.Draw(1.0f, 0.0f))
+			_moduleW = MT::Convert<const char*, std::wstring>(_moduleInput.GetCString(), MT::UTF8, MT::UTF16LE);
 	}
 	if (!_useModulePath) ImGui::EndDisabled();
 
-	if (SetUpInputText("Pointer Path:", _pointerPathText.Data(), _pointerPathText.Size(), 1.0f, 0.2f))
-		ParsePointerPath(_pointerPath, _pointerPathText.StdStrNoLeadinZeros());
+	if (_pointerPathInput.Draw(1.0f, 0.2f))
+		ParsePointerPath(_pointerPath, _pointerPathInput.GetStdStringNoZeros());
 
 	int addrType = ProcessInformation::GetAddressWidth() == 8 ? ImGuiDataType_U64 : ImGuiDataType_U32;
 	std::string format = ProcessInformation::GetAddressWidth() == 8 ? "%016X" : "%08X";
