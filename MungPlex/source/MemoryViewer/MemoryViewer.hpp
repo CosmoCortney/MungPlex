@@ -14,6 +14,7 @@
 #include "MungPlexConfig.hpp"
 #include "ProcessInformation.hpp"
 #include <string>
+#include "WidgetHelpers.hpp"
 
 namespace MungPlex
 {
@@ -31,7 +32,6 @@ namespace MungPlex
         std::string _windowTitle;
         bool _isOpen = false;
         int _regionSelect = 0;
-        std::string _bufAddress;
         uint64_t _address;
         std::string _hexView;
         MemoryEditor _memEdit;
@@ -43,6 +43,7 @@ namespace MungPlex
         HANDLE _handle;
         bool _validAddress = false;
         bool _rereorder = false;
+        InputText _targetAddressInput = InputText("Go to Address:", "", 17);
 
         void drawControlPanel();
         void drawHexEditor();

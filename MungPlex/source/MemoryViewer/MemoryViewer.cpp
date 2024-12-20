@@ -8,7 +8,7 @@ MungPlex::MemoryViewer::MemoryViewer(const uint32_t id)
 	SetIndex(id);
     _isOpen = true;
     _rereorder = ProcessInformation::GetRereorderFlag();
-    _bufAddress = std::string("00000000\0", 17);
+    _targetAddressInput.SetText("0");
     _hexView = std::string("", _readSize);
     _dummy = std::string("Invalid Memory Region");
     SetUpByRegionSelect(0);
@@ -86,7 +86,7 @@ void MungPlex::MemoryViewer::drawControlPanel()
 
         if (processType != ProcessInformation::NATIVE) ImGui::EndDisabled();
 
-        if (SetUpInputText("Jump to Address:", _bufAddress.data(), 17, 1.0f, 0.4f))
+        if (_targetAddressInput.Draw(1.0f, 0.4f))
         {
             processBufferAddress();
         }
@@ -155,14 +155,14 @@ void MungPlex::MemoryViewer::SetUpByRegionSelect(const int index)
 {
     std::stringstream stream;
     stream << std::hex << ProcessInformation::GetSystemRegionList()[index].Base;
-    stream >> _bufAddress;
+    _targetAddressInput.SetText(stream.str());
     processBufferAddress();
 }
 
 void MungPlex::MemoryViewer::processBufferAddress()
 {
     std::stringstream stream;
-    stream << std::hex << _bufAddress.data();
+    stream << std::hex << _targetAddressInput.GetStdStringNoZeros();
     stream >> _viewAddress;
     _validAddress = false;
 
