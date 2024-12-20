@@ -66,6 +66,26 @@ MungPlex::InputText::InputText(const std::string& label, const std::string text,
 	_flags = flags;
 }
 
+MungPlex::InputText::InputText(const InputText& other)
+{
+	assign(other);
+}
+
+MungPlex::InputText& MungPlex::InputText::operator=(const InputText& other)
+{
+	return *this;
+}
+
+MungPlex::InputText::InputText(InputText&& other) noexcept
+{
+	assign(other);
+}
+
+MungPlex::InputText& MungPlex::InputText::operator=(InputText&& other) noexcept
+{
+	return *this;
+}
+
 bool MungPlex::InputText::Draw(const float paneWidth, const float labelPortion)
 {
 	static bool edited = false;
@@ -135,4 +155,17 @@ uint64_t MungPlex::InputText::GetMaxLength() const
 void MungPlex::InputText::ConnectOnTextChanged(const Slot slot)
 {
 	_slotsOnTextChanged.emplace_back(slot);
+}
+
+void MungPlex::InputText::assign(const InputText& other)
+{
+	_text = other._text;
+	_helpText = other._helpText;
+	_id = other._id;
+	_label = other._label;
+	_maxLength = other._maxLength;
+	_printLabel = other._printLabel;
+	_showHelpText = other._showHelpText;
+	_flags = other._flags;
+	_slotsOnTextChanged = other._slotsOnTextChanged;
 }

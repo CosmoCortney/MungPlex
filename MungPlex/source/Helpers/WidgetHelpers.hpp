@@ -67,6 +67,11 @@ namespace MungPlex
 	public:
 		typedef std::function<void()> Slot;
 		InputText(const std::string& label, const std::string text = "", const uint64_t maxLength = 256, const bool printLabel = true, const ImGuiInputTextFlags flags = ImGuiInputTextFlags_None);
+		InputText(const InputText& other);
+		InputText& operator=(const InputText& other);
+		InputText(InputText&& other) noexcept;
+		InputText& operator=(InputText&& other) noexcept;
+		
 		bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
 		void SetText(const std::string& text);
 		void SetLabel(const std::string& label);
@@ -90,5 +95,7 @@ namespace MungPlex
 		bool _showHelpText = false;
 		ImGuiInputTextFlags _flags = ImGuiInputTextFlags_None;
 		std::vector<Slot> _slotsOnTextChanged{};
+
+		void assign(const InputText& other);
 	};
 }
