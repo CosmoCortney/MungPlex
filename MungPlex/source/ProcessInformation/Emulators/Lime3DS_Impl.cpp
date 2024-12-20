@@ -7,7 +7,7 @@
 bool MungPlex::Lime3DS::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("Lime3DS", false, false, 4, 4);
-	boost::filesystem::path gameInfoPath(std::string(Settings::GetGeneralSettings().DocumentsPath) + "\\MungPlex\\CurrentGame.json");
+	boost::filesystem::path gameInfoPath(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros() + "\\MungPlex\\CurrentGame.json");
 
 	if (!process.IsOpen())
 		return false;

@@ -37,7 +37,7 @@ void key_callback(GLFWwindow* window, const int key, const int scancode, const i
 
 void clearSearchResultsDir()
 {
-	const std::string temp = std::string(MungPlex::Settings::GetGeneralSettings().DocumentsPath) + R"(\MungPlex\Search)";
+	const std::string temp = MungPlex::Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros() + R"(\MungPlex\Search)";
 	const std::wstring path = MorphText::Convert<std::string, std::wstring>(temp, MT::UTF8, MT::UTF16LE);
 
 	if (std::filesystem::is_directory(path))

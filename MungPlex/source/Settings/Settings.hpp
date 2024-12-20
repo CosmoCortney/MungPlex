@@ -4,12 +4,13 @@
 #include <functional>
 #include "HelperFunctions.hpp"
 #include "nlohmann/json.hpp"
+#include "WidgetHelpers.hpp"
 
 namespace MungPlex
 {
     struct GeneralSettings
     {
-        char DocumentsPath[512] = "";
+        FloorString DocumentsPath = FloorString("", 512);
         float Scale = 1.2f;
         StringIdPairs Windows =
         {
@@ -70,6 +71,7 @@ namespace MungPlex
         CheatsSettings _cheatsSettings;
         DeviceControlSettings _deviceControlSettings;
         ImGuiStyle _defaultStyle;
+        InputText _documentsPathInput = InputText("Documents Path:", "", 512);
         const std::vector<std::string> _featureDirs
         {
              "Search" , "Dumps", "PointerSearch", "WatchControl", "Cheats", "DeviceControl"

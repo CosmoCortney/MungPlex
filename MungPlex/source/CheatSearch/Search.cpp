@@ -94,7 +94,7 @@ MungPlex::Search::Search()
 	_caseSensitive = Settings::GetSearchSettings().DefaultCaseSensitive;
 	_useColorWheel = Settings::GetSearchSettings().DefaultColorWheel;
 	_hex = Settings::GetSearchSettings().DefaultValuesHex;
-	_resultsPath = MT::Convert<char*, std::wstring>(Settings::GetGeneralSettings().DocumentsPath, MT::UTF8, MT::UTF16LE) + L"\\MungPlex\\Search\\";
+	_resultsPath = MT::Convert<std::string, std::wstring>(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros(), MT::UTF8, MT::UTF16LE) + L"\\MungPlex\\Search\\";
 	setFormatting();
 }
 

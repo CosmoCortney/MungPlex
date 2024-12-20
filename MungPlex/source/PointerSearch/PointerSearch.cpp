@@ -24,12 +24,12 @@ inline const MungPlex::StringIdBoolPairs MungPlex::PointerSearch::_systemPresets
 
 MungPlex::PointerSearch::PointerSearch()
 {
-    _defaultPath = Settings::GetGeneralSettings().DocumentsPath;
+    _defaultPath = Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros();
     std::ranges::replace(_defaultPath, '\\', '/');
     _defaultPath.append("/MungPlex/Dumps/");
     _minOffsetInput.SetHelpText("Smallest offset value to be considered. Negative values allowed. A lower value may increase results count but also the scan time.");
     _maxOffsetInput.SetHelpText("Biggest offset value to be considered. A bigger value may increase results count but also increase scan time.");
-    _resultsPathInput.SetText(std::string(Settings::GetGeneralSettings().DocumentsPath) + R"(\MungPlex\PointerSearch\Pointers.txt)");
+    _resultsPathInput.SetText(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros() + R"(\MungPlex\PointerSearch\Pointers.txt)");
     _resultsPathInput.SetHelpText("Where to save the results file.");
 }
 
@@ -157,7 +157,7 @@ void MungPlex::PointerSearch::drawSettings()
         
         if (ImGui::Button("Dump"))
         {
-            std::stringstream stream(std::string(Settings::GetGeneralSettings().DocumentsPath), std::ios_base::app | std::ios_base::out);
+            std::stringstream stream(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros(), std::ios_base::app | std::ios_base::out);
             stream << R"(\MungPlex\Dumps\)";
             stream << ProcessInformation::GetPlatform() << '\\';
             stream << ProcessInformation::GetGameID() << '\\';

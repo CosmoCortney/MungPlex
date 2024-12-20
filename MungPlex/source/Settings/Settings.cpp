@@ -51,6 +51,8 @@ MungPlex::Settings::Settings()
 	_defaultStyle.Colors[ImGuiCol_ModalWindowDimBg] = { 0.10f, 0.08f, 0.2f, 0.5f };
 	_defaultStyle.Colors[ImGuiCol_PlotHistogram] = _defaultStyle.Colors[ImGuiCol_PlotLines] = { 0.0f, 0.7f, 0.9f, 1.0f };
 	_defaultStyle.Colors[ImGuiCol_PlotHistogramHovered] = _defaultStyle.Colors[ImGuiCol_PlotLinesHovered] = { 0.0f, 0.9f, 0.75f, 1.0f };
+
+	_documentsPathInput.SetHelpText("Where you want MungPlex to save data. An SSD is recommended for fast memory dump streeaming. Changes take effect after restarting!", true);
 }
 
 void MungPlex::Settings::InitSettings()
@@ -69,7 +71,7 @@ void MungPlex::Settings::InitSettings()
 		auto& settings = doc["Settings"];
 
 		//set general settings
-		strcpy_s(generalSettings.DocumentsPath, settings["General"]["DocumentsPath"].get<std::string>().c_str());
+		generalSettings.DocumentsPath = settings["General"]["DocumentsPath"].get<std::string>();
 		generalSettings.Scale = settings["General"]["Scale"].get<float>();
 		generalSettings.DefaultWindowSelect = settings["General"]["DefaultWindowSelect"].get<int>();
 
@@ -82,17 +84,19 @@ void MungPlex::Settings::InitSettings()
 		GetInstance().setUi(settings["General"]);
 
 
-		if (std::filesystem::is_directory(generalSettings.DocumentsPath))
+		if (std::filesystem::is_directory(generalSettings.DocumentsPath.StdStrNoLeadinZeros()))
 			GetInstance().createDocFolders(); //ensure changes to docfolder also become updated
 		else
 		{
 			auto tmp = new wchar_t[512];
 			SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &tmp);
-			strcpy_s(generalSettings.DocumentsPath, MT::Convert<wchar_t*, std::string>(tmp, MT::UTF16LE, MT::UTF8).c_str());
+			generalSettings.DocumentsPath = MT::Convert<wchar_t*, std::string>(tmp, MT::UTF16LE, MT::UTF8);
 			CoTaskMemFree(tmp);
 			GetInstance().createDocFolders();
 			save = true;
 		}
+
+		GetInstance()._documentsPathInput.SetText(generalSettings.DocumentsPath.StdStrNoLeadinZeros());
 
 		//set search defaults
 		searchSettings.DefaultCaseSensitive = settings["Search"]["DefaultCaseSensitive"].get<bool>();
@@ -190,7 +194,9 @@ void MungPlex::Settings::drawGeneralSettings()
 
 		ImGui::BeginGroup();
 		{
-			SetUpInputText("Documents Path:", _generalSettings.DocumentsPath, 512, 1.0f, 0.2f, true, "Where you want MungPlex to save data. An SSD is recommended for fast memory dump streeaming. Changes take effect after restarting!");
+			if (_documentsPathInput.Draw(1.0f, 0.2f))
+				_generalSettings.DocumentsPath = _documentsPathInput.GetStdStringNoZeros();
+
 			SetUpSliderFloat("UI Scale:", &_generalSettings.Scale, 0.65f, 2.0f, "%3f", 1.0f, 0.2f, true, "If the UI looks off you can change the scale. Changes take effect after restarting!");
 
 			//ImGui::SameLine();
@@ -279,15 +285,15 @@ bool MungPlex::Settings::saveSettings()
 		nlohmann::json jsonData;
 		nlohmann::json jsonChunk;
 
-		jsonChunk["DocumentsPath"] = _generalSettings.DocumentsPath;
-		if (!std::filesystem::is_directory(_generalSettings.DocumentsPath))
+		jsonChunk["DocumentsPath"] = _generalSettings.DocumentsPath.StdStrNoLeadinZeros();
+		if (!std::filesystem::is_directory(_generalSettings.DocumentsPath.StdStrNoLeadinZeros()))
 		{
 			auto path = new wchar_t[256];
-			wcscpy(path, MT::Convert<char*, std::wstring>(_generalSettings.DocumentsPath, MT::UTF8, MT::UTF16LE).c_str());
+			wcscpy(path, MT::Convert<std::string, std::wstring>(_generalSettings.DocumentsPath.StdStrNoLeadinZeros(), MT::UTF8, MT::UTF16LE).c_str());
 
 			if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &path)))
 			{
-				strcpy_s(_generalSettings.DocumentsPath, MT::Convert<wchar_t*, std::string>(path, MT::UTF16LE, MT::UTF8).c_str());
+				_generalSettings.DocumentsPath = MT::Convert<wchar_t*, std::string>(path, MT::UTF16LE, MT::UTF8);
 			}
 
 			CoTaskMemFree(path);
@@ -332,7 +338,7 @@ bool MungPlex::Settings::saveSettings()
 
 void MungPlex::Settings::createDocFolders() 
 {
-	std::string mungPlexDocsPath = std::string(_generalSettings.DocumentsPath) + R"(\MungPlex)";
+	std::string mungPlexDocsPath = _generalSettings.DocumentsPath.StdStrNoLeadinZeros() + R"(\MungPlex)";
 	validateDir(mungPlexDocsPath);
 	
 	for (auto& dir : _featureDirs)
@@ -405,8 +411,8 @@ void MungPlex::Settings::resetSettings()
 	ImGuiStyle& style = ImGui::GetStyle();
 	style = _defaultStyle;
 	auto path = new wchar_t[256];
-	wcscpy(path, MT::Convert<char*, std::wstring>(_generalSettings.DocumentsPath, MT::UTF8, MT::UTF16LE).c_str());
-	strcpy_s(_generalSettings.DocumentsPath, MT::Convert<wchar_t*, std::string>(path, MT::UTF16LE, MT::UTF8).c_str());
+	wcscpy(path, MT::Convert<std::string, std::wstring>(_generalSettings.DocumentsPath.StdStrNoLeadinZeros(), MT::UTF8, MT::UTF16LE).c_str());
+	_generalSettings.DocumentsPath = MT::Convert<wchar_t*, std::string>(path, MT::UTF16LE, MT::UTF8);
 	_generalSettings.Scale = 1.2f;
 	_generalSettings.DefaultWindowSelect = 0;
 	_generalSettings.EnableRichPresence = false;

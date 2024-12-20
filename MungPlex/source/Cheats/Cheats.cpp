@@ -118,7 +118,7 @@ MungPlex::Cheats::Cheats()
 
 	_cheatList = Settings::GetCheatsSettings().DefaultCheatList;
 	_perSecond = Settings::GetCheatsSettings().DefaultInterval;
-	_documentsPath = MT::Convert<char*, std::wstring>(Settings::GetGeneralSettings().DocumentsPath, MT::UTF8, MT::UTF16LE);
+	_documentsPath = MT::Convert<std::string, std::wstring>(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros(), MT::UTF8, MT::UTF16LE);
 
 	//initCheatFile();
 }
