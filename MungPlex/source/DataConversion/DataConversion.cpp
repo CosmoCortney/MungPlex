@@ -205,7 +205,6 @@ void MungPlex::DataConversion::drawColorConversion()
 	static int selectedColorID = LitColor::RGBF;
 	static int selectedSpecializedColorTypeIndex = 0;
 	static ImVec4 specializedColorVal = { 0.0f, 0.0f, 0.0f, 1.0f };
-	static std::string specializedColorValueStr = std::string(48, 0);
 	static bool useColorWheel = false;
 	ImVec2 childXY = ImGui::GetContentRegionAvail();
 	//childXY.x *= 0.666f;
@@ -219,7 +218,7 @@ void MungPlex::DataConversion::drawColorConversion()
 		if (DrawColorPicker(selectedColorID, alpha, &specializedColorVal, useColorWheel, 0.4f))
 		{
 			update = false;
-			ColorValuesToCString(specializedColorVal, selectedColorID, specializedColorValueStr.data(), alpha);
+			ColorValuesToCString(specializedColorVal, selectedColorID, _specializedColorValueInput.GetData(), alpha);
 		}
 
 		ImGui::SameLine();
@@ -253,8 +252,8 @@ void MungPlex::DataConversion::drawColorConversion()
 			ImGui::Dummy(ImVec2(0.0f, _verticalSpacing.y * 2.0f));
 			ImGui::Text("Specialized Value:");
 
-			if (SetUpInputText("##Specialized Val:", specializedColorValueStr.data(), specializedColorValueStr.size(), 1.0f, 0.333f, false))
-				LitColorExpressionToImVec4(specializedColorValueStr.c_str(), &specializedColorVal);
+			if (_specializedColorValueInput.Draw(1.0f, 0.333f))
+				LitColorExpressionToImVec4(_specializedColorValueInput.GetCString(), &specializedColorVal);
 		}
 		ImGui::EndGroup();
 	}
@@ -270,7 +269,6 @@ void MungPlex::DataConversion::drawHexFloatConversion()
 	ImGui::BeginGroup();
 	{
 		static int selectedFloatType = FloatTypes::FLOAT;
-		static std::string hexFloat(17, 0);
 		static float floatVal = 1.0f;
 		static double doubleVal = 1.0;
 		static bool isDouble = false;
@@ -286,7 +284,7 @@ void MungPlex::DataConversion::drawHexFloatConversion()
 		{
 			if (SetUpInputDouble("Double:", &doubleVal, 0.1, 1.0, "%.16f", 1.0f, 0.35f) || update)
 			{
-				hexFloat = ToHexString(*(uint64_t*)&doubleVal, 16, false);
+				_hexFloatInput.SetText(ToHexString(*(uint64_t*)&doubleVal, 16, false));
 				update = false;
 			}
 		}
@@ -294,15 +292,15 @@ void MungPlex::DataConversion::drawHexFloatConversion()
 		{
 			if (SetUpInputFloat("Float:", &floatVal, 0.1f, 1.0f, "%.8f", 1.0f, 0.35f) || update)
 			{
-				hexFloat = ToHexString(*(uint32_t*)&floatVal, 8, false);
+				_hexFloatInput.SetText(ToHexString(*(uint32_t*)&floatVal, 8, false));
 				update = false;
 			}
 		}
 
-		if (SetUpInputText("Hex Float:", hexFloat.data(), hexFloat.size() + 1, 1.0f, 0.35f))
+		if (_hexFloatInput.Draw(1.0f, 0.35f))
 		{
 			std::stringstream stream;
-			stream << hexFloat;
+			stream << _hexFloatInput.GetStdStringNoZeros();
 
 			if (isDouble)
 			{
@@ -331,34 +329,32 @@ void MungPlex::DataConversion::drawEndiannessConversion()
 	{
 		static uint64_t le = 0;
 		static uint64_t be = 0;
-		static std::string leStr;
-		static std::string beStr;
 		static int intSelect = IntTypes::INT16;
 		static bool update = true;
 
 		if (SetUpPairCombo(_intTypes, &intSelect, 1.0f, 0.35f) || update)
 		{
-			leStr.resize(4 << intSelect);
-			beStr.resize(4 << intSelect);
+			_littleEndianInput.SetMaxLength(4 << intSelect);
+			_bigEndianInput.SetMaxLength(4 << intSelect);
 			update = false;
 		}
 
-		if (SetUpInputText("Little Endian:", leStr.data(), leStr.size() + 1, 1.0f, 0.35f))
+		if (_littleEndianInput.Draw(1.0f, 0.35f))
 		{
-			beStr = swapBytes(leStr, intSelect);
+			_bigEndianInput.SetText(swapBytes(_littleEndianInput.GetStdStringNoZeros(), intSelect));
 			update = true;
 		}
 
-		if (SetUpInputText("Big Endian:", beStr.data(), beStr.size() + 1, 1.0f, 0.35f))
+		if (_bigEndianInput.Draw(1.0f, 0.35f))
 		{
-			leStr = swapBytes(beStr, intSelect);
+			_littleEndianInput.SetText(swapBytes(_bigEndianInput.GetStdStringNoZeros(), intSelect));
 			update = true;
 		}
 	}
 	ImGui::EndGroup();
 }
 
-std::string MungPlex::DataConversion::swapBytes(std::string& in, const int select)
+std::string MungPlex::DataConversion::swapBytes(const std::string& in, const int select)
 {
 	uint64_t temp = 0;
 	std::stringstream stream;

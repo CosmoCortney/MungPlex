@@ -4,6 +4,7 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include "HelperFunctions.hpp"
+#include "WidgetHelpers.hpp"
 
 namespace MungPlex
 {
@@ -39,11 +40,15 @@ namespace MungPlex
         static const StringIdPairs _floatTypes;
         static const StringIdPairs _intTypes;
         ImVec2 _verticalSpacing;
+        InputText _specializedColorValueInput = InputText("Specializes Color Val:", "", 24, false);
+        InputText _hexFloatInput = InputText("Hex Float:", "", 17);
+        InputText _littleEndianInput = InputText("Little Endian:", "", 17);
+        InputText _bigEndianInput = InputText("Big Endian:", "", 17);
 
         void drawPrimitiveConversion();
         void drawHexFloatConversion();
         void drawEndiannessConversion();
-        std::string swapBytes(std::string& in, const int select);
+        std::string swapBytes(const std::string& in, const int select);
         void drawColorConversion();
         void drawTextConversion();
         void convertText(std::string& in, std::string& out, const int textTypeSelect);
