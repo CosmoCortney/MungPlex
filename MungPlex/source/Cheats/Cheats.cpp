@@ -709,8 +709,7 @@ void MungPlex::Cheats::drawCheatConverter()
 		{
 			if (convertToLua())
 			{
-				_textCheatLua = CheatConvert::GetLuaCheat();
-				_textCheatLua.resize(CHEAT_LENGTH);
+				_textCheatLuaInput.SetText(CheatConvert::GetLuaCheat());
 			}
 		}
 	}
@@ -753,6 +752,7 @@ void MungPlex::Cheats::DrawCheatList()
 void MungPlex::Cheats::DrawCheatInformation()
 {
 	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.8f };
+	static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 	
 	ImGui::BeginGroup();
 	{
@@ -762,26 +762,16 @@ void MungPlex::Cheats::DrawCheatInformation()
 		if (_executeCheats) ImGui::BeginDisabled();
 		{
 			if (_cheatTitleInput.Draw(1.0f, 0.15f))
-			{
 				_unsavedChangesTextCheat = true;
-			}
 
 			if (_hackerInput.Draw(1.0f, 0.15f))
-			{
 				_unsavedChangesTextCheat = true;
-			}
 
-			static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
-
-			if (SetUpInputTextMultiline("Lua Cheat:", _textCheatLua.data(), CHEAT_LENGTH, 1.0f, 0.55f, flags))
-			{
+			if (_textCheatLuaInput.Draw(1.0f, 0.55f))
 				_unsavedChangesTextCheat = true;
-			}
 
-			if (SetUpInputTextMultiline("Description:", _textCheatDescription.data(), DESCRIPTION_LENGTH, 1.0f, 0.35f, flags))
-			{
+			if (_textCheatDescriptionInput.Draw(1.0f, 0.35f))
 				_unsavedChangesTextCheat = true;
-			}
 
 			static bool cheatCopyError = false;
 
@@ -948,7 +938,7 @@ void MungPlex::Cheats::cheatRoutine()
 	else
 	{
 		Log::LogInformation("Executing Text Cheat");
-		pfr = _lua.safe_script(_textCheatLua.c_str(), sol::script_pass_on_error);
+		pfr = _lua.safe_script(_textCheatLuaInput.GetCString(), sol::script_pass_on_error);
 
 		if (!pfr.valid())
 		{
@@ -963,7 +953,7 @@ void MungPlex::Cheats::cheatRoutine()
 		while (_executeCheats)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _perSecond));
-			_lua.safe_script(_textCheatLua.c_str(), sol::script_pass_on_error);
+			_lua.safe_script(_textCheatLuaInput.GetCString(), sol::script_pass_on_error);
 		}
 	}
 }
@@ -1011,8 +1001,8 @@ void MungPlex::Cheats::InitCheatFile()
 	GetInstance()._checkBoxIDs.clear();
 	GetInstance()._cheatTitleInput.SetText("");
 	GetInstance()._hackerInput.SetText("");
-	GetInstance()._textCheatLua = std::string(CHEAT_LENGTH, 0);
-	GetInstance()._textCheatDescription = std::string(DESCRIPTION_LENGTH, 0);
+	GetInstance()._textCheatLuaInput.SetText("");
+	GetInstance()._textCheatDescriptionInput.SetText("");
 
 	std::string jsonstr;
 	{
@@ -1083,10 +1073,8 @@ void MungPlex::Cheats::copyCheatToInformationBox(const int index)
 {
 	_cheatTitleInput.SetText(_luaCheats[index].Title);
 	_hackerInput.SetText(_luaCheats[index].Hacker);
-	_textCheatLua = _luaCheats[index].Lua;
-	_textCheatDescription = _luaCheats[index].Description;
-	_textCheatLua.resize(CHEAT_LENGTH);
-	_textCheatDescription.resize(DESCRIPTION_LENGTH);
+	_textCheatLuaInput.SetText(_luaCheats[index].Lua);
+	_textCheatDescriptionInput.SetText(_luaCheats[index].Description);
 }
 
 bool MungPlex::Cheats::copyCheatToList(const int index)
@@ -1105,8 +1093,8 @@ bool MungPlex::Cheats::copyCheatToList(const int index)
 			true,
 			_cheatTitleInput.GetStdStringNoZeros(),
 			_hackerInput.GetStdStringNoZeros(),
-			_textCheatLua,
-			_textCheatDescription));
+			_textCheatLuaInput.GetStdStringNoZeros(),
+			_textCheatDescriptionInput.GetStdStringNoZeros()));
 	}
 	else
 	{
@@ -1123,8 +1111,8 @@ bool MungPlex::Cheats::copyCheatToList(const int index)
 
 		_luaCheats[index].Title = _cheatTitleInput.GetStdStringNoZeros();
 		_luaCheats[index].Hacker = _hackerInput.GetStdStringNoZeros();
-		_luaCheats[index].Lua = _textCheatLua;
-		_luaCheats[index].Description = _textCheatDescription;
+		_luaCheats[index].Lua = _textCheatLuaInput.GetStdStringNoZeros();
+		_luaCheats[index].Description = _textCheatDescriptionInput.GetStdStringNoZeros();
 	}
 
 	return true;
