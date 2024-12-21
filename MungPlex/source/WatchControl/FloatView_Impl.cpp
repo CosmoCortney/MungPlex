@@ -76,9 +76,9 @@ nlohmann::json MungPlex::FloatView::GetJSON()
 void MungPlex::FloatView::assign(const FloatView& other)
 {
 	_moduleW = other._moduleW;
-	_module = other._module;
-	_pointerPathText = other._pointerPathText;
-	_label = other._label;
+	_moduleInput = other._moduleInput;
+	_pointerPathInput = other._pointerPathInput;
+	_labelInput = other._labelInput;
 	_pointerPath = other._pointerPath;
 	_useModulePath = other._useModulePath;
 	_moduleAddress = other._moduleAddress;

@@ -66,7 +66,7 @@ bool MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHe
 
 	ImGui::BeginChild("child_setup", ImVec2(itemWidth * 0.15f, itemHeight * 1.5f), true);
 	{
-		SetUpInputText("Title:", _label.Data(), _label.Size(), 1.0f, 0.3f);
+		_labelInput.Draw(1.0f, 0.3f);
 		_enableSignal = _disableSignal = false;
 
 		if (ImGui::Checkbox("Active", &_active))
@@ -75,7 +75,7 @@ bool MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHe
 
 			if (_active)
 			{
-				ParsePointerPath(_pointerPath, _pointerPathText);
+				ParsePointerPath(_pointerPath, _pointerPathInput.GetStdStringNoZeros());
 
 				if(_useModulePath)
 					_moduleAddress = ProcessInformation::GetModuleAddress<uint64_t>(_moduleW);
@@ -119,11 +119,11 @@ void MungPlex::IView::drawPointerPathSetup(const float itemWidth, const float it
 
 		ImGui::SameLine();
 		if (!_useModulePath) ImGui::BeginDisabled();
-		SetUpInputText("Module", _module.data(), _module.size(), 1.0f, 0.0f, false);
+		_moduleInput.Draw(1.0f, 0.0f);
 		if (!_useModulePath) ImGui::EndDisabled();
 
-		if (SetUpInputText("Pointer Path:", _pointerPathText.data(), _pointerPathText.size(), 1.0f, 0.3f))
-			ParsePointerPath(_pointerPath, _pointerPathText);
+		if (_pointerPathInput.Draw(1.0f, 0.3f))
+			ParsePointerPath(_pointerPath, _pointerPathInput.GetStdStringNoZeros());
 
 		int addrType = ProcessInformation::GetAddressWidth() == 8 ? ImGuiDataType_U64 : ImGuiDataType_U32;
 		std::string format = ProcessInformation::GetAddressWidth() == 8 ? "%016X" : "%08X";
@@ -144,8 +144,8 @@ nlohmann::json MungPlex::IView::GetBasicJSON()
 {
 	nlohmann::json elemJson;
 
-	elemJson["Title"] = _label.StdStrNoLeadinZeros();
-	elemJson["Module"] = _module.c_str();
+	elemJson["Title"] = _labelInput.GetStdStringNoZeros();
+	elemJson["Module"] = _moduleInput.GetStdStringNoZeros();
 	elemJson["UseModule"] = _useModulePath;
 	elemJson["WriteOn"] = _freeze;
 	elemJson["Active"] = _active;
@@ -160,17 +160,17 @@ nlohmann::json MungPlex::IView::GetBasicJSON()
 
 void MungPlex::IView::SetBasicMembers(const nlohmann::json elem)
 {
-	_label = elem["Title"];
-	_module = elem["Module"];
+	_labelInput.SetText(elem["Title"]);
+	_moduleInput.SetText(elem["Module"]);
 	_moduleW.resize(32);
-	_moduleW = MT::Convert<std::string, std::wstring>(_module, MT::UTF8, MT::UTF16LE);
+	_moduleW = MT::Convert<std::string, std::wstring>(_moduleInput.GetStdStringNoZeros(), MT::UTF8, MT::UTF16LE);
 	_moduleW.resize(32);
 	_useModulePath = elem["UseModule"];
 	_freeze = elem["WriteOn"];
 	_active = elem["Active"];
 	_rangeMin = elem["PointerMin"];
 	_rangeMax = elem["PointerMax"];
-	_pointerPathText = "";
+	_pointerPathInput.SetText("");
 
 	for (int i = 0; i < elem["PointerPath"].size(); ++i)
 	{
@@ -178,11 +178,9 @@ void MungPlex::IView::SetBasicMembers(const nlohmann::json elem)
 		_pointerPath.push_back(ptr);
 		std::stringstream stream;
 		stream << std::uppercase << std::hex << ptr;
-		_pointerPathText.append(stream.str());
+		_pointerPathInput.AppendText(stream.str());
 
 		if (i < elem["PointerPath"].size() - 1)
-			_pointerPathText.append(", ");
+			_pointerPathInput.AppendText(", ");
 	}
-
-	_pointerPathText.resize(128);
 }

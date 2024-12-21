@@ -3,6 +3,7 @@
 #include "nlohmann/json.hpp"
 #include <boost/thread.hpp>
 #include <boost/atomic.hpp>
+#include "WidgetHelpers.hpp"
 
 namespace MungPlex
 {
@@ -27,9 +28,9 @@ namespace MungPlex
 
     protected:
         std::wstring _moduleW = std::wstring(32, '\0');
-        std::string _module = std::string(32, '\0');
-        std::string _pointerPathText = std::string(128, '\0');
-        FloorString _label = FloorString("", 128);
+        InputText _moduleInput = InputText("Module:", "", 32, false);
+        InputText _pointerPathInput = InputText("Pointer Path:", "", 256);
+        InputText _labelInput = InputText("Title:", "", 128);
         std::vector<int64_t> _pointerPath;
         bool _useModulePath = false;
         uint64_t _moduleAddress = 0;
