@@ -120,6 +120,9 @@ void MungPlex::Settings::InitSettings()
 
 		//set device control defaults
 		deviceControlSettings.LovenseToken = settings["DeviceControl"]["LovenseToken"].get<std::string>();
+		std::string tempToken = deviceControlSettings.LovenseToken.StdStrNoLeadinZeros();
+		GetInstance()._lovenseTokenInput.SetText(tempToken);
+		GetInstance()._deviceControlSettings.LovenseToken = tempToken;
 
 		if (save)
 			GetInstance().saveSettings();
@@ -270,7 +273,10 @@ void MungPlex::Settings::drawDeviceControlSettings()
 	if (ImGui::BeginTabItem("Device Control"))
 	{
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
-		SetUpInputText("Lovense Token", _deviceControlSettings.LovenseToken.Data(), _deviceControlSettings.LovenseToken.Size(), 1.0f, 0.2f);
+		
+		if (_lovenseTokenInput.Draw(1.0f, 0.2f))
+			_deviceControlSettings.LovenseToken = _lovenseTokenInput.GetStdStringNoZeros();
+
 		ImGui::EndTabItem();
 	}
 }

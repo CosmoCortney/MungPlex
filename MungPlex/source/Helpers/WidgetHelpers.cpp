@@ -73,6 +73,7 @@ MungPlex::InputText::InputText(const InputText& other)
 
 MungPlex::InputText& MungPlex::InputText::operator=(const InputText& other)
 {
+	assign(other);
 	return *this;
 }
 
@@ -83,6 +84,7 @@ MungPlex::InputText::InputText(InputText&& other) noexcept
 
 MungPlex::InputText& MungPlex::InputText::operator=(InputText&& other) noexcept
 {
+	assign(other);
 	return *this;
 }
 

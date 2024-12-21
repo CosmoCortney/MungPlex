@@ -72,6 +72,7 @@ namespace MungPlex
         DeviceControlSettings _deviceControlSettings;
         ImGuiStyle _defaultStyle;
         InputText _documentsPathInput = InputText("Documents Path:", "", 512);
+        InputText _lovenseTokenInput = InputText("Lovense Token:", "", 128, true, ImGuiInputTextFlags_Password);
         const std::vector<std::string> _featureDirs
         {
              "Search" , "Dumps", "PointerSearch", "WatchControl", "Cheats", "DeviceControl"
