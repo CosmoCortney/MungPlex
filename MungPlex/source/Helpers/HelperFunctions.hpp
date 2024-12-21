@@ -461,15 +461,6 @@ namespace MungPlex
         return edited;
     }
 
-    static bool SetUpInputTextMultiline(const std::string& name, char* text, const size_t bufSize, const float paneWidth = 0.25f, const float paneHeight = 0.25f, const ImGuiInputTextFlags flags = 0, bool printLabel = true, const char* helpText = nullptr)
-    {
-        const float absoluteWidth = ImGui::GetContentRegionAvail().x * paneWidth;
-        const float absoluteHeight = ImGui::GetContentRegionAvail().y * paneHeight;
-        ImGui::Text(name.c_str());
-        const bool edited = ImGui::InputTextMultiline(("##" + name).c_str(), text, bufSize, ImVec2(absoluteWidth, absoluteHeight), flags);
-        return edited;
-    }
-
     static void SetUpLableText(const std::string& name, const char* text, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
     {
         PrepareWidgetLabel(name, paneWidth, labelPortion, true);
