@@ -429,14 +429,6 @@ namespace MungPlex
         return ret;
     }
 
-    static bool SetUpInputText(const std::string& name, char* text, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true, const char* helpText = nullptr, const ImGuiInputTextFlags flags = 0)
-    {
-        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
-        const bool edited = ImGui::InputText(("##" + name).c_str(), text, bufSize, flags);
-        ImGui::PopItemWidth();
-        return edited;
-    }
-
     static bool SetUpInputInt(const std::string& name, int* val, const int step = 1, const int stepFast = 100, const float paneWidth = 0.25f, const float labelPortion = 0.4f, const ImGuiInputTextFlags flags = 0, bool printLabel = true, const char* helpText = nullptr)
     {
         PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
