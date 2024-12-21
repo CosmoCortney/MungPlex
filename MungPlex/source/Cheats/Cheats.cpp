@@ -1009,8 +1009,8 @@ void MungPlex::Cheats::InitCheatFile()
 	GetInstance()._luaCheats.clear();
 	GetInstance()._markedCheats.clear();
 	GetInstance()._checkBoxIDs.clear();
-	GetInstance()._cheatTitleInput = std::string(TITLE_LENGTH, 0);
-	GetInstance()._hackerInput = std::string(HACKER_LENGTH, 0);
+	GetInstance()._cheatTitleInput.SetText("");
+	GetInstance()._hackerInput.SetText("");
 	GetInstance()._textCheatLua = std::string(CHEAT_LENGTH, 0);
 	GetInstance()._textCheatDescription = std::string(DESCRIPTION_LENGTH, 0);
 
