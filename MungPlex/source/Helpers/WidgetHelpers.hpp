@@ -8,7 +8,7 @@
 
 namespace MungPlex
 {
-	static void DrawHelpMarker(const char* desc) //© ImGui devs
+	static void DrawHelpMarker(const char* desc) //ï¿½ ImGui devs
 	{
 		ImGui::TextDisabled("(?)");
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
@@ -86,7 +86,7 @@ namespace MungPlex
 		uint64_t GetMaxLength() const;
 		void ConnectOnTextChanged(const Slot slot);
 
-	private:
+	protected:
 		std::string _text = std::string(256, '\0');
 		std::string _helpText = "";
 		std::string _id = "";
@@ -99,5 +99,15 @@ namespace MungPlex
 
 		void assign(const InputText& other);
 		void callOnTextChangedSlots();
+	};
+
+	class InputTextMultiline : public InputText
+	{
+	public:
+		explicit InputTextMultiline(const std::string& label, const std::string text = "", const uint64_t maxLength = 256, const bool printLabel = true, const ImGuiInputTextFlags flags = ImGuiInputTextFlags_None)
+			 : InputText(label, text, maxLength, printLabel, flags) {}
+		explicit InputTextMultiline(const InputTextMultiline& other) : InputText(other){}
+		explicit InputTextMultiline(InputTextMultiline&& other) noexcept : InputText(other) {}
+		bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
 	};
 }

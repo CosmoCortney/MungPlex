@@ -184,3 +184,25 @@ void MungPlex::InputText::callOnTextChangedSlots()
 	for (Slot& slot : _slotsOnTextChanged)
 		slot();
 }
+
+bool MungPlex::InputTextMultiline::Draw(const float width, const float height)
+{
+	static bool edited = false;
+	static ImVec2 xy = { 0.0f, 0.0f };
+	xy.x = ImGui::GetContentRegionAvail().x * width;
+	xy.y = ImGui::GetContentRegionAvail().y * height;
+
+	if (_printLabel)
+		ImGui::Text(_label.c_str());
+
+	if (_showHelpText)
+	{
+		if (_printLabel)
+			ImGui::SameLine();
+
+		DrawHelpMarker(_helpText.c_str());
+	}
+
+	edited = ImGui::InputTextMultiline(_id.c_str(), _text.data(), _maxLength, xy, _flags);
+	return edited;
+}
