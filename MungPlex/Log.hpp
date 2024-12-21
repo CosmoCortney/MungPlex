@@ -7,6 +7,7 @@
 #include <iostream>
 #include "GLFW/glfw3.h"
 #include <string>
+#include "WidgetHelpers.hpp"
 
 namespace MungPlex
 {
@@ -29,8 +30,8 @@ namespace MungPlex
             static Log Instance;
             return Instance;
         }
-        
-        static std::string _logMessage;
+
+        InputTextMultiline _logMessage = InputTextMultiline("Log Msg:", "", 0x10000, false, ImGuiInputTextFlags_ReadOnly);
         bool _logToFile = true;
         std::fstream* _logFile = nullptr;
         bool _initialized = false;

@@ -4,8 +4,6 @@
 #include "Settings.hpp"
 #include <stdio.h>
 
-std::string MungPlex::Log::_logMessage;
-
 bool MungPlex::Log::init()
 {
 	LPSTR str = new CHAR[512];
@@ -39,7 +37,7 @@ MungPlex::Log::~Log()
 
 void MungPlex::Log::clear(const bool deleteFileOnly)
 {
-	_logMessage.clear();
+	_logMessage.SetText("");
 
 	if (_logToFile)
 	{
@@ -64,7 +62,7 @@ void MungPlex::Log::DrawWindow()
 		return;
 	}
 
-	SetUpInputTextMultiline("", (char*)_logMessage.c_str(), _logMessage.size(), 1.0f, 0.9f, ImGuiInputTextFlags_ReadOnly);
+	GetInstance()._logMessage.Draw(1.0f, 0.9f);
 
 	if (ImGui::Button("Clear Log"))
 	{
@@ -101,11 +99,11 @@ void MungPlex::Log::LogInformation(const char* text, const bool appendToLast, co
 			appendingStr = "\n" + std::string(indentation, ' ');
 		}
 
-		_logMessage.append(appendingStr);
+		GetInstance()._logMessage.AppendText(appendingStr);
 	}
 	else
 	{
-		if (_logMessage.size())
+		if (GetInstance()._logMessage.GetCString()[0] != '\0')
 			appendingStr.append("\n");
 			
 		std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -113,7 +111,7 @@ void MungPlex::Log::LogInformation(const char* text, const bool appendToLast, co
 		appendingStr.append(std::to_string(std::localtime(&time)->tm_min) + ':');
 		appendingStr.append(std::to_string(std::localtime(&time)->tm_sec) + ": ");
 		appendingStr.append(std::string(text));
-		_logMessage.append(appendingStr);
+		GetInstance()._logMessage.AppendText(appendingStr);
 	}
 
 	if (GetInstance()._logToFile)
@@ -124,7 +122,6 @@ void MungPlex::Log::LogInformation(const char* text, const bool appendToLast, co
 		GetInstance()._logFile->flush();
 	}
 }
-
 
 void MungPlex::Log::LogInformation(const std::string& text, const bool appendToLast, const int indentation)
 {
