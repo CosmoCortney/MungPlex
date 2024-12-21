@@ -703,7 +703,7 @@ void MungPlex::Cheats::drawCheatConverter()
 
 		SetUpPairCombo(_cheatTypes, &cheatTypeSelect, 1.0f, 0.333f);
 
-		SetUpInputTextMultiline("Cheat to be converted", CheatConvert::GetOldSchoolCheat().data(), CheatConvert::GetOldSchoolCheat().size(), 1.0f, 0.8f);
+		CheatConvert::GetOldSchoolCheat().Draw(1.0f, 0.8f);
 
 		if (ImGui::Button("Convert to Lua"))
 		{

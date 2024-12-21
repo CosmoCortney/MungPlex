@@ -544,7 +544,7 @@ bool MungPlex::CheatConvert::DissectCheat()
 	_dissectedCheat.clear();
 	std::string line, partStr;
 	std::stringstream streamCheat, streamLine;
-	streamCheat << GetInstance()._oldSchoolCheat.c_str();
+	streamCheat << GetInstance()._oldSchoolCheat.GetStdStringNoZeros();
 	int lineCount = 0;
 	bool left = true;
 	uint32_t partInt = 0;
@@ -598,7 +598,7 @@ bool MungPlex::CheatConvert::DissectCheat()
 	return true;
 }
 
-std::string& MungPlex::CheatConvert::GetOldSchoolCheat()
+MungPlex::InputTextMultiline& MungPlex::CheatConvert::GetOldSchoolCheat()
 {
 	return GetInstance()._oldSchoolCheat;
 }

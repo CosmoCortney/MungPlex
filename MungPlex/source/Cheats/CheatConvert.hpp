@@ -7,6 +7,7 @@
 #include "backends/imgui_impl_opengl3.h"
 #include <string>
 #include <vector>
+#include "WidgetHelpers.hpp"
 
 namespace MungPlex
 {
@@ -15,7 +16,7 @@ namespace MungPlex
 	public:
 		static bool GcnArToLua();
 		static bool DissectCheat();
-		static std::string& GetOldSchoolCheat();
+		static InputTextMultiline& GetOldSchoolCheat();
 		static std::string GetLuaCheat();
 
 		enum CheatTypes
@@ -106,7 +107,7 @@ namespace MungPlex
 		};
 
 		static std::vector<std::pair<uint32_t, uint32_t>> _dissectedCheat;
-		std::string _oldSchoolCheat = std::string(0x1800, 0);
+		InputTextMultiline _oldSchoolCheat = InputTextMultiline("Cheat to be converted:", "", 0x1800);
 		static std::string _lua;
 		static std::vector<int> _layerCount;
 
