@@ -101,9 +101,16 @@ void MungPlex::InputText::SetText(const std::string& text)
 {
 	_text = text;
 	_text.resize(_maxLength);
+	callOnTextChangedSlots();
+}
 
-	for (Slot& slot : _slotsOnTextChanged)
-		slot();
+void MungPlex::InputText::AppendText(const std::string& text)
+{
+	std::string temp = _text.c_str(); //handle trailing zeros
+	temp.append(text);
+	_text = temp;
+	_text.resize(_maxLength);
+	callOnTextChangedSlots();
 }
 
 void MungPlex::InputText::SetLabel(const std::string& label)
@@ -170,4 +177,10 @@ void MungPlex::InputText::assign(const InputText& other)
 	_showHelpText = other._showHelpText;
 	_flags = other._flags;
 	_slotsOnTextChanged = other._slotsOnTextChanged;
+}
+
+void MungPlex::InputText::callOnTextChangedSlots()
+{
+	for (Slot& slot : _slotsOnTextChanged)
+		slot();
 }

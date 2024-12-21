@@ -74,6 +74,7 @@ namespace MungPlex
 		
 		bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
 		void SetText(const std::string& text);
+		void AppendText(const std::string& text);
 		void SetLabel(const std::string& label);
 		void SetHelpText(const std::string& helpText, const bool show = true);
 		void SetShowHelpText(const bool show);
@@ -97,5 +98,6 @@ namespace MungPlex
 		std::vector<Slot> _slotsOnTextChanged{};
 
 		void assign(const InputText& other);
+		void callOnTextChangedSlots();
 	};
 }
