@@ -97,7 +97,7 @@ void MungPlex::DataConversion::drawTextConversion()
 			}
 
 			float height = 1.0f - ImGui::GetCursorPosY() / ImGui::GetContentRegionAvail().y;
-			if (SetUpInputTextMultiline("Plain Text:", plainText.data(), plainText.size() + 1, 0.5f, height))
+			if (_plainTextInput.Draw(0.5f, height))
 				update = true;
 		}
 		ImGui::EndGroup();
@@ -109,11 +109,16 @@ void MungPlex::DataConversion::drawTextConversion()
 		ImGui::BeginGroup();
 		{
 			if (memEdit.DrawContents(convertedText.data(), convertedText.size(), 0, NULL, nullptr, false, memEditFlags))
+			{
 				convertHexText(convertedText, plainText, textTypeSelect);
+				_plainTextInput.SetText(plainText);
+			}
+
 			ImGui::Separator();
 
 			if (update)
 			{
+				plainText = _plainTextInput.GetStdString();
 				convertText(plainText, convertedText, textTypeSelect);
 				update = false;
 			}	

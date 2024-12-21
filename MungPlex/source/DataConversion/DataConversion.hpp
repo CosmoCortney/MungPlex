@@ -44,6 +44,7 @@ namespace MungPlex
         InputText _hexFloatInput = InputText("Hex Float:", "", 17);
         InputText _littleEndianInput = InputText("Little Endian:", "", 17);
         InputText _bigEndianInput = InputText("Big Endian:", "", 17);
+        InputTextMultiline _plainTextInput = InputTextMultiline("Plain Text:", "", 512);
 
         void drawPrimitiveConversion();
         void drawHexFloatConversion();
