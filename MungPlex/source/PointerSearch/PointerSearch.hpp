@@ -40,7 +40,7 @@ namespace MungPlex
 
         std::vector<std::string> _args;
         std::string _defaultPath;
-        std::string _results;
+        InputTextMultiline _resultsInput = InputTextMultiline("Results:", "", 0, ImGuiInputTextFlags_ReadOnly);
         std::vector<std::pair<InputText, std::array<uint64_t, 4>>> _memDumps{}; //0: starting address, 1: target address, 2: reserved, 3: correspondence
         std::vector<InputText> _bufStartingAddress{};
         std::vector<InputText> _bufTargetAddress{};

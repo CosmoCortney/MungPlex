@@ -242,7 +242,7 @@ void MungPlex::PointerSearch::drawResults()
 {
     ImGui::BeginChild("PointerSearchResults");
     {
-        SetUpInputTextMultiline("Results", _results.data(), _results.size(), 1.0f, 0.925f, ImGuiInputTextFlags_ReadOnly);
+        _resultsInput.Draw(1.0f, 0.925f);
     }
     ImGui::EndChild();
 }
@@ -460,9 +460,11 @@ bool MungPlex::PointerSearch::loadResults()
 
     std::stringstream buffer;
     buffer << resultsFile.rdbuf();
-    _results = buffer.str();
+    std::string temp = buffer.str();
+    _resultsInput.SetMaxLength(temp.size());
+    _resultsInput.SetText(temp);
     Log::LogInformation("Pointer Scan results loaded");
-    return !_results.empty();
+    return !temp.empty();
 }
 
 bool MungPlex::PointerSearch::comparePairs(const std::pair<InputText, std::array<uint64_t, 4>>& a, const std::pair<InputText, std::array<uint64_t, 4>>& b)
