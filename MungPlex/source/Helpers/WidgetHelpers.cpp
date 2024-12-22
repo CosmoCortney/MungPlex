@@ -94,6 +94,10 @@ bool MungPlex::InputText::Draw(const float paneWidth, const float labelPortion)
 	DrawLabel(_label.c_str(), paneWidth, labelPortion, _printLabel, _showHelpText ? _helpText.c_str() : nullptr);
 	edited = ImGui::InputText(_id.c_str(), _text.data(), _maxLength, _flags);
 	ImGui::PopItemWidth();
+
+	if (edited)
+		callOnTextChangedSlots();
+
 	return edited;
 }
 
@@ -204,8 +208,9 @@ bool MungPlex::InputTextMultiline::Draw(const float width, const float height)
 	}
 
 	edited = ImGui::InputTextMultiline(_id.c_str(), _text.data(), _maxLength, xy, _flags);
+
+	if (edited)
+		callOnTextChangedSlots();
+
 	return edited;
 }
-
-
-
