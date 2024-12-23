@@ -56,6 +56,8 @@ add_executable (MungPlex
     source/Helpers/HelperFunctions.hpp
     source/Helpers/InputText.cpp
     source/Helpers/InputText.hpp
+    
+    source/Helpers/InputValue.hpp
     source/Helpers/IWidget.cpp
     source/Helpers/IWidget.hpp
     source/Helpers/ResourcesHelpers.hpp
