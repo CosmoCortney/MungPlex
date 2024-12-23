@@ -147,8 +147,8 @@ namespace MungPlex
         bool _crossRegion = false;
         bool _rereorderRegion = false;
         int _endiannessSelect = 0;
-        InputInt<uint64_t> _rangeStartInput = InputInt<uint64_t>("Start at (hex):", true, 0, 0, 0);
-        InputInt<uint64_t> _rangeEndInput = InputInt<uint64_t>("End at (hex):", true, 0, 0, 0);
+        InputInt<uint64_t> _rangeStartInput = InputInt<uint64_t>("Start at:", true, 0, 0, 0);
+        InputInt<uint64_t> _rangeEndInput = InputInt<uint64_t>("End at:", true, 0, 0, 0);
 
         //results
         uint32_t _pagesAmountValue = 0;
