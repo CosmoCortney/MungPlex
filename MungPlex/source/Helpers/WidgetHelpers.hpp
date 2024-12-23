@@ -1,8 +1,7 @@
 #pragma once
-#include <functional>
 #include "GLFW/glfw3.h"
 #include "imgui.h"
-#include <string>
+#include "InputText.hpp"
 #include <utility>
 #include <vector>
 
@@ -62,54 +61,9 @@ namespace MungPlex
 		std::vector<const char*> _stringsPointers;
 	};
 
-	class InputText
-	{
-	public:
-		typedef std::function<void()> Slot;
-		InputText(const std::string& label, const std::string text = "", const uint64_t maxLength = 256, const bool printLabel = true, const ImGuiInputTextFlags flags = ImGuiInputTextFlags_None);
-		InputText(const InputText& other);
-		InputText& operator=(const InputText& other);
-		InputText(InputText&& other) noexcept;
-		InputText& operator=(InputText&& other) noexcept;
-		
-		bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
-		void SetText(const std::string& text);
-		void AppendText(const std::string& text);
-		void SetLabel(const std::string& label);
-		void SetHelpText(const std::string& helpText, const bool show = true);
-		void SetShowHelpText(const bool show);
-		void SetMaxLength(const uint64_t maxLength);
-		std::string GetStdString() const;
-		std::string GetStdStringNoZeros() const;
-		const char* GetCString() const;
-		char* GetData();
-		uint64_t GetMaxLength() const;
-		void ConnectOnTextChanged(const Slot slot);
+	
 
-	protected:
-		std::string _text = std::string(256, '\0');
-		std::string _helpText = "";
-		std::string _id = "";
-		std::string _label = "";
-		uint64_t _maxLength = 256;
-		bool _printLabel = true;
-		bool _showHelpText = false;
-		ImGuiInputTextFlags _flags = ImGuiInputTextFlags_None;
-		std::vector<Slot> _slotsOnTextChanged{};
-
-		void assign(const InputText& other);
-		void callOnTextChangedSlots();
-	};
-
-	class InputTextMultiline : public InputText
-	{
-	public:
-		explicit InputTextMultiline(const std::string& label, const std::string text = "", const uint64_t maxLength = 256, const bool printLabel = true, const ImGuiInputTextFlags flags = ImGuiInputTextFlags_None)
-			 : InputText(label, text, maxLength, printLabel, flags) {}
-		explicit InputTextMultiline(const InputTextMultiline& other) : InputText(other){}
-		explicit InputTextMultiline(InputTextMultiline&& other) noexcept : InputText(other) {}
-		bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
-	};
+	
 
 	template <typename intType> class InputInt
 	{

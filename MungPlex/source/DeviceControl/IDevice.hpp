@@ -24,7 +24,7 @@ namespace MungPlex
         int _deviceTypeID = DeviceTypes::UNK;
         int _deviceId = -1;
         std::string _idText;
-        InputText _nameInput = InputText("Name:", "", 128);
+        InputText _nameInput = InputText("Name:", true, "", 128);
         bool _delete = false;
         bool _active = false;
 

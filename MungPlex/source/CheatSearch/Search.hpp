@@ -131,8 +131,8 @@ namespace MungPlex
         bool _busySearching = false;
 
         //value options
-        InputText _knownValueInput = InputText("Value:", "", 256);
-        InputText _secondaryKnownValueInput = InputText("Not applicable", "", 256);
+        InputText _knownValueInput = InputText("Value:", true, "", 256);
+        InputText _secondaryKnownValueInput = InputText("Not applicable", true, "", 256);
         StringIdPairs _iterations = { {}, {}, "Counter Iteration:"};
         int _iterationIndex = 0; 
         uint32_t _iterationCount = 0;
@@ -151,8 +151,8 @@ namespace MungPlex
         bool _crossRegion = false;
         bool _rereorderRegion = false;
         int _endiannessSelect = 0;
-        InputText _rangeStartInput = InputText("Start at (hex):", "", 17);
-        InputText _rangeEndInput = InputText("End at (hex):", "", 17);
+        InputText _rangeStartInput = InputText("Start at (hex):", true, "", 16);
+        InputText _rangeEndInput = InputText("End at (hex):", true, "", 16);
 
         //results
         uint32_t _pagesAmountValue = 0;
@@ -164,9 +164,9 @@ namespace MungPlex
         bool _multiPoke = false;
         bool _pokePrevious = false;
         std::vector<char> _pokeValue;
-        InputText  _pokeValueInput = InputText("Value:", "", 256);
+        InputText  _pokeValueInput = InputText("Value:", true, "", 256);
         uint64_t _pokeAddress = 0;
-        InputText  _pokeAddressInput = InputText("Address:", "", 17);
+        InputText  _pokeAddressInput = InputText("Address:", true, "", 16);
         std::tuple<uint64_t, int> _searchStats;
         bool _deselectedIllegalSelection = false;
         std::vector<MemoryCompare::MemDump> _currentMemoryDumps{};

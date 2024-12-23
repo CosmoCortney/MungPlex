@@ -71,8 +71,8 @@ namespace MungPlex
         CheatsSettings _cheatsSettings;
         DeviceControlSettings _deviceControlSettings;
         ImGuiStyle _defaultStyle;
-        InputText _documentsPathInput = InputText("Documents Path:", "", 512);
-        InputText _lovenseTokenInput = InputText("Lovense Token:", "", 128, true, ImGuiInputTextFlags_Password);
+        InputText _documentsPathInput = InputText("Documents Path:", true, "", 512);
+        InputText _lovenseTokenInput = InputText("Lovense Token:", true, "", 128, ImGuiInputTextFlags_Password);
         const std::vector<std::string> _featureDirs
         {
              "Search" , "Dumps", "PointerSearch", "WatchControl", "Cheats", "DeviceControl"

@@ -121,9 +121,9 @@ void MungPlex::PointerSearch::drawSettings()
             if (ImGuiFileDialog::Instance()->IsOk())
             {
                 const std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-                _memDumps.emplace_back(InputText("path" + std::to_string(_memDumps.size()), filePathName, 512, false), std::array<uint64_t, 4>());
-                _bufStartingAddress.emplace_back(InputText("starting" + std::to_string(_bufStartingAddress.size()), "0", 16, false));
-                _bufTargetAddress.emplace_back(InputText("target" + std::to_string(_bufTargetAddress.size()), "0", 16, false));
+                _memDumps.emplace_back(InputText("path" + std::to_string(_memDumps.size()), false, filePathName, 512), std::array<uint64_t, 4>());
+                _bufStartingAddress.emplace_back(InputText("starting" + std::to_string(_bufStartingAddress.size()), false, "0", 16));
+                _bufTargetAddress.emplace_back(InputText("target" + std::to_string(_bufTargetAddress.size()), false, "0", 16));
             }
 
             ImGuiFileDialog::Instance()->Close();

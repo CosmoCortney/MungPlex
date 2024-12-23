@@ -69,10 +69,10 @@ namespace MungPlex
         };
 
         static const StringIdPairs _cheatTypes;
-        InputText _cheatTitleInput = InputText("Title:", "", TITLE_LENGTH);
-        InputText _hackerInput = InputText("Hacker(s):", "", HACKER_LENGTH);
-        InputTextMultiline _textCheatLuaInput = InputTextMultiline("Text Cheat:", "", CHEAT_LENGTH);
-        InputTextMultiline _textCheatDescriptionInput = InputTextMultiline("Description:", "", DESCRIPTION_LENGTH);
+        InputText _cheatTitleInput = InputText("Title:", true, "", TITLE_LENGTH);
+        InputText _hackerInput = InputText("Hacker(s):", true, "", HACKER_LENGTH);
+        InputTextMultiline _textCheatLuaInput = InputTextMultiline("Text Cheat:", true, "", CHEAT_LENGTH);
+        InputTextMultiline _textCheatDescriptionInput = InputTextMultiline("Description:", true, "", DESCRIPTION_LENGTH);
         std::wstring _cheatListPath;
         sol::state _lua{};
         int _perSecond = 60;

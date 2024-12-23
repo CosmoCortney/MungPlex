@@ -35,6 +35,28 @@ void MungPlex::Connection::drawConnectionSelect()
 		ImGui::EndTabBar();
 	}
 
+	static bool hex = false;
+
+	ImGui::Checkbox("bleh", &hex);
+
+	static InputInt<int8_t> test = InputInt<int8_t>("int8:", -1, true, 0, 0);
+	test.Draw(1.0f, 0.4f, hex);
+	static InputInt<int16_t> test2 = InputInt<int16_t>("int16:", -1, true, 0, 0);
+	test2.Draw(1.0f, 0.4f, hex);
+	static InputInt<int32_t> test3 = InputInt<int32_t>("int32:", -1, true, 0, 0);
+	test3.Draw(1.0f, 0.4f, hex);
+	static InputInt<int64_t> test4 = InputInt<int64_t>("int64:", -1, true, 0, 0);
+	test4.Draw(1.0f, 0.4f, hex);
+
+	static InputInt<uint8_t> test5 = InputInt<uint8_t>("uint8:", -1, true, 0, 0);
+	test5.Draw(1.0f, 0.4f, hex);
+	static InputInt<uint16_t> test6 = InputInt<uint16_t>("uint16:", -1, true, 0, 0);
+	test6.Draw(1.0f, 0.4f, hex);
+	static InputInt<uint32_t> test7 = InputInt<uint32_t>("uint32:", -1, true, 0, 0);
+	test7.Draw(1.0f, 0.4f, hex);
+	static InputInt<uint64_t> test8 = InputInt<uint64_t>("uint64:", -1, true, 0, 0);
+	test8.Draw(1.0f, 0.4f, hex);
+
 	if (Settings::GetGeneralSettings().EnableRichPresence)
 		_discord.CheckGameState(_connected);
 

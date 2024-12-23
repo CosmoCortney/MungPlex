@@ -40,14 +40,14 @@ namespace MungPlex
 
         std::vector<std::string> _args;
         std::string _defaultPath;
-        InputTextMultiline _resultsInput = InputTextMultiline("Results:", "", 0, ImGuiInputTextFlags_ReadOnly);
+        InputTextMultiline _resultsInput = InputTextMultiline("Results:", true, "", 0, ImGuiInputTextFlags_ReadOnly);
         std::vector<std::pair<InputText, std::array<uint64_t, 4>>> _memDumps{}; //0: starting address, 1: target address, 2: reserved, 3: correspondence
         std::vector<InputText> _bufStartingAddress{};
         std::vector<InputText> _bufTargetAddress{};
         bool _isBigEndian = false;
-        InputText _minOffsetInput = InputText("Min Offset:", "0", 16);
-        InputText _maxOffsetInput = InputText("Max Offset:", "1000", 16);
-        InputText _resultsPathInput = InputText("Results File Path:", "", 512);
+        InputText _minOffsetInput = InputText("Min Offset:", true, "0", 16);
+        InputText _maxOffsetInput = InputText("Max Offset:", true, "1000", 16);
+        InputText _resultsPathInput = InputText("Results File Path:", true, "", 512);
         int _minPointerDepth = 1;
         int _maxPointerDepth = 1;
         int _addressWidth = 4;

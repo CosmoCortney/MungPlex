@@ -43,7 +43,7 @@ namespace MungPlex
         HANDLE _handle;
         bool _validAddress = false;
         bool _rereorder = false;
-        InputText _targetAddressInput = InputText("Go to Address:", "", 17);
+        InputText _targetAddressInput = InputText("Go to Address:", true, "", 16);
 
         void drawControlPanel();
         void drawHexEditor();

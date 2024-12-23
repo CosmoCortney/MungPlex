@@ -28,9 +28,9 @@ namespace MungPlex
 
     protected:
         std::wstring _moduleW = std::wstring(32, '\0');
-        InputText _moduleInput = InputText("Module:", "", 32, false);
-        InputText _pointerPathInput = InputText("Pointer Path:", "", 256);
-        InputText _labelInput = InputText("Title:", "", 128);
+        InputText _moduleInput = InputText("Module:", false, "", 32);
+        InputText _pointerPathInput = InputText("Pointer Path:", true, "", 256);
+        InputText _labelInput = InputText("Title:", true, "", 128);
         std::vector<int64_t> _pointerPath;
         bool _useModulePath = false;
         uint64_t _moduleAddress = 0;

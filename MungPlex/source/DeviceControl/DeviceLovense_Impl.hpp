@@ -46,7 +46,7 @@ namespace MungPlex
     private:
         //toy connection and info
         LovenseToy _lovenseToy;
-        InputText _tokenInput = InputText("Token:", "", 128, true, ImGuiInputTextFlags_Password);
+        InputText _tokenInput = InputText("Token:", true, "", 128, ImGuiInputTextFlags_Password);
         int _toyError = CLovenseToy::TOYERR_SUCCESS;
         std::string _tokenHelpText = "You need a token from the Lovense dev portal in order to use this feature. Go to Help/Get Lovense Token.";
 
@@ -61,9 +61,9 @@ namespace MungPlex
         //pointer path
         bool _useModulePath = false;
         uint64_t _moduleAddress = 0;
-        InputText _moduleInput = InputText("Module:", "", 128, false);
+        InputText _moduleInput = InputText("Module:", true, "", 128, false);
         std::wstring _moduleW;
-        InputText _pointerPathInput = InputText("Pointer Path:", "", 256);
+        InputText _pointerPathInput = InputText("Pointer Path:", true, "", 256);
         std::vector<int64_t> _pointerPath;
         uint64_t _rangeMin = 0;
         uint64_t _rangeMax = 0;

@@ -107,7 +107,7 @@ namespace MungPlex
 		};
 
 		static std::vector<std::pair<uint32_t, uint32_t>> _dissectedCheat;
-		InputTextMultiline _oldSchoolCheat = InputTextMultiline("Cheat to be converted:", "", 0x1800);
+		InputTextMultiline _oldSchoolCheat = InputTextMultiline("Cheat to be converted:", true, "", 0x1800);
 		static std::string _lua;
 		static std::vector<int> _layerCount;
 

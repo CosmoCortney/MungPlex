@@ -31,7 +31,7 @@ namespace MungPlex
             return Instance;
         }
 
-        InputTextMultiline _logMessage = InputTextMultiline("Log Msg:", "", 0x10000, false, ImGuiInputTextFlags_ReadOnly);
+        InputTextMultiline _logMessage = InputTextMultiline("Log Msg:", false, "", 0x10000, ImGuiInputTextFlags_ReadOnly);
         bool _logToFile = true;
         std::fstream* _logFile = nullptr;
         bool _initialized = false;

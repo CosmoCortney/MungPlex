@@ -54,6 +54,10 @@ add_executable (MungPlex
     source/DeviceControl/LovenseToy.hpp
     source/Helpers/BigNHelpers.hpp
     source/Helpers/HelperFunctions.hpp
+    source/Helpers/InputText.cpp
+    source/Helpers/InputText.hpp
+    source/Helpers/IWidget.cpp
+    source/Helpers/IWidget.hpp
     source/Helpers/ResourcesHelpers.hpp
     source/Helpers/Pairs.cpp
     source/Helpers/Pairs.hpp

@@ -40,11 +40,11 @@ namespace MungPlex
         static const StringIdPairs _floatTypes;
         static const StringIdPairs _intTypes;
         ImVec2 _verticalSpacing;
-        InputText _specializedColorValueInput = InputText("Specializes Color Val:", "", 24, false);
-        InputText _hexFloatInput = InputText("Hex Float:", "", 17);
-        InputText _littleEndianInput = InputText("Little Endian:", "", 17);
-        InputText _bigEndianInput = InputText("Big Endian:", "", 17);
-        InputTextMultiline _plainTextInput = InputTextMultiline("Plain Text:", "", 512);
+        InputText _specializedColorValueInput = InputText("Specializes Color Val:", false, "", 24);
+        InputText _hexFloatInput = InputText("Hex Float:", true, "", 16);
+        InputText _littleEndianInput = InputText("Little Endian:", true, "", 16);
+        InputText _bigEndianInput = InputText("Big Endian:", true, "", 16);
+        InputTextMultiline _plainTextInput = InputTextMultiline("Plain Text:", true, "", 512);
 
         void drawPrimitiveConversion();
         void drawHexFloatConversion();
