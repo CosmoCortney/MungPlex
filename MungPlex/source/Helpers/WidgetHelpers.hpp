@@ -2,7 +2,7 @@
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 #include "InputText.hpp"
-#include "InputValue.hpp"
+#include "InputInt.hpp"
 #include <utility>
 #include <vector>
 
