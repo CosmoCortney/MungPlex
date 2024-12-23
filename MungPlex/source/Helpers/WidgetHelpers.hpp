@@ -1,8 +1,9 @@
 #pragma once
 #include "GLFW/glfw3.h"
 #include "imgui.h"
-#include "InputText.hpp"
+#include "InputFloat.hpp"
 #include "InputInt.hpp"
+#include "InputText.hpp"
 #include <utility>
 #include <vector>
 
