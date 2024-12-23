@@ -1,5 +1,6 @@
 #pragma once
 #include "IWidget.hpp"
+#include <sstream>
 
 namespace MungPlex
 {
@@ -91,6 +92,18 @@ namespace MungPlex
 		intType GetValue() const
 		{
 			return _val;
+		}
+
+		std::string ToString(const bool hex = false)
+		{
+			std::stringstream stream;
+
+			if (hex)
+				stream << std::uppercase << std::hex << _val;
+			else
+				stream << _val;
+
+			return stream.str();
 		}
 
 		void ConnectOnValueChanged(const Slot slot)
