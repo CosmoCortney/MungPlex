@@ -20,8 +20,6 @@ inline const MungPlex::StringIdBoolPairs MungPlex::PointerSearch::_systemPresets
     "System Preset:"
 };
 
-
-
 MungPlex::PointerSearch::PointerSearch()
 {
     _defaultPath = Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros();
@@ -31,6 +29,8 @@ MungPlex::PointerSearch::PointerSearch()
     _maxOffsetInput.SetHelpText("Biggest offset value to be considered. A bigger value may increase results count but also increase scan time.");
     _resultsPathInput.SetText(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros() + R"(\MungPlex\PointerSearch\Pointers.txt)");
     _resultsPathInput.SetHelpText("Where to save the results file.");
+    _minPointerDepthInput.SetHelpText("Minimum pointer level depth. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value is usually always 1.", true);
+    _maxPointerDepthInput.SetHelpText("Maximum pointer level depth. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value can be the same as \"Minimum Pointer Depth\" if you don't want any extra depth. A higher value will increase the results count but also scan time.", true);
 }
 
 void MungPlex::PointerSearch::DrawWindow()
@@ -81,22 +81,22 @@ void MungPlex::PointerSearch::drawSettings()
         _minOffsetInput.Draw(1.0f, 0.3f);
     	_maxOffsetInput.Draw(1.0f, 0.3f);
 
-        if (SetUpInputInt("Min. Pointer Depth:", &_minPointerDepth, 1, 1, 1.0f, 0.3f, 0, true, "Minimum pointer depth level. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value is usually always 1."))
+        if (_minPointerDepthInput.Draw(1.0f, 0.3f))
         {
-            if (_minPointerDepth < 1)
-                _minPointerDepth = 1;
+            if (_minPointerDepthInput.GetValue() < 1)
+                _minPointerDepthInput.SetValue(1);
 
-            if (_minPointerDepth > _maxPointerDepth)
-                _minPointerDepth = _maxPointerDepth;
+            if (_minPointerDepthInput.GetValue() > _maxPointerDepthInput.GetValue())
+                _minPointerDepthInput.SetValue(_maxPointerDepthInput.GetValue());
         }
 
-        if (SetUpInputInt("Max. Pointer Depth:", &_maxPointerDepth, 1, 1, 1.0f, 0.3f, 0, true, "Maximum pointer depth level. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value can be the same as \"Minimum Pointer Depth\" if you don't want any extra depth. A higher value will increase the results count but also scan time."))
+        if (_maxPointerDepthInput.Draw(1.0f, 0.3f))
         {
-            if (_maxPointerDepth > 4)
-                _maxPointerDepth = 4;
+            if (_maxPointerDepthInput.GetValue() > 4)
+                _maxPointerDepthInput.SetValue(4);
 
-            if (_maxPointerDepth < _minPointerDepth)
-                _maxPointerDepth = _minPointerDepth;
+            if (_maxPointerDepthInput.GetValue() < _minPointerDepthInput.GetValue())
+                _maxPointerDepthInput.SetValue(_minPointerDepthInput.GetValue());
         }
 
         static const StringIdPairs addressWidthSelect = { { "1 Byte", "2 Bytes", "4 Bytes", "8 Bytes" }, { 0, 1, 2, 3 }, "Address Width:" };
@@ -121,9 +121,13 @@ void MungPlex::PointerSearch::drawSettings()
             if (ImGuiFileDialog::Instance()->IsOk())
             {
                 const std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-                _memDumps.emplace_back(InputText("path" + std::to_string(_memDumps.size()), false, filePathName, 512), std::array<uint64_t, 4>());
-                _bufStartingAddress.emplace_back(InputText("starting" + std::to_string(_bufStartingAddress.size()), false, "0", 16));
-                _bufTargetAddress.emplace_back(InputText("target" + std::to_string(_bufTargetAddress.size()), false, "0", 16));
+                _memDumps.emplace_back(InputText("path" + std::to_string(_memDumps.size()), false, filePathName, 512), std::array<InputInt<uint64_t>, 4>(
+                {
+                    InputInt<uint64_t>("starting" + std::to_string(_memDumps.size()), false, 0, 0, 0),
+                    InputInt<uint64_t>("target" + std::to_string(_memDumps.size()), false, 0, 0, 0),
+                    InputInt<uint64_t>("reserved" + std::to_string(_memDumps.size()), false, 0, 0, 0),
+                    InputInt<uint64_t>("corres" + std::to_string(_memDumps.size()), false, 0, 1, 1) 
+                }));
             }
 
             ImGuiFileDialog::Instance()->Close();
@@ -134,8 +138,6 @@ void MungPlex::PointerSearch::drawSettings()
         if (ImGui::Button("Clear List"))
         {
             _memDumps.clear();
-            _bufStartingAddress.clear();
-            _bufTargetAddress.clear();
             Log::LogInformation("Pointer list cleared");
         }
 
@@ -205,26 +207,16 @@ void MungPlex::PointerSearch::drawList()
                             _memDumps[row].first.Draw(1.0f, 0.0f);
 	                        break;
 	                    case 1:
-	                        if (_bufStartingAddress[row].Draw(1.0f, 0.0f))
-	                        {
-	                            std::stringstream stream;
-	                            stream << std::hex << _bufStartingAddress[row].GetStdStringNoZeros();
-	                            stream >> _memDumps[row].second[0];
-	                        }
+                            _memDumps[row].second[0].Draw(1.0f, 0.0f, true);
 	                        break;
 	                    case 2:
-	                        if (_bufTargetAddress[row].Draw(1.0f, 0.0f))
-	                        {
-	                            std::stringstream stream;
-	                            stream << std::hex << _bufTargetAddress[row].GetStdStringNoZeros();
-	                            stream >> _memDumps[row].second[1];
-	                        }
+                            _memDumps[row].second[1].Draw(1.0f, 0.0f, true);
 	                        break;
 	                    case 3: 
-	                        if (SetUpInputInt(label + "correspondence" + std::to_string(row), reinterpret_cast<int*>(&_memDumps[row].second[3]), 1, 1, 1.0f, 0.0f, 0, false))
+	                        if (_memDumps[row].second[3].Draw(1.0f, 0.0f))
 	                        {
-	                            if (static_cast<int>(_memDumps[row].second[3]) < 0)
-	                                _memDumps[row].second[3] = 0;
+	                            if (_memDumps[row].second[3].GetValue() < 0)
+	                                _memDumps[row].second[3].SetValue(0);
 	                        }
 	                        break;
                     }
@@ -331,9 +323,9 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
         bool compStartingAddrFlagRequired = true;
         for (auto [first, second] : memDumpsSorted)
         {
-            const auto starting_address = second[0];
+            const auto& starting_address = second[0];
 
-            if (second[3] == 0) // 0 correspondence (aka initial)
+            if (second[3].GetValue() == 0) // 0 correspondence (aka initial)
             {
                 if (initStartingAddrFlagRequired)
                 {
@@ -350,11 +342,11 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
                 }
             }
             
-            if (second[3] != lastCorrespondence && second[3] > 1)
+            if (second[3].GetValue() != lastCorrespondence && second[3].GetValue() > 1)
                 _args.push_back("%%");
 
-            _args.push_back(ToHexString(starting_address, true, true));
-            lastCorrespondence = second[3];
+            _args.push_back(ToHexString(starting_address.GetValue(), true, true));
+            lastCorrespondence = second[3].GetValue();
         }
 
         lastCorrespondence = -1;
@@ -362,12 +354,12 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
         _args.emplace_back("--target-address");
         for (auto [first, second] : memDumpsSorted)
         {
-            if (lastCorrespondence == second[3])
+            if (lastCorrespondence == second[3].GetValue())
                 continue;
 
             const auto target_address = second[1];
-            _args.push_back(ToHexString(target_address, true, true));
-            lastCorrespondence = second[3];
+            _args.push_back(ToHexString(target_address.GetValue(), true, true));
+            lastCorrespondence = second[3].GetValue();
         }
 
         lastCorrespondence = 1;
@@ -376,7 +368,7 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
         bool compPathFlagRequired = true;
         for (auto [first, second] : memDumpsSorted)
         {
-            if (second[3] == 0)
+            if (second[3].GetValue() == 0)
             {
                 if (initPathFlagRequired)
                 {
@@ -393,12 +385,12 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
                 }
             }
 
-            if (second[3] != lastCorrespondence && second[3] > 1)
+            if (second[3].GetValue() != lastCorrespondence && second[3].GetValue() > 1)
                 _args.push_back("%%");
 
             std::string first_copy = first.GetCString();
             _args.push_back(first_copy);
-            lastCorrespondence = second[3];
+            lastCorrespondence = second[3].GetValue();
         }
     }
 
@@ -410,7 +402,7 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
     _args.emplace_back("--pointer-offset-range");
     _args.push_back(_minOffsetInput.GetStdStringNoZeros() + "," + _maxOffsetInput.GetStdStringNoZeros());
 	_args.emplace_back("--pointer-depth-range");
-    _args.push_back(std::to_string(_minPointerDepth) + "," + std::to_string(_maxPointerDepth));
+    _args.push_back(_minPointerDepthInput.ToString() + "," + _maxPointerDepthInput.ToString());
     _args.emplace_back("--store-memory-pointers-file-path");
     _args.push_back(_resultsPathInput.GetStdStringNoZeros());
     _args.emplace_back("--maximum-memory-utilization-fraction");
@@ -467,10 +459,10 @@ bool MungPlex::PointerSearch::loadResults()
     return !temp.empty();
 }
 
-bool MungPlex::PointerSearch::comparePairs(const std::pair<InputText, std::array<uint64_t, 4>>& a, const std::pair<InputText, std::array<uint64_t, 4>>& b)
+bool MungPlex::PointerSearch::comparePairs(const std::pair<InputText, std::array<InputInt<uint64_t>, 4>>& a, const std::pair<InputText, std::array<InputInt<uint64_t>, 4>>& b)
 {
-    if (a.second[3] != b.second[3])
-        return a.second[3] < b.second[3];
+    if (a.second[3].GetValue() != b.second[3].GetValue())
+        return a.second[3].GetValue() < b.second[3].GetValue();
 
-    return a.second[0] < b.second[0];
+    return a.second[0].GetValue() < b.second[0].GetValue();
 }

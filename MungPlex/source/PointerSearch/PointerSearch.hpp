@@ -36,20 +36,18 @@ namespace MungPlex
         void waitAndLoadResults();
         bool loadResults();
         std::string execute_external_process(const std::string& command, const std::vector<std::string>& arguments);
-        static bool comparePairs(const std::pair<InputText, std::array<uint64_t, 4>>& a, const std::pair<InputText, std::array<uint64_t, 4>>& b);
+        static bool comparePairs(const std::pair<InputText, std::array<InputInt<uint64_t>, 4>>& a, const std::pair<InputText, std::array<InputInt<uint64_t>, 4>>& b);
 
         std::vector<std::string> _args;
         std::string _defaultPath;
         InputTextMultiline _resultsInput = InputTextMultiline("Results:", true, "", 0, ImGuiInputTextFlags_ReadOnly);
-        std::vector<std::pair<InputText, std::array<uint64_t, 4>>> _memDumps{}; //0: starting address, 1: target address, 2: reserved, 3: correspondence
-        std::vector<InputText> _bufStartingAddress{};
-        std::vector<InputText> _bufTargetAddress{};
+        std::vector<std::pair<InputText, std::array<InputInt<uint64_t>, 4>>> _memDumps{}; //0: starting address, 1: target address, 2: reserved, 3: correspondence
         bool _isBigEndian = false;
-        InputText _minOffsetInput = InputText("Min Offset:", true, "0", 16);
-        InputText _maxOffsetInput = InputText("Max Offset:", true, "1000", 16);
+        InputText _minOffsetInput = InputText("Min Offset:", true, "0", 16); //type Text required for preceeding minus
+        InputText _maxOffsetInput = InputText("Max Offset:", true, "1000", 16); //type Text required for preceeding minus
         InputText _resultsPathInput = InputText("Results File Path:", true, "", 512);
-        int _minPointerDepth = 1;
-        int _maxPointerDepth = 1;
+        InputInt<uint32_t> _minPointerDepthInput = InputInt<uint32_t>("Min. Pointer Depth:", true, 1, 1, 1);
+        InputInt<uint32_t> _maxPointerDepthInput = InputInt<uint32_t>("Max. Pointer Depth:", true, 1, 1, 1);
         int _addressWidth = 4;
         int _addressWidthIndex = 2;
         bool _printVisitedAddresses = false;
