@@ -84,8 +84,8 @@ MungPlex::Search::Search()
 	_RegionSelectSignalCombo.ConnectOnIndexChanged(Slot_IndexChanged);
 	_RegionSelectSignalCombo.ConnectOnItemCountChanged(Slot_ItemCountChanged);
 	_RegionSelectSignalCombo.ConnectOnTextChanged(Slot_TextChanged);
-	_rangeStartInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeStartInput.GetData(), std::ref(_rangeStartValue)));
-	_rangeEndInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeEndInput.GetData(), std::ref(_rangeEndValue)));
+	//_rangeStartInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeStartInput.GetData(), std::ref(_rangeStartValue)));
+	//_rangeEndInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeEndInput.GetData(), std::ref(_rangeEndValue)));
 
 	_selectedIndices.resize(_maxResultsPerPage);
 	_alignmentValue = Settings::GetSearchSettings().DefaultAlignment;
@@ -269,40 +269,24 @@ void MungPlex::Search::drawRangeOptions()
 
 			SetUpPairCombo(_endiannesses, &_endiannessSelect, 1.0f, 0.4f);
 
-			if(_rangeStartInput.Draw(0.5f, 0.4f))
-			{
-				stream << _rangeStartInput.GetStdStringNoZeros();
-				stream >> std::hex >> _rangeStartValue;
-				stream.str(std::string());
-			}
+			_rangeStartInput.Draw(0.5f, 0.4f, true);
 
 			ImGui::SameLine();
 
-			if(_rangeEndInput.Draw(1.0f, 0.4f))
-			{
-				stream << _rangeEndInput.GetStdStringNoZeros();
-				stream >> std::hex >> _rangeEndValue;
-				stream.str(std::string());
-			}
+			_rangeEndInput.Draw(1.0f, 0.4f, true);
 
 			if (ImGui::Checkbox("Cross-Region", &_crossRegion))
 			{
-				std::string hexStartStr;
-				std::string hexEndStr;
-
 				if (_crossRegion)
 				{
-					hexStartStr = ToHexString(_regions.front().Base, 0);
-					hexEndStr = ToHexString(_regions.back().Base + _regions.back().Size - 1, 0);
+					_rangeStartInput.SetValue(_regions.front().Base);
+					_rangeEndInput.SetValue(_regions.back().Base + _regions.back().Size - 1);
 				}
 				else
 				{
-					hexStartStr = ToHexString(_regions[_currentRegionSelect].Base, 0);
-					hexEndStr = ToHexString(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1, 0);
+					_rangeStartInput.SetValue(_regions[_currentRegionSelect].Base);
+					_rangeEndInput.SetValue(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1);
 				}
-
-				_rangeStartInput.SetText(hexStartStr);
-				_rangeEndInput.SetText(hexEndStr);
 			}
 
 			ImGui::SameLine();
@@ -1745,40 +1729,40 @@ void MungPlex::Search::emplaceDumpRegion(const uint16_t index)
 
 	if (_crossRegion)
 	{
-		if (_rangeStartValue >= _regions[index].Base + _regions[index].Size - 1)
+		if (_rangeStartInput.GetValue() >= _regions[index].Base + _regions[index].Size - 1)
 			return;
 
-		if (_rangeEndValue <= _regions[index].Base)
+		if (_rangeEndInput.GetValue() <= _regions[index].Base)
 			return;
 
-		if (_rangeStartValue > _regions[index].Base)
+		if (_rangeStartInput.GetValue() > _regions[index].Base)
 		{
-			currentRegionSize -= _rangeStartValue - currentBaseAddress;
-			currentBaseAddress = _rangeStartValue;
+			currentRegionSize -= _rangeStartInput.GetValue() - currentBaseAddress;
+			currentBaseAddress = _rangeStartInput.GetValue();
 			currentBaseLocation += currentBaseAddress - _regions[index].Base;
 		}
 
-		if (_rangeEndValue < _regions[index].Base + _regions[index].Size - 1)
-			currentRegionSize = _rangeEndValue - currentBaseAddress;
+		if (_rangeEndInput.GetValue() < _regions[index].Base + _regions[index].Size - 1)
+			currentRegionSize = _rangeEndInput.GetValue() - currentBaseAddress;
 	}
 	else // single region
 	{
-		if (_rangeStartValue >= _regions[index].Base + _regions[index].Size - 1 || _rangeEndValue <= _regions[index].Base)
+		if (_rangeStartInput.GetValue() >= _regions[index].Base + _regions[index].Size - 1 || _rangeEndInput.GetValue() <= _regions[index].Base)
 		{
 			_dumpRegions.emplace_back(_regions[index]);
 			return;
 		}
 
-		if (_rangeStartValue > _regions[index].Base && _rangeStartValue < _regions[index].Base + _regions[index].Size - 1)
+		if (_rangeStartInput.GetValue() > _regions[index].Base && _rangeStartInput.GetValue() < _regions[index].Base + _regions[index].Size - 1)
 		{
-			currentBaseAddress = _rangeStartValue;
+			currentBaseAddress = _rangeStartInput.GetValue();
 			currentBaseLocation += currentBaseAddress - _regions[index].Base;
 		}
 
-		if (_rangeEndValue > currentBaseAddress && _rangeEndValue < _regions[index].Base + _regions[index].Size - 1)
-			currentRegionSize = _rangeEndValue - currentBaseAddress;
+		if (_rangeEndInput.GetValue() > currentBaseAddress && _rangeEndInput.GetValue() < _regions[index].Base + _regions[index].Size - 1)
+			currentRegionSize = _rangeEndInput.GetValue() - currentBaseAddress;
 
-		if (_rangeStartValue > _regions[index].Base || _rangeEndValue < _regions[index].Base + _regions[index].Size - 1)
+		if (_rangeStartInput.GetValue() > _regions[index].Base || _rangeEndInput.GetValue() < _regions[index].Base + _regions[index].Size - 1)
 			++currentRegionSize;
 	}
 

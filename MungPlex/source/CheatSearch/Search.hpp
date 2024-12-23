@@ -45,14 +45,18 @@ namespace MungPlex
 
         SignalCombo _RegionSelectSignalCombo;
 
-        std::function<void(const char*, uint64_t&)> Slot_RangeTextChanged = [](const char* in, uint64_t& out)
+        std::function<void(const char*, InputInt<uint64_t>&)> Slot_RangeTextChanged = [](const char* in, InputInt<uint64_t>& out)
             {
+                static uint64_t temp = 0;
+
                 if (in == nullptr)
                     return;
 
                 std::stringstream stream;
                 stream << std::hex << std::string(in);
-                stream >> out;
+                stream >> temp;
+                out.SetValue(temp);
+
 #ifndef NDEBUG
                 std::cout << in << std::endl;
 #endif
@@ -71,12 +75,8 @@ namespace MungPlex
         std::function<void()> Slot_TextChanged = []()
             {
                 auto& region = ProcessInformation::GetSystemRegionList_().GetRegion(GetInstance()._currentRegionSelect);
-                std::stringstream stream;
-                stream << std::hex << region.Base;
-                const std::string hexBegStr = stream.str();
-                GetInstance()._rangeStartInput.SetText(hexBegStr);
-                const std::string hexEndStr = ToHexString(region.Base + region.Size - 1, 0);
-                GetInstance()._rangeEndInput.SetText(hexEndStr);
+                GetInstance()._rangeStartInput.SetValue(region.Base);
+                GetInstance()._rangeEndInput.SetValue(region.Base + region.Size - 1);
             };
 
     private:
@@ -144,15 +144,11 @@ namespace MungPlex
         std::vector<SystemRegion> _regions{};
         std::vector<SystemRegion> _dumpRegions{};
         int _currentRegionSelect = 0;
-        //FloorString _rangeStartText = FloorString("", 17);
-        uint64_t _rangeStartValue = 0;
-        //FloorString _rangeEndText = FloorString("", 17);
-        uint64_t _rangeEndValue = 0;
         bool _crossRegion = false;
         bool _rereorderRegion = false;
         int _endiannessSelect = 0;
-        InputText _rangeStartInput = InputText("Start at (hex):", true, "", 16);
-        InputText _rangeEndInput = InputText("End at (hex):", true, "", 16);
+        InputInt<uint64_t> _rangeStartInput = InputInt<uint64_t>("Start at (hex):", true, 0, 0, 0);
+        InputInt<uint64_t> _rangeEndInput = InputInt<uint64_t>("End at (hex):", true, 0, 0, 0);
 
         //results
         uint32_t _pagesAmountValue = 0;
