@@ -87,8 +87,9 @@ MungPlex::Search::Search()
 	//_rangeStartInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeStartInput.GetData(), std::ref(_rangeStartValue)));
 	//_rangeEndInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeEndInput.GetData(), std::ref(_rangeEndValue)));
 
-	_selectedIndices.resize(_maxResultsPerPage);
-	_alignmentValue = Settings::GetSearchSettings().DefaultAlignment;
+	_selectedIndices.resize(_maxResultsPerPageInput.GetValue());
+	_alignmentValueInput.SetHelpText("This value specifies the increment of the next address to be scanned. 1 means that the following value to be scanned is the at the current address + 1. Here are some recommendations for each value type: Int8/Text/Color/Array<Int8> - 1, Int16/Color/Array<Int16> - 2, Int32/Int64/Float/Double/Color/Array<Int32>/Array<Int64> - 4. Systems that use less than 4MBs of RAM (PS1, SNES, MegaDrive, ...) should always consider an alignment of 1, despite the value recommendations.", true);
+	_alignmentValueInput.SetValue(Settings::GetSearchSettings().DefaultAlignment);
 	_cached = Settings::GetSearchSettings().DefaultCached;
 	_disableUndo = Settings::GetSearchSettings().DefaultDisableUndo;
 	_caseSensitive = Settings::GetSearchSettings().DefaultCaseSensitive;
@@ -480,10 +481,11 @@ void MungPlex::Search::drawSearchOptions()
 		ImGui::BeginChild("child_searchLeft", childXY);
 
 		if (_iterationCount) ImGui::BeginDisabled();
-		if (SetUpInputInt("Alignment:", &_alignmentValue, 1, 1, 1.0f, 0.4f, true, "This value specifies the increment of the next address to be scanned. 1 means that the following value to be scanned is the at the current address + 1. Here are some recommendations for each value type: Int8/Text/Color/Array<Int8> - 1, Int16/Color/Array<Int16> - 2, Int32/Int64/Float/Double/Color/Array<Int32>/Array<Int64> - 4. Systems that use less than 4MBs of RAM (PS1, SNES, MegaDrive, ...) should always consider an alignment of 1, despite the value recommendations."))
+
+		if (_alignmentValueInput.Draw(1.0f, 0.4f))
 		{
-			if (_alignmentValue < 1)
-				_alignmentValue = 1;
+			if (_alignmentValueInput.GetValue() < 1)
+				_alignmentValueInput.SetValue(1);
 		}
 		if (_iterationCount) ImGui::EndDisabled();
 
@@ -545,7 +547,7 @@ void MungPlex::Search::drawSearchOptions()
 			_iterations.Clear();
 			_iterationIndex = 0;
 			_searchActive = false;
-			_currentPageValue = 0;
+			_currentPageInput.SetValue(0);
 		}
 		if (disableResetButton) ImGui::EndDisabled();
 
@@ -590,14 +592,14 @@ void MungPlex::Search::drawResultsArea()
 
 				ImGui::BeginGroup();
 				{
-					SetUpInputInt("Page:", &_currentPageValue, 1, 10, 0.5f, 0.4f);
+					_currentPageInput.Draw(0.5f, 0.4f); //don't make this an if-statement. Things will break! The below code is just in braces for clarification. Believe me, I fooled myself and went through a painful debgging adventure
 					{
-						if (_currentPageValue < 1)
-							_currentPageValue = _pagesAmountValue;
-						else if (_currentPageValue > _pagesAmountValue && _pagesAmountValue > 0)
-							_currentPageValue = 1;
+						if (_currentPageInput.GetValue() < 1)
+							_currentPageInput.SetValue(_pagesAmountValue);
+						else if (_currentPageInput.GetValue() > _pagesAmountValue && _pagesAmountValue > 0)
+							_currentPageInput.SetValue(1);
 
-						if (_currentPageValue == _pagesAmountValue)
+						if (_currentPageInput.GetValue() == _pagesAmountValue)
 							_deselectedIllegalSelection = true;
 					}
 
@@ -641,7 +643,7 @@ void MungPlex::Search::drawResultsArea()
 
 			if (_iterationCount > 0) ImGui::BeginDisabled();
 			{
-				SetUpInputInt("Max. results per page:", &_maxResultsPerPage, 32, 128, 1.0f, 0.5f);
+				_maxResultsPerPageInput.Draw(1.0f, 0.5f);
 			}
 			if (_iterationCount > 0) ImGui::EndDisabled();
 		}
@@ -707,15 +709,15 @@ void MungPlex::Search::updateLivePreview()
 	{
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(_liveUpdateMilliseconds));
 
-		if (_currentPageValue < _pagesAmountValue)
-			rows = _maxResultsPerPage;
+		if (_currentPageInput.GetValue() < _pagesAmountValue)
+			rows = _maxResultsPerPageInput.GetValue();
 		else
-			rows = MemoryCompare::MemCompare::GetResultCount() % _maxResultsPerPage;
+			rows = MemoryCompare::MemCompare::GetResultCount() % _maxResultsPerPageInput.GetValue();
 
 		for (int row = 0; row < rows; ++row)
 		{
 			static uint64_t address = 0;
-			uint64_t addressIndex = (_currentPageValue - 1) * _maxResultsPerPage + row;
+			uint64_t addressIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue() + row;
 			uint8_t* updateArrayPtr = _updateValues.data();
 
 			switch (ProcessInformation::GetAddressWidth())
@@ -854,15 +856,15 @@ void MungPlex::Search::setUpIterationSelect()
 	_iterations.PushBack(std::to_string(_iterationCount) + ": " + _searchComparasionType.GetStdString(_currentcomparisonTypeSelect)
 		+ (_iterationCount < 2 && _currentcomparisonTypeSelect == 0 ? "" : ", " + _searchConditionTypes.GetStdString(_currentConditionTypeSelect)), _currentConditionTypeSelect);
 	_iterationIndex = _iterationCount-1;
-	_selectedIndices.resize(_maxResultsPerPage);
+	_selectedIndices.resize(_maxResultsPerPageInput.GetValue());
 }
 
 void MungPlex::Search::setLiveUpdateRefreshRate()
 {
-	if (_maxResultsPerPage <= 256)
+	if (_maxResultsPerPageInput.GetValue() <= 256)
 		_liveUpdateMilliseconds = 16;
 	else
-		_liveUpdateMilliseconds = _maxResultsPerPage >> 4;
+		_liveUpdateMilliseconds = _maxResultsPerPageInput.GetValue() >> 4;
 }
 
 void MungPlex::Search::prepareLiveUpdateValueList()
@@ -940,15 +942,15 @@ void MungPlex::Search::prepareLiveUpdateValueList()
 		}
 	}
 
-	_updateValues.resize(updateValuesSize * _maxResultsPerPage);
+	_updateValues.resize(updateValuesSize * _maxResultsPerPageInput.GetValue());
 	setLiveUpdateRefreshRate();
 }
 
 void MungPlex::Search::setUpResultPaging()
 {
-	_pagesAmountValue = MemoryCompare::MemCompare::GetResultCount() / _maxResultsPerPage;
+	_pagesAmountValue = MemoryCompare::MemCompare::GetResultCount() / _maxResultsPerPageInput.GetValue();
 
-	if (MemoryCompare::MemCompare::GetResultCount() % _maxResultsPerPage > 0)
+	if (MemoryCompare::MemCompare::GetResultCount() % _maxResultsPerPageInput.GetValue() > 0)
 		++_pagesAmountValue;
 
 	_pagesAmountText = std::to_string(_pagesAmountValue);
@@ -1071,18 +1073,18 @@ void MungPlex::Search::performValuePoke()
 
 bool MungPlex::Search::isSelectionOrIndexOurOfBounds(const uint64_t row, const uint64_t resultCount)
 {
-	if (row >= _maxResultsPerPage)
+	if (row >= _maxResultsPerPageInput.GetValue())
 		return true;
 
 	if (row >= resultCount)
 		return true;
 
-	if (_currentPageValue > _pagesAmountValue)
+	if (_currentPageInput.GetValue() > _pagesAmountValue)
 		return true;
 
-	if (_currentPageValue == _pagesAmountValue)
+	if (_currentPageInput.GetValue() == _pagesAmountValue)
 	{
-		const uint64_t lastPageResultCount = resultCount % _maxResultsPerPage;
+		const uint64_t lastPageResultCount = resultCount % _maxResultsPerPageInput.GetValue();
 
 		if (lastPageResultCount == 0)
 			;
@@ -1090,7 +1092,7 @@ bool MungPlex::Search::isSelectionOrIndexOurOfBounds(const uint64_t row, const u
 			return true;
 
 		if (_deselectedIllegalSelection && lastPageResultCount != 0)
-			for (int i = lastPageResultCount; i < _maxResultsPerPage; ++i)
+			for (int i = lastPageResultCount; i < _maxResultsPerPageInput.GetValue(); ++i)
 				_selectedIndices[i] = false;
 
 		_deselectedIllegalSelection = false;
@@ -1634,7 +1636,7 @@ void MungPlex::Search::drawResultsTable()
 		static FloorString buf("", 1024);
 		static int addressTextWidth = ProcessInformation::GetAddressWidth() > 4 ? 16 : 8;
 		static int64_t pageIndex;
-		pageIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+		pageIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue();
 
 		if (pageIndex < 0)
 			pageIndex = 0;
@@ -1810,7 +1812,7 @@ void MungPlex::Search::setUpAndIterate()
 		if (_disableUndo)
 			setupFlags |= MemoryCompare::DISABLE_UNDO;
 
-		MemoryCompare::MemCompare::SetUp(_resultsPath, _currentValueTypeSelect, subsidiaryDatatype, ProcessInformation::GetAddressWidth(), _alignmentValue, setupFlags);
+		MemoryCompare::MemCompare::SetUp(_resultsPath, _currentValueTypeSelect, subsidiaryDatatype, ProcessInformation::GetAddressWidth(), _alignmentValueInput.GetValue(), setupFlags);
 	}
 
 	uint32_t iterationFlags = 0;
@@ -1864,7 +1866,7 @@ void MungPlex::Search::SetRereorderRegion(const bool rereorder)
 
 void MungPlex::Search::SetAlignment(const int alignment)
 {
-	GetInstance()._alignmentValue = alignment;
+	GetInstance()._alignmentValueInput.SetValue(alignment);
 }
 
 void MungPlex::Search::SetNativeAppSearchSettings()
@@ -1910,29 +1912,29 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 		switch (_currentColorTypeSelect)
 		{
 			case LitColor::RGB565: case LitColor::RGB5A3:
-				_alignmentValue = 2;
+				_alignmentValueInput.SetValue(2);
 			break;
 			case LitColor::RGB888:
-				_alignmentValue = 1;
+				_alignmentValueInput.SetValue(1);
 			break;
 			default:
-				_alignmentValue = 4;
+				_alignmentValueInput.SetValue(4);
 		}
 	break;
 	case TEXT:
-		_alignmentValue = 1;
+		_alignmentValueInput.SetValue(1);
 	break;
 	default:// PRIMITIVE, ARRAY
 		switch (_currentArrayTypeSelect | _currentPrimitiveTypeSelect)
 		{
 			case INT8:
-				_alignmentValue = 1;
+				_alignmentValueInput.SetValue(1);
 			break;
 			case INT16:
-				_alignmentValue = 2;
+				_alignmentValueInput.SetValue(2);
 			break;
 			default: //INT32, INT64
-			_alignmentValue = 4;
+			_alignmentValueInput.SetValue(4);
 		}
 	}
 }

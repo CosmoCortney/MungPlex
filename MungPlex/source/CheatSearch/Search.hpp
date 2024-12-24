@@ -107,7 +107,7 @@ namespace MungPlex
         //search settings
         int _currentcomparisonTypeSelect = 0;
         int _currentConditionTypeSelect = 0;
-        int _alignmentValue = 4;
+        InputInt<uint32_t> _alignmentValueInput = InputInt<uint32_t>("Alignment:", true, 4, 1, 1);
         int _lastRangeSelect = -1;
         bool _signed = false;
         bool _hex = false;
@@ -152,11 +152,11 @@ namespace MungPlex
 
         //results
         uint32_t _pagesAmountValue = 0;
-        int32_t _currentPageValue = 1;
+        InputInt<int32_t> _currentPageInput = InputInt<int32_t>("Page:", true, 1, 1, 10);;
         uint32_t _pagesAmount = 0;
         std::string _pagesAmountText = "0";
         std::vector<bool> _selectedIndices{};
-        int _maxResultsPerPage = 256;
+        InputInt<uint32_t> _maxResultsPerPageInput = InputInt<uint32_t>("Max. results per page:", true, 256, 16, 128);
         bool _multiPoke = false;
         bool _pokePrevious = false;
         std::vector<char> _pokeValue;
@@ -231,7 +231,7 @@ namespace MungPlex
 
             if (_multiPoke)
             {
-                const uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+                const uint64_t resultIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue();
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
                 {
@@ -312,7 +312,7 @@ namespace MungPlex
 
             if (_multiPoke)
             {
-                const uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+                const uint64_t resultIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue();
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
                 {
@@ -401,7 +401,7 @@ namespace MungPlex
             {
                 int regionIndex = -1;
                 bool swapBytes = _endiannessSelect;
-                const uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+                const uint64_t resultIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue();
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
                 {
@@ -448,7 +448,7 @@ namespace MungPlex
             if (_multiPoke)
             {
                 bool swapBytes = _endiannessSelect;
-                const uint64_t resultIndex = (_currentPageValue - 1) * _maxResultsPerPage;
+                const uint64_t resultIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue();
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
                 {
@@ -495,7 +495,7 @@ namespace MungPlex
             }
             else if (col == 4)
             {
-                value = reinterpret_cast<T*>(_updateValues.data() + (index % _maxResultsPerPage) * itemCount * sizeof(T));
+                value = reinterpret_cast<T*>(_updateValues.data() + (index % _maxResultsPerPageInput.GetValue()) * itemCount * sizeof(T));
             }
             else
             {
