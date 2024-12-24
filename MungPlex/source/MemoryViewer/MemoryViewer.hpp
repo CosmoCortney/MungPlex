@@ -1,6 +1,5 @@
 #pragma once
 #include <boost/asio.hpp>
-#include <stdio.h>
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
@@ -13,7 +12,6 @@
 #include <iomanip>
 #include "MungPlexConfig.hpp"
 #include "ProcessInformation.hpp"
-#include <string>
 #include "WidgetHelpers.hpp"
 
 namespace MungPlex
@@ -32,18 +30,16 @@ namespace MungPlex
         std::string _windowTitle;
         bool _isOpen = false;
         int _regionSelect = 0;
-        uint64_t _address;
         std::string _hexView;
         MemoryEditor _memEdit;
-        uint64_t _viewAddress = 0;
-        uint32_t _readSize = 256;
+        InputInt<uint16_t> _readSizeInput = InputInt<uint16_t>("Bytes:", true, 256, 0x10, 0x100);
         uint64_t _displayAddress = 0;
         void* _readAddressEx = nullptr;
         std::string _dummy;
         HANDLE _handle;
         bool _validAddress = false;
         bool _rereorder = false;
-        InputText _targetAddressInput = InputText("Go to Address:", true, "", 16);
+        InputInt<uint64_t> _targetAddressInput = InputInt<uint64_t>("Go to Address:", true, 0, 0x10, 0x100);
 
         void drawControlPanel();
         void drawHexEditor();

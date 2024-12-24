@@ -8,8 +8,7 @@ MungPlex::MemoryViewer::MemoryViewer(const uint32_t id)
 	SetIndex(id);
     _isOpen = true;
     _rereorder = ProcessInformation::GetRereorderFlag();
-    _targetAddressInput.SetText("0");
-    _hexView = std::string("", _readSize);
+    _hexView = std::string("", _readSizeInput.GetValue());
     _dummy = std::string("Invalid Memory Region");
     SetUpByRegionSelect(0);
 
@@ -91,12 +90,12 @@ void MungPlex::MemoryViewer::drawControlPanel()
             processBufferAddress();
         }
 
-        if (SetUpInputInt("Read Size:", reinterpret_cast<int*>(&_readSize), 0x10, 0x100, 1.0f, 0.4f))
+        if (_readSizeInput.Draw(1.0f, 0.4f, true))
         {
-            if (_readSize < 0x10)
-                _readSize = 0x10;
+            if (_readSizeInput.GetValue() < 0x10)
+                _readSizeInput.SetValue(0x10);
 
-            _hexView = std::string(_hexView.data(), _readSize);
+            _hexView = std::string(_hexView.data(), _readSizeInput.GetValue());
             refreshMemory();
         }
 
@@ -124,7 +123,7 @@ void MungPlex::MemoryViewer::drawHexEditor()
         if (_validAddress)
         {
             if(ProcessInformation::GetProcessType() != ProcessInformation::CONSOLE)
-                _memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, ProcessInformation::GetHandle(), _readAddressEx, _rereorder);
+                _memEdit.DrawContents(_hexView.data(), _readSizeInput.GetValue(), _targetAddressInput.GetValue(), ProcessInformation::GetHandle(), _readAddressEx, _rereorder);
             else
             {
                 switch (ProcessInformation::GetConsoleConnectionType())
@@ -133,10 +132,10 @@ void MungPlex::MemoryViewer::drawHexEditor()
                 {
                     static uint64_t byteWriteOffset = 0;
 
-                    if (_memEdit.DrawContents(_hexView.data(), _readSize, _viewAddress, NULL, nullptr, false, 0, &byteWriteOffset))
+                    if (_memEdit.DrawContents(_hexView.data(), _readSizeInput.GetValue(), _targetAddressInput.GetValue(), NULL, nullptr, false, 0, &byteWriteOffset))
                     {
                         USBGecko* gecko = ProcessInformation::GetUsbGecko();
-                        gecko->Poke<char>(_hexView[byteWriteOffset], byteWriteOffset + _viewAddress);
+                        gecko->Poke<char>(_hexView[byteWriteOffset], byteWriteOffset + _targetAddressInput.GetValue());
                         refreshMemory();
                     }
                 } break;
@@ -153,22 +152,17 @@ void MungPlex::MemoryViewer::drawHexEditor()
 
 void MungPlex::MemoryViewer::SetUpByRegionSelect(const int index)
 {
-    std::stringstream stream;
-    stream << std::hex << ProcessInformation::GetSystemRegionList()[index].Base;
-    _targetAddressInput.SetText(stream.str());
+    _targetAddressInput.SetValue(ProcessInformation::GetSystemRegionList()[index].Base);
     processBufferAddress();
 }
 
 void MungPlex::MemoryViewer::processBufferAddress()
 {
-    std::stringstream stream;
-    stream << std::hex << _targetAddressInput.GetStdStringNoZeros();
-    stream >> _viewAddress;
     _validAddress = false;
 
     if (ProcessInformation::GetProcessType() == ProcessInformation::CONSOLE)
     {
-        if (ProcessInformation::GetRegionIndex(_viewAddress) == -1)
+        if (ProcessInformation::GetRegionIndex(_targetAddressInput.GetValue()) == -1)
             return;
 
         _validAddress = true;
@@ -178,9 +172,9 @@ void MungPlex::MemoryViewer::processBufferAddress()
 
     for (SystemRegion& region : ProcessInformation::GetSystemRegionList())
     {
-        if (_viewAddress >= region.Base && _viewAddress < (region.Base + region.Size))
+        if (_targetAddressInput.GetValue() >= region.Base && _targetAddressInput.GetValue() < (region.Base + region.Size))
         {
-            _readAddressEx = (void*)((char*)region.BaseLocationProcess + (_viewAddress - region.Base));
+            _readAddressEx = (void*)((char*)region.BaseLocationProcess + (_targetAddressInput.GetValue() - region.Base));
             _handle = ProcessInformation::GetHandle();
             _validAddress = true;
             return;
@@ -198,7 +192,7 @@ void MungPlex::MemoryViewer::refreshMemory()
         case ProcessInformation::CON_USBGecko:
         {
             USBGecko* gecko = ProcessInformation::GetUsbGecko();
-            gecko->Read(_hexView.data(), _viewAddress, _readSize);
+            gecko->Read(_hexView.data(), _targetAddressInput.GetValue(), _readSizeInput.GetValue());
         } break;
     }
 }
