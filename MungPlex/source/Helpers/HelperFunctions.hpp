@@ -429,22 +429,6 @@ namespace MungPlex
         return ret;
     }
 
-    static bool SetUpInputFloat(const std::string& name, float* val, const float step = 1.0f, const float stepFast = 5.0f, const char* format = "%3f", const float paneWidth = 0.25f, const float labelPortion = 0.4f, const ImGuiInputTextFlags flags = 0, bool printLabel = true, const char* helpText = nullptr)
-    {
-        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
-        const bool edited = ImGui::InputFloat(("##" + name).c_str(), val, step, stepFast, format, flags);
-        ImGui::PopItemWidth();
-        return edited;
-    }
-
-    static bool SetUpInputDouble(const std::string& name, double* val, const double step = 1.0, const double stepFast = 5.0, const char* format = "%3f", const float paneWidth = 0.25f, const float labelPortion = 0.4f, const ImGuiInputTextFlags flags = 0, bool printLabel = true, const char* helpText = nullptr)
-    {
-        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
-        const bool edited = ImGui::InputDouble(("##" + name).c_str(), val, step, stepFast, format, flags);
-        ImGui::PopItemWidth();
-        return edited;
-    }
-
     static void SetUpLableText(const std::string& name, const char* text, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
     {
         PrepareWidgetLabel(name, paneWidth, labelPortion, true);
