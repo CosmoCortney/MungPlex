@@ -3,6 +3,7 @@
 #include <boost/thread.hpp>
 #include "IDevice.hpp"
 #include "LovenseToy.hpp"
+#include "WidgetHelpers.hpp"
 
 namespace MungPlex
 {
@@ -48,15 +49,13 @@ namespace MungPlex
         LovenseToy _lovenseToy;
         InputText _tokenInput = InputText("Token:", true, "", 128, ImGuiInputTextFlags_Password);
         int _toyError = CLovenseToy::TOYERR_SUCCESS;
-        std::string _tokenHelpText = "You need a token from the Lovense dev portal in order to use this feature. Go to Help/Get Lovense Token.";
 
         //value
         int _valueType = INT32;
         int _valueTypeIndex = 0;
-        float _maxF = 20.0f;
-        double _maxD = 20.0;
-        int32_t _maxI = 20;
-        int64_t _maxL = 20;
+        InputFloat<float> _maxFoatInput = InputFloat<float>("Max Value:", true, 20.0f, 0.5f, 2.0f, 1);
+        InputFloat<double> _maxDoubleInput = InputFloat<double>("Max Value:", true, 20.0, 0.5, 2.0, 1);
+        InputFloat<int64_t> _maxIntInput = InputFloat<int64_t>("Max Value:", true, 20, 1, 2);
 
         //pointer path
         bool _useModulePath = false;
@@ -86,5 +85,6 @@ namespace MungPlex
         void controlToy();
         void plotValues();
         void assign(const DeviceLovense& other);
+        void setHelpTexts();
     };
 }

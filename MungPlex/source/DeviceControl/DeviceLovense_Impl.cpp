@@ -10,32 +10,28 @@ MungPlex::DeviceLovense::DeviceLovense(const int id)
 	_deviceId = id;
 	_idText = std::to_string(id);
 	_tokenInput.SetText(Settings::GetDeviceControlSettings().LovenseToken.StdStrNoLeadinZeros());
-	_tokenInput.SetHelpText(_tokenHelpText, true);
+	setHelpTexts();
 }
 
 MungPlex::DeviceLovense::DeviceLovense(const int id, const nlohmann::json& json)
 {
 	_tokenInput.SetText(Settings::GetDeviceControlSettings().LovenseToken.StdStrNoLeadinZeros());
-	_tokenInput.SetHelpText(_tokenHelpText, true);
 	_deviceTypeID = IDevice::LOVENSE;
 	_valueType = json["valueType"];
 	_nameInput.SetText(json["name"]);
 	_valueTypeIndex = s_ValueTypes.GetIndexById(_valueType);
+	setHelpTexts();
 
 	switch (_valueType)
 	{
 	case FLOAT:
-		_maxF = json["maxF"];
+		_maxFoatInput.SetValue(json["maxF"]);
 		break;
 	case DOUBLE:
-		_maxD = json["maxD"];
+		_maxDoubleInput.SetValue(json["maxD"]);
 		break;
-	case INT64:
-		_maxL = json["maxL"];
-		break;
-	case INT8: case INT16: case INT32:
-		_maxI = json["maxI"];
-		break;
+	default:
+		_maxIntInput.SetValue(json["maxI"]);
 	}
 
 	_useModulePath = json["useModulePath"];
@@ -86,10 +82,9 @@ void MungPlex::DeviceLovense::assign(const DeviceLovense& other)
 	_idText = other._idText;
 	_delete = other._delete;
 	_active = other._active;
-	_maxF = other._maxF;
-	_maxD = other._maxD;
-	_maxI = other._maxI;
-	_maxL = other._maxL;
+	_maxFoatInput = other._maxFoatInput;
+	_maxDoubleInput = other._maxDoubleInput;
+	_maxIntInput = other._maxIntInput;
 	_useModulePath = other._useModulePath;
 	_moduleAddress = other._moduleAddress;
 	_moduleInput = other._moduleInput;
@@ -104,6 +99,15 @@ void MungPlex::DeviceLovense::assign(const DeviceLovense& other)
 	_plotVals = other._plotVals;
 	_abortPlot = other._abortPlot;
 	ParsePointerPath(_pointerPath, _pointerPathInput.GetStdStringNoZeros());
+}
+
+void MungPlex::DeviceLovense::setHelpTexts()
+{
+	static std::string helpText = "The maximum read value to be considered.";
+	_maxFoatInput.SetHelpText(helpText, true);
+	_maxDoubleInput.SetHelpText(helpText, true);
+	_maxIntInput.SetHelpText(helpText, true);
+	_tokenInput.SetHelpText("You need a token from the Lovense dev portal in order to use this feature. Go to Help/Get Lovense Token.", true);
 }
 
 void MungPlex::DeviceLovense::Draw()
@@ -149,16 +153,13 @@ nlohmann::json MungPlex::DeviceLovense::GetJSON()
 	switch (_valueType)
 	{
 	case FLOAT:
-		elemJson["maxF"] = _maxF;
+		elemJson["maxF"] = _maxFoatInput.GetValue();
 		break;
 	case DOUBLE:
-		elemJson["maxD"] = _maxD;
+		elemJson["maxD"] = _maxDoubleInput.GetValue();
 		break;
-	case INT64:
-		elemJson["maxL"] = _maxL;
-		break;
-	case INT8: case INT16: case INT32:
-		elemJson["maxI"] = _maxI;
+	default:
+		elemJson["maxI"] = _maxIntInput.GetValue();
 		break;
 	}
 
@@ -298,16 +299,13 @@ void MungPlex::DeviceLovense::drawValueTypeOptions()
 	switch (_valueType)
 	{
 	case FLOAT:
-		SetUpInputFloat("Max. Value:", &_maxF, 1.0f, 5.0f, "%3f", 1.0f, 0.4f, 0, true, info.c_str());
+		_maxFoatInput.Draw(1.0f, 5.0f);
 		break;
 	case DOUBLE:
-		SetUpInputDouble("Max. Value:", &_maxD, 1.0, 5.0, "%3f", 1.0f, 0.4f, 0, true, info.c_str());
+		_maxDoubleInput.Draw(1.0f, 5.0f);
 		break;
-	case INT8: case INT16: case INT32:
-		SetUpInputInt("Max. Value:", &_maxI, 1, 5, 1.0f, 0.4f, 0, true, info.c_str());
-		break;
-	case INT64:
-		SetUpInputInt64("Max. Value:", &_maxL, 1, 5, 1.0f, 0.4f, 0, true, info.c_str());
+	default:
+		_maxIntInput.Draw(1.0f, 5.0f);
 		break;
 	}
 }
@@ -368,37 +366,37 @@ void MungPlex::DeviceLovense::controlToy()
 					{
 						static int8_t readVal = 0;
 						readVal = ProcessInformation::ReadValue<int8_t>(valptr);
-						_vibrationValue = ScaleValue<int8_t>(readVal, _maxI);
+						_vibrationValue = ScaleValue<int8_t>(readVal, _maxIntInput.GetValue());
 					} break;
 					case INT16:
 					{
 						static int16_t readVal = 0;
 						readVal = ProcessInformation::ReadValue<int16_t>(valptr);
-						_vibrationValue = ScaleValue<int16_t>(readVal, _maxI);
+						_vibrationValue = ScaleValue<int16_t>(readVal, _maxIntInput.GetValue());
 					} break;
 					case INT64:
 					{
 						static int64_t readVal = 0;
 						readVal = ProcessInformation::ReadValue<int64_t>(valptr);
-						_vibrationValue = ScaleValue<int64_t>(readVal, _maxL);
+						_vibrationValue = ScaleValue<int64_t>(readVal, _maxIntInput.GetValue());
 					} break;
 					case FLOAT:
 					{
 						static float readVal = 0.0f;
 						readVal = ProcessInformation::ReadValue<float>(valptr);
-						_vibrationValue = ScaleValue<float>(readVal, _maxF);
+						_vibrationValue = ScaleValue<float>(readVal, _maxFoatInput.GetValue());
 					} break;
 					case DOUBLE:
 					{
 						static double readVal = 0.0;
 						readVal = ProcessInformation::ReadValue<double>(valptr);
-						_vibrationValue = ScaleValue<double>(readVal, _maxD);
+						_vibrationValue = ScaleValue<double>(readVal, _maxDoubleInput.GetValue());
 					} break;
 					default: //INT32
 					{
 						static int32_t readVal = 0;
 						readVal = ProcessInformation::ReadValue<int32_t>(valptr);
-						_vibrationValue = ScaleValue<int32_t>(readVal, _maxI);
+						_vibrationValue = ScaleValue<int32_t>(readVal, _maxIntInput.GetValue());
 					}
 				}
 
