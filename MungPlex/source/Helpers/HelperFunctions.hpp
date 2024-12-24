@@ -429,22 +429,6 @@ namespace MungPlex
         return ret;
     }
 
-    static bool SetUpInputInt(const std::string& name, int* val, const int step = 1, const int stepFast = 100, const float paneWidth = 0.25f, const float labelPortion = 0.4f, const ImGuiInputTextFlags flags = 0, bool printLabel = true, const char* helpText = nullptr)
-    {
-        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
-        const bool edited = ImGui::InputInt(("##" + name).c_str(), val, step, stepFast, flags);
-        ImGui::PopItemWidth();
-        return edited;
-    }
-
-    static bool SetUpInputInt64(const std::string& name, int64_t* val, const int step = 1, const int stepFast = 100, const float paneWidth = 0.25f, const float labelPortion = 0.4f, const ImGuiInputTextFlags flags = 0, bool printLabel = true, const char* helpText = nullptr)
-    {
-        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
-        const bool edited = ImGui::InputScalar(("##" + name).c_str(), ImGuiDataType_S64, val, &step, &stepFast, "%I64d", flags);
-        ImGui::PopItemWidth();
-        return edited;
-    }
-
     static bool SetUpInputFloat(const std::string& name, float* val, const float step = 1.0f, const float stepFast = 5.0f, const char* format = "%3f", const float paneWidth = 0.25f, const float labelPortion = 0.4f, const ImGuiInputTextFlags flags = 0, bool printLabel = true, const char* helpText = nullptr)
     {
         PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
