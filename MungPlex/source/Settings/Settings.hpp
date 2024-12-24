@@ -73,6 +73,10 @@ namespace MungPlex
         ImGuiStyle _defaultStyle;
         InputText _documentsPathInput = InputText("Documents Path:", true, "", 512);
         InputText _lovenseTokenInput = InputText("Lovense Token:", true, "", 128, ImGuiInputTextFlags_Password);
+        InputInt<uint32_t> _defaultAlignmentInput = InputInt<uint32_t>("Default Alignment:", true, 4, 1, 1);
+        InputInt<uint32_t> _cheatsDefaultIntervalInput = InputInt<uint32_t>("Default Intervsl:", true, 60, 1, 10);
+
+
         const std::vector<std::string> _featureDirs
         {
              "Search" , "Dumps", "PointerSearch", "WatchControl", "Cheats", "DeviceControl"

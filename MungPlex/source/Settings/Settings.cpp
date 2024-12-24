@@ -109,6 +109,8 @@ void MungPlex::Settings::InitSettings()
 		if (searchSettings.DefaultAlignment < 1)
 			searchSettings.DefaultAlignment = 1;
 		
+		GetInstance()._defaultAlignmentInput.SetValue(searchSettings.DefaultAlignment);
+
 		//set cheats defaults
 		cheatsSettings.DefaultCheatList = settings["Cheats"]["DefaultCheatList"].get<bool>();
 		cheatsSettings.DefaultInterval = settings["Cheats"]["DefaultInterval"].get<int>();
@@ -117,6 +119,8 @@ void MungPlex::Settings::InitSettings()
 			cheatsSettings.DefaultInterval = 1;
 		else if (cheatsSettings.DefaultInterval > 240)
 			cheatsSettings.DefaultInterval = 240;
+
+		GetInstance()._cheatsDefaultIntervalInput.SetValue(cheatsSettings.DefaultInterval);
 
 		//set device control defaults
 		deviceControlSettings.LovenseToken = settings["DeviceControl"]["LovenseToken"].get<std::string>();
@@ -231,10 +235,14 @@ void MungPlex::Settings::drawSearchSettings()
 		ImGui::Checkbox("Case Senstive by default", &_searchSettings.DefaultCaseSensitive);
 		ImGui::Checkbox("Color Wheel by default", &_searchSettings.DefaultColorWheel);
 
-		if (SetUpInputInt("Default Alignment:", &_searchSettings.DefaultAlignment, 1, 1, 1.0f, 0.2f))
+		if (_defaultAlignmentInput.Draw(1.0f, 0.2f))
 		{
-			if (_searchSettings.DefaultAlignment < 1)
-				_searchSettings.DefaultAlignment = 1;
+			if (_defaultAlignmentInput.GetValue() < 1)
+			{
+				_defaultAlignmentInput.SetValue(1);
+			}
+
+			_searchSettings.DefaultAlignment = _defaultAlignmentInput.GetValue();
 		}
 
 		ImGui::Checkbox("Values are hex by default", &_searchSettings.DefaultValuesHex);
@@ -255,12 +263,14 @@ void MungPlex::Settings::drawCheatSettings()
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 		ImGui::Checkbox("Cheat List by default", &_cheatsSettings.DefaultCheatList);
 
-		if (SetUpInputInt("Default Cheat interval", &_cheatsSettings.DefaultInterval, 1, 10, 1.0f, 0.2f))
+		if (_cheatsDefaultIntervalInput.Draw(1.0f, 0.2f))
 		{
-			if (_cheatsSettings.DefaultInterval < 1)
-				_cheatsSettings.DefaultInterval = 1;
-			else if (_cheatsSettings.DefaultInterval > 240)
-				_cheatsSettings.DefaultInterval = 240;
+			if (_cheatsDefaultIntervalInput.GetValue() < 1)
+				_cheatsDefaultIntervalInput.SetValue(1);
+			else if (_cheatsDefaultIntervalInput.GetValue() > 240)
+				_cheatsDefaultIntervalInput.SetValue(240);
+
+			_cheatsSettings.DefaultInterval = _cheatsDefaultIntervalInput.GetValue();
 		}
 		ImGui::EndTabItem();
 	}
