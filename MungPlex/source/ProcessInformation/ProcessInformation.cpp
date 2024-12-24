@@ -119,25 +119,32 @@ void MungPlex::ProcessInformation::drawRegionList()
 	static int contents_type = CT_Text;
 	std::wstring currentModule;
 	static int maxRows = 100;
-	int pages = regionCount / maxRows;
-	static int page = 1;
+	int pages = 0;
+	pages = regionCount / maxRows;
+	static int lastPageCount = 0;
 	static int lastPageRows = 0;
+	static std::string pageCountStr = "0";
 	lastPageRows = regionCount % maxRows - 1;
 
 	if (lastPageRows)
 		++pages;
 
-	if(SetUpInputInt("Page:", &page, 1, 1))
+	if(_currentPageInput.Draw())
 	{
-		if (page < 1)
-			page = pages;
-		else if (page > pages)
-			page = 1;
+		if (_currentPageInput.GetValue() < 1)
+			_currentPageInput.SetValue(pages);
+		else if (_currentPageInput.GetValue() > pages)
+			_currentPageInput.SetValue(1);
 	}
+
+	if (lastPageCount != pages)
+		pageCountStr = std::to_string(pages);
 
 	ImGui::SameLine();
 
-	SetUpLableText("Of: ", std::to_string(pages).c_str(), 3);
+	SetUpLableText("Of: ", pageCountStr.c_str(), pageCountStr.size());
+
+	lastPageCount = pages;
 
 	if (!ImGui::BeginTable("Regions", 8, flags))
 		return;
@@ -152,7 +159,7 @@ void MungPlex::ProcessInformation::drawRegionList()
 	ImGui::TableSetupColumn("Type");
 	ImGui::TableHeadersRow();
 
-	int rows = page == pages ? lastPageRows : maxRows;
+	int rows = _currentPageInput.GetValue() == pages ? lastPageRows : maxRows;
 	
 	for (int i = 0; i < rows; ++i)
 	{
@@ -162,7 +169,7 @@ void MungPlex::ProcessInformation::drawRegionList()
 			std::stringstream stream;
 			ImGui::TableSetColumnIndex(column);
 			static std::string buf(64, 0);
-			Xertz::MemoryRegion& region = GetRegionList()[(page - 1) * maxRows + i];
+			Xertz::MemoryRegion& region = GetRegionList()[(_currentPageInput.GetValue() - 1) * maxRows + i];
 
 			switch(column)
 			{

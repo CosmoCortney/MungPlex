@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 #include <stdio.h>
 #include "USBGecko.hpp"
+#include "WidgetHelpers.hpp"
 
 namespace MungPlex
 {
@@ -269,6 +270,7 @@ namespace MungPlex
             return Instance;
         }
 
+        InputInt<uint32_t> _currentPageInput = InputInt<uint32_t>("Page:", true, 1, 1, 1);
         int32_t _processType = NONE;
         PROCESS_INFO _process;
         bool _underlyingIsBigEndian = false;
