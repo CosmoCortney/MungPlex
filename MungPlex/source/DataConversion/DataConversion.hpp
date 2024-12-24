@@ -41,12 +41,13 @@ namespace MungPlex
         static const StringIdPairs _intTypes;
         ImVec2 _verticalSpacing;
         InputText _specializedColorValueInput = InputText("Specializes Color Val:", false, "", 24);
-        InputText _hexFloatInput = InputText("Hex Float:", true, "", 16);
+        InputInt<uint32_t> _hexFloatInput = InputInt<uint32_t>("Hex Float:", true, 0x3F800000, 0x10000, 0x1000000);
+        InputInt<uint64_t> _hexDoubleInput = InputInt<uint64_t>("Hex Double:", true, 0x3FF0000000000000, 0x1000000000000, 0x100000000000000);
         InputText _littleEndianInput = InputText("Little Endian:", true, "", 16);
         InputText _bigEndianInput = InputText("Big Endian:", true, "", 16);
         InputTextMultiline _plainTextInput = InputTextMultiline("Plain Text:", true, "", 512);
-        InputFloat<float> _floatSingleConvertInput = InputFloat<float>("Float:", true, 0.0f, 0.1f, 1.0f, 6);
-        InputFloat<double> _floatDoubleConvertInput = InputFloat<double>("Double:", true, 0.0f, 0.1f, 1.0f, 6);
+        InputFloat<float> _floatSingleConvertInput = InputFloat<float>("Float:", true, 1.0f, 0.1f, 1.0f, 6);
+        InputFloat<double> _floatDoubleConvertInput = InputFloat<double>("Double:", true, 1.0, 0.1, 1.0, 10);
 
         void drawPrimitiveConversion();
         void drawHexFloatConversion();

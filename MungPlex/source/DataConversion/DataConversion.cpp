@@ -278,48 +278,60 @@ void MungPlex::DataConversion::drawHexFloatConversion()
 		static double doubleVal = 1.0;
 		static bool isDouble = false;
 		static bool update = true;
+		static bool scientific = false;
 
-		if (SetUpPairCombo(_floatTypes, &selectedFloatType, 1.0f, 0.35f))
+		if (SetUpPairCombo(_floatTypes, &selectedFloatType, 0.7f, 0.5f))
 		{
 			isDouble = selectedFloatType == FloatTypes::DOUBLE;
+
+			if (isDouble)
+				_floatDoubleConvertInput.SetValue(_floatSingleConvertInput.GetValue());
+			else
+				_floatSingleConvertInput.SetValue(_floatDoubleConvertInput.GetValue());
+
 			update = true;
 		}
 
+
+		ImGui::SameLine();
+
+		ImGui::Checkbox("Scientific", &scientific);
+
 		if (isDouble)
 		{
-			if (_floatDoubleConvertInput.Draw(1.0f, 0.35f) || update)
+			if (_floatDoubleConvertInput.Draw(1.0f, 0.35f, scientific) || update)
 			{
 				doubleVal = _floatDoubleConvertInput.GetValue();
-				_hexFloatInput.SetText(ToHexString(*(uint64_t*)&doubleVal, 16, false));
+				_hexDoubleInput.SetValue(*reinterpret_cast<uint64_t*>(&doubleVal));
 				update = false;
 			}
 		}
 		else
 		{
-			if (_floatSingleConvertInput.Draw(1.0f, 0.35f) || update)
+			if (_floatSingleConvertInput.Draw(1.0f, 0.35f, scientific) || update)
 			{
 				floatVal = _floatSingleConvertInput.GetValue();
-				_hexFloatInput.SetText(ToHexString(*(uint32_t*)&floatVal, 8, false));
+				_hexFloatInput.SetValue(*reinterpret_cast<uint32_t*>(&floatVal));
 				update = false;
 			}
 		}
 
-		if (_hexFloatInput.Draw(1.0f, 0.35f))
+		if (isDouble)
 		{
-			std::stringstream stream;
-			stream << _hexFloatInput.GetStdStringNoZeros();
-
-			if (isDouble)
+			if (_hexDoubleInput.Draw(1.0f, 0.35f, true))
 			{
-				uint64_t temp;
-				stream >> std::hex >> temp;
-				doubleVal = *(double*)&temp;
+				static uint64_t int64Val = 0;
+				int64Val = _hexDoubleInput.GetValue();
+				_floatDoubleConvertInput.SetValue(*reinterpret_cast<double*>(&int64Val));
 			}
-			else
+		}
+		else
+		{
+			if (_hexFloatInput.Draw(1.0f, 0.35f, true))
 			{
-				uint32_t temp;
-				stream >> std::hex >> temp;
-				floatVal = *(float*)&temp;
+				static uint32_t int32Val = 0;
+				int32Val = _hexFloatInput.GetValue();
+				_floatSingleConvertInput.SetValue(*reinterpret_cast<float*>(&int32Val));
 			}
 		}
 	}
