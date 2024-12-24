@@ -287,16 +287,18 @@ void MungPlex::DataConversion::drawHexFloatConversion()
 
 		if (isDouble)
 		{
-			if (SetUpInputDouble("Double:", &doubleVal, 0.1, 1.0, "%.16f", 1.0f, 0.35f) || update)
+			if (_floatDoubleConvertInput.Draw(1.0f, 0.35f) || update)
 			{
+				doubleVal = _floatDoubleConvertInput.GetValue();
 				_hexFloatInput.SetText(ToHexString(*(uint64_t*)&doubleVal, 16, false));
 				update = false;
 			}
 		}
 		else
 		{
-			if (SetUpInputFloat("Float:", &floatVal, 0.1f, 1.0f, "%.8f", 1.0f, 0.35f) || update)
+			if (_floatSingleConvertInput.Draw(1.0f, 0.35f) || update)
 			{
+				floatVal = _floatSingleConvertInput.GetValue();
 				_hexFloatInput.SetText(ToHexString(*(uint32_t*)&floatVal, 8, false));
 				update = false;
 			}
