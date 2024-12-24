@@ -131,8 +131,8 @@ namespace MungPlex
         bool _busySearching = false;
 
         //value options
-        InputText _knownValueInput = InputText("Value:", true, "", 256);
-        InputText _secondaryKnownValueInput = InputText("Not applicable", true, "", 256);
+        InputText _knownValueInput = InputText("Value:", true, "", 256); //No InputInt because a string param to be parsed is needed
+        InputText _secondaryKnownValueInput = InputText("Not applicable", true, "", 256); //same
         StringIdPairs _iterations = { {}, {}, "Counter Iteration:"};
         int _iterationIndex = 0; 
         uint32_t _iterationCount = 0;
@@ -160,9 +160,9 @@ namespace MungPlex
         bool _multiPoke = false;
         bool _pokePrevious = false;
         std::vector<char> _pokeValue;
-        InputText  _pokeValueInput = InputText("Value:", true, "", 256);
+        InputText  _pokeValueInput = InputText("Value:", true, "", 256); //No InputInt because a string param to be parsed is needed
         uint64_t _pokeAddress = 0;
-        InputText  _pokeAddressInput = InputText("Address:", true, "", 16);
+        InputText  _pokeAddressInput = InputText("Address:", true, "", 16); //No InputInt because non-numeral information might be displayed
         std::tuple<uint64_t, int> _searchStats;
         bool _deselectedIllegalSelection = false;
         std::vector<MemoryCompare::MemDump> _currentMemoryDumps{};
