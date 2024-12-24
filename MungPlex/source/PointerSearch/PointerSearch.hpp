@@ -53,7 +53,7 @@ namespace MungPlex
         bool _printVisitedAddresses = false;
         bool _printModuleNames = false;
         float _maxMemUtilizationFraction = 0.9f;
-        int _maxPointerCount = 100000;
+        InputInt<uint64_t> _maxPointerCountInput = InputInt<uint64_t>("Max. Pointer Count:", true, 100000, 1, 20);
         static const StringIdBoolPairs _systemPresets;
         int _presetSelect = 0;
         int _selectedInputType = 0;

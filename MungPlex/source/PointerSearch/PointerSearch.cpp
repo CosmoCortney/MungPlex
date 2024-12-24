@@ -31,6 +31,7 @@ MungPlex::PointerSearch::PointerSearch()
     _resultsPathInput.SetHelpText("Where to save the results file.");
     _minPointerDepthInput.SetHelpText("Minimum pointer level depth. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value is usually always 1.", true);
     _maxPointerDepthInput.SetHelpText("Maximum pointer level depth. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value can be the same as \"Minimum Pointer Depth\" if you don't want any extra depth. A higher value will increase the results count but also scan time.", true);
+    _maxPointerCountInput.SetHelpText("Maximum amount of pointers to be generated. Smaller values may decrease scan time and but also the likeability to find working pointer paths.", true);
 }
 
 void MungPlex::PointerSearch::DrawWindow()
@@ -106,7 +107,7 @@ void MungPlex::PointerSearch::drawSettings()
 
         _resultsPathInput.Draw(1.0f, 0.3f);
         SetUpSliderFloat("Max. Memory Utilization Fraction:", &_maxMemUtilizationFraction, 0.1f, 0.95f, "%2f", 1.0f, 0.5f);
-        SetUpInputInt("Max. Pointer Count:", &_maxPointerCount, 100, 1000, 1.0f, 0.3f, 0, true, "Maximum amount of pointers to be generated. Smaller values may decrease scan time and but also the likeability to find working pointer paths.");
+        _maxPointerCountInput.Draw(1.0f, 0.3f);
         SetUpPairCombo(_inputTypeSelect, &_selectedInputType, 1.0f, 0.3f);
 
         if (ImGui::Button("Add File"))
@@ -412,9 +413,9 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
     _args.emplace_back(".raw");
     _args.emplace_back(".dmp");
     _args.emplace_back("--maximum-pointer-count");
-    _args.push_back(std::to_string(_maxPointerCount));
+    _args.push_back(_maxPointerCountInput.ToString());
     _args.emplace_back("--maximum-pointers-printed-count");
-    _args.push_back(std::to_string(_maxPointerCount));
+    _args.push_back(_maxPointerCountInput.ToString());
     _args.emplace_back("--disable-printing-memory-pointers-to-console");
 
     if(_printModuleNames)
