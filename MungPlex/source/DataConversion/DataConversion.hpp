@@ -40,11 +40,15 @@ namespace MungPlex
         static const StringIdPairs _floatTypes;
         static const StringIdPairs _intTypes;
         ImVec2 _verticalSpacing;
-        InputText _specializedColorValueInput = InputText("Specializes Color Val:", false, "", 24);
+        InputText _specializedColorValueInput = InputText("Specializes Color Val:", false, "", 32);
         InputInt<uint32_t> _hexFloatInput = InputInt<uint32_t>("Hex Float:", true, 0x3F800000, 0x10000, 0x1000000);
         InputInt<uint64_t> _hexDoubleInput = InputInt<uint64_t>("Hex Double:", true, 0x3FF0000000000000, 0x1000000000000, 0x100000000000000);
-        InputText _littleEndianInput = InputText("Little Endian:", true, "", 16);
-        InputText _bigEndianInput = InputText("Big Endian:", true, "", 16);
+        InputInt<uint16_t> _littleEndianInput16 = InputInt<uint16_t>("Little Endian:", true, 0, 0, 0);
+        InputInt<uint32_t> _littleEndianInput32 = InputInt<uint32_t>("Little Endian:", true, 0, 0, 0);
+        InputInt<uint64_t> _littleEndianInput64 = InputInt<uint64_t>("Little Endian:", true, 0, 0, 0);
+        InputInt<uint16_t> _bigEndianInput16 = InputInt<uint16_t>("Big Endian:", true, 0, 0, 0);
+        InputInt<uint32_t> _bigEndianInput32 = InputInt<uint32_t>("Big Endian:", true, 0, 0, 0);
+        InputInt<uint64_t> _bigEndianInput64 = InputInt<uint64_t>("Big Endian:", true, 0, 0, 0);
         InputTextMultiline _plainTextInput = InputTextMultiline("Plain Text:", true, "", 512);
         InputFloat<float> _floatSingleConvertInput = InputFloat<float>("Float:", true, 1.0f, 0.1f, 1.0f, 6);
         InputFloat<double> _floatDoubleConvertInput = InputFloat<double>("Double:", true, 1.0, 0.1, 1.0, 10);

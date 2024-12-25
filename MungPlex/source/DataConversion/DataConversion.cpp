@@ -346,28 +346,37 @@ void MungPlex::DataConversion::drawEndiannessConversion()
 
 	ImGui::BeginGroup();
 	{
-		static uint64_t le = 0;
-		static uint64_t be = 0;
 		static int intSelect = IntTypes::INT16;
-		static bool update = true;
+		SetUpPairCombo(_intTypes, &intSelect, 1.0f, 0.35f);
 
-		if (SetUpPairCombo(_intTypes, &intSelect, 1.0f, 0.35f) || update)
+		switch (intSelect)
 		{
-			_littleEndianInput.SetMaxLength(4 << intSelect);
-			_bigEndianInput.SetMaxLength(4 << intSelect);
-			update = false;
+		case INT16:
+			if (_littleEndianInput16.Draw(1.0f, 0.35f, true))
+				_bigEndianInput16.SetValue(std::byteswap(_littleEndianInput16.GetValue()));
+		break;
+		case INT64:
+			if (_littleEndianInput64.Draw(1.0f, 0.35f, true))
+				_bigEndianInput64.SetValue(std::byteswap(_littleEndianInput64.GetValue()));
+		break;
+		default:
+			if (_littleEndianInput32.Draw(1.0f, 0.35f, true))
+				_bigEndianInput32.SetValue(std::byteswap(_littleEndianInput32.GetValue()));
 		}
 
-		if (_littleEndianInput.Draw(1.0f, 0.35f))
+		switch (intSelect)
 		{
-			_bigEndianInput.SetText(swapBytes(_littleEndianInput.GetStdStringNoZeros(), intSelect));
-			update = true;
-		}
-
-		if (_bigEndianInput.Draw(1.0f, 0.35f))
-		{
-			_littleEndianInput.SetText(swapBytes(_bigEndianInput.GetStdStringNoZeros(), intSelect));
-			update = true;
+		case INT16:
+			if (_bigEndianInput16.Draw(1.0f, 0.35f, true))
+				_littleEndianInput16.SetValue(std::byteswap(_bigEndianInput16.GetValue()));
+		break;
+		case INT64:
+			if (_bigEndianInput64.Draw(1.0f, 0.35f, true))
+				_littleEndianInput64.SetValue(std::byteswap(_bigEndianInput64.GetValue()));
+		break;
+		default:
+			if (_bigEndianInput32.Draw(1.0f, 0.35f, true))
+				_littleEndianInput32.SetValue(std::byteswap(_bigEndianInput32.GetValue()));
 		}
 	}
 	ImGui::EndGroup();
