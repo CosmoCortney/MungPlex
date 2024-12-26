@@ -92,7 +92,7 @@ namespace MungPlex
             return Instance;
         }
 
-        static const StringIdPairs _searchValueTypes;
+        static const std::vector<std::pair<std::string, uint32_t>> _searchValueTypes;
         static const StringIdPairs _endiannesses;
         static const StringIdPairs _searchPrimitiveTypes;
         static const StringIdPairs _searchArrayTypes;
@@ -117,7 +117,7 @@ namespace MungPlex
         bool _diableBecauseUnknownAndNotRangebased = false;
         bool _disableBecauseNoText = false;
         bool _caseSensitive = true;
-        int _currentValueTypeSelect = 0;
+        StringIdCombo _searchValueTypesCombo = StringIdCombo("Value Types:", true, _searchValueTypes);
         int _currentPrimitiveTypeSelect = 0;
         int _currentArrayTypeSelect = 0;
         int _currentTextTypeSelect = MT::UTF8;

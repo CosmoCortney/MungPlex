@@ -2,11 +2,14 @@
 #include <algorithm>
 #include "Search.hpp"
 
-inline const MungPlex::StringIdPairs MungPlex::Search::_searchValueTypes =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_searchValueTypes =
 {
-	{ "Primitive", "Array", "Text", "Color"}, 
-	{ PRIMITIVE,   ARRAY,   TEXT,   COLOR },
-	"Value Types:"
+	{
+		{ "Primitive", PRIMITIVE },
+		{ "Array", ARRAY },
+		{ "Text", TEXT },
+		{ "Color", COLOR }
+	}
 };
 
 inline const MungPlex::StringIdPairs MungPlex::Search::_endiannesses =
@@ -164,12 +167,12 @@ void MungPlex::Search::drawValueTypeOptions()
 		{
 			ImGui::BeginGroup();
 			{
-				if (SetUpPairCombo(_searchValueTypes, &_currentValueTypeSelect, 0.5f, 0.4f))
+				if (_searchValueTypesCombo.Draw(0.5f, 0.4f))
 				{
 					_updateLabels = true;
 					_knownValueInput.SetText("");
 
-					switch (_searchValueTypes.GetId(_currentValueTypeSelect))
+					switch (_searchValueTypesCombo.GetSelectedId())
 					{
 					case ARRAY:
 						_knownValueInput.SetLabel("Array Expression:");
@@ -188,11 +191,11 @@ void MungPlex::Search::drawValueTypeOptions()
 					setFormatting();
 				}
 
-				if (_currentValueTypeSelect == TEXT || _currentValueTypeSelect == COLOR)
+				if (_searchValueTypesCombo.GetSelectedId() == TEXT || _searchValueTypesCombo.GetSelectedId() == COLOR)
 					_currentcomparisonTypeSelect = MemoryCompare::KNOWN;
 			} if (_searchActive) ImGui::EndDisabled();
 
-			if (_currentValueTypeSelect == PRIMITIVE || _currentPrimitiveTypeSelect >= FLOAT)
+			if (_searchValueTypesCombo.GetSelectedId() == PRIMITIVE || _searchValueTypesCombo.GetSelectedId() >= FLOAT)
 			{
 				ImGui::SameLine();
 				if (ImGui::Checkbox("Hex", &GetInstance()._hex))
@@ -201,7 +204,7 @@ void MungPlex::Search::drawValueTypeOptions()
 
 			if (_searchActive) ImGui::BeginDisabled();
 			{
-				switch (_currentValueTypeSelect)
+				switch (_searchValueTypesCombo.GetSelectedId())
 				{
 				case ARRAY:
 					if (SetUpPairCombo(_searchArrayTypes, &_currentArrayTypeSelect, 0.5f, 0.4f)) //use primitive types here once Arrays support floats
@@ -235,7 +238,7 @@ void MungPlex::Search::drawValueTypeOptions()
 
 				ImGui::SameLine();
 
-				if (_currentPrimitiveTypeSelect < FLOAT && _currentValueTypeSelect == PRIMITIVE)
+				if (_currentPrimitiveTypeSelect < FLOAT && _searchValueTypesCombo.GetSelectedId() == PRIMITIVE)
 					ImGui::Checkbox("Signed", &_signed);
 			}
 			ImGui::EndGroup();
@@ -247,9 +250,9 @@ void MungPlex::Search::drawValueTypeOptions()
 
 void MungPlex::Search::setFormatting()
 {
-	if (_currentValueTypeSelect == PRIMITIVE)
+	if (_searchValueTypesCombo.GetSelectedId() == PRIMITIVE)
 		_formatting = GetStringFormatting(_currentPrimitiveTypeSelect, _signed, _hex);
-	else if (_currentValueTypeSelect == ARRAY)
+	else if (_searchValueTypesCombo.GetSelectedId() == ARRAY)
 		_formatting = GetStringFormatting(_currentArrayTypeSelect, _signed, _hex);
 }
 
@@ -473,7 +476,7 @@ void MungPlex::Search::drawSearchOptions()
 
 		_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
 		
-		if(_currentValueTypeSelect == COLOR)
+		if(_searchValueTypesCombo.GetSelectedId() == COLOR)
 			childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y };
 		else
 			childXY = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
@@ -507,7 +510,7 @@ void MungPlex::Search::drawSearchOptions()
 			SetUpPairCombo(_iterations, &_iterationIndex, 1.0f, 0.4f);
 		if (!_iterationCount || _disableUndo) ImGui::EndDisabled();
 
-		switch (_currentValueTypeSelect)
+		switch (_searchValueTypesCombo.GetSelectedId())
 		{
 		case ARRAY:
 			drawArraySearchOptions();
@@ -553,7 +556,7 @@ void MungPlex::Search::drawSearchOptions()
 
 		ImGui::EndChild();
 
-		if (_currentValueTypeSelect == COLOR)
+		if (_searchValueTypesCombo.GetSelectedId() == COLOR)
 			drawColorSelectOptions();
 	}
 	ImGui::EndChild();
@@ -584,7 +587,7 @@ void MungPlex::Search::drawResultsArea()
 
 					if (_pokeValueInput.Draw(1.0f, 0.2f))
 					{
-						if(_currentValueTypeSelect == COLOR)
+						if(_searchValueTypesCombo.GetSelectedId() == COLOR)
 							LitColorExpressionToImVec4(_pokeValueInput.GetCString(), &_pokeColorVec);
 					}
 				}
@@ -608,7 +611,7 @@ void MungPlex::Search::drawResultsArea()
 				}
 				ImGui::EndGroup();
 
-				if (_currentValueTypeSelect != TEXT)
+				if (_searchValueTypesCombo.GetSelectedId() != TEXT)
 				{
 
 					ImGui::Checkbox("Previous Value", &_pokePrevious);
@@ -630,7 +633,7 @@ void MungPlex::Search::drawResultsArea()
 						updateLivePreviewOnce();
 				}
 
-				if (_currentValueTypeSelect == COLOR)
+				if (_searchValueTypesCombo.GetSelectedId() == COLOR)
 				{
 					DrawExtraColorPickerOptions(&_useColorWheel, &_pokeColorVec);
 					if(DrawColorPicker(_currentColorTypeSelect, _forceAlpha, &_pokeColorVec, _useColorWheel, 0.8f))
@@ -665,7 +668,7 @@ void MungPlex::Search::performSearch()
 			_updateThread.join();
 	}
 
-	switch (_currentValueTypeSelect)
+	switch (_searchValueTypesCombo.GetSelectedId())
 	{
 	case ARRAY:
 		arrayTypeSearchLog();
@@ -681,7 +684,7 @@ void MungPlex::Search::performSearch()
 		break;
 	}
 
-	if(_currentValueTypeSelect != PRIMITIVE)
+	if(_searchValueTypesCombo.GetSelectedId() != PRIMITIVE)
 		_currentcomparisonTypeSelect = MemoryCompare::KNOWN;
 
 	setUpAndIterate();
@@ -735,7 +738,7 @@ void MungPlex::Search::updateLivePreview()
 				address = MemoryCompare::MemCompare::GetResults().GetAddressAllRanges<uint32_t>(addressIndex);
 			}
 
-			switch (_currentValueTypeSelect)
+			switch (_searchValueTypesCombo.GetSelectedId())
 			{
 			case ARRAY:
 			{
@@ -872,7 +875,7 @@ void MungPlex::Search::prepareLiveUpdateValueList()
 	_updateValues.clear();
 	int updateValuesSize = 0;
 
-	switch (_currentValueTypeSelect)
+	switch (_searchValueTypesCombo.GetSelectedId())
 	{
 		case ARRAY:
 		{
@@ -968,7 +971,7 @@ void MungPlex::Search::performValuePoke()
 		stream >> _pokeAddress;
 	}
 
-	switch (_currentValueTypeSelect)
+	switch (_searchValueTypesCombo.GetSelectedId())
 	{
 	case ARRAY: {
 		switch (_currentArrayTypeSelect)
@@ -1669,7 +1672,7 @@ void MungPlex::Search::drawResultsTable()
 
 			if (col > 0)
 			{
-				switch (_currentValueTypeSelect)
+				switch (_searchValueTypesCombo.GetSelectedId())
 				{
 					case ARRAY:
 						drawArrayTableRow(col, pageIndexWithRowCount, buf, tempValue);
@@ -1700,7 +1703,7 @@ void MungPlex::Search::drawResultsTable()
 			_pokeAddressInput.SetText(tempAddress.StdStrNoLeadinZeros());
 			_pokeValueInput.SetText(tempValue.StdStrNoLeadinZeros());
 
-			if (_currentValueTypeSelect == COLOR)
+			if (_searchValueTypesCombo.GetSelectedId() == COLOR)
 				LitColorExpressionToImVec4(_pokeValueInput.GetCString(), &_pokeColorVec);
 		}
 	}
@@ -1775,7 +1778,7 @@ void MungPlex::Search::setUpAndIterate()
 {
 	uint16_t subsidiaryDatatype;
 
-	switch (_currentValueTypeSelect)
+	switch (_searchValueTypesCombo.GetSelectedId())
 	{
 	case ARRAY:
 		subsidiaryDatatype = _currentArrayTypeSelect;
@@ -1812,7 +1815,7 @@ void MungPlex::Search::setUpAndIterate()
 		if (_disableUndo)
 			setupFlags |= MemoryCompare::DISABLE_UNDO;
 
-		MemoryCompare::MemCompare::SetUp(_resultsPath, _currentValueTypeSelect, subsidiaryDatatype, ProcessInformation::GetAddressWidth(), _alignmentValueInput.GetValue(), setupFlags);
+		MemoryCompare::MemCompare::SetUp(_resultsPath, _searchValueTypesCombo.GetSelectedId(), subsidiaryDatatype, ProcessInformation::GetAddressWidth(), _alignmentValueInput.GetValue(), setupFlags);
 	}
 
 	uint32_t iterationFlags = 0;
@@ -1906,7 +1909,7 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 			_currentColorTypeSelect = _currentArrayTypeSelect = _currentTextTypeIndex = 0;
 	}
 
-	switch (_currentValueTypeSelect)
+	switch (_searchValueTypesCombo.GetSelectedId())
 	{
 	case COLOR:
 		switch (_currentColorTypeSelect)
