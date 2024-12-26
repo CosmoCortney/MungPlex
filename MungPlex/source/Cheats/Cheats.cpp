@@ -8,11 +8,12 @@
 #include <thread>
 
 static float scale = 2.0f;
-inline const MungPlex::StringIdPairs MungPlex::Cheats::_cheatTypes =
+
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Cheats::_cheatTypes =
 {
-	{ "GCN Action Replay"},
-	{ CheatConvert::GCN_AR },
-	"Cheat Format:"
+	{
+		{ "GCN Action Replay", CheatConvert::GCN_AR }
+	}
 };
 
 MungPlex::Cheats::Cheats()
@@ -695,13 +696,12 @@ void MungPlex::Cheats::DrawWindow()
 void MungPlex::Cheats::drawCheatConverter()
 {
 	const ImVec2 childXY = { ImGui::GetContentRegionAvail().x * 0.333f, ImGui::GetContentRegionAvail().y * 0.7f };
-	static int cheatTypeSelect = CheatConvert::GCN_AR;
 
 	ImGui::BeginChild("Cheat Convert", childXY, true);
 	{
 		ImGui::SeparatorText("Cheat Convert");
 
-		SetUpPairCombo(_cheatTypes, &cheatTypeSelect, 1.0f, 0.333f);
+		_cheatTypesCombo.Draw(1.0f, 0.333f);
 
 		CheatConvert::GetOldSchoolCheat().Draw(1.0f, 0.8f);
 
