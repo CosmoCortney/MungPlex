@@ -11,7 +11,7 @@ namespace MungPlex
         virtual bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f) = 0;
         const uint64_t GetCount() const;
         const uint64_t GetSelectedIndex() const;
-        void SetSelectedIndex(const uint64_t index);
+        void SetSelectedByIndex(const uint64_t index);
         const char* GetCStringAt(const uint64_t index);
         const char* GetSelectedCString() const;
         const char* const* GetCStringPointers() const;

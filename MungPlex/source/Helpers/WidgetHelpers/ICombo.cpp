@@ -10,7 +10,7 @@ const uint64_t MungPlex::ICombo::GetSelectedIndex() const
 	return _selectedIndex;
 }
 
-void MungPlex::ICombo::SetSelectedIndex(const uint64_t index)
+void MungPlex::ICombo::SetSelectedByIndex(const uint64_t index)
 {
 	isInRange(index);
 	_selectedIndex = index;

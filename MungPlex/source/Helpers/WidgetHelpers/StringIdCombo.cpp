@@ -34,6 +34,18 @@ const std::string& MungPlex::StringIdCombo::GetSelectedStdString() const
 	return _stringIdPairVec[_selectedIndex].first;
 }
 
+void MungPlex::StringIdCombo::SetSelectedById(const uint64_t id)
+{
+	for (uint64_t i = 0; i < _stringIdPairVec.size(); ++i)
+	{
+		if (_stringIdPairVec[i].second == id)
+		{
+			SetSelectedByIndex(i);
+			return;
+		}
+	}
+}
+
 uint32_t MungPlex::StringIdCombo::GetSelectedId() const
 {
 	return _stringIdPairVec[_selectedIndex].second;

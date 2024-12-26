@@ -12,6 +12,7 @@ namespace MungPlex
         bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
         const std::string& GetStdStringAt(const uint64_t index);
         const std::string& GetSelectedStdString() const;
+        void SetSelectedById(const uint64_t id);
         uint32_t GetSelectedId() const;
         void PopBack(const uint64_t count);
         void Clear();
