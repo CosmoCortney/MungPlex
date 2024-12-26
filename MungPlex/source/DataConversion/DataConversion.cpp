@@ -6,18 +6,22 @@
 #include <utility>
 #include "Xertz.hpp"
 
-inline const MungPlex::StringIdPairs MungPlex::DataConversion::_specializedColorTypes =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::DataConversion::_specializedColorTypes =
 {
-	{ "RGBF (3 Floats)", "RGBAF (4 Floats)", "RGB 565 (2 Bytes)", "RGB 5A3 (2 Bytes)" },
-	{ LitColor::RGBF,    LitColor::RGBAF,    LitColor::RGB565,    LitColor::RGB5A3 },
-	"Color Type:"
+	{
+		{"RGBF (3 Floats)", LitColor::RGBF },
+		{"RGBAF (4 Floats)", LitColor::RGBAF },
+		{"RGB 565 (2 Bytes)", LitColor::RGB565 },
+		{"RGB 5A3 (2 Bytes)", LitColor::RGB5A3 }
+	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::DataConversion::_floatTypes =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::DataConversion::_floatTypes =
 {
-	{ "Float Single",    "Float Double" },
-	{ FloatTypes::FLOAT, FloatTypes::DOUBLE },
-	"Float Type:"
+{
+		{ "Single", FLOAT },
+		{ "Double", DOUBLE }
+	}
 };
 
 inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::DataConversion::_intTypes =
@@ -232,9 +236,9 @@ void MungPlex::DataConversion::drawColorConversion()
 
 		ImGui::BeginGroup();
 		{
-			if (SetUpPairCombo(_specializedColorTypes, &selectedSpecializedColorTypeIndex, 1.0f, 0.5f))
+			if (_colorTypesCombo.Draw(1.0f, 0.5f))
 			{
-				selectedColorID = _specializedColorTypes.GetId(selectedSpecializedColorTypeIndex);
+				selectedColorID = _colorTypesCombo.GetSelectedId();
 				update = true;
 			}
 
@@ -275,16 +279,15 @@ void MungPlex::DataConversion::drawHexFloatConversion()
 
 	ImGui::BeginGroup();
 	{
-		static int selectedFloatType = FloatTypes::FLOAT;
 		static float floatVal = 1.0f;
 		static double doubleVal = 1.0;
 		static bool isDouble = false;
 		static bool update = true;
 		static bool scientific = false;
 
-		if (SetUpPairCombo(_floatTypes, &selectedFloatType, 0.7f, 0.5f))
+		if(_floatTypesCombo.Draw(0.7f, 0.5f))
 		{
-			isDouble = selectedFloatType == FloatTypes::DOUBLE;
+			isDouble = _floatTypesCombo.GetSelectedId() == DOUBLE;
 
 			if (isDouble)
 				_floatDoubleConvertInput.SetValue(_floatSingleConvertInput.GetValue());
