@@ -18,7 +18,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::DataConvers
 
 inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::DataConversion::_floatTypes =
 {
-{
+	{
 		{ "Single", FLOAT },
 		{ "Double", DOUBLE }
 	}
@@ -297,7 +297,6 @@ void MungPlex::DataConversion::drawHexFloatConversion()
 			update = true;
 		}
 
-
 		ImGui::SameLine();
 
 		ImGui::Checkbox("Scientific", &scientific);
@@ -384,26 +383,4 @@ void MungPlex::DataConversion::drawEndiannessConversion()
 		}
 	}
 	ImGui::EndGroup();
-}
-
-std::string MungPlex::DataConversion::swapBytes(const std::string& in, const int select)
-{
-	uint64_t temp = 0;
-	std::stringstream stream;
-	stream << in;
-	stream >> std::hex >> temp;
-
-	switch (select)
-	{
-	case INT16:
-		temp = Xertz::SwapBytes(static_cast<uint16_t>(temp));
-		break;
-	case INT64:
-		temp = Xertz::SwapBytes(static_cast<uint64_t>(temp));
-		break;
-	default: //INT32
-		temp = Xertz::SwapBytes(static_cast<uint32_t>(temp));
-	}
-
-	return ToHexString(temp, 4 << select, false);
 }

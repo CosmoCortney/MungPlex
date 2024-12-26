@@ -49,7 +49,6 @@ namespace MungPlex
         void drawPrimitiveConversion();
         void drawHexFloatConversion();
         void drawEndiannessConversion();
-        std::string swapBytes(const std::string& in, const int select);
         void drawColorConversion();
         void drawTextConversion();
         void convertText(std::string& in, std::string& out, const int textTypeSelect);
