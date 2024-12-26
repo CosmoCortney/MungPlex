@@ -92,7 +92,6 @@ namespace MungPlex
             return Instance;
         }
 
-        static const StringIdPairs _searchArrayTypes;
         static const StringIdPairs _searchColorTypes;
         static const StringIdPairs _searchConditionTypes;
         static const StringIdPairs _searchConditionTypesArray;
@@ -118,7 +117,8 @@ namespace MungPlex
         StringIdCombo _searchValueTypesCombo = StringIdCombo("Value Types:", true, _searchValueTypes);
         static const std::vector<std::pair<std::string, uint32_t>> _searchPrimitiveTypes;
         StringIdCombo _primitiveTypesCombo = StringIdCombo("Primitive Types:", true, _searchPrimitiveTypes);
-        int _currentArrayTypeSelect = 0;
+        static const std::vector<std::pair<std::string, uint32_t>> _searchArrayTypes;
+        StringIdCombo _arrayTypesCombo = StringIdCombo("Array Types:", true, _searchArrayTypes);
         int _currentTextTypeSelect = MT::UTF8;
         int _currentTextTypeIndex = 0;
         int _currentColorTypeSelect = 0;
@@ -428,7 +428,7 @@ namespace MungPlex
                             ProcessInformation::WriteValue<uType>(address + sizeof(uType) * i, pokeArray[i]);
                 }
 
-                Log::LogInformation((std::string("Multi-poked ") + _searchArrayTypes.GetStdStringById(_currentArrayTypeSelect) + " array values").c_str());
+                Log::LogInformation((std::string("Multi-poked ") + _arrayTypesCombo.GetSelectedStdString() + " array values").c_str());
                 return true;
             }
             
@@ -436,7 +436,7 @@ namespace MungPlex
                 if (!pokeArray.IsIgnoredIndex(i))
                     ProcessInformation::WriteValue<uType>(_pokeAddress + sizeof(uType) * i, pokeArray[i]);
 
-            Log::LogInformation((std::string("Poked ") + _searchArrayTypes.GetStdStringById(_currentArrayTypeSelect) + " array value").c_str());
+            Log::LogInformation((std::string("Poked ") + _arrayTypesCombo.GetSelectedStdString() + " array value").c_str());
             return true;
         }
 

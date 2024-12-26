@@ -32,11 +32,14 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_se
 	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::Search::_searchArrayTypes =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_searchArrayTypes =
 {
-	{ "Int 8 (1 Byte)", "Int 16 (2 Bytes)", "Int 32 (4 Bytes)", "Int 64 (8 Bytes)" },
-	{ INT8,             INT16,              INT32,              INT64 },
-	"Array Type:"
+	{
+		{ "Int 8 (1 Byte)", INT8 },
+		{ "Int 16 (2 Bytes)", INT16 },
+		{ "Int 32 (4 Bytes)", INT32 },
+		{ "Int 64 (8 Bytes)", INT64 }
+	}
 }; //remove once Arrays support floats
 
  inline const MungPlex::StringIdPairs MungPlex::Search::_searchColorTypes =
@@ -213,7 +216,7 @@ void MungPlex::Search::drawValueTypeOptions()
 				switch (_searchValueTypesCombo.GetSelectedId())
 				{
 				case ARRAY:
-					if (SetUpPairCombo(_searchArrayTypes, &_currentArrayTypeSelect, 0.5f, 0.4f)) //use primitive types here once Arrays support floats
+					if (_arrayTypesCombo.Draw(0.5f, 0.4f)) //use primitive types here once Arrays support floats
 						setRecommendedValueSettings(ARRAY);
 					break;
 				case COLOR:
@@ -259,7 +262,7 @@ void MungPlex::Search::setFormatting()
 	if (_searchValueTypesCombo.GetSelectedId() == PRIMITIVE)
 		_formatting = GetStringFormatting(_primitiveTypesCombo.GetSelectedId(), _signed, _hex);
 	else if (_searchValueTypesCombo.GetSelectedId() == ARRAY)
-		_formatting = GetStringFormatting(_currentArrayTypeSelect, _signed, _hex);
+		_formatting = GetStringFormatting(_arrayTypesCombo.GetSelectedId(), _signed, _hex);
 }
 
 void MungPlex::Search::drawRangeOptions()
@@ -749,7 +752,7 @@ void MungPlex::Search::updateLivePreview()
 			case ARRAY:
 			{
 				for (int i = 0; i < _arrayItemCount; ++i)
-					switch (_currentArrayTypeSelect)
+					switch (_arrayTypesCombo.GetSelectedId())
 					{
 					case INT8:
 						*(updateArrayPtr + row * _arrayItemCount + i) = ProcessInformation::ReadValue<uint8_t>(address + i);
@@ -887,7 +890,7 @@ void MungPlex::Search::prepareLiveUpdateValueList()
 		{
 			_arrayItemCount = std::ranges::count(_knownValueInput.GetStdStringNoZeros(), ',') + 1;
 
-			switch (_currentArrayTypeSelect)
+			switch (_arrayTypesCombo.GetSelectedId())
 			{
 			case INT8:
 				updateValuesSize = _arrayItemCount;
@@ -980,7 +983,7 @@ void MungPlex::Search::performValuePoke()
 	switch (_searchValueTypesCombo.GetSelectedId())
 	{
 	case ARRAY: {
-		switch (_currentArrayTypeSelect)
+		switch (_arrayTypesCombo.GetSelectedId())
 		{
 		case INT8: {
 			if (ProcessInformation::GetAddressWidth() > 4)
@@ -1249,7 +1252,7 @@ void MungPlex::Search::drawArrayTableRow(const int col, const uint64_t pageIndex
 	static uint32_t itemCount;
 	itemCount = MemoryCompare::MemCompare::GetResults().GetValueWidth();
 
-	switch (_currentArrayTypeSelect)
+	switch (_arrayTypesCombo.GetSelectedId())
 	{
 		case INT16:
 			itemCount >>= 1;
@@ -1264,7 +1267,7 @@ void MungPlex::Search::drawArrayTableRow(const int col, const uint64_t pageIndex
 
 	//uint64_t resultIndexWithItemCount = resultsIndex * itemCount;
 
-	switch (_currentArrayTypeSelect)
+	switch (_arrayTypesCombo.GetSelectedId())
 	{
 		case INT8:
 			drawArrayValues<uint8_t>(col, itemCount, pageIndexWithRowCount, buf, tempValue, _formatting.c_str());
@@ -1607,7 +1610,7 @@ void MungPlex::Search::primitiveTypeSearchLog()
 
 void MungPlex::Search::arrayTypeSearchLog()
 {
-	Log::LogInformation("Array<" + _searchArrayTypes.GetStdString(_currentArrayTypeSelect) + ">: " + _knownValueInput.GetStdStringNoZeros(), true, 4);
+	Log::LogInformation("Array<" + _arrayTypesCombo.GetSelectedStdString() + ">: " + _knownValueInput.GetStdStringNoZeros(), true, 4);
 }
 
 void MungPlex::Search::textTypeSearchLog()
@@ -1787,7 +1790,7 @@ void MungPlex::Search::setUpAndIterate()
 	switch (_searchValueTypesCombo.GetSelectedId())
 	{
 	case ARRAY:
-		subsidiaryDatatype = _currentArrayTypeSelect;
+		subsidiaryDatatype = _arrayTypesCombo.GetSelectedId();
 		break;
 	case COLOR:
 		subsidiaryDatatype = _currentColorTypeSelect;
@@ -1907,15 +1910,18 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 			_primitiveTypesCombo.SetSelectedByIndex(0);
 		break;	
 		case COLOR:
-			_currentArrayTypeSelect = _currentTextTypeIndex = 0;
+			_currentTextTypeIndex = 0;
 			_primitiveTypesCombo.SetSelectedByIndex(0);
+			_arrayTypesCombo.SetSelectedByIndex(0);
 			break;
 		case TEXT:
-			_currentColorTypeSelect =  _currentArrayTypeSelect = 0;
+			_currentColorTypeSelect = 0;
 			_primitiveTypesCombo.SetSelectedByIndex(0);
+			_arrayTypesCombo.SetSelectedByIndex(0);
 		break;
 		default: //PRIMITIVE
-			_currentColorTypeSelect = _currentArrayTypeSelect = _currentTextTypeIndex = 0;
+			_currentColorTypeSelect = _currentTextTypeIndex = 0;
+			_arrayTypesCombo.SetSelectedByIndex(0);
 	}
 
 	switch (_searchValueTypesCombo.GetSelectedId())
@@ -1937,7 +1943,7 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 		_alignmentValueInput.SetValue(1);
 	break;
 	default:// PRIMITIVE, ARRAY
-		switch (_currentArrayTypeSelect | _primitiveTypesCombo.GetSelectedId())
+		switch (_arrayTypesCombo.GetSelectedId() | _primitiveTypesCombo.GetSelectedId())
 		{
 			case INT8:
 				_alignmentValueInput.SetValue(1);
