@@ -120,6 +120,7 @@ target_include_directories(MungPlex PRIVATE
     "MungPlex/source/DataConversion"
     "MungPlex/source/DeviceControl/lovense-win-sdk-${LOVENSE_SDK_VERSION}/WinSDK_Release/includes"
     "MungPlex/source/Helpers"
+    "MungPlex/source/Helpers/WidgetHelpers"
     "MungPlex/source/MemoryViewer"
     "MungPlex/source/PointerSearch"
     "MungPlex/source/ProcessInformation"

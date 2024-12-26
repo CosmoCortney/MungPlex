@@ -4,8 +4,8 @@
 #include "InputFloat.hpp"
 #include "InputInt.hpp"
 #include "InputText.hpp"
-#include <utility>
-#include <vector>
+#include "StringIdCombo.hpp"
+
 
 namespace MungPlex
 {
@@ -43,30 +43,5 @@ namespace MungPlex
 		else
 			ImGui::PushItemWidth(absoluteWidth);
 	}
-
-	class StringIdPairCombo
-	{
-	public:
-		StringIdPairCombo(const std::vector<std::pair<std::string, int>>& pairs);
-		StringIdPairCombo operator=(const StringIdPairCombo& other);
-
-		bool Draw(const std::string& label, int* currentSelect, const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true, const char* helpText = nullptr) const;
-		const char* GetCString(const uint32_t index) const;
-		const char* const* GetData() const;
-		const std::string& GetStdString(const uint32_t index) const;
-		int GetId(const uint32_t index) const;
-		uint32_t GetIndexById(const int id) const;
-		uint32_t GetCount() const;
-
-	private:
-		std::vector<std::pair<std::string, int>> _pairs;
-		std::vector<const char*> _stringsPointers;
-	};
-
-	
-
-	
-
-	
 }
 

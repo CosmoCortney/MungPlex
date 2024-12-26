@@ -20,11 +20,13 @@ inline const MungPlex::StringIdPairs MungPlex::DataConversion::_floatTypes =
 	"Float Type:"
 };
 
-inline const MungPlex::StringIdPairs MungPlex::DataConversion::_intTypes =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::DataConversion::_intTypes =
 {
-	{ "Int 16",        "Int 32",        "Int 64" },
-	{ IntTypes::INT16, IntTypes::INT32, IntTypes::INT64},
-	"Integer Type:"
+	{
+		{ "Int 16", INT16 },
+		{ "Int 32", INT32 },
+		{ "Int 64", INT64 }
+	}
 };
 
 MungPlex::DataConversion::DataConversion()
@@ -346,10 +348,9 @@ void MungPlex::DataConversion::drawEndiannessConversion()
 
 	ImGui::BeginGroup();
 	{
-		static int intSelect = IntTypes::INT16;
-		SetUpPairCombo(_intTypes, &intSelect, 1.0f, 0.35f);
+		_intTypesCombo.Draw(1.0f, 0.35f);
 
-		switch (intSelect)
+		switch (_intTypesCombo.GetSelectedId())
 		{
 		case INT16:
 			if (_littleEndianInput16.Draw(1.0f, 0.35f, true))
@@ -364,7 +365,7 @@ void MungPlex::DataConversion::drawEndiannessConversion()
 				_bigEndianInput32.SetValue(std::byteswap(_littleEndianInput32.GetValue()));
 		}
 
-		switch (intSelect)
+		switch (_intTypesCombo.GetSelectedId())
 		{
 		case INT16:
 			if (_bigEndianInput16.Draw(1.0f, 0.35f, true))
@@ -391,10 +392,10 @@ std::string MungPlex::DataConversion::swapBytes(const std::string& in, const int
 
 	switch (select)
 	{
-	case IntTypes::INT16:
+	case INT16:
 		temp = Xertz::SwapBytes(static_cast<uint16_t>(temp));
 		break;
-	case IntTypes::INT64:
+	case INT64:
 		temp = Xertz::SwapBytes(static_cast<uint64_t>(temp));
 		break;
 	default: //INT32
