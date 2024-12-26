@@ -20,11 +20,16 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_en
 	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::Search::_searchPrimitiveTypes =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_searchPrimitiveTypes =
 {
-	{ "Int 8 (1 Byte)", "Int 16 (2 Bytes)", "Int 32 (4 Bytes)", "Int 64 (8 Bytes)", "Float Single", "Float Double" },
-	{ INT8,             INT16,              INT32,              INT64,              FLOAT,           DOUBLE },
-	"Primitive Type:"
+	{
+		{ "Int 8 (1 Byte)", INT8 },
+		{ "Int 16 (2 Bytes)", INT16 },
+		{ "Int 32 (4 Bytes)", INT32 },
+		{ "Int 64 (8 Bytes)", INT64 },
+		{ "Float Single", FLOAT },
+		{ "Float Double", DOUBLE }
+	}
 };
 
 inline const MungPlex::StringIdPairs MungPlex::Search::_searchArrayTypes =
@@ -233,13 +238,13 @@ void MungPlex::Search::drawValueTypeOptions()
 					} 
 					break;
 				default: //PRIMITIVE
-					if (SetUpPairCombo(_searchPrimitiveTypes, &_currentPrimitiveTypeSelect, 0.5f, 0.4f))
+					if (_primitiveTypesCombo.Draw(0.5f, 0.4f))
 						setRecommendedValueSettings(PRIMITIVE);
 				}
 
 				ImGui::SameLine();
 
-				if (_currentPrimitiveTypeSelect < FLOAT && _searchValueTypesCombo.GetSelectedId() == PRIMITIVE)
+				if (_primitiveTypesCombo.GetSelectedId() < FLOAT && _searchValueTypesCombo.GetSelectedId() == PRIMITIVE)
 					ImGui::Checkbox("Signed", &_signed);
 			}
 			ImGui::EndGroup();
@@ -252,7 +257,7 @@ void MungPlex::Search::drawValueTypeOptions()
 void MungPlex::Search::setFormatting()
 {
 	if (_searchValueTypesCombo.GetSelectedId() == PRIMITIVE)
-		_formatting = GetStringFormatting(_currentPrimitiveTypeSelect, _signed, _hex);
+		_formatting = GetStringFormatting(_primitiveTypesCombo.GetSelectedId(), _signed, _hex);
 	else if (_searchValueTypesCombo.GetSelectedId() == ARRAY)
 		_formatting = GetStringFormatting(_currentArrayTypeSelect, _signed, _hex);
 }
@@ -372,7 +377,7 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 
 	static const StringIdPairs* conditionTypeItems;
 
-	if (_currentPrimitiveTypeSelect < FLOAT)
+	if (_primitiveTypesCombo.GetSelectedId() < FLOAT)
 		conditionTypeItems = &_searchConditionTypes;
 	else
 		conditionTypeItems = &_searchConditionTypesFloat;
@@ -386,7 +391,7 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 	if (_currentConditionTypeSelect >= MemoryCompare::BETWEEN && _currentConditionTypeSelect <= MemoryCompare::NOT_BETWEEN)
 		_secondaryKnownValueInput.Draw(1.0f, 0.4f);
 
-	if (_currentPrimitiveTypeSelect >= FLOAT)
+	if (_primitiveTypesCombo.GetSelectedId() >= FLOAT)
 		SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 1.0f, 0.4f);
 }
 
@@ -808,7 +813,7 @@ void MungPlex::Search::updateLivePreview()
 			}break;
 			default: //PRIMITIVE
 			{
-				switch (_currentPrimitiveTypeSelect)
+				switch (_primitiveTypesCombo.GetSelectedId())
 				{
 				case INT8:
 					*(updateArrayPtr + row) = ProcessInformation::ReadValue<uint8_t>(address);
@@ -929,7 +934,7 @@ void MungPlex::Search::prepareLiveUpdateValueList()
 		} break;
 		default: //PRIMITIVE
 		{
-			switch (_currentPrimitiveTypeSelect)
+			switch (_primitiveTypesCombo.GetSelectedId())
 			{
 			case INT8:
 				updateValuesSize = 1;
@@ -1031,7 +1036,7 @@ void MungPlex::Search::performValuePoke()
 		int64_t tempVal;
 		std::stringstream streamV;
 
-		if (_hex && _currentPrimitiveTypeSelect < FLOAT)
+		if (_hex && _primitiveTypesCombo.GetSelectedId() < FLOAT)
 		{
 			streamV << std::hex << _pokeValueInput.GetStdStringNoZeros();
 			streamV >> tempVal;
@@ -1039,7 +1044,7 @@ void MungPlex::Search::performValuePoke()
 		else
 			tempVal = std::stoll(_pokeValueInput.GetStdStringNoZeros());
 
-		switch (_currentPrimitiveTypeSelect)
+		switch (_primitiveTypesCombo.GetSelectedId())
 		{
 		case INT8:
 			_pokeValue.insert(_pokeValue.end(), reinterpret_cast<char*>(&tempVal), reinterpret_cast<char*>(&tempVal) + 1);
@@ -1107,13 +1112,13 @@ bool MungPlex::Search::isSelectionOrIndexOurOfBounds(const uint64_t row, const u
 
 void MungPlex::Search::drawPrimitiveTableRow(const int col, const uint64_t row, const uint64_t pageIndexWithRowCount, FloorString& buf, FloorString& tempValue)
 {
-	if (_currentPrimitiveTypeSelect < FLOAT)
+	if (_primitiveTypesCombo.GetSelectedId() < FLOAT)
 	{
 		static int64_t currentValue;
 		static int64_t previousValue;
 		static int64_t liveValue;
 
-		switch (_currentPrimitiveTypeSelect)
+		switch (_primitiveTypesCombo.GetSelectedId())
 		{
 		case INT8:
 		{
@@ -1202,7 +1207,7 @@ void MungPlex::Search::drawPrimitiveTableRow(const int col, const uint64_t row, 
 		static double previousValue;
 		static double liveValue;
 
-		switch (_currentPrimitiveTypeSelect)
+		switch (_primitiveTypesCombo.GetSelectedId())
 		{
 		case DOUBLE:
 		{
@@ -1561,7 +1566,7 @@ void MungPlex::Search::primitiveTypeSearchLog()
 {
 	Log::LogInformation("Primitive: ", true, 4);
 
-	if (_currentPrimitiveTypeSelect < FLOAT)
+	if (_primitiveTypesCombo.GetSelectedId() < FLOAT)
 	{
 		if (_signed)
 			Log::LogInformation("signed", true);
@@ -1569,7 +1574,7 @@ void MungPlex::Search::primitiveTypeSearchLog()
 			Log::LogInformation("unsigned", true);
 	}
 
-	switch (_currentPrimitiveTypeSelect)
+	switch (_primitiveTypesCombo.GetSelectedId())
 	{
 	case INT8:
 		Log::LogInformation("int 8.", true);
@@ -1791,7 +1796,7 @@ void MungPlex::Search::setUpAndIterate()
 		subsidiaryDatatype = _currentTextTypeSelect;
 		break;
 	default: //PRIMITIVE
-		subsidiaryDatatype = _currentPrimitiveTypeSelect;
+		subsidiaryDatatype = _primitiveTypesCombo.GetSelectedId();
 	}
 
 	std::string tempprimary = _knownValueInput.GetStdStringNoZeros();
@@ -1898,13 +1903,16 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 	switch (valueType)
 	{
 		case ARRAY:
-			_currentColorTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeIndex = 0;
+			_currentColorTypeSelect = _currentTextTypeIndex = 0;
+			_primitiveTypesCombo.SetSelectedByIndex(0);
 		break;	
 		case COLOR:
-			_currentArrayTypeSelect = _currentPrimitiveTypeSelect = _currentTextTypeIndex = 0;
+			_currentArrayTypeSelect = _currentTextTypeIndex = 0;
+			_primitiveTypesCombo.SetSelectedByIndex(0);
 			break;
 		case TEXT:
-			_currentColorTypeSelect = _currentPrimitiveTypeSelect = _currentArrayTypeSelect = 0;
+			_currentColorTypeSelect =  _currentArrayTypeSelect = 0;
+			_primitiveTypesCombo.SetSelectedByIndex(0);
 		break;
 		default: //PRIMITIVE
 			_currentColorTypeSelect = _currentArrayTypeSelect = _currentTextTypeIndex = 0;
@@ -1929,7 +1937,7 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 		_alignmentValueInput.SetValue(1);
 	break;
 	default:// PRIMITIVE, ARRAY
-		switch (_currentArrayTypeSelect | _currentPrimitiveTypeSelect)
+		switch (_currentArrayTypeSelect | _primitiveTypesCombo.GetSelectedId())
 		{
 			case INT8:
 				_alignmentValueInput.SetValue(1);

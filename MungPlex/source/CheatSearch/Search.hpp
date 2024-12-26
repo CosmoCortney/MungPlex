@@ -92,9 +92,6 @@ namespace MungPlex
             return Instance;
         }
 
-        static const std::vector<std::pair<std::string, uint32_t>> _searchValueTypes;
-        static const std::vector<std::pair<std::string, uint32_t>> _endiannesses;
-        static const StringIdPairs _searchPrimitiveTypes;
         static const StringIdPairs _searchArrayTypes;
         static const StringIdPairs _searchColorTypes;
         static const StringIdPairs _searchConditionTypes;
@@ -117,8 +114,10 @@ namespace MungPlex
         bool _diableBecauseUnknownAndNotRangebased = false;
         bool _disableBecauseNoText = false;
         bool _caseSensitive = true;
+        static const std::vector<std::pair<std::string, uint32_t>> _searchValueTypes;
         StringIdCombo _searchValueTypesCombo = StringIdCombo("Value Types:", true, _searchValueTypes);
-        int _currentPrimitiveTypeSelect = 0;
+        static const std::vector<std::pair<std::string, uint32_t>> _searchPrimitiveTypes;
+        StringIdCombo _primitiveTypesCombo = StringIdCombo("Primitive Types:", true, _searchPrimitiveTypes);
         int _currentArrayTypeSelect = 0;
         int _currentTextTypeSelect = MT::UTF8;
         int _currentTextTypeIndex = 0;
@@ -146,6 +145,7 @@ namespace MungPlex
         int _currentRegionSelect = 0;
         bool _crossRegion = false;
         bool _rereorderRegion = false;
+        static const std::vector<std::pair<std::string, uint32_t>> _endiannesses;
         StringIdCombo _endiannessCombo = StringIdCombo("Endianness:", true, _endiannesses);
         InputInt<uint64_t> _rangeStartInput = InputInt<uint64_t>("Start at:", true, 0, 0, 0);
         InputInt<uint64_t> _rangeEndInput = InputInt<uint64_t>("End at:", true, 0, 0, 0);
@@ -466,12 +466,12 @@ namespace MungPlex
                     ProcessInformation::WriteValue<dataType>(address, *reinterpret_cast<dataType*>(pokeValuePtr));
                 }
 
-                Log::LogInformation((std::string("Multi-poked ") + _searchPrimitiveTypes.GetStdStringById(_currentPrimitiveTypeSelect) + " values").c_str());
+                Log::LogInformation((std::string("Multi-poked ") + _primitiveTypesCombo.GetSelectedStdString() + " values").c_str());
                 return true;
             }
 
             ProcessInformation::WriteValue<dataType>(_pokeAddress, *reinterpret_cast<dataType*>(_pokeValue.data()));
-            Log::LogInformation((std::string("Poked ") + _searchPrimitiveTypes.GetStdStringById(_currentPrimitiveTypeSelect) + " value").c_str());
+            Log::LogInformation((std::string("Poked ") + _primitiveTypesCombo.GetSelectedStdString() + " value").c_str());
             return true;
         }
 
