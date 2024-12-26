@@ -12,11 +12,12 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_se
 	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::Search::_endiannesses =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_endiannesses =
 {
-	{ "Little", "Big" },
-	{  LITTLE,  BIG },
-	"Endianness:"
+	{
+		{ "Little", LITTLE },
+		{ "Big", BIG }
+	}
 };
 
 inline const MungPlex::StringIdPairs MungPlex::Search::_searchPrimitiveTypes =
@@ -271,7 +272,7 @@ void MungPlex::Search::drawRangeOptions()
 
 			ImGui::SameLine();
 
-			SetUpPairCombo(_endiannesses, &_endiannessSelect, 1.0f, 0.4f);
+			_endiannessCombo.Draw(1.0f, 0.4f);
 
 			_rangeStartInput.Draw(0.5f, 0.4f, true);
 
@@ -1806,7 +1807,7 @@ void MungPlex::Search::setUpAndIterate()
 		if (_caseSensitive)
 			setupFlags |= MemoryCompare::CASE_SENSITIVE;
 
-		if (_endiannessSelect)
+		if (_endiannessCombo.GetSelectedId())
 			setupFlags |= MemoryCompare::BIG_ENDIAN;
 
 		if (_cached)
@@ -1859,7 +1860,7 @@ void MungPlex::Search::setUpAndIterate()
 
 void MungPlex::Search::SetUnderlyingBigEndianFlag(const bool isBigEndian)
 {
-	GetInstance()._endiannessSelect = isBigEndian;
+	GetInstance()._endiannessCombo.SetSelectedById(isBigEndian ? BIG : LITTLE);
 }
 
 void MungPlex::Search::SetRereorderRegion(const bool rereorder)

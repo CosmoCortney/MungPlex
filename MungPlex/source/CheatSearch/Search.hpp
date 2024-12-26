@@ -93,7 +93,7 @@ namespace MungPlex
         }
 
         static const std::vector<std::pair<std::string, uint32_t>> _searchValueTypes;
-        static const StringIdPairs _endiannesses;
+        static const std::vector<std::pair<std::string, uint32_t>> _endiannesses;
         static const StringIdPairs _searchPrimitiveTypes;
         static const StringIdPairs _searchArrayTypes;
         static const StringIdPairs _searchColorTypes;
@@ -146,7 +146,7 @@ namespace MungPlex
         int _currentRegionSelect = 0;
         bool _crossRegion = false;
         bool _rereorderRegion = false;
-        int _endiannessSelect = 0;
+        StringIdCombo _endiannessCombo = StringIdCombo("Endianness:", true, _endiannesses);
         InputInt<uint64_t> _rangeStartInput = InputInt<uint64_t>("Start at:", true, 0, 0, 0);
         InputInt<uint64_t> _rangeEndInput = InputInt<uint64_t>("End at:", true, 0, 0, 0);
 
@@ -400,7 +400,7 @@ namespace MungPlex
             if (_multiPoke)
             {
                 int regionIndex = -1;
-                bool swapBytes = _endiannessSelect;
+                bool swapBytes = _endiannessCombo.GetSelectedId() == BIG;
                 const uint64_t resultIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue();
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
@@ -447,7 +447,7 @@ namespace MungPlex
 
             if (_multiPoke)
             {
-                bool swapBytes = _endiannessSelect;
+                bool swapBytes = _endiannessCombo.GetSelectedId() == BIG;
                 const uint64_t resultIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue();
 
                 for (int index = 0; index < _selectedIndices.size(); ++index)
