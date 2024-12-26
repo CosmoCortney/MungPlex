@@ -63,8 +63,10 @@ add_executable (MungPlex
     source/Helpers/ResourcesHelpers.hpp
     source/Helpers/Pairs.cpp
     source/Helpers/Pairs.hpp
-    source/Helpers/WidgetHelpers.cpp
-    source/Helpers/WidgetHelpers.hpp
+    source/Helpers/WidgetHelpers/ICombo.cpp
+    source/Helpers/WidgetHelpers/ICombo.hpp
+    source/Helpers/WidgetHelpers/StringIdCombo.cpp
+    source/Helpers/WidgetHelpers/StringIdCombo.hpp
     Log.hpp
     Log.cpp
     main.cpp
