@@ -42,11 +42,16 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_se
 	}
 }; //remove once Arrays support floats
 
- inline const MungPlex::StringIdPairs MungPlex::Search::_searchColorTypes =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_searchColorTypes =
 {
-	{ "RGB 888 (3 Bytes)", "RGBA 8888 (4 Bytes)", "RGBF (3 Floats)", "RGBAF (4 Floats)", "RGB 565 (2 Bytes)", "RGB 5A3 (2 Bytes)" },
-	{ LitColor::RGB888,    LitColor::RGBA8888,    LitColor::RGBF,    LitColor::RGBAF,    LitColor::RGB565,    LitColor::RGB5A3 },
-	"Color Type:"
+	{
+		{ "RGB 888 (3 Bytes)", LitColor::RGB888 },
+		{ "RGBA 8888 (4 Bytes)", LitColor::RGBA8888 },
+		{ "RGBF (3 Floats)", LitColor::RGBF },
+		{ "RGBAF (4 Floats)", LitColor::RGBAF },
+		{ "RGB 565 (2 Bytes)", LitColor::RGB565 },
+		{ "RGB 5A3 (2 Bytes)",  LitColor::RGB5A3 }
+	}
 };
 
 inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypes =
@@ -221,17 +226,17 @@ void MungPlex::Search::drawValueTypeOptions()
 					break;
 				case COLOR:
 				{
-					if (SetUpPairCombo(_searchColorTypes, &_currentColorTypeSelect, 0.5f, 0.4f))
+					if (_colorTypesCombo.Draw(0.5f, 0.4f))
 						setRecommendedValueSettings(COLOR);
 
-					if (_currentColorTypeSelect != LitColor::RGB5A3)
+					if (_colorTypesCombo.GetSelectedId() != LitColor::RGB5A3)
 						_forceAlpha = false;
 
 					ImGui::SameLine();
 
-					if (_currentColorTypeSelect != LitColor::RGB5A3) ImGui::BeginDisabled();
+					if (_colorTypesCombo.GetSelectedId() != LitColor::RGB5A3) ImGui::BeginDisabled();
 					ImGui::Checkbox("Force Alpha", &_forceAlpha);
-					if (_currentColorTypeSelect != LitColor::RGB5A3) ImGui::EndDisabled();
+					if (_colorTypesCombo.GetSelectedId() != LitColor::RGB5A3) ImGui::EndDisabled();
 				}break;
 				case TEXT:
 					if (SetUpPairCombo(TextTypes, &_currentTextTypeIndex, 0.5f, 0.4f))
@@ -438,17 +443,19 @@ void MungPlex::Search::drawColorSearchOptions()
 
 void MungPlex::Search::drawColorSelectOptions()
 {
+	static bool colorPicked = false;
+
 	ImGui::SameLine();
 
 	ImGui::BeginChild("child_colorSelect");
 	ImGui::BeginGroup();
-	DrawExtraColorPickerOptions(&_useColorWheel, &_searchColorVec);
+	colorPicked = DrawExtraColorPickerOptions(&_useColorWheel, &_searchColorVec);
 	ImGui::EndGroup();
 
 	ImGui::BeginGroup();
 	{
-		if (DrawColorPicker(_currentColorTypeSelect, _forceAlpha, &_searchColorVec, _useColorWheel, 0.75f))
-			ColorValuesToCString(_searchColorVec, _currentColorTypeSelect, _knownValueInput.GetData(), _forceAlpha);
+		if (DrawColorPicker(_colorTypesCombo.GetSelectedId(), _forceAlpha, &_searchColorVec, _useColorWheel, 0.75f) || colorPicked)
+			ColorValuesToCString(_searchColorVec, _colorTypesCombo.GetSelectedId(), _knownValueInput.GetData(), _forceAlpha);
 	}
 	ImGui::EndGroup();
 	ImGui::EndChild();
@@ -645,8 +652,8 @@ void MungPlex::Search::drawResultsArea()
 				if (_searchValueTypesCombo.GetSelectedId() == COLOR)
 				{
 					DrawExtraColorPickerOptions(&_useColorWheel, &_pokeColorVec);
-					if(DrawColorPicker(_currentColorTypeSelect, _forceAlpha, &_pokeColorVec, _useColorWheel, 0.8f))
-						ColorValuesToCString(_pokeColorVec, _currentColorTypeSelect, _pokeValueInput.GetData(), _forceAlpha);
+					if(DrawColorPicker(_colorTypesCombo.GetSelectedId(), _forceAlpha, &_pokeColorVec, _useColorWheel, 0.8f))
+						ColorValuesToCString(_pokeColorVec, _colorTypesCombo.GetSelectedId(), _pokeValueInput.GetData(), _forceAlpha);
 				}
 			}
 			if (MemoryCompare::MemCompare::GetResultCount() == 0) ImGui::EndDisabled();
@@ -778,7 +785,7 @@ void MungPlex::Search::updateLivePreview()
 			{
 				static int updateValuesSize = 0;
 
-				switch (_currentColorTypeSelect)
+				switch (_colorTypesCombo.GetSelectedId())
 				{
 				case LitColor::RGBF:
 				{
@@ -907,7 +914,7 @@ void MungPlex::Search::prepareLiveUpdateValueList()
 		} break;
 		case COLOR:
 		{
-			switch (_currentColorTypeSelect)
+			switch (_colorTypesCombo.GetSelectedId())
 			{
 			case LitColor::RGBF:
 				updateValuesSize = 12;
@@ -1295,7 +1302,7 @@ void MungPlex::Search::drawColorTableRow(const int col, const uint64_t row, cons
 	static ImU32 rectColor;
 	static ImVec4 vecCol;
 
-	switch (_currentColorTypeSelect)
+	switch (_colorTypesCombo.GetSelectedId())
 	{
 	case LitColor::RGB565:
 	{
@@ -1357,8 +1364,8 @@ void MungPlex::Search::drawColorTableRow(const int col, const uint64_t row, cons
 	break;
 	case LitColor::RGBF: case LitColor::RGBAF:
 	{
-		static bool usesAlpha = _currentColorTypeSelect == LitColor::RGBAF;
-		static int colorValueCount = _currentColorTypeSelect == LitColor::RGBAF ? 4 : 3;
+		static bool usesAlpha = _colorTypesCombo.GetSelectedId() == LitColor::RGBAF;
+		static int colorValueCount = _colorTypesCombo.GetSelectedId() == LitColor::RGBAF ? 4 : 3;
 		static float* colorPtr;
 
 		if (col == 1)
@@ -1398,7 +1405,7 @@ void MungPlex::Search::drawColorTableRow(const int col, const uint64_t row, cons
 		if (col == 1)
 		{
 			rectColor = MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint32_t>(pageIndexWithRowCount);
-			if (_currentColorTypeSelect == LitColor::RGB888)
+			if (_colorTypesCombo.GetSelectedId() == LitColor::RGB888)
 				rectColor |= 0xFF;
 
 			if (!_pokePrevious)
@@ -1408,7 +1415,7 @@ void MungPlex::Search::drawColorTableRow(const int col, const uint64_t row, cons
 		{
 			rectColor = _iterationCount < 2 ? 0 : MemoryCompare::MemCompare::GetResults().GetValueAllRanges<uint32_t>(pageIndexWithRowCount);
 
-			if (_currentColorTypeSelect == LitColor::RGB888)
+			if (_colorTypesCombo.GetSelectedId() == LitColor::RGB888)
 				rectColor |= 0xFF;
 
 			if (_pokePrevious)
@@ -1418,7 +1425,7 @@ void MungPlex::Search::drawColorTableRow(const int col, const uint64_t row, cons
 		{
 			rectColor = *reinterpret_cast<uint32_t*>(_updateValues.data() + row * sizeof(uint32_t));
 
-			if (_currentColorTypeSelect == LitColor::RGB888)
+			if (_colorTypesCombo.GetSelectedId() == LitColor::RGB888)
 				rectColor |= 0xFF;
 		}
 		else
@@ -1426,7 +1433,7 @@ void MungPlex::Search::drawColorTableRow(const int col, const uint64_t row, cons
 	}
 	}
 
-	ColorValuesToCString(vecCol, _currentColorTypeSelect, buf.Data(), _forceAlpha);
+	ColorValuesToCString(vecCol, _colorTypesCombo.GetSelectedId(), buf.Data(), _forceAlpha);
 	tempValue = buf;
 	buf = "";
 	ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -1620,7 +1627,7 @@ void MungPlex::Search::textTypeSearchLog()
 
 void MungPlex::Search::colorTypeSearchLog()
 {
-	Log::LogInformation("Text<" + _searchColorTypes.GetStdString(_currentColorTypeSelect) + ">: " + _knownValueInput.GetStdStringNoZeros(), true, 4);
+	Log::LogInformation("Text<" + _colorTypesCombo.GetSelectedStdString() + ">: " + _knownValueInput.GetStdStringNoZeros(), true, 4);
 }
 
 void MungPlex::Search::drawResultsTable()
@@ -1793,7 +1800,7 @@ void MungPlex::Search::setUpAndIterate()
 		subsidiaryDatatype = _arrayTypesCombo.GetSelectedId();
 		break;
 	case COLOR:
-		subsidiaryDatatype = _currentColorTypeSelect;
+		subsidiaryDatatype = _colorTypesCombo.GetSelectedId();
 		break;
 	case TEXT:
 		subsidiaryDatatype = _currentTextTypeSelect;
@@ -1906,7 +1913,8 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 	switch (valueType)
 	{
 		case ARRAY:
-			_currentColorTypeSelect = _currentTextTypeIndex = 0;
+			_colorTypesCombo.SetSelectedByIndex(0);
+			_currentTextTypeIndex = 0;
 			_primitiveTypesCombo.SetSelectedByIndex(0);
 		break;	
 		case COLOR:
@@ -1915,19 +1923,20 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 			_arrayTypesCombo.SetSelectedByIndex(0);
 			break;
 		case TEXT:
-			_currentColorTypeSelect = 0;
+			_colorTypesCombo.SetSelectedByIndex(0);
 			_primitiveTypesCombo.SetSelectedByIndex(0);
 			_arrayTypesCombo.SetSelectedByIndex(0);
 		break;
 		default: //PRIMITIVE
-			_currentColorTypeSelect = _currentTextTypeIndex = 0;
+			_colorTypesCombo.SetSelectedByIndex(0); 
+			_currentTextTypeIndex = 0;
 			_arrayTypesCombo.SetSelectedByIndex(0);
 	}
 
 	switch (_searchValueTypesCombo.GetSelectedId())
 	{
 	case COLOR:
-		switch (_currentColorTypeSelect)
+		switch (_colorTypesCombo.GetSelectedId())
 		{
 			case LitColor::RGB565: case LitColor::RGB5A3:
 				_alignmentValueInput.SetValue(2);

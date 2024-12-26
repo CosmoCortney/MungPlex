@@ -741,12 +741,12 @@ namespace MungPlex
         return changed;
     }
 
-    static void DrawExtraColorPickerOptions(bool* useColorWheel, ImVec4* colorVec)
+    static bool DrawExtraColorPickerOptions(bool* useColorWheel, ImVec4* colorVec)
     {
         ImGui::Checkbox("Color Wheel", useColorWheel);
 
         if (colorVec == nullptr)
-            return;
+            return false;
 
         ImGui::SameLine();
 
@@ -755,7 +755,10 @@ namespace MungPlex
             //HWND windowHandle = GetForegroundWindow(); todo: make this work ): 
             *colorVec = PickColorFromScreen();
             //MungPlex::SetWindowToForeground(windowHandle);
+            return true;
         }
+
+        return false;
     }
 
     static void LitColorExpressionToImVec4(const std::string str, ImVec4* colorVec)
