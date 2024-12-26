@@ -92,16 +92,10 @@ namespace MungPlex
             return Instance;
         }
 
-        static const StringIdPairs _searchConditionTypes;
-        static const StringIdPairs _searchConditionTypesArray;
-        static const StringIdPairs _searchConditionTypesFloat;
-        static const StringIdPairs _searchConditionTypesColor;
-        static const StringIdPairs _searchConditionTypesText;
         static const StringIdPairs _searchComparasionType;
 
-        //search settings
+        //value options
         int _currentcomparisonTypeSelect = 0;
-        int _currentConditionTypeSelect = 0;
         InputInt<uint32_t> _alignmentValueInput = InputInt<uint32_t>("Alignment:", true, 4, 1, 1);
         int _lastRangeSelect = -1;
         bool _signed = false;
@@ -112,16 +106,15 @@ namespace MungPlex
         bool _diableBecauseUnknownAndNotRangebased = false;
         bool _disableBecauseNoText = false;
         bool _caseSensitive = true;
-        static const std::vector<std::pair<std::string, uint32_t>> _searchValueTypes;
+        static const StringIdCombo::Type _searchValueTypes;
         StringIdCombo _searchValueTypesCombo = StringIdCombo("Value Type:", true, _searchValueTypes);
-        static const std::vector<std::pair<std::string, uint32_t>> _searchPrimitiveTypes;
+        static const StringIdCombo::Type _searchPrimitiveTypes;
         StringIdCombo _primitiveTypesCombo = StringIdCombo("Primitive Type:", true, _searchPrimitiveTypes);
-        static const std::vector<std::pair<std::string, uint32_t>> _searchArrayTypes;
+        static const StringIdCombo::Type _searchArrayTypes;
         StringIdCombo _arrayTypesCombo = StringIdCombo("Array Type:", true, _searchArrayTypes);
-        static const std::vector<std::pair<std::string, uint32_t>> _searchColorTypes;
+        static const StringIdCombo::Type _searchColorTypes;
         StringIdCombo _colorTypesCombo = StringIdCombo("Color Type:", true, _searchColorTypes);
-        int _currentTextTypeSelect = MT::UTF8;
-        int _currentTextTypeIndex = 0;
+        StringIdCombo _textTypesCombo = StringIdCombo("Text Type:", true, TextTypes_);
         bool _forceAlpha = false;
         bool _useColorWheel = false;
         std::wstring _resultsPath = {};
@@ -129,7 +122,13 @@ namespace MungPlex
         boost::thread _searchThread;
         bool _busySearching = false;
 
-        //value options
+        //search settings
+        static const StringIdCombo::Type _intSearchConditionTypes;
+        StringIdCombo _subsidiaryTypeSearchConditionsCombo = StringIdCombo("Condition:", true, _intSearchConditionTypes);
+        static const StringIdCombo::Type _floatSearchConditionTypes;
+        static const StringIdCombo::Type _arraySearchConditionTypes;
+        static const StringIdCombo::Type _colorSearchConditionTypes;
+        static const StringIdCombo::Type _textSearchConditionTypes;
         InputText _knownValueInput = InputText("Value:", true, "", 256); //No InputInt because a string param to be parsed is needed
         InputText _secondaryKnownValueInput = InputText("Not applicable", true, "", 256); //same
         StringIdPairs _iterations = { {}, {}, "Counter Iteration:"};
@@ -269,7 +268,7 @@ namespace MungPlex
                     }
                 }
 
-                Log::LogInformation((std::string("Multi-poked ") + TextTypes.GetStdStringById(_currentTextTypeIndex) + " text values").c_str());
+                Log::LogInformation((std::string("Multi-poked ") + _textTypesCombo.GetSelectedStdString() + " text values").c_str());
                 return true;
             }
 
@@ -283,7 +282,7 @@ namespace MungPlex
                     address += reinterpret_cast<uint64_t>(_regions[i].BaseLocationProcess);
                     bool success;
 
-                    switch (_currentTextTypeSelect)
+                    switch (_textTypesCombo.GetSelectedId())
                     {
                         case MT::UTF16LE: case MT::UTF16BE:
                             success = WriteTextEx(pid, pokeValue.GetString<wchar_t*>(_colorTypesCombo.GetSelectedId()), address);
@@ -295,7 +294,7 @@ namespace MungPlex
                             success = WriteTextEx(pid, pokeValue.GetString<char*>(_colorTypesCombo.GetSelectedId()), address);
                     }
 
-                    Log::LogInformation((std::string("Poked ") + TextTypes.GetStdStringById(_currentTextTypeIndex) + " text value").c_str());
+                    Log::LogInformation((std::string("Poked ") + _textTypesCombo.GetSelectedStdString() + " text value").c_str());
                     return success;
                 }
             }

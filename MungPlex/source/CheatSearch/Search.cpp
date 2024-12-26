@@ -54,39 +54,65 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_se
 	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypes =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_intSearchConditionTypes =
 {
-	{ "Equal (==)",         "Unequal (!=)",         "Greater (>)",          "Greater or Equal (>=)",      "Lower (<))",         "Lower or Equal (<=)",      "Increased by",              "Decreased by",              "Value Between",        "Value Not Between",        "AND (has all true bits)", "OR (has at least 1 true bit)" },
-	{ MemoryCompare::EQUAL, MemoryCompare::UNEQUAL, MemoryCompare::GREATER, MemoryCompare::GREATER_EQUAL, MemoryCompare::LOWER, MemoryCompare::LOWER_EQUAL, MemoryCompare::INCREASED_BY, MemoryCompare::DECREASED_BY, MemoryCompare::BETWEEN, MemoryCompare::NOT_BETWEEN, MemoryCompare::AND,        MemoryCompare::OR  },
-	"Condition:"
+    {
+		{ "Equal (==)", MemoryCompare::EQUAL },
+		{ "Unequal (!=)", MemoryCompare::UNEQUAL },
+		{ "Greater (>)", MemoryCompare::GREATER },
+		{ "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL },
+		{ "Lower (<)", MemoryCompare::LOWER },
+		{ "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL },
+		{ "Increased by", MemoryCompare::INCREASED_BY },
+		{ "Decreased by", MemoryCompare::DECREASED_BY },
+		{ "Value Between", MemoryCompare::BETWEEN },
+		{ "Value Not Between", MemoryCompare::NOT_BETWEEN },
+		{ "AND (has all true bits)", MemoryCompare::AND },
+		{ "OR(has at least 1 true bit)", MemoryCompare::OR }
+	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypesArray =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_arraySearchConditionTypes =
 {
-	{ "Equal (==)",         "Unequal (!=)" },
-	{ MemoryCompare::EQUAL, MemoryCompare::UNEQUAL },
-	"Condition:"
+	{
+		{ "Equal (==)", MemoryCompare::EQUAL },
+		{ "Unequal (!=)", MemoryCompare::UNEQUAL }
+	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypesFloat =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_floatSearchConditionTypes =
 {
-	{ "Equal (==)",         "Unequal (!=)",         "Greater (>)",          "Greater or Equal (>=)",      "Lower (<))",         "Lower or Equal (<=)",      "Increased by",              "Decreased by",              "Value Between",        "Value Not Between" },
-	{ MemoryCompare::EQUAL, MemoryCompare::UNEQUAL, MemoryCompare::GREATER, MemoryCompare::GREATER_EQUAL, MemoryCompare::LOWER, MemoryCompare::LOWER_EQUAL, MemoryCompare::INCREASED_BY, MemoryCompare::DECREASED_BY, MemoryCompare::BETWEEN, MemoryCompare::NOT_BETWEEN },
-	"Condition:"
+	{
+		{ "Equal (==)", MemoryCompare::EQUAL },
+		{ "Unequal (!=)",MemoryCompare::UNEQUAL },
+		{ "Greater (>)", MemoryCompare::GREATER },
+		{ "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL },
+		{ "Lower (<)", MemoryCompare::LOWER },
+		{ "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL },
+		{ "Increased by", MemoryCompare::INCREASED_BY },
+		{ "Decreased by", MemoryCompare::DECREASED_BY },
+		{ "Value Between", MemoryCompare::BETWEEN }
+	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypesColor =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_colorSearchConditionTypes =
 {
-	{ "Equal (==)",         "Unequal (!=)",         "Greater (>)",          "Greater or Equal (>=)",      "Lower (<))",         "Lower or Equal (<=)" },
-	{ MemoryCompare::EQUAL, MemoryCompare::UNEQUAL, MemoryCompare::GREATER, MemoryCompare::GREATER_EQUAL, MemoryCompare::LOWER, MemoryCompare::LOWER_EQUAL },
-	"Condition:"
+	{
+		{ "Equal (==)", MemoryCompare::EQUAL },
+		{ "Unequal (!=)",MemoryCompare::UNEQUAL },
+		{ "Greater (>)", MemoryCompare::GREATER },
+		{ "Greater or Equal (>=)", MemoryCompare::GREATER_EQUAL },
+		{ "Lower (<)", MemoryCompare::LOWER },
+		{ "Lower or Equal (<=)", MemoryCompare::LOWER_EQUAL }
+	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::Search::_searchConditionTypesText =
+inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_textSearchConditionTypes =
 {
-	{ "Equal (==)" },
-	{ MemoryCompare::EQUAL },
-	"Condition:"
+	{
+		{ "Equal (==)", MemoryCompare::EQUAL },
+		{ "Unequal (!=)", MemoryCompare::UNEQUAL }
+	}
 };
 
  inline const MungPlex::StringIdPairs MungPlex::Search::_searchComparasionType =
@@ -190,16 +216,21 @@ void MungPlex::Search::drawValueTypeOptions()
 					{
 					case ARRAY:
 						_knownValueInput.SetLabel("Array Expression:");
+						_subsidiaryTypeSearchConditionsCombo.SetItems(_arraySearchConditionTypes);
 						break;
 					case COLOR:
 						_knownValueInput.SetLabel("Color Expression:");
+						_subsidiaryTypeSearchConditionsCombo.SetItems(_colorSearchConditionTypes);
 						break;
 					case TEXT:
 						_knownValueInput.SetLabel("Text:");
+						_subsidiaryTypeSearchConditionsCombo.SetItems(_textSearchConditionTypes);
 						break;
 					default:
 						_knownValueInput.SetLabel("Value:");
+						_subsidiaryTypeSearchConditionsCombo.SetItems(_intSearchConditionTypes);
 					}
+
 
 					_secondaryKnownValueInput.SetText("");
 					setFormatting();
@@ -239,11 +270,8 @@ void MungPlex::Search::drawValueTypeOptions()
 					if (_colorTypesCombo.GetSelectedId() != LitColor::RGB5A3) ImGui::EndDisabled();
 				}break;
 				case TEXT:
-					if (SetUpPairCombo(TextTypes, &_currentTextTypeIndex, 0.5f, 0.4f))
-					{
-						_currentTextTypeSelect = TextTypes.GetId(_currentTextTypeIndex);
+					if (_textTypesCombo.Draw(0.5f, 0.4f))
 						setRecommendedValueSettings(TEXT);
-					} 
 					break;
 				default: //PRIMITIVE
 					if (_primitiveTypesCombo.Draw(0.5f, 0.4f))
@@ -344,7 +372,7 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 
 	if (_updateLabels)
 	{
-		switch (_currentConditionTypeSelect)
+		switch (_subsidiaryTypeSearchConditionsCombo.GetSelectedId())
 		{
 			case MemoryCompare::BETWEEN:
 			{
@@ -383,20 +411,13 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 	if (MungPlex::SetUpPairCombo(_searchComparasionType, &_currentcomparisonTypeSelect, 1.0f, 0.4f))
 		_updateLabels = true;
 
-	static const StringIdPairs* conditionTypeItems;
-
-	if (_primitiveTypesCombo.GetSelectedId() < FLOAT)
-		conditionTypeItems = &_searchConditionTypes;
-	else
-		conditionTypeItems = &_searchConditionTypesFloat;
-
-	if (SetUpPairCombo(*conditionTypeItems, &_currentConditionTypeSelect, 1.0f, 0.4f))
+	if (_subsidiaryTypeSearchConditionsCombo.Draw(1.0f, 0.4f))
 		_updateLabels = true;
 
 	if (!_diableBecauseUnknownAndNotRangebased)
 		_knownValueInput.Draw(1.0f, 0.4f);
 
-	if (_currentConditionTypeSelect >= MemoryCompare::BETWEEN && _currentConditionTypeSelect <= MemoryCompare::NOT_BETWEEN)
+	if (_subsidiaryTypeSearchConditionsCombo.GetSelectedId() >= MemoryCompare::BETWEEN && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() <= MemoryCompare::NOT_BETWEEN)
 		_secondaryKnownValueInput.Draw(1.0f, 0.4f);
 
 	if (_primitiveTypesCombo.GetSelectedId() >= FLOAT)
@@ -409,7 +430,7 @@ void MungPlex::Search::drawArraySearchOptions()
 
 	ImGui::BeginGroup();
 	
-	if (SetUpPairCombo(_searchConditionTypesArray, &_currentConditionTypeSelect, 1.0f, 0.4f))
+	if (_subsidiaryTypeSearchConditionsCombo.Draw(1.0f, 0.4f))
 		_updateLabels = true;
 
 	_knownValueInput.Draw(1.0f, 0.4f);
@@ -429,7 +450,7 @@ void MungPlex::Search::drawColorSearchOptions()
 	{
 		MungPlex::SetUpPairCombo(_searchComparasionType, &_currentcomparisonTypeSelect, 1.0f, 0.4f);
 
-		if (SetUpPairCombo(_searchConditionTypesText, &_currentConditionTypeSelect, 1.0f, 0.4f))
+		if (_subsidiaryTypeSearchConditionsCombo.Draw(1.0f, 0.4f))
 			_updateLabels = true;
 
 		if (!_diableBecauseUnknownAndNotRangebased)
@@ -465,7 +486,7 @@ void MungPlex::Search::drawTextSearchOptions()
 {
 	static bool disablePrimaryValueText = false;
 
-	_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
+	_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::INCREASED_BY && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::DECREASED_BY;
 
 	ImGui::BeginGroup();
 	{
@@ -490,7 +511,7 @@ void MungPlex::Search::drawSearchOptions()
 		static bool disablePrimaryValueText = false;
 		static bool disableSecondaryValueText = true;
 
-		_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _currentConditionTypeSelect != MemoryCompare::INCREASED_BY && _currentConditionTypeSelect != MemoryCompare::DECREASED_BY;
+		_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::INCREASED_BY && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::DECREASED_BY;
 		
 		if(_searchValueTypesCombo.GetSelectedId() == COLOR)
 			childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y };
@@ -873,7 +894,7 @@ void MungPlex::Search::setUpIterationSelect()
 		_iterations.PopBack(1 + _iterations.GetCount() - _iterationCount);
 
 	_iterations.PushBack(std::to_string(_iterationCount) + ": " + _searchComparasionType.GetStdString(_currentcomparisonTypeSelect)
-		+ (_iterationCount < 2 && _currentcomparisonTypeSelect == 0 ? "" : ", " + _searchConditionTypes.GetStdString(_currentConditionTypeSelect)), _currentConditionTypeSelect);
+		+ (_iterationCount < 2 && _currentcomparisonTypeSelect == 0 ? "" : ", " + _subsidiaryTypeSearchConditionsCombo.GetSelectedStdString()), _subsidiaryTypeSearchConditionsCombo.GetSelectedId());
 	_iterationIndex = _iterationCount-1;
 	_selectedIndices.resize(_maxResultsPerPageInput.GetValue());
 }
@@ -933,7 +954,7 @@ void MungPlex::Search::prepareLiveUpdateValueList()
 		{
 			updateValuesSize = _knownValueInput.GetStdStringNoZeros().size();
 
-			switch (_currentTextTypeSelect)
+			switch (_textTypesCombo.GetSelectedId())
 			{
 			case MT::UTF32BE: case MT::UTF32LE:
 				updateValuesSize *= 4;
@@ -1456,30 +1477,30 @@ void MungPlex::Search::drawTextTableRow(const int col, const uint64_t row, const
 
 	if (col == 1)
 	{
-		switch (_currentTextTypeSelect)
+		switch (_textTypesCombo.GetSelectedId())
 		{
 		case MT::UTF16LE: case MT::UTF16BE:
-			temputf8 = MT::Convert<wchar_t*, std::string>(MC::GetResults().GetSpecificValuePtrAllRanges<wchar_t>(pageIndexWithRowCountAndStrLength), _currentTextTypeSelect, MT::UTF8);
+			temputf8 = MT::Convert<wchar_t*, std::string>(MC::GetResults().GetSpecificValuePtrAllRanges<wchar_t>(pageIndexWithRowCountAndStrLength), _textTypesCombo.GetSelectedId(), MT::UTF8);
 			break;
 		case MT::UTF32LE: case MT::UTF32BE:
-			temputf8 = MT::Convert<char32_t*, std::string>(MC::GetResults().GetSpecificValuePtrAllRanges<char32_t>(pageIndexWithRowCountAndStrLength), _currentTextTypeSelect, MT::UTF8);
+			temputf8 = MT::Convert<char32_t*, std::string>(MC::GetResults().GetSpecificValuePtrAllRanges<char32_t>(pageIndexWithRowCountAndStrLength), _textTypesCombo.GetSelectedId(), MT::UTF8);
 			break;
 		default:
-			temputf8 = MT::Convert<char*, std::string>(MC::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCountAndStrLength), _currentTextTypeSelect, MT::UTF8);
+			temputf8 = MT::Convert<char*, std::string>(MC::GetResults().GetSpecificValuePtrAllRanges<char>(pageIndexWithRowCountAndStrLength), _textTypesCombo.GetSelectedId(), MT::UTF8);
 		}
 	}
 	else if (col == 4)
 	{
-		switch (_currentTextTypeSelect)
+		switch (_textTypesCombo.GetSelectedId())
 		{
 		case MT::UTF16LE: case MT::UTF16BE:
-			temputf8 = MT::Convert<wchar_t*, std::string>(reinterpret_cast<wchar_t*>(_updateValues.data() + row * MC::GetResults().GetValueWidth()), _currentTextTypeSelect, MT::UTF8);
+			temputf8 = MT::Convert<wchar_t*, std::string>(reinterpret_cast<wchar_t*>(_updateValues.data() + row * MC::GetResults().GetValueWidth()), _textTypesCombo.GetSelectedId(), MT::UTF8);
 			break;
 		case MT::UTF32LE: case MT::UTF32BE:
-			temputf8 = MT::Convert<char32_t*, std::string>(reinterpret_cast<char32_t*>(_updateValues.data() + row * MC::GetResults().GetValueWidth()), _currentTextTypeSelect, MT::UTF8);
+			temputf8 = MT::Convert<char32_t*, std::string>(reinterpret_cast<char32_t*>(_updateValues.data() + row * MC::GetResults().GetValueWidth()), _textTypesCombo.GetSelectedId(), MT::UTF8);
 			break;
 		default:
-			temputf8 = MT::Convert<char*, std::string>(reinterpret_cast<char*>(_updateValues.data() + row * MC::GetResults().GetValueWidth()), _currentTextTypeSelect, MT::UTF8);
+			temputf8 = MT::Convert<char*, std::string>(reinterpret_cast<char*>(_updateValues.data() + row * MC::GetResults().GetValueWidth()), _textTypesCombo.GetSelectedId(), MT::UTF8);
 		}
 	}
 	else
@@ -1622,7 +1643,7 @@ void MungPlex::Search::arrayTypeSearchLog()
 
 void MungPlex::Search::textTypeSearchLog()
 {
-	Log::LogInformation("Text<" + TextTypes.GetStdString(_currentTextTypeIndex) + ">: " + _knownValueInput.GetStdStringNoZeros(), true, 4);
+	Log::LogInformation("Text<" + _textTypesCombo.GetSelectedStdString() + ">: " + _knownValueInput.GetStdStringNoZeros(), true, 4);
 }
 
 void MungPlex::Search::colorTypeSearchLog()
@@ -1803,7 +1824,7 @@ void MungPlex::Search::setUpAndIterate()
 		subsidiaryDatatype = _colorTypesCombo.GetSelectedId();
 		break;
 	case TEXT:
-		subsidiaryDatatype = _currentTextTypeSelect;
+		subsidiaryDatatype = _textTypesCombo.GetSelectedId();
 		break;
 	default: //PRIMITIVE
 		subsidiaryDatatype = _primitiveTypesCombo.GetSelectedId();
@@ -1842,7 +1863,7 @@ void MungPlex::Search::setUpAndIterate()
 	if (_hex)
 		iterationFlags |= MemoryCompare::HEX;
 
-	MemoryCompare::MemCompare::NewIteration(_currentConditionTypeSelect, _iterationIndex + 1, tempprimary, tempsecondary, _precision / 100.0f, iterationFlags);
+	MemoryCompare::MemCompare::NewIteration(_subsidiaryTypeSearchConditionsCombo.GetSelectedId(), _iterationIndex + 1, tempprimary, tempsecondary, _precision / 100.0f, iterationFlags);
 
 	generateDumpRegionMap();
 
@@ -1914,11 +1935,11 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 	{
 		case ARRAY:
 			_colorTypesCombo.SetSelectedByIndex(0);
-			_currentTextTypeIndex = 0;
+			_textTypesCombo.SetSelectedById(0);
 			_primitiveTypesCombo.SetSelectedByIndex(0);
 		break;	
 		case COLOR:
-			_currentTextTypeIndex = 0;
+			_textTypesCombo.SetSelectedById(0);
 			_primitiveTypesCombo.SetSelectedByIndex(0);
 			_arrayTypesCombo.SetSelectedByIndex(0);
 			break;
@@ -1928,9 +1949,14 @@ void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 			_arrayTypesCombo.SetSelectedByIndex(0);
 		break;
 		default: //PRIMITIVE
-			_colorTypesCombo.SetSelectedByIndex(0); 
-			_currentTextTypeIndex = 0;
+			_colorTypesCombo.SetSelectedByIndex(0);
+			_textTypesCombo.SetSelectedById(0);
 			_arrayTypesCombo.SetSelectedByIndex(0);
+
+			if (_primitiveTypesCombo.GetSelectedId() < FLOAT)
+				_subsidiaryTypeSearchConditionsCombo.SetItems(_intSearchConditionTypes);
+			else
+				_subsidiaryTypeSearchConditionsCombo.SetItems(_floatSearchConditionTypes);
 	}
 
 	switch (_searchValueTypesCombo.GetSelectedId())

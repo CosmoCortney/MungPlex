@@ -31,6 +31,41 @@ namespace MungPlex
         "Text Types:"
     };
 
+    inline static const std::vector<std::pair<std::string, uint32_t>> TextTypes_ =
+    {
+        {
+            { "UTF-8", MT::UTF8 },
+            { "UTF-16 Little Endian", MT::UTF16LE },
+            { "UTF-16 Big Endian", MT::UTF16BE },
+            { "UTF-32 Little Endian", MT::UTF32LE },
+            { "UTF-32 Big Endian", MT::UTF32BE },
+            { "ASCII", MT::ASCII },
+            { "ISO-8859-1 (Latin 1)", MT::ISO_8859_1 },
+            { "ISO-8859-2 (Latin 2)", MT::ISO_8859_2 },
+            { "ISO-8859-3 (Latin 3)", MT::ISO_8859_3 },
+            { "ISO-8859-4 (Latin 4)", MT::ISO_8859_4 },
+            { "ISO-8859-5 (Cyrillic)", MT::ISO_8859_5 },
+            { "ISO-8859-6 (Arabic)", MT::ISO_8859_6 },
+            { "ISO-8859-7 (Greek)", MT::ISO_8859_7 },
+            { "ISO-8859-8 (Hebrew)", MT::ISO_8859_8 },
+            { "ISO-8859-9 (Turkish)", MT::ISO_8859_9 },
+            { "ISO-8859-10 (Nordic)", MT::ISO_8859_10 },
+            { "ISO-8859-11 (Thai)", MT::ISO_8859_11 },
+            { "ISO-8859-13 (Baltic)", MT::ISO_8859_13 },
+            { "ISO-8859-14 (Celtic)", MT::ISO_8859_14 },
+            { "ISO-8859-15 (West European)", MT::ISO_8859_15 },
+            { "ISO-8859-16 (South-East European)", MT::ISO_8859_16 },
+            { "Shift-Jis CP932", MT::SHIFTJIS_CP932 },
+            { "KS X 1001 (EUC-KR)", MT::KS_X_1001 },
+            { "Jis X 0201 Full Width", MT::JIS_X_0201_FULLWIDTH },
+            { "Jis X 0201 Half Width", MT::JIS_X_0201_HALFWIDTH },
+            { "PKMN Gen I English", MT::POKEMON_GEN1_ENGLISH },
+            { "PKMN Gen I French/German", MT::POKEMON_GEN1_FRENCH_GERMAN },
+            { "PKMN Gen I Italian/Spanish",  MT::POKEMON_GEN1_ITALIAN_SPANISH },
+            { "PKMN Gen I Japanese", MT::POKEMON_GEN1_JAPANESE }
+        }
+    };
+
     template<typename addressType> static addressType TranslatePtrTo4BytesReorderingPtr(addressType ptr)
     {
         uint64_t tempPtr;

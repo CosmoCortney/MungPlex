@@ -46,6 +46,11 @@ void MungPlex::StringIdCombo::SetSelectedById(const uint64_t id)
 	}
 }
 
+void MungPlex::StringIdCombo::SetItems(const std::vector<std::pair<std::string, uint32_t>>& stringIdPairVec)
+{
+	*this = StringIdCombo(_label, true, stringIdPairVec);
+}
+
 uint32_t MungPlex::StringIdCombo::GetSelectedId() const
 {
 	return _stringIdPairVec[_selectedIndex].second;
