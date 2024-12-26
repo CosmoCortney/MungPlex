@@ -546,7 +546,7 @@ void MungPlex::Search::drawSearchOptions()
 		if (_iterationCount) ImGui::EndDisabled();
 
 		if (!_iterationCount || _disableUndo) ImGui::BeginDisabled();
-			SetUpPairCombo(_iterations, &_iterationIndex, 1.0f, 0.4f);
+			_iterationsCombo.Draw(1.0f, 0.4f);
 		if (!_iterationCount || _disableUndo) ImGui::EndDisabled();
 
 		switch (_searchValueTypesCombo.GetSelectedId())
@@ -586,8 +586,7 @@ void MungPlex::Search::drawSearchOptions()
 		{
 			MemoryCompare::MemCompare::Reset();
 			_iterationCount = 0;
-			_iterations.Clear();
-			_iterationIndex = 0;
+			_iterationsCombo.Clear();
 			_searchActive = false;
 			_currentPageInput.SetValue(0);
 		}
@@ -892,12 +891,12 @@ void MungPlex::Search::setUpIterationSelect()
 {
 	_iterationCount = MemoryCompare::MemCompare::GetIterationCount();
 
-	if (_iterationCount < _iterations.GetCount())
-		_iterations.PopBack(1 + _iterations.GetCount() - _iterationCount);
+	if (_iterationCount < _iterationsCombo.GetCount())
+		_iterationsCombo.PopBack(1 + _iterationsCombo.GetCount() - _iterationCount);
 
-	_iterations.PushBack(std::to_string(_iterationCount) + ": " + _searchComparasionTypeCombo.GetSelectedStdString()
-		+ (_iterationCount < 2 && _searchComparasionTypeCombo.GetSelectedId() == 0 ? "" : ", " + _subsidiaryTypeSearchConditionsCombo.GetSelectedStdString()), _subsidiaryTypeSearchConditionsCombo.GetSelectedId());
-	_iterationIndex = _iterationCount-1;
+	_iterationsCombo.PushBack(std::pair<std::string, uint32_t>(std::to_string(_iterationCount) + ": " + _searchComparasionTypeCombo.GetSelectedStdString()
+		+ (_iterationCount < 2 && _searchComparasionTypeCombo.GetSelectedId() == 0 ? "" : ", " + _subsidiaryTypeSearchConditionsCombo.GetSelectedStdString()), _subsidiaryTypeSearchConditionsCombo.GetSelectedId()));
+	_iterationsCombo.SetSelectedByIndex(_iterationCount - 1);
 	_selectedIndices.resize(_maxResultsPerPageInput.GetValue());
 }
 
@@ -1865,7 +1864,7 @@ void MungPlex::Search::setUpAndIterate()
 	if (_hex)
 		iterationFlags |= MemoryCompare::HEX;
 
-	MemoryCompare::MemCompare::NewIteration(_subsidiaryTypeSearchConditionsCombo.GetSelectedId(), _iterationIndex + 1, tempprimary, tempsecondary, _precision / 100.0f, iterationFlags);
+	MemoryCompare::MemCompare::NewIteration(_subsidiaryTypeSearchConditionsCombo.GetSelectedId(), _iterationsCombo.GetSelectedIndex() + 1, tempprimary, tempsecondary, _precision / 100.0f, iterationFlags);
 
 	generateDumpRegionMap();
 

@@ -130,8 +130,7 @@ namespace MungPlex
         static const StringIdCombo::Type _textSearchConditionTypes;
         InputText _knownValueInput = InputText("Value:", true, "", 256); //No InputInt because a string param to be parsed is needed
         InputText _secondaryKnownValueInput = InputText("Not applicable", true, "", 256); //same
-        StringIdPairs _iterations = { {}, {}, "Counter Iteration:"};
-        int _iterationIndex = 0; 
+        StringIdCombo _iterationsCombo = StringIdCombo("Counter Iteration:", true); 
         uint32_t _iterationCount = 0;
         bool _updateLabels = true;
         ImVec4 _searchColorVec = { 0.0f, 0.0f, 0.0f, 1.0f };
