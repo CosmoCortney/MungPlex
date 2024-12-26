@@ -92,10 +92,7 @@ namespace MungPlex
             return Instance;
         }
 
-        static const StringIdPairs _searchComparasionType;
-
         //value options
-        int _currentcomparisonTypeSelect = 0;
         InputInt<uint32_t> _alignmentValueInput = InputInt<uint32_t>("Alignment:", true, 4, 1, 1);
         int _lastRangeSelect = -1;
         bool _signed = false;
@@ -123,6 +120,8 @@ namespace MungPlex
         bool _busySearching = false;
 
         //search settings
+        static const StringIdCombo::Type _searchComparasionTypes;
+        StringIdCombo _searchComparasionTypeCombo = StringIdCombo("Comparison:", true, _searchComparasionTypes);
         static const StringIdCombo::Type _intSearchConditionTypes;
         StringIdCombo _subsidiaryTypeSearchConditionsCombo = StringIdCombo("Condition:", true, _intSearchConditionTypes);
         static const StringIdCombo::Type _floatSearchConditionTypes;

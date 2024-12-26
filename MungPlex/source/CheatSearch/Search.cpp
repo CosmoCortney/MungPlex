@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Search.hpp"
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_searchValueTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchValueTypes =
 {
 	{
 		{ "Primitive", PRIMITIVE },
@@ -12,7 +12,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_se
 	}
 };
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_endiannesses =
+inline const MungPlex::StringIdCombo::Type MungPlex::Search::_endiannesses =
 {
 	{
 		{ "Little", LITTLE },
@@ -20,7 +20,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_en
 	}
 };
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_searchPrimitiveTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchPrimitiveTypes =
 {
 	{
 		{ "Int 8 (1 Byte)", INT8 },
@@ -32,7 +32,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_se
 	}
 };
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_searchArrayTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchArrayTypes =
 {
 	{
 		{ "Int 8 (1 Byte)", INT8 },
@@ -42,7 +42,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_se
 	}
 }; //remove once Arrays support floats
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_searchColorTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchColorTypes =
 {
 	{
 		{ "RGB 888 (3 Bytes)", LitColor::RGB888 },
@@ -54,7 +54,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_se
 	}
 };
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_intSearchConditionTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::Search::_intSearchConditionTypes =
 {
     {
 		{ "Equal (==)", MemoryCompare::EQUAL },
@@ -72,7 +72,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_in
 	}
 };
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_arraySearchConditionTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::Search::_arraySearchConditionTypes =
 {
 	{
 		{ "Equal (==)", MemoryCompare::EQUAL },
@@ -80,7 +80,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_ar
 	}
 };
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_floatSearchConditionTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::Search::_floatSearchConditionTypes =
 {
 	{
 		{ "Equal (==)", MemoryCompare::EQUAL },
@@ -95,7 +95,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_fl
 	}
 };
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_colorSearchConditionTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::Search::_colorSearchConditionTypes =
 {
 	{
 		{ "Equal (==)", MemoryCompare::EQUAL },
@@ -107,7 +107,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_co
 	}
 };
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_textSearchConditionTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::Search::_textSearchConditionTypes =
 {
 	{
 		{ "Equal (==)", MemoryCompare::EQUAL },
@@ -115,11 +115,12 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Search::_te
 	}
 };
 
- inline const MungPlex::StringIdPairs MungPlex::Search::_searchComparasionType =
+ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchComparasionTypes =
 {
-	{ "Unknwon/Initial", "Known Value" },
-	{ 0,                 MemoryCompare::KNOWN },
-	"Comparison:"
+	{
+		{ "Unknwon/Initial", MemoryCompare::KNOWN },
+		{ "Known Value", 0 }
+	}
 };
 
 MungPlex::Search::Search()
@@ -237,8 +238,9 @@ void MungPlex::Search::drawValueTypeOptions()
 				}
 
 				if (_searchValueTypesCombo.GetSelectedId() == TEXT || _searchValueTypesCombo.GetSelectedId() == COLOR)
-					_currentcomparisonTypeSelect = MemoryCompare::KNOWN;
-			} if (_searchActive) ImGui::EndDisabled();
+					_searchComparasionTypeCombo.SetSelectedById(MemoryCompare::KNOWN);
+			} 
+			if (_searchActive) ImGui::EndDisabled();
 
 			if (_searchValueTypesCombo.GetSelectedId() == PRIMITIVE || _searchValueTypesCombo.GetSelectedId() >= FLOAT)
 			{
@@ -408,7 +410,7 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 		_updateLabels = false;
 	}
 
-	if (MungPlex::SetUpPairCombo(_searchComparasionType, &_currentcomparisonTypeSelect, 1.0f, 0.4f))
+	if (_searchComparasionTypeCombo.Draw(1.0f, 0.4f))
 		_updateLabels = true;
 
 	if (_subsidiaryTypeSearchConditionsCombo.Draw(1.0f, 0.4f))
@@ -448,7 +450,7 @@ void MungPlex::Search::drawColorSearchOptions()
 
 	ImGui::BeginGroup();
 	{
-		MungPlex::SetUpPairCombo(_searchComparasionType, &_currentcomparisonTypeSelect, 1.0f, 0.4f);
+		_searchComparasionTypeCombo.Draw(1.0f, 0.4f);
 
 		if (_subsidiaryTypeSearchConditionsCombo.Draw(1.0f, 0.4f))
 			_updateLabels = true;
@@ -486,7 +488,7 @@ void MungPlex::Search::drawTextSearchOptions()
 {
 	static bool disablePrimaryValueText = false;
 
-	_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::INCREASED_BY && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::DECREASED_BY;
+	_diableBecauseUnknownAndNotRangebased = _searchComparasionTypeCombo.GetSelectedId() == 0 && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::INCREASED_BY && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::DECREASED_BY;
 
 	ImGui::BeginGroup();
 	{
@@ -511,7 +513,7 @@ void MungPlex::Search::drawSearchOptions()
 		static bool disablePrimaryValueText = false;
 		static bool disableSecondaryValueText = true;
 
-		_diableBecauseUnknownAndNotRangebased = _currentcomparisonTypeSelect == 0 && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::INCREASED_BY && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::DECREASED_BY;
+		_diableBecauseUnknownAndNotRangebased = _searchComparasionTypeCombo.GetSelectedId() == 0 && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::INCREASED_BY && _subsidiaryTypeSearchConditionsCombo.GetSelectedId() != MemoryCompare::DECREASED_BY;
 		
 		if(_searchValueTypesCombo.GetSelectedId() == COLOR)
 			childXY = { ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y };
@@ -722,7 +724,7 @@ void MungPlex::Search::performSearch()
 	}
 
 	if(_searchValueTypesCombo.GetSelectedId() != PRIMITIVE)
-		_currentcomparisonTypeSelect = MemoryCompare::KNOWN;
+		_searchComparasionTypeCombo.SetSelectedById(MemoryCompare::KNOWN);
 
 	setUpAndIterate();
 	setUpIterationSelect();
@@ -893,8 +895,8 @@ void MungPlex::Search::setUpIterationSelect()
 	if (_iterationCount < _iterations.GetCount())
 		_iterations.PopBack(1 + _iterations.GetCount() - _iterationCount);
 
-	_iterations.PushBack(std::to_string(_iterationCount) + ": " + _searchComparasionType.GetStdString(_currentcomparisonTypeSelect)
-		+ (_iterationCount < 2 && _currentcomparisonTypeSelect == 0 ? "" : ", " + _subsidiaryTypeSearchConditionsCombo.GetSelectedStdString()), _subsidiaryTypeSearchConditionsCombo.GetSelectedId());
+	_iterations.PushBack(std::to_string(_iterationCount) + ": " + _searchComparasionTypeCombo.GetSelectedStdString()
+		+ (_iterationCount < 2 && _searchComparasionTypeCombo.GetSelectedId() == 0 ? "" : ", " + _subsidiaryTypeSearchConditionsCombo.GetSelectedStdString()), _subsidiaryTypeSearchConditionsCombo.GetSelectedId());
 	_iterationIndex = _iterationCount-1;
 	_selectedIndices.resize(_maxResultsPerPageInput.GetValue());
 }
@@ -1628,7 +1630,7 @@ void MungPlex::Search::primitiveTypeSearchLog()
 
 	Log::LogInformation("comparison Type:", true, 4);
 
-	if (_currentcomparisonTypeSelect == MemoryCompare::KNOWN)
+	if (_searchComparasionTypeCombo.GetSelectedId() == MemoryCompare::KNOWN)
 	{
 		Log::LogInformation("Known: " + _knownValueInput.GetStdStringNoZeros() + ", " + _secondaryKnownValueInput.GetStdStringNoZeros(), true);
 	}
@@ -1857,7 +1859,7 @@ void MungPlex::Search::setUpAndIterate()
 
 	uint32_t iterationFlags = 0;
 
-	if (_currentcomparisonTypeSelect == MemoryCompare::KNOWN)
+	if (_searchComparasionTypeCombo.GetSelectedId() == MemoryCompare::KNOWN)
 		iterationFlags |= MemoryCompare::KNOWN;
 
 	if (_hex)
