@@ -42,17 +42,43 @@ inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_emulat
 	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::ProcessInformation::_systems =
+inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_systems =
 {
-	{ "NES",  "SNES",  "N64",  "GCN",  "Triforce",  "RVL",  "Cafe",  "Switch",  "GB",  "GBC",  "GBA",  "NDS",  "CTR",  
-	  "PS1",  "PS2",  "PS3",  "PS4",  "PS5",  "PSP",  "PSV",  
-	  "SMS",  "Genesis",  "32X",  "Mega CD",  "Saturn",  "DC",  "GG",  
-	  "XBOX",  "360", "XBONE", "Series", "PC (x86)", "PC (x64)"},
-	{ NES, SNES, N64, GAMECUBE, TRIFORCE, WII, WIIU, SWITCH, GB, GBC, GBA, NDS, N3DS, 
-	  PS1, PS2, PS3, PS4, PS5, PSP, PSV, 
-	  SMS, GENESIS, S32X, SMCD, SATURN, DREAMCAST, GG, 
-	  XBOX, XBOX360, XBOXONE, XBOXSERIES, X86, X64 },
-	  "System:"
+	{
+		{ "NES", NES },
+		{ "SNES", SNES },
+		{ "N64", N64 },
+		{ "GCN", GAMECUBE },
+		{ "Triforce", TRIFORCE },
+		{ "RVL", WII },
+		{ "Cafe", WIIU },
+		{ "Switch", SWITCH },
+		{ "GB", GB },
+		{ "GBC", GBC },
+		{ "GBA", GBA },
+		{ "NDS", NDS },
+		{ "CTR", N3DS },
+		{ "PS1", PS1 },
+		{ "PS2", PS2 },
+		{ "PS3", PS3 },
+		{ "PS4", PS4 },
+		{ "PS5", PS5 },
+		{ "PSP", PSP },
+		{ "PSV", PSV },
+		{ "SMS", SMS },
+		{ "Genesis", GENESIS },
+		{ "32X", S32X },
+		{ "Mega CD", SMCD },
+		{ "Saturn", SATURN },
+		{ "DC", DREAMCAST },
+		{ "GG", GG },
+		{ "XBOX", XBOX },
+		{ "360", XBOX360 },
+		{ "XBONE", XBOXONE },
+		{ "Series", XBOXSERIES },
+		{ "PC (x86)", X86 },
+		{ "PC (x64)", X64 }
+	}
 };
 
 inline const MungPlex::StringIdPairs MungPlex::ProcessInformation::_consoleConnectionTypes =
@@ -341,8 +367,7 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	_rpcGameID = iemulator->GetRrpGameID();
 	_gameName = iemulator->GetGameName();
 	_platformID = iemulator->GetPlatformID();
-	_platform = _systems.GetStdStringById(_platformID);
-
+	_platform = getPlatformNameFromId(_platformID);
 	PointerSearch::SelectPreset(_platformID);
 	setupSearch();
 	Search::SetDefaultSearchSettings();
@@ -412,6 +437,15 @@ bool MungPlex::ProcessInformation::connectToProcessFR()
 	 return connected;
  }
 
+std::string MungPlex::ProcessInformation::getPlatformNameFromId(const int id)
+{
+	for (auto& platform : _systems)
+		if (platform.second == _platformID)
+			return platform.first;
+
+	return "";
+}
+
 void MungPlex::ProcessInformation::setupSearch()
 {
 	Search::SetRereorderRegion(_rereorderRegion);
@@ -463,7 +497,7 @@ bool MungPlex::ProcessInformation::initConsoleConnection(const int connectionTyp
 	_rpcGameID = iConsoleConnectionWrapper->GetRrpGameID();
 	_gameName = iConsoleConnectionWrapper->GetGameName();
 	_platformID = iConsoleConnectionWrapper->GetPlatformID();
-	_platform = _systems.GetStdStringById(_platformID);
+	_platform = getPlatformNameFromId(_platformID);
 	PointerSearch::SelectPreset(_platformID);
 	setupSearch();
 	Search::SetDefaultSearchSettings();
@@ -768,7 +802,7 @@ bool MungPlex::ProcessInformation::IsConnectionValid()
 	}
 }
 
-const MungPlex::StringIdPairs& MungPlex::ProcessInformation::GetSystemList()
+const MungPlex::StringIdCombo::Type& MungPlex::ProcessInformation::GetSystemList()
 {
 	return _systems;
 }

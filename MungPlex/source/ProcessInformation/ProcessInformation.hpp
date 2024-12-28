@@ -72,7 +72,7 @@ namespace MungPlex
         static const RegionPairs& GetSystemRegionList_();
         static std::vector<SystemRegion>& GetSystemRegionList();
         static bool IsConnectionValid();
-        static const StringIdPairs& GetSystemList();
+        static const StringIdCombo::Type& GetSystemList();
         static void SetWindowRef(GLFWwindow* window);
         static void ResetWindowTitle();
         static void* GetPointerFromPointerPathExpression(const std::vector<int64_t>& pointerPath, const bool useModule = false, const int64_t moduleAddress = 0);
@@ -289,7 +289,7 @@ namespace MungPlex
         std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
         static RegionPairs __systemRegions;
         static const StringIdCombo::Type _emulators;
-        static const StringIdPairs _systems;
+        static const StringIdCombo::Type _systems;
         static const StringIdPairs _consoleConnectionTypes;
         std::wstring _exePath;
         bool _read = true;
@@ -312,5 +312,6 @@ namespace MungPlex
         void setupCheats();
         void refreshModuleList();
         bool connectToProcessFR();
+        std::string getPlatformNameFromId(const int id);
     };
 }

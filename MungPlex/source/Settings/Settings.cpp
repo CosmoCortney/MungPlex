@@ -364,8 +364,8 @@ void MungPlex::Settings::createDocFolders()
 		if (dir.compare("Search") == 0) // dont consider this one for system-specific subdirs
 			continue;
 
-		for(int i = 0; i < ProcessInformation::GetSystemList().GetCount(); ++i)
-			validateDir(mungPlexDocsPath + '\\' + dir + '\\' + ProcessInformation::GetSystemList().GetStdString(i));
+		for(int i = 0; i < ProcessInformation::GetSystemList().size(); ++i)
+			validateDir(mungPlexDocsPath + '\\' + dir + '\\' + ProcessInformation::GetSystemList()[i].first);
 	}
 }
 
