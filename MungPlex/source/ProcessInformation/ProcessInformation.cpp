@@ -23,11 +23,23 @@
 #include "WatchControl.hpp"
 #include <Windows.h>
 
-inline const MungPlex::StringIdPairs MungPlex::ProcessInformation::_emulators =
+inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_emulators =
 {
-	{ "Mesen", "Project64", "Dolphin", "Cemu", "Yuzu", "mGBA", "melonDS", "Lime3DS", "No$psx", "pcsx2", "Rpcs3", "PPSSPP", "Fusion" }, 
-	{ MESEN,   PROJECT64,   DOLPHIN,   CEMU,   YUZU,   mGBA,   MELONDS,   LIME3DS,   NO$PSX,   PCSX2,   RPCS3,   PPSSPP,   FUSION }, 
-	"Emulator:"
+	{
+		{ "Mesen", MESEN },
+		{ "Project64", PROJECT64 },
+		{ "Dolphin", DOLPHIN },
+		{ "Cemu", CEMU },
+		{ "Yuzu", YUZU },
+		{ "mGBA", mGBA },
+		{ "melonDS", MELONDS },
+		{ "Lime3DS", LIME3DS },
+		{ "No$psx", NO$PSX },
+		{ "pcsx2", PCSX2 },
+		{ "Rpcs3", RPCS3 },
+		{ "PPSSPP", PPSSPP },
+		{ "Fusion", FUSION  }
+	}
 };
 
 inline const MungPlex::StringIdPairs MungPlex::ProcessInformation::_systems =
@@ -265,7 +277,7 @@ void MungPlex::ProcessInformation::drawGameInformation()
 bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 {
 	std::shared_ptr<IEmulator> iemulator;
-	const std::wstring emuName = MT::Convert<const char*, std::wstring>(_emulators.GetCString(emulatorIndex), MT::UTF8, MT::UTF16LE);
+	const std::wstring emuName = MT::Convert<std::string, std::wstring>(_emulators[emulatorIndex].first, MT::UTF8, MT::UTF16LE);
 	_gameID.clear();
 	_gameRegion.clear();
 	_platform.clear();
@@ -277,7 +289,7 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	
 	bool connected;
 
-	switch (_emulators.GetId(emulatorIndex))
+	switch (_emulators[emulatorIndex].second)
 	{
 		case DOLPHIN:
 		{
@@ -513,7 +525,7 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	return true; 
 }
 
-const MungPlex::StringIdPairs& MungPlex::ProcessInformation::GetEmulatorList()
+const MungPlex::StringIdCombo::Type& MungPlex::ProcessInformation::GetEmulatorList()
 {
 	return _emulators;
 }

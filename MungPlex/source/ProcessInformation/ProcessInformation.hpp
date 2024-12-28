@@ -46,7 +46,7 @@ namespace MungPlex
         static bool ConnectToProcess(int processIndex);
         static bool ConnectToApplicationProcess(int applicationProcessIndex);
         static bool ConnectToRealConsole(const int type);
-        static const StringIdPairs& GetEmulatorList();
+        static const StringIdCombo::Type& GetEmulatorList();
         static const StringIdPairs& GetConsoleConnectionTypeList();
         static int32_t GetProcessType();
         static int32_t GetConsoleConnectionType();
@@ -287,9 +287,8 @@ namespace MungPlex
         std::vector<GameEntity> _gameEntities;
         std::vector<SystemRegion> _systemRegions;
         std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
-        int32_t _currentEmulatorNumber = -1;
         static RegionPairs __systemRegions;
-        static const StringIdPairs _emulators;
+        static const StringIdCombo::Type _emulators;
         static const StringIdPairs _systems;
         static const StringIdPairs _consoleConnectionTypes;
         std::wstring _exePath;

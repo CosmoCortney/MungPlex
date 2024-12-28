@@ -13,6 +13,12 @@
 #include "Settings.hpp"
 #include <thread>
 
+MungPlex::Connection::Connection()
+{
+	_emulatorSelectCombo.SetItems(ProcessInformation::GetEmulatorList());
+	_emulatorSelectCombo.SetHelpText("Emulators are always in development and therefore crucial things may change that will prevent MungPlex from finding the needed memory regions and game ID. If this is the case report it at the MungPlex discord server so it can be fixed :)", true);
+}
+
 void MungPlex::Connection::DrawWindow()
 {
 	if (ImGui::Begin("Connection"))
@@ -91,27 +97,28 @@ void MungPlex::Connection::checkConnection()
 
 void MungPlex::Connection::drawEmulatorsTabItem()
 {
-	static std::string emuSelect;
-	static StringIdPairs emulators = ProcessInformation::GetEmulatorList();
+	static uint32_t emuId = 0;
+	static bool disable = false;
 
 	if (ImGui::BeginTabItem("Emulator"))
 	{
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-		SetUpPairCombo(emulators, &_selectedEmulatorIndex, 1.0f, 0.5f, true, "Emulators are always in development and therefore crucial things may change that will prevent MungPlex from finding the needed memory regions and game ID. If this is the case report it at the MungPlex discord server so it can be fixed :)");
+		_emulatorSelectCombo.Draw(1.0f, 0.5f);
 		
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-		bool disable = _checkConnectionThreadFlag;
+		disable = _checkConnectionThreadFlag;
 		if (disable) ImGui::BeginDisabled();
 
 		if (ImGui::Button("Connect"))
 		{
-			_connected = ProcessInformation::ConnectToEmulator(_selectedEmulatorIndex);
+			emuId = _emulatorSelectCombo.GetSelectedId();
+			_connected = ProcessInformation::ConnectToEmulator(_emulatorSelectCombo.GetSelectedIndex());
 
 			if (_connected)
 			{
-				_connectionMessage = "Connected to emulator: " + ProcessInformation::GetEmulatorList().GetStdString(_selectedEmulatorIndex);
+				_connectionMessage = "Connected to emulator: " + _emulatorSelectCombo.GetSelectedStdString();
 				std::string details = std::string("Messing with "
 					+ ProcessInformation::GetTitle()
 					+ " (" + ProcessInformation::GetPlatform() + ", "
@@ -131,13 +138,13 @@ void MungPlex::Connection::drawEmulatorsTabItem()
 
 		drawDisconnectButton();
 
-		if (_selectedEmulatorIndex == ProcessInformation::MESEN || _selectedEmulatorIndex == ProcessInformation::LIME3DS || _selectedEmulatorIndex == ProcessInformation::RPCS3 || _selectedEmulatorIndex == ProcessInformation::YUZU)
+		if (emuId == ProcessInformation::MESEN || emuId == ProcessInformation::LIME3DS || emuId == ProcessInformation::RPCS3 || emuId == ProcessInformation::YUZU)
 		{
 			ImGui::SameLine();
 			ImGui::Text("Important:");
 			ImGui::SameLine();
 
-			switch (_selectedEmulatorIndex)
+			switch (emuId)
 			{
 			case ProcessInformation::MESEN:
 				HelpMarker("SNES support only. In order to connect to Mesen disable rewind by going to \"Settings/Preferences/Advanced/\" and uncheck \"Allow rewind to use up to...\". Also apply the lua script \"MungPlex/resources/setMesenMungPlexFlag.lua\"");
