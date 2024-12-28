@@ -47,7 +47,7 @@ namespace MungPlex
         static bool ConnectToApplicationProcess(int applicationProcessIndex);
         static bool ConnectToRealConsole(const int type);
         static const StringIdCombo::Type& GetEmulatorList();
-        static const StringIdPairs& GetConsoleConnectionTypeList();
+        static const StringIdCombo::Type& GetConsoleConnectionTypeList();
         static int32_t GetProcessType();
         static int32_t GetConsoleConnectionType();
         static int32_t GetPID();
@@ -290,7 +290,7 @@ namespace MungPlex
         static RegionPairs __systemRegions;
         static const StringIdCombo::Type _emulators;
         static const StringIdCombo::Type _systems;
-        static const StringIdPairs _consoleConnectionTypes;
+        static const StringIdCombo::Type _consoleConnectionTypes;
         std::wstring _exePath;
         bool _read = true;
         bool _write = true;

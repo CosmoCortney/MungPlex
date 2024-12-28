@@ -81,9 +81,11 @@ inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_system
 	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::ProcessInformation::_consoleConnectionTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_consoleConnectionTypes =
 { 
-	{"USB Gecko"}, {CON_USBGecko}, "Connection Type:"
+	{
+		{ "USB Gecko", CON_USBGecko }
+	}
 };
 
 inline MungPlex::RegionPairs MungPlex::ProcessInformation::__systemRegions = { "Regions:" };
@@ -564,7 +566,7 @@ const MungPlex::StringIdCombo::Type& MungPlex::ProcessInformation::GetEmulatorLi
 	return _emulators;
 }
 
-const MungPlex::StringIdPairs& MungPlex::ProcessInformation::GetConsoleConnectionTypeList()
+const MungPlex::StringIdCombo::Type& MungPlex::ProcessInformation::GetConsoleConnectionTypeList()
 {
 	return _consoleConnectionTypes;
 }

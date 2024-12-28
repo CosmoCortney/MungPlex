@@ -41,6 +41,7 @@ namespace MungPlex
         boost::thread _checkConnectionThread;
         boost::atomic<bool> _checkConnectionThreadFlag = false;
         StringIdCombo _emulatorSelectCombo = StringIdCombo("Emulator:", true);
+        StringIdCombo _connectionTypeCombo = StringIdCombo("Connection Type:", true);
 
         void drawConnectionSelect();
         void startConnectionCheck();

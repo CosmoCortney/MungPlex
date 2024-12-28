@@ -17,6 +17,7 @@ MungPlex::Connection::Connection()
 {
 	_emulatorSelectCombo.SetItems(ProcessInformation::GetEmulatorList());
 	_emulatorSelectCombo.SetHelpText("Emulators are always in development and therefore crucial things may change that will prevent MungPlex from finding the needed memory regions and game ID. If this is the case report it at the MungPlex discord server so it can be fixed :)", true);
+	_connectionTypeCombo.SetItems(ProcessInformation::GetConsoleConnectionTypeList());
 }
 
 void MungPlex::Connection::DrawWindow()
@@ -247,17 +248,15 @@ void MungPlex::Connection::drawConsoleTabItem()
 {
 	if (ImGui::BeginTabItem("Real Console"))
 	{
-		static int sel = 0;
-		static StringIdPairs connectionTypes = ProcessInformation::GetConsoleConnectionTypeList();
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
-		SetUpPairCombo(connectionTypes, &sel, 1.0f, 0.5f);
+		_connectionTypeCombo.Draw(1.0f, 0.5f);
 
 		bool disable = _checkConnectionThreadFlag;
 		if (disable) ImGui::BeginDisabled();
 
 		if (ImGui::Button("Connect"))
 		{
-			_connected = ProcessInformation::ConnectToRealConsole(connectionTypes.GetId(sel));
+			_connected = ProcessInformation::ConnectToRealConsole(_connectionTypeCombo.GetSelectedId());
 		
 			if (_connected)
 			{
