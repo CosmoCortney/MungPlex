@@ -26,9 +26,9 @@ namespace MungPlex
             return Instance;
         }
 
-        static const std::vector<std::pair<std::string, uint32_t>> _specializedColorTypes;
-        static const std::vector<std::pair<std::string, uint32_t>> _floatTypes;
-        static const std::vector<std::pair<std::string, uint32_t>> _intTypes;
+        static const StringIdCombo::Type _specializedColorTypes;
+        static const StringIdCombo::Type _floatTypes;
+        static const StringIdCombo::Type _intTypes;
         ImVec2 _verticalSpacing;
         InputText _specializedColorValueInput = InputText("Specializes Color Val:", false, "", 32);
         InputInt<uint32_t> _hexFloatInput = InputInt<uint32_t>("Hex Float:", true, 0x3F800000, 0x10000, 0x1000000);
@@ -45,6 +45,7 @@ namespace MungPlex
         StringIdCombo _intTypesCombo = StringIdCombo("Int Type:", true, _intTypes);
         StringIdCombo _floatTypesCombo = StringIdCombo("Float Type:", true, _floatTypes);
         StringIdCombo _colorTypesCombo = StringIdCombo("Color Type:", true, _specializedColorTypes);
+        StringIdCombo _textTypesCombo = StringIdCombo("Encoding:", true, TextTypes_);
 
         void drawPrimitiveConversion();
         void drawHexFloatConversion();

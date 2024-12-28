@@ -6,17 +6,17 @@
 #include <utility>
 #include "Xertz.hpp"
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::DataConversion::_specializedColorTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::DataConversion::_specializedColorTypes =
 {
 	{
-		{"RGBF (3 Floats)", LitColor::RGBF },
-		{"RGBAF (4 Floats)", LitColor::RGBAF },
-		{"RGB 565 (2 Bytes)", LitColor::RGB565 },
-		{"RGB 5A3 (2 Bytes)", LitColor::RGB5A3 }
+		{ "RGBF (3 Floats)", LitColor::RGBF },
+		{ "RGBAF (4 Floats)", LitColor::RGBAF },
+		{ "RGB 565 (2 Bytes)", LitColor::RGB565 },
+		{ "RGB 5A3 (2 Bytes)", LitColor::RGB5A3 }
 	}
 };
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::DataConversion::_floatTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::DataConversion::_floatTypes =
 {
 	{
 		{ "Single", FLOAT },
@@ -24,7 +24,7 @@ inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::DataConvers
 	}
 };
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::DataConversion::_intTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::DataConversion::_intTypes =
 {
 	{
 		{ "Int 16", INT16 },
@@ -90,17 +90,12 @@ void MungPlex::DataConversion::drawTextConversion()
 		static std::string convertedText(charCount, 0);
 		static MemoryEditor memEdit;
 		static int memEditFlags = MemoryEditor::HIDE_OPTIONS | MemoryEditor::HIDE_ASCII;
-		static int textTypeSelect = MorphText::UTF8;
-		static int textTypeIndex = 0;
 		static bool update = true;
 
 		ImGui::BeginGroup();
 		{
-			if (SetUpPairCombo(TextTypes, &textTypeIndex, 0.5f, 0.35f))
-			{
-				textTypeSelect = TextTypes.GetId(textTypeIndex);
+			if (_textTypesCombo.Draw(0.5f, 0.35f))
 				update = true;
-			}
 
 			float height = 1.0f - ImGui::GetCursorPosY() / ImGui::GetContentRegionAvail().y;
 			if (_plainTextInput.Draw(0.5f, height))
@@ -116,7 +111,7 @@ void MungPlex::DataConversion::drawTextConversion()
 		{
 			if (memEdit.DrawContents(convertedText.data(), convertedText.size(), 0, NULL, nullptr, false, memEditFlags))
 			{
-				convertHexText(convertedText, plainText, textTypeSelect);
+				convertHexText(convertedText, plainText, _textTypesCombo.GetSelectedId());
 				_plainTextInput.SetText(plainText);
 			}
 
@@ -125,7 +120,7 @@ void MungPlex::DataConversion::drawTextConversion()
 			if (update)
 			{
 				plainText = _plainTextInput.GetStdString();
-				convertText(plainText, convertedText, textTypeSelect);
+				convertText(plainText, convertedText, _textTypesCombo.GetSelectedId());
 				update = false;
 			}	
 		}
