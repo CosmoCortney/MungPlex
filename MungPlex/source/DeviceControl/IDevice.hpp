@@ -14,8 +14,8 @@ namespace MungPlex
         {
             XINPUT, LOVENSE, TOBII, UNK = -1
         };
-        static const StringIdPairs s_DeviceTypes;
-        static const StringIdPairs s_ValueTypes;
+        static const StringIdCombo::Type s_DeviceTypes;
+        static const StringIdCombo::Type s_ValueTypes;
         int GetID();
         virtual void Draw() = 0;
         virtual nlohmann::json GetJSON() = 0;

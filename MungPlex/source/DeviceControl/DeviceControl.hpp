@@ -34,6 +34,7 @@ namespace MungPlex
         std::vector<int> _deviceIds;
         std::wstring _currentFile;
         std::string _placeholderFile = "{\"DeviceList\":[]}";
+        StringIdCombo _deviceTypeSelectCombo = StringIdCombo("Device Type:", true, IDevice::s_DeviceTypes);
 
         void drawList();
         bool saveList();

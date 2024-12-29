@@ -107,11 +107,10 @@ void MungPlex::DeviceControl::drawList()
 {
 	ImGui::BeginChild("Device List", ImGui::GetContentRegionAvail(), true);
 	{
-		static int typeSelect = 0;
 		static uint64_t devicesCount = 0;
 		devicesCount = _devices.size();
 
-		SetUpPairCombo(IDevice::s_DeviceTypes, &typeSelect, 0.3f);
+		_deviceTypeSelectCombo.Draw();
 
 		ImGui::SameLine();
 
@@ -130,7 +129,7 @@ void MungPlex::DeviceControl::drawList()
 				}
 			}
 
-			switch (IDevice::s_DeviceTypes.GetId(typeSelect))
+			switch (_deviceTypeSelectCombo.GetSelectedId())
 			{
 			case IDevice::LOVENSE:
 				_devices.emplace_back(IDevice::LOVENSE, DeviceLovense(devicesCount));

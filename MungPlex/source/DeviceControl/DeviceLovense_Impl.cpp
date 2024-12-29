@@ -17,12 +17,11 @@ MungPlex::DeviceLovense::DeviceLovense(const int id, const nlohmann::json& json)
 {
 	_tokenInput.SetText(Settings::GetDeviceControlSettings().LovenseToken.StdStrNoLeadinZeros());
 	_deviceTypeID = IDevice::LOVENSE;
-	_valueType = json["valueType"];
+	_valueTypeSelectCombo.SetSelectedById(json["valueType"]);
 	_nameInput.SetText(json["name"]);
-	_valueTypeIndex = s_ValueTypes.GetIndexById(_valueType);
 	setHelpTexts();
 
-	switch (_valueType)
+	switch (_valueTypeSelectCombo.GetSelectedId())
 	{
 	case FLOAT:
 		_maxFoatInput.SetValue(json["maxF"]);
@@ -94,8 +93,7 @@ void MungPlex::DeviceLovense::assign(const DeviceLovense& other)
 	_rangeMax = other._rangeMax;
 	_vibrationValue = other._vibrationValue;
 	_previousVibrationValue = other._previousVibrationValue;
-	_valueType = other._valueType;
-	_valueTypeIndex = other._valueTypeIndex;
+	_valueTypeSelectCombo = other._valueTypeSelectCombo;
 	_plotVals = other._plotVals;
 	_abortPlot = other._abortPlot;
 	ParsePointerPath(_pointerPath, _pointerPathInput.GetStdStringNoZeros());
@@ -147,10 +145,10 @@ nlohmann::json MungPlex::DeviceLovense::GetJSON()
 {
 	nlohmann::json elemJson;
 	elemJson["deviceType"] = LOVENSE;
-	elemJson["valueType"] = _valueType;
+	elemJson["valueType"] = _valueTypeSelectCombo.GetSelectedId();
 	elemJson["name"] = _nameInput.GetStdStringNoZeros();
 
-	switch (_valueType)
+	switch (_valueTypeSelectCombo.GetSelectedId())
 	{
 	case FLOAT:
 		elemJson["maxF"] = _maxFoatInput.GetValue();
@@ -288,15 +286,14 @@ void MungPlex::DeviceLovense::drawToyInfo()
 
 void MungPlex::DeviceLovense::drawValueTypeOptions()
 {
-	if (SetUpPairCombo(s_ValueTypes, &_valueTypeIndex, 0.5f))
-		_valueType = s_ValueTypes.GetId(_valueTypeIndex);
+	_valueTypeSelectCombo.Draw(0.3f);
 
-	if(_valueType != BOOL)
+	if(_valueTypeSelectCombo.GetSelectedId() != BOOL)
 		ImGui::SameLine();
 
 	const std::string info = "The maximum read value to be considered.";
 
-	switch (_valueType)
+	switch (_valueTypeSelectCombo.GetSelectedId())
 	{
 	case FLOAT:
 		_maxFoatInput.Draw(1.0f, 5.0f);
@@ -354,7 +351,7 @@ void MungPlex::DeviceLovense::controlToy()
 
 			if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
 			{
-				switch (_valueType)
+				switch (_valueTypeSelectCombo.GetSelectedId())
 				{
 					case BOOL:
 					{

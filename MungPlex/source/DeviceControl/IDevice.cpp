@@ -1,18 +1,24 @@
 #include "IDevice.hpp"
 #include "HelperFunctions.hpp"
 
-inline const MungPlex::StringIdPairs MungPlex::IDevice::s_DeviceTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::IDevice::s_DeviceTypes =
 {
-	{ "Lovense" },
-	{ LOVENSE },
-	"Device Type:"
+	{
+		{ "Lovense", LOVENSE }
+	}
 };
 
-inline const MungPlex::StringIdPairs MungPlex::IDevice::s_ValueTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::IDevice::s_ValueTypes =
 {
-	{ "Int 8 (1 Byte)", "Int 16 (2 Bytes)", "Int 32 (4 Bytes)", "Int 64 (8 Bytes)", "Float Single", "Float Double", "Bool" },
-	{ INT8,             INT16,              INT32,              INT64,              FLOAT,          DOUBLE,         BOOL },
-	"Value Type:"
+	{
+		{ "Int 8 (1 Byte)", INT8 },
+		{ "Int 16 (2 Bytes)", INT16 },
+		{ "Int 32 (4 Bytes)", INT32 },
+		{ "Int 64 (8 Bytes)", INT64, },
+		{ "Float Single", FLOAT },
+		{ "Float Double", DOUBLE },
+		{ "Bool",  BOOL }
+	}
 };
 
 int MungPlex::IDevice::GetID()

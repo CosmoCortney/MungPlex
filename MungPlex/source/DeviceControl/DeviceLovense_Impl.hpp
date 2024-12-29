@@ -51,8 +51,7 @@ namespace MungPlex
         int _toyError = CLovenseToy::TOYERR_SUCCESS;
 
         //value
-        int _valueType = INT32;
-        int _valueTypeIndex = 0;
+        StringIdCombo _valueTypeSelectCombo = StringIdCombo("Value Type:", true, IDevice::s_ValueTypes);
         InputFloat<float> _maxFoatInput = InputFloat<float>("Max Value:", true, 20.0f, 0.5f, 2.0f, 1);
         InputFloat<double> _maxDoubleInput = InputFloat<double>("Max Value:", true, 20.0, 0.5, 2.0, 1);
         InputFloat<int64_t> _maxIntInput = InputFloat<int64_t>("Max Value:", true, 20, 1, 2);
