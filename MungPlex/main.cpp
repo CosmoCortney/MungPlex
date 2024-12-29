@@ -170,16 +170,9 @@ int main()
 			ImGui::ShowDemoWindow(&show_demo_window);
 		}
 
-		static bool setWindowFocused = true;
-		if (setWindowFocused)
-		{
-			ImGui::SetWindowFocus(MungPlex::Settings::GetGeneralSettings().Windows.GetCString(MungPlex::Settings::GetGeneralSettings().DefaultWindowSelect));
-			setWindowFocused = false;
-		}
-
+		ImGui::SetWindowFocus(MungPlex::Settings::GetGeneralSettings().Windows[MungPlex::Settings::GetGeneralSettings().DefaultWindowSelect].first.c_str());
 		ImGui::Render();
 
-		
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			const auto backup_current_context = glfwGetCurrentContext();

@@ -12,11 +12,17 @@ namespace MungPlex
     {
         FloorString DocumentsPath = FloorString("", 512);
         float Scale = 1.2f;
-        StringIdPairs Windows =
+        static inline StringIdCombo::Type Windows =
         {
-            { "Search", "Cheats", "Pointer Search", "Device Control", "Process Information", "Settings" },
-            { 0,        0,        0,                0,                0,                     0 },
-            "Default Active Window:"
+            {
+                { "Search", 0 },
+                { "Cheats", 0 },
+                { "Pointer Search", 0 },
+                { "Device Control", 0 },
+                { "Process Information", 0 },
+                { "Watch & Control", 0 },
+                { "Settings", 0 }
+            }
         };
         int DefaultWindowSelect = 0;
         bool EnableRichPresence = false;
@@ -75,7 +81,7 @@ namespace MungPlex
         InputText _lovenseTokenInput = InputText("Lovense Token:", true, "", 128, ImGuiInputTextFlags_Password);
         InputInt<uint32_t> _defaultAlignmentInput = InputInt<uint32_t>("Default Alignment:", true, 4, 1, 1);
         InputInt<uint32_t> _cheatsDefaultIntervalInput = InputInt<uint32_t>("Default Intervsl:", true, 60, 1, 10);
-
+        StringIdCombo _defaultActiveWindowCombo = StringIdCombo("Deefault Active Window:", true, GeneralSettings::Windows);
 
         const std::vector<std::string> _featureDirs
         {

@@ -53,6 +53,7 @@ MungPlex::Settings::Settings()
 	_defaultStyle.Colors[ImGuiCol_PlotHistogramHovered] = _defaultStyle.Colors[ImGuiCol_PlotLinesHovered] = { 0.0f, 0.9f, 0.75f, 1.0f };
 
 	_documentsPathInput.SetHelpText("Where you want MungPlex to save data. An SSD is recommended for fast memory dump streeaming. Changes take effect after restarting!", true);
+	_defaultActiveWindowCombo.SetHelpText("Window to be active on startup (Search, Cheats, ...).", true);
 }
 
 void MungPlex::Settings::InitSettings()
@@ -74,6 +75,7 @@ void MungPlex::Settings::InitSettings()
 		generalSettings.DocumentsPath = settings["General"]["DocumentsPath"].get<std::string>();
 		generalSettings.Scale = settings["General"]["Scale"].get<float>();
 		generalSettings.DefaultWindowSelect = settings["General"]["DefaultWindowSelect"].get<int>();
+		GetInstance()._defaultActiveWindowCombo.SetSelectedByIndex(generalSettings.DefaultWindowSelect);
 
 		if (settings["General"].contains("EnableRichPresence"))
 			generalSettings.EnableRichPresence = settings["General"]["EnableRichPresence"].get<bool>();
@@ -212,7 +214,8 @@ void MungPlex::Settings::drawGeneralSettings()
 			//if (ImGui::Button("Apply Scale"))
 			//	style.ScaleAllSizes(_generalSettings.Scale);
 
-			SetUpPairCombo(_generalSettings.Windows, &_generalSettings.DefaultWindowSelect, 1.0f, 0.2f, true, "Window to be active on startup (Search, Cheats, ...).");
+			if(_defaultActiveWindowCombo.Draw(1.0f, 0.2f))
+				_generalSettings.DefaultWindowSelect = _defaultActiveWindowCombo.GetSelectedIndex();
 		
 		if (ImGui::Checkbox("Enable Discord Rich Presence", &_generalSettings.EnableRichPresence))
 			if (Connection::IsConnected() && _generalSettings.EnableRichPresence)
@@ -431,6 +434,7 @@ void MungPlex::Settings::resetSettings()
 	_generalSettings.DocumentsPath = MT::Convert<wchar_t*, std::string>(path, MT::UTF16LE, MT::UTF8);
 	_generalSettings.Scale = 1.2f;
 	_generalSettings.DefaultWindowSelect = 0;
+	_defaultActiveWindowCombo.SetSelectedByIndex(0);
 	_generalSettings.EnableRichPresence = false;
 	saveSettings();
 }
