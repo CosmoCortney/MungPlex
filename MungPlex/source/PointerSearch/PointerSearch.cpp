@@ -20,6 +20,24 @@ inline const MungPlex::StringIdBoolPairs MungPlex::PointerSearch::_systemPresets
     "System Preset:"
 };
 
+inline const MungPlex::StringIdCombo::Type MungPlex::PointerSearch::_addressWidthTypes =
+{
+    {
+        { "1 Byte", 1 },
+        { "2 Bytes", 2 },
+        { "4 Bytes", 4 },
+        { "8 Bytes", 8 }
+    }
+};
+
+inline const MungPlex::StringIdCombo::Type MungPlex::PointerSearch::_inputFileTypes =
+{
+    {
+        { "Memory Dump", 0 },
+        { "Pointer Map", 0 }
+    }
+};
+
 MungPlex::PointerSearch::PointerSearch()
 {
     _defaultPath = Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros();
@@ -32,6 +50,7 @@ MungPlex::PointerSearch::PointerSearch()
     _minPointerDepthInput.SetHelpText("Minimum pointer level depth. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value is usually always 1.", true);
     _maxPointerDepthInput.SetHelpText("Maximum pointer level depth. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value can be the same as \"Minimum Pointer Depth\" if you don't want any extra depth. A higher value will increase the results count but also scan time.", true);
     _maxPointerCountInput.SetHelpText("Maximum amount of pointers to be generated. Smaller values may decrease scan time and but also the likeability to find working pointer paths.", true);
+    _addressWidthSelectCombo.SetHelpText("Address width of the dump's system.", true);
 }
 
 void MungPlex::PointerSearch::DrawWindow()
@@ -100,15 +119,11 @@ void MungPlex::PointerSearch::drawSettings()
                 _maxPointerDepthInput.SetValue(_minPointerDepthInput.GetValue());
         }
 
-        static const StringIdPairs addressWidthSelect = { { "1 Byte", "2 Bytes", "4 Bytes", "8 Bytes" }, { 0, 1, 2, 3 }, "Address Width:" };
-
-        if (SetUpPairCombo(addressWidthSelect, &_addressWidthIndex, 1.0f, 0.3f, true, "Address width of the dump's system."))
-            _addressWidth = 1 << _addressWidthIndex;
-
+        _addressWidthSelectCombo.Draw(1.0f, 0.3f);
         _resultsPathInput.Draw(1.0f, 0.3f);
         SetUpSliderFloat("Max. Memory Utilization Fraction:", &_maxMemUtilizationFraction, 0.1f, 0.95f, "%2f", 1.0f, 0.5f);
         _maxPointerCountInput.Draw(1.0f, 0.3f);
-        SetUpPairCombo(_inputTypeSelect, &_selectedInputType, 1.0f, 0.3f);
+        //_inputFileTypeSelectCombo.Draw(1.0f, 0.3f); todo
 
         if (ImGui::Button("Add File"))
         {
@@ -399,7 +414,7 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
     _args.emplace_back("--endian");
     _args.emplace_back(_isBigEndian ? "big" : "little");
     _args.emplace_back("--address-size");
-    _args.push_back(std::to_string(_addressWidth));
+    _args.push_back(std::to_string(_addressWidthSelectCombo.GetSelectedId()));
     _args.emplace_back("--pointer-offset-range");
     _args.push_back(_minOffsetInput.GetStdStringNoZeros() + "," + _maxOffsetInput.GetStdStringNoZeros());
 	_args.emplace_back("--pointer-depth-range");
@@ -437,15 +452,15 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
 void MungPlex::PointerSearch::SelectPreset(const int presetIndex)
 {
     GetInstance()._presetSelect = presetIndex;
-    GetInstance()._addressWidthIndex = _systemPresets.GetId(presetIndex);
+    GetInstance()._addressWidthSelectCombo.SetSelectedByIndex(_systemPresets.GetId(presetIndex));
     GetInstance()._isBigEndian = _systemPresets.GetFlag(presetIndex);
 }
 
 bool MungPlex::PointerSearch::loadResults()
 {
     std::ifstream resultsFile;
-
     resultsFile.open(_resultsPathInput.GetStdStringNoZeros());
+
     if (!resultsFile) {
         Log::LogInformation("Error loading pointer results");
         return false;
