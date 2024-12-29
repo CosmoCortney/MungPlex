@@ -2,25 +2,36 @@
 #include "imgui.h"
 #include "ProcessInformation.hpp"
 
-inline const MungPlex::StringIdPairs MungPlex::IView::s_IntTypes =
+inline const MungPlex::StringIdCombo::Type MungPlex::IView::s_IntTypes =
 {
-	{ "Int 8",          "UInt 8",         "Int 16",          "UInt 16",         "Int 32",          "UInt 32",         "Int 64",          "UInt 64" },
-	{ ImGuiDataType_S8, ImGuiDataType_U8, ImGuiDataType_S16, ImGuiDataType_U16, ImGuiDataType_S32, ImGuiDataType_U32, ImGuiDataType_S64, ImGuiDataType_U64 },
-	"Int Type:"
+	{
+		{ "Int 8", ImGuiDataType_S8 },
+		{ "UInt 8", ImGuiDataType_U8 },
+		{ "Int 16", ImGuiDataType_S16 },
+		{ "UInt 16", ImGuiDataType_U16 },
+		{ "Int 32", ImGuiDataType_S32 },
+		{ "UInt 32", ImGuiDataType_U32 },
+		{ "Int 64", ImGuiDataType_S64 },
+		{ "UInt 64", ImGuiDataType_U64 }
+	}
 };
 
-inline const MungPlex::StringIdPairs  MungPlex::IView::s_FloatTypes =
+inline const MungPlex::StringIdCombo::Type  MungPlex::IView::s_FloatTypes =
 {
-	{ "Single", "Double" },
-	{ ImGuiDataType_Float, ImGuiDataType_Double },
-	"Float Type:"
+	{
+		{ "Single", ImGuiDataType_Float },
+		{ "Double", ImGuiDataType_Double }
+	}
 };
 
-inline const MungPlex::StringIdPairs  MungPlex::IView::s_SuperiorTypes =
+inline const MungPlex::StringIdCombo::Type  MungPlex::IView::s_SuperiorTypes =
 {
-	{ "Integral", "Float", "Bool", "DIP Switch" },
-	{ INTEGRAL, FLOAT, BOOL, MOUSEPIANO },
-	"Item Type:"
+	{
+		{ "Integral", INTEGRAL },
+		{ "Float", FLOAT },
+		{ "Bool", BOOL },
+		{ "DIP Switch", MOUSEPIANO }
+	}
 };
 
 int MungPlex::IView::GetID()
@@ -85,14 +96,21 @@ bool MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHe
 			_disableSignal = !_enableSignal;
 		}
 
-
 		switch (type)
 		{
 		case ViewTypes::FLOAT:
-			res |= SetUpPairCombo(s_FloatTypes, &_typeSelect, 1.0f, 0.5f);
+			if (_floatTypeSelectCombo.Draw(1.0f, 0.5f))
+			{
+				res = true;
+				_typeSelect = _floatTypeSelectCombo.GetSelectedId();
+			}
 			break;
 		case ViewTypes::INTEGRAL:
-			res |= SetUpPairCombo(s_IntTypes, &_typeSelect, 1.0f, 0.5f);
+			if (_intTypeSelectCombo.Draw(1.0f, 0.5f))
+			{
+				res = true;
+				_typeSelect = _intTypeSelectCombo.GetSelectedId();
+			}
 			break;
 		}
 

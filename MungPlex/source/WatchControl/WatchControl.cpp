@@ -154,11 +154,11 @@ void MungPlex::WatchControl::drawList()
 {
 	ImGui::BeginChild("Watch List");
 	{
-		static int typeSelect = 0;
+		//static int typeSelect = 0;
 		static uint64_t viewsCount = 0;
 		viewsCount = _views.size();
 
-		SetUpPairCombo(IView::s_SuperiorTypes, &typeSelect);
+		_typeSelectCombo.Draw();
 		ImGui::SameLine();
 
 		if (viewsCount >= 100) ImGui::BeginDisabled();
@@ -176,7 +176,7 @@ void MungPlex::WatchControl::drawList()
 				}
 			}
 
-			switch (IView::s_SuperiorTypes.GetId(typeSelect))
+			switch (_typeSelectCombo.GetSelectedId())
 			{
 			case IView::FLOAT:
 				_views.emplace_back(IView::FLOAT, FloatView(_ids.back()));

@@ -15,9 +15,9 @@ namespace MungPlex
             INTEGRAL, FLOAT, BOOL, MOUSEPIANO, MAP2D, MAP3D, COLOR
         };
 
-        static const StringIdPairs s_IntTypes;
-        static const StringIdPairs s_FloatTypes;
-        static const StringIdPairs s_SuperiorTypes;
+        static const StringIdCombo::Type s_IntTypes;
+        static const StringIdCombo::Type s_FloatTypes;
+        static const StringIdCombo::Type s_SuperiorTypes;
 
         int GetID();
         nlohmann::json GetBasicJSON();
@@ -31,6 +31,8 @@ namespace MungPlex
         InputText _moduleInput = InputText("Module:", false, "", 32);
         InputText _pointerPathInput = InputText("Pointer Path:", true, "", 256);
         InputText _labelInput = InputText("Title:", true, "", 128);
+        StringIdCombo _floatTypeSelectCombo = StringIdCombo("Float Type:", true, IView::s_FloatTypes);
+        StringIdCombo _intTypeSelectCombo = StringIdCombo("Int Type:", true, IView::s_IntTypes);
         std::vector<int64_t> _pointerPath;
         bool _useModulePath = false;
         uint64_t _moduleAddress = 0;

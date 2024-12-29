@@ -47,6 +47,7 @@ namespace MungPlex
         std::vector<int> _ids;
         std::wstring _currentFile;
         std::string _placeholderFile = "{\"Watchlist\":[]}";
+        StringIdCombo _typeSelectCombo = StringIdCombo("Type:", true, IView::s_SuperiorTypes);
 
         void drawList();
         bool saveList();
