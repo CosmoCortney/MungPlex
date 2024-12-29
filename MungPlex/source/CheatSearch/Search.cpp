@@ -118,8 +118,8 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_textSearchConditio
  inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchComparasionTypes =
 {
 	{
-		{ "Unknwon/Initial", MemoryCompare::KNOWN },
-		{ "Known Value", 0 }
+		{ "Unknwon/Initial", 0 },
+		{ "Known Value", MemoryCompare::KNOWN }
 	}
 };
 
