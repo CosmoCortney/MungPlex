@@ -6,9 +6,29 @@ MungPlex::StringIdCombo::StringIdCombo(const std::string& label, const bool prin
 {
 	_stringPointers.reserve(stringIdPairVec.size());
 	_stringIdPairVec = stringIdPairVec;
+	assignPointers();
+}
 
-	for (auto& item : _stringIdPairVec)
-		_stringPointers.push_back(item.first.c_str());
+MungPlex::StringIdCombo::StringIdCombo(const StringIdCombo& other)
+{
+	assign(other);
+}
+
+MungPlex::StringIdCombo& MungPlex::StringIdCombo::operator=(const StringIdCombo& other)
+{
+	assign(other);
+	return *this;
+}
+
+MungPlex::StringIdCombo::StringIdCombo(StringIdCombo&& other) noexcept
+{
+	assign(other);
+}
+
+MungPlex::StringIdCombo& MungPlex::StringIdCombo::operator=(StringIdCombo&& other) noexcept
+{
+	assign(other);
+	return *this;
 }
 
 bool MungPlex::StringIdCombo::Draw(const float paneWidth, const float labelPortion)
@@ -48,7 +68,7 @@ void MungPlex::StringIdCombo::SetSelectedById(const uint64_t id)
 
 void MungPlex::StringIdCombo::SetItems(const std::vector<std::pair<std::string, uint32_t>>& stringIdPairVec)
 {
-	*this = StringIdCombo(_label, true, stringIdPairVec);
+	*this = StringIdCombo(_label, _printLabel, stringIdPairVec);
 }
 
 uint32_t MungPlex::StringIdCombo::GetSelectedId() const
@@ -86,4 +106,23 @@ void MungPlex::StringIdCombo::PushBack(const std::pair<std::string, uint32_t>& s
 {
 	_stringIdPairVec.push_back(stringIdPair);
 	_stringPointers.push_back(_stringIdPairVec.back().first.c_str());
+}
+
+void MungPlex::StringIdCombo::assign(const StringIdCombo& other)
+{
+	_helpText = other._helpText;
+	_id = other._id;
+	_label = other._label;
+	_printLabel = other._printLabel;
+	_showHelpText = other._showHelpText;
+	_selectedIndex = other._selectedIndex;
+	_slotsOnIndexChanged = other._slotsOnIndexChanged;
+	_stringIdPairVec = other._stringIdPairVec;
+	assignPointers();
+}
+
+void MungPlex::StringIdCombo::assignPointers()
+{
+	for (auto& elem : _stringIdPairVec)
+		_stringPointers.push_back(elem.first.c_str());
 }

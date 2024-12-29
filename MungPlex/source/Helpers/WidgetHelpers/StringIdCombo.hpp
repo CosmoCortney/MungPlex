@@ -7,9 +7,15 @@ namespace MungPlex
     {
     public:
         typedef std::vector<std::pair<std::string, uint32_t>> Type;
-        StringIdCombo() = default;
+        //StringIdCombo() = default;
         StringIdCombo(const std::string& label, const bool printLabel) : ICombo(label, printLabel) {}
         StringIdCombo(const std::string& label, const bool printLabel, const std::vector<std::pair<std::string, uint32_t>>& stringIdPairVec);
+        //~StringIdCombo() = default;
+        StringIdCombo(const StringIdCombo& other);
+        StringIdCombo& operator=(const StringIdCombo& other);
+        StringIdCombo(StringIdCombo&& other) noexcept;
+        StringIdCombo& operator=(StringIdCombo&& other) noexcept;
+
         bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
         const std::string& GetStdStringAt(const uint64_t index);
         const std::string& GetSelectedStdString() const;
@@ -23,6 +29,9 @@ namespace MungPlex
     protected:
 
     private:
+        void assign(const StringIdCombo& other);
+        void assignPointers();
+
         std::vector<std::pair<std::string, uint32_t>> _stringIdPairVec{};
     };
 }
