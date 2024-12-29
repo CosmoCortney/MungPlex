@@ -7,6 +7,7 @@ namespace MungPlex
     class ICombo : public IWidget
     {
     public:
+        ICombo() = default;
         ICombo(const std::string& label, const bool printLabel = true) : IWidget(label, printLabel) {}
         virtual bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f) = 0;
         const uint64_t GetCount() const;
