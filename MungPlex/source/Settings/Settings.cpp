@@ -3,14 +3,59 @@
 #include "MungPlexConfig.hpp"
 #include <shlobj_core.h>
 
-inline const MungPlex::DoubleStringIdPairs MungPlex::Settings::_colorSettings =
+inline const MungPlex::DoubleStringIdCombo::Type MungPlex::Settings::_colorSettings =
 {
-	{ "Text",        "TextDisabled",        "TextSelectedBg",           "Background",      "ChildBG",          "PopupBG",          "FrameBG",          "FrameBGHovered",           "FrameBGActive",           "TitleBG",              "TitleBGActive",               "TitleBGCollapsed",               "ScrollbarBg",          "ScrollbarGrab",        "ScrollbarGrabHovered",        "ScrollbarGrabActive",        "CheckMark",        "SliderGrab",        "SliderGrabActive",        "Button",        "ButtonHovered",        "ButtonActive",        "Header",        "HeaderHovered",        "HeaderActive",        "Separator",	    "SeparatorHovered",       "SeparatorActive",         "ResizeGrip",        "ResizeGripHovered",        "ResizeGripActive",        "Tab",        "TabHovered",        "TabActive",        "TabUnfocused",        "TabUnfocusedActive",        "DockingPreview",        "DockingEmptyBG",           "TableHeaderBg",           "TableBorderStrong",         "TableBorderLight",        "TableRowBg",           "TableRowBgAlt",                  "WindowDim",                "PlotLines",        "PlotLinesHovered",        "PlotHistogram",        "PlotHistogramHovered" },
-	{ "Text",        "Text Disabled",       "Selected Text Background", "Background",      "Panel Background", "Popup Background", "Frame Background", "Frame Background Hovered", "Frame Background Active", "Title Bar Background", "Title Bar Background Active", "Title Bar Background Collapsed", "Scrollbar Background", "Scrollbar Grab",       "Scrollbar Grab Hovered",      "Scrollbar Grab Active",      "Check Mark",       "Slider Grab",       "Slider Grab Active",      "Button",        "Button Hovered",       "Button Active",       "Header" ,       "Header Hovered",       "Header Active",       "Separator" ,       "Separator Hovered",	  "Separator Active",        "Grip Resize",       "Grip Resize Hovered",      "Grip Resize Active",      "Tab",        "Tab Hovered",       "Tab Active",       "Tab Unfocused",       "Tab Unfocused Active",      "Docking Preview",       "Docking Empty Background", "Table Header Background", "Table Border Strong",       "Table Border Light" ,     "Table Row Background", "Table Row Background Alternate", "Window Dim",               "Plot Lines",       "Plot Lines Hovered",      "Plot Histogram",       "Plot Histogram Hovered" },
-	{ ImGuiCol_Text, ImGuiCol_TextDisabled, ImGuiCol_TextSelectedBg,    ImGuiCol_WindowBg, ImGuiCol_ChildBg,   ImGuiCol_PopupBg,   ImGuiCol_FrameBg,   ImGuiCol_FrameBgHovered,    ImGuiCol_FrameBgActive, 	  ImGuiCol_TitleBg,       ImGuiCol_TitleBgActive,         ImGuiCol_TitleBgCollapsed,       ImGuiCol_ScrollbarBg,   ImGuiCol_ScrollbarGrab, ImGuiCol_ScrollbarGrabHovered, ImGuiCol_ScrollbarGrabActive, ImGuiCol_CheckMark,	ImGuiCol_SliderGrab, ImGuiCol_SliderGrabActive, ImGuiCol_Button, ImGuiCol_ButtonHovered, ImGuiCol_ButtonActive, ImGuiCol_Header, ImGuiCol_HeaderHovered, ImGuiCol_HeaderActive, ImGuiCol_Separator,	ImGuiCol_SeparatorHovered, ImGuiCol_SeparatorActive, ImGuiCol_ResizeGrip, ImGuiCol_ResizeGripHovered, ImGuiCol_ResizeGripActive, ImGuiCol_Tab, ImGuiCol_TabHovered, ImGuiCol_TabActive, ImGuiCol_TabUnfocused, ImGuiCol_TabUnfocusedActive, ImGuiCol_DockingPreview, ImGuiCol_DockingEmptyBg,    ImGuiCol_TableHeaderBg, 	 ImGuiCol_TableBorderStrong, ImGuiCol_TableBorderLight, ImGuiCol_TableRowBg,    ImGuiCol_TableRowBgAlt,            ImGuiCol_ModalWindowDimBg, ImGuiCol_PlotLines, ImGuiCol_PlotLinesHovered, ImGuiCol_PlotHistogram, ImGuiCol_PlotHistogramHovered },
-	"Set Color:"
+	{
+		{ "Text", "Text", ImGuiCol_Text },
+		{ "Text Disabled", "TextDisabled", ImGuiCol_TextDisabled },
+		{ "Selected Text Background", "TextSelectedBg", ImGuiCol_TextSelectedBg },
+		{ "Background", "Background", ImGuiCol_WindowBg },
+		{ "Panel Background", "ChildBG", ImGuiCol_ChildBg },
+		{ "Popup Background", "PopupBG", ImGuiCol_PopupBg },
+		{ "Frame Background", "FrameBG", ImGuiCol_FrameBg },
+		{ "Frame Background Hovered", "FrameBGHovered", ImGuiCol_FrameBgHovered },
+		{ "Frame Background Active", "FrameBGActive", ImGuiCol_FrameBgActive },
+		{ "Title Bar Background", "TitleBG", ImGuiCol_TitleBg },
+		{ "Title Bar Background Active", "TitleBGActive", ImGuiCol_TitleBgActive },
+		{ "Title Bar Background Collapsed", "TitleBGCollapsed", ImGuiCol_TitleBgCollapsed },
+		{ "Scrollbar Background", "ScrollbarBg", ImGuiCol_ScrollbarBg },
+		{ "Scrollbar Grab", "ScrollbarGrab", ImGuiCol_ScrollbarGrab },
+		{ "Scrollbar Grab Hovered", "ScrollbarGrabHovered", ImGuiCol_ScrollbarGrabHovered },
+		{ "Scrollbar Grab Active", "ScrollbarGrabActive", ImGuiCol_ScrollbarGrabActive },
+		{ "Check Mark", "CheckMark", ImGuiCol_CheckMark },
+		{ "Slider Grab", "SliderGrab", ImGuiCol_SliderGrab },
+		{ "Slider Grab Active", "SliderGrabActive", ImGuiCol_SliderGrabActive },
+		{ "Button", "Button", ImGuiCol_Button },
+		{ "Button Hovered", "ButtonHovered", ImGuiCol_ButtonHovered },
+		{ "Button Active", "ButtonActive", ImGuiCol_ButtonActive },
+		{ "Header", "Header", ImGuiCol_Header },
+		{ "Header Hovered", "HeaderHovered", ImGuiCol_HeaderHovered },
+		{ "Header Active", "HeaderActive", ImGuiCol_HeaderActive },
+		{ "Separator", "Separator", ImGuiCol_Separator },
+		{ "Separator Hovered", "SeparatorHovered", ImGuiCol_SeparatorHovered },
+		{ "Separator Active", "SeparatorActive", ImGuiCol_SeparatorActive },
+		{ "Grip Resize", "ResizeGrip", ImGuiCol_ResizeGrip },
+		{ "Grip Resize Hovered", "ResizeGripHovered", ImGuiCol_ResizeGripHovered },
+		{ "Grip Resize Active", "ResizeGripActive", ImGuiCol_ResizeGripActive },
+		{ "Tab", "Tab", ImGuiCol_Tab },
+		{ "Tab Hovered", "TabHovered", ImGuiCol_TabHovered },
+		{ "Tab Active", "TabActive", ImGuiCol_TabActive },
+		{ "Tab Unfocused", "TabUnfocused", ImGuiCol_TabUnfocused },
+		{ "Tab Unfocused Active", "TabUnfocusedActive", ImGuiCol_TabUnfocusedActive },
+		{ "Docking Preview", "DockingPreview", ImGuiCol_DockingPreview },
+		{ "Docking Empty Background", "DockingEmptyBG", ImGuiCol_DockingEmptyBg },
+		{ "Table Header Background", "TableHeaderBg", ImGuiCol_TableHeaderBg },
+		{ "Table Border Strong", "TableBorderStrong", ImGuiCol_TableBorderStrong },
+		{ "Table Border Light", "TableBorderLight", ImGuiCol_TableBorderLight },
+		{ "Table Row Background", "TableRowBg", ImGuiCol_TableRowBg },
+		{ "Table Row Background Alternate", "TableRowBgAlt", ImGuiCol_TableRowBgAlt },
+		{ "Window Dim", "WindowDim", ImGuiCol_ModalWindowDimBg },
+		{ "Plot Lines", "PlotLines", ImGuiCol_PlotLines },
+		{ "Plot Lines Hovered", "PlotLinesHovered", ImGuiCol_PlotLinesHovered },
+		{ "Plot Histogram", "PlotHistogram", ImGuiCol_PlotHistogram },
+		{ "Plot Histogram Hovered", "PlotHistogramHovered", ImGuiCol_PlotHistogramHovered }
+	}
 };
-
 
 MungPlex::Settings::Settings()
 {
@@ -186,14 +231,13 @@ void MungPlex::Settings::drawGeneralSettings()
 		ImGui::BeginGroup();
 		{
 			static ImVec4 color = style.Colors[ImGuiCol_Text];
-			static int colorSelect = ImGuiCol_Text;
 
-			if (SetUpPairCombo(_colorSettings, &colorSelect, 0.2f, 0.5f))
-				color = style.Colors[_colorSettings.GetId(colorSelect)];
+			if (_colorSetSelectCombo.Draw(0.2f, 0.5f))
+				color = style.Colors[_colorSetSelectCombo.GetSelectedId()];
 
 			ImGui::PushItemWidth(childYX.x * 0.2f);
 			ImGui::ColorPicker4("##ColorPickerUi", (float*)&color, ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview);
-			style.Colors[_colorSettings.GetId(colorSelect)] = color;
+			style.Colors[_colorSetSelectCombo.GetSelectedId()] = color;
 		}
 		ImGui::EndGroup();
 
@@ -408,19 +452,19 @@ void MungPlex::Settings::setUi(const nlohmann::json& uiJson)
 		return;
 	}
 
-	if(uiJson["Colors"].size() < _colorSettings.GetCount())
+	if(uiJson["Colors"].size() < _colorSetSelectCombo.GetCount())
 	{
 		style = _defaultStyle;
 		return;
 	}
 
-	for (int i = 0; i < _colorSettings.GetCount(); ++i)
+	for (int i = 0; i < _colorSetSelectCombo.GetCount(); ++i)
 	{
-		const auto& entity = _colorSettings.GetStdStringEntity(i);
+		const std::string& entity = _colorSetSelectCombo.GetIdentifierStdStringAt(i);
 
 		if (uiJson["Colors"].contains(entity))
 		{
-			style.Colors[_colorSettings.GetId(i)] = getColorVec(uiJson["Colors"][entity][0]);
+			style.Colors[_colorSetSelectCombo.GetIdAt(i)] = getColorVec(uiJson["Colors"][entity][0]);
 		}
 	}
 }
@@ -451,15 +495,15 @@ ImVec4 MungPlex::Settings::getColorVec(const nlohmann::json& colorJson) const
 	return color;
 }
 
-nlohmann::json MungPlex::Settings::generateColorsJson() const
+nlohmann::json MungPlex::Settings::generateColorsJson()
 {
 	nlohmann::json colors;
 	ImGuiStyle& style = ImGui::GetStyle();
 
-	for (int i = 0; i < _colorSettings.GetCount(); ++i)
+	for (int i = 0; i < _colorSetSelectCombo.GetCount(); ++i)
 	{
-		const std::string& identifier = _colorSettings.GetStdStringEntity(i);
-		const ImVec4& color = style.Colors[_colorSettings.GetId(i)];
+		const std::string& identifier = _colorSetSelectCombo.GetIdentifierStdStringAt(i);
+		const ImVec4& color = style.Colors[_colorSetSelectCombo.GetIdAt(i)];
 		nlohmann::json colorArray = { imVec4ToStdVector(color) };
 		colors[identifier] = colorArray;
 	}

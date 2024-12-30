@@ -87,7 +87,9 @@ namespace MungPlex
         {
              "Search" , "Dumps", "PointerSearch", "WatchControl", "Cheats", "DeviceControl"
         }; 
-        static const DoubleStringIdPairs _colorSettings;
+
+        static const DoubleStringIdCombo::Type _colorSettings;
+        DoubleStringIdCombo _colorSetSelectCombo = DoubleStringIdCombo("Set Color:", true, _colorSettings);
 
         void drawGeneralSettings();
         void drawSearchSettings();
@@ -99,7 +101,7 @@ namespace MungPlex
         void setUi(const nlohmann::json& uiJson);
         void resetSettings();
         ImVec4 getColorVec(const nlohmann::json& colorJson) const;
-        nlohmann::json generateColorsJson() const;
+        nlohmann::json generateColorsJson();
         std::vector<float> imVec4ToStdVector(const ImVec4 imVec) const;
 	};
 }
