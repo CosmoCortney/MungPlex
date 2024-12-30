@@ -57,7 +57,8 @@ add_executable (MungPlex
     source/Helpers/ResourcesHelpers.hpp
     source/Helpers/Pairs.cpp
     source/Helpers/Pairs.hpp
-    source/Helpers/WidgetHelpers/WidgetHelpers.hpp
+    source/Helpers/WidgetHelpers/DoubleStringIdCombo.cpp
+    source/Helpers/WidgetHelpers/DoubleStringIdCombo.hpp
     source/Helpers/WidgetHelpers/ICombo.cpp
     source/Helpers/WidgetHelpers/ICombo.hpp
     source/Helpers/WidgetHelpers/InputFloat.hpp
@@ -70,6 +71,7 @@ add_executable (MungPlex
     source/Helpers/WidgetHelpers/StringIdBoolCombo.hpp
     source/Helpers/WidgetHelpers/StringIdCombo.cpp
     source/Helpers/WidgetHelpers/StringIdCombo.hpp
+    source/Helpers/WidgetHelpers/WidgetHelpers.hpp
     Log.hpp
     Log.cpp
     main.cpp

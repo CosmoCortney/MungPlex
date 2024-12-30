@@ -1,4 +1,5 @@
 #pragma once
+#include "DoubleStringIdCombo.hpp"
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 #include "InputFloat.hpp"
@@ -6,7 +7,6 @@
 #include "InputText.hpp"
 #include "StringIdBoolCombo.hpp"
 #include "StringIdCombo.hpp"
-
 
 namespace MungPlex
 {
