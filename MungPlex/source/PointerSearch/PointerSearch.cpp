@@ -3,21 +3,43 @@
 #include "PointerSearch.hpp"
 #include "Settings.hpp"
 
-inline const MungPlex::StringIdBoolPairs MungPlex::PointerSearch::_systemPresets =
+inline const MungPlex::StringIdBoolCombo::Type MungPlex::PointerSearch::_systemPresets =
 {
-    { "NES", "SNES", "N64", "GCN", "Triforce", "RVL", "Cafe", "Switch", "GB", "GBC", "GBA", "NDS", "CTR", 
-      "PS1", "PS2", "PS3", "PS4", "PS5", "PSP", "PSV", 
-      "SMS", "Genesis", "32X", "Mega CD", "Saturn", "Dreamcast", "GG", 
-      "XBOX", "360", "XBone", "Series", "PC x86", "PC x64" },
-    { 1, 1, 2, 2, 2, 2, 2, 3, 1, 1, 2, 2, 2,
-      2, 2, 2, 3, 3, 2, 2,
-      1, 1, 1, 1, 2, 2, 1,
-      2, 2, 3, 3, 2, 3 },
-    { false, false, true, true, true, true, true, false, false, false, false, false, false,
-      false, false, true, false, false, false, false,
-      false, true, true, true, true, false, false,
-      false, true, false, false, false, false },
-    "System Preset:"
+    {
+        { "NES", 2, false },
+        { "SNES", 2, false },
+        { "N64", 4, true },
+        { "GCN", 4, true },
+        { "Triforce", 4, true },
+        { "RVL", 4, true },
+        { "Cafe", 4, true },
+        { "Switch", 8, false },
+        { "GB", 2, false },
+        { "GBC", 2, false },
+        { "GBA", 4, false },
+        { "NDS", 4, false },
+        { "CTR", 4, false },
+        { "PS1", 4, false },
+        { "PS2", 4, false },
+        { "PS3", 4, true },
+        { "PS4", 8, false },
+        { "PS5", 8, false },
+        { "PSP", 4, false },
+        { "PSV", 4, false },
+        { "Master System", 2, false },
+        { "Genesis", 2, true },
+        { "32X", 2, true },
+        { "Mega CD", 2, true },
+        { "Saturn", 4, true },
+        { "DC", 4, false },
+        { "GGr", 2, false },
+        { "XBOX", 4, false },
+        { "XBOX 360", 4, true },
+        { "XBOX One", 8, false },
+        { "Series", 8, false },
+        { "x86", 4, false },
+        { "x64", 8, false },
+    }
 };
 
 inline const MungPlex::StringIdCombo::Type MungPlex::PointerSearch::_addressWidthTypes =
@@ -88,10 +110,8 @@ void MungPlex::PointerSearch::drawSettings()
 
     ImGui::BeginChild("PointerSearchSettings", childXY);
     {
-        if (SetUpPairCombo(_systemPresets, &_presetSelect, 1.0f, 0.3f))
-        {
-            SelectPreset(_presetSelect);
-        }
+        if (_systemPresetSelectCombo.Draw(1.0f, 0.3f))
+            SelectPreset(_systemPresetSelectCombo.GetSelectedIndex());
 
         ImGui::Checkbox("Big Endian", &_isBigEndian); ImGui::SameLine(); HelpMarker("Whether the memory dumps to be scanned are big endian or not.");
         ImGui::SameLine();
@@ -451,9 +471,9 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
 
 void MungPlex::PointerSearch::SelectPreset(const int presetIndex)
 {
-    GetInstance()._presetSelect = presetIndex;
-    GetInstance()._addressWidthSelectCombo.SetSelectedByIndex(_systemPresets.GetId(presetIndex));
-    GetInstance()._isBigEndian = _systemPresets.GetFlag(presetIndex);
+    GetInstance()._systemPresetSelectCombo.SetSelectedByIndex(presetIndex);
+    GetInstance()._addressWidthSelectCombo.SetSelectedById(GetInstance()._systemPresetSelectCombo.GetSelectedId());
+    GetInstance()._isBigEndian = GetInstance()._systemPresetSelectCombo.GetSelectedBool();
 }
 
 bool MungPlex::PointerSearch::loadResults()

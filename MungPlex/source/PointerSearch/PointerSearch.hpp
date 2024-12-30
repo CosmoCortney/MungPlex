@@ -52,10 +52,10 @@ namespace MungPlex
         bool _printModuleNames = false;
         float _maxMemUtilizationFraction = 0.9f;
         InputInt<uint64_t> _maxPointerCountInput = InputInt<uint64_t>("Max. Pointer Count:", true, 100000, 1, 20);
-        static const StringIdBoolPairs _systemPresets;
+        static const StringIdBoolCombo::Type _systemPresets;
+        StringIdBoolCombo _systemPresetSelectCombo = StringIdBoolCombo("System Preset:", true, _systemPresets);
         static const StringIdCombo::Type _addressWidthTypes;
         StringIdCombo _addressWidthSelectCombo = StringIdCombo("Address Width:", true, _addressWidthTypes);
-        int _presetSelect = 0;
         int _selectedInputType = 0;
         static const StringIdCombo::Type _inputFileTypes;
         StringIdCombo _inputFileTypeSelectCombo = StringIdCombo("Input File Type:", true, _inputFileTypes);
