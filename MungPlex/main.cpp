@@ -170,7 +170,13 @@ int main()
 			ImGui::ShowDemoWindow(&show_demo_window);
 		}
 
-		ImGui::SetWindowFocus(MungPlex::Settings::GetGeneralSettings().Windows[MungPlex::Settings::GetGeneralSettings().DefaultWindowSelect].first.c_str());
+		static bool setFocus = true; //this seems weird but is required to set the default window focus
+		if (setFocus)
+		{
+			ImGui::SetWindowFocus(MungPlex::Settings::GetGeneralSettings().Windows[MungPlex::Settings::GetGeneralSettings().DefaultWindowSelect].first.c_str());
+			setFocus = false;
+		}
+
 		ImGui::Render();
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
