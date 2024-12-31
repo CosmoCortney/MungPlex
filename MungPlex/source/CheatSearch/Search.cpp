@@ -125,12 +125,12 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_textSearchConditio
 
 MungPlex::Search::Search()
 {
-	_RegionSelectSignalCombo.ConnectOnIndexChanged(Slot_IndexChanged);
-	_RegionSelectSignalCombo.ConnectOnItemCountChanged(Slot_ItemCountChanged);
-	_RegionSelectSignalCombo.ConnectOnTextChanged(Slot_TextChanged);
+	//_RegionSelectSignalCombo.ConnectOnIndexChanged(Slot_IndexChanged);
+	//_RegionSelectSignalCombo.ConnectOnItemCountChanged(Slot_ItemCountChanged);
+	//_RegionSelectSignalCombo.ConnectOnTextChanged(Slot_TextChanged);
 	//_rangeStartInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeStartInput.GetData(), std::ref(_rangeStartValue)));
 	//_rangeEndInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeEndInput.GetData(), std::ref(_rangeEndValue)));
-
+	_regionSelectCombo.ConnectOnIndexChangedSlot(Slot_IndexChanged);
 	_selectedIndices.resize(_maxResultsPerPageInput.GetValue());
 	_alignmentValueInput.SetHelpText("This value specifies the increment of the next address to be scanned. 1 means that the following value to be scanned is the at the current address + 1. Here are some recommendations for each value type: Int8/Text/Color/Array<Int8> - 1, Int16/Color/Array<Int16> - 2, Int32/Int64/Float/Double/Color/Array<Int32>/Array<Int64> - 4. Systems that use less than 4MBs of RAM (PS1, SNES, MegaDrive, ...) should always consider an alignment of 1, despite the value recommendations.", true);
 	_alignmentValueInput.SetValue(Settings::GetSearchSettings().DefaultAlignment);
@@ -232,7 +232,6 @@ void MungPlex::Search::drawValueTypeOptions()
 						_subsidiaryTypeSearchConditionsCombo.SetItems(_intSearchConditionTypes);
 					}
 
-
 					_secondaryKnownValueInput.SetText("");
 					setFormatting();
 				}
@@ -311,7 +310,8 @@ void MungPlex::Search::drawRangeOptions()
 		if (_searchActive) ImGui::BeginDisabled();
 		{
 			static std::stringstream stream;
-			_RegionSelectSignalCombo.Draw(ProcessInformation::GetSystemRegionList_(), _currentRegionSelect, 0.5f, 0.4f);
+
+			_regionSelectCombo.Draw(0.5f, 0.4f);
 
 			ImGui::SameLine();
 
@@ -567,7 +567,7 @@ void MungPlex::Search::drawSearchOptions()
 		if (ImGui::Button("Search"))
 		{
 			if(_iterationCount < 1)
-				_regions = ProcessInformation::GetSystemRegionList();
+				_regions = ProcessInformation::NEWGetSystemRegionList();
 
 			_searchActive = true;
 
@@ -1868,7 +1868,7 @@ void MungPlex::Search::setUpAndIterate()
 
 	generateDumpRegionMap();
 
-	for (SystemRegion& dumpRegion : _dumpRegions)
+	for (auto& dumpRegion : _dumpRegions)
 	{
 		std::vector<char> buf(dumpRegion.Size);
 
@@ -1878,7 +1878,7 @@ void MungPlex::Search::setUpAndIterate()
 			{
 			case ProcessInformation::CON_USBGecko:
 			{
-				ProcessInformation::GetUsbGecko()->Read(buf.data(), dumpRegion.Base, dumpRegion.Size);
+				//ProcessInformation::GetUsbGecko()->Read(buf.data(), dumpRegion.Base, dumpRegion.Size);
 			} break;
 			}
 		}
@@ -1926,6 +1926,11 @@ void MungPlex::Search::SetDefaultSearchSettings()
 bool MungPlex::Search::IsBusySearching()
 {
 	return GetInstance()._busySearching;
+}
+
+void MungPlex::Search::SetMemoryRegions(const RegionCombo::Type& regions)
+{
+	GetInstance()._regionSelectCombo.SetItems(regions);
 }
 
 void MungPlex::Search::setRecommendedValueSettings(const int valueType)

@@ -1,6 +1,6 @@
 #include "Yuzu_Impl.hpp"
 
-bool MungPlex::Yuzu::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
+bool MungPlex::Yuzu::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("Yuzu", false, false, 8, 4);
 	std::wstring wTitleBuf(512, L'\0');

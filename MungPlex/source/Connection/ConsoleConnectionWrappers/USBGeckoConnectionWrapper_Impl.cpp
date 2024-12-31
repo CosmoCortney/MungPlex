@@ -2,7 +2,7 @@
 #include "IEmulator.hpp"
 #include "USBGeckoConnectionWrapper_Impl.hpp"
 
-bool MungPlex::USBGeckoConnectionWrapper::Init(USBGecko* usbGecko, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
+bool MungPlex::USBGeckoConnectionWrapper::Init(USBGecko* usbGecko, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
 {
 	if (usbGecko->Connect() != FT_OK)
 		return false;

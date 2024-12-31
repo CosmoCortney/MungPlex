@@ -88,8 +88,6 @@ inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_consol
 	}
 };
 
-inline MungPlex::RegionPairs MungPlex::ProcessInformation::__systemRegions = { "Regions:" };
-
 void MungPlex::ProcessInformation::DrawWindow()
 {
 	if (ImGui::Begin("Process Information"))
@@ -361,7 +359,7 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 			break;
 	}
 
-	if (!iemulator->Init(_process, _gameEntities, _systemRegions))
+	if (!iemulator->Init(_process, _gameEntities, _NEWsystemRegions))
 		return false;
 
 	_gameID = iemulator->GetGameID();
@@ -376,6 +374,8 @@ bool MungPlex::ProcessInformation::initEmulator(const int emulatorIndex)
 	setupCheats();
 	WatchControl::InitWatchFile();
 	DeviceControl::InitDevicesFile();
+	Search::SetMemoryRegions(_NEWsystemRegions);
+	PointerSearch::SetMemoryRegions(_NEWsystemRegions);
 	return true;
 }
 
@@ -403,7 +403,6 @@ bool MungPlex::ProcessInformation::ConnectToProcess(int processIndex)
 	 if (!GetInstance().initConsoleConnection(type))
 		 return false;
 
-	 __systemRegions.SetRegions(GetInstance()._systemRegions);
 	 GetInstance()._exePath = GetInstance()._process.GetFilePath();
 	 std::string msg("Connected to "
 	 + GetInstance()._processName + " ("
@@ -436,6 +435,8 @@ bool MungPlex::ProcessInformation::connectToProcessFR()
 	 WatchControl::InitWatchFile();
 	 DeviceControl::InitDevicesFile();
 	 Search::SetNativeAppSearchSettings();
+	 Search::SetMemoryRegions(_NEWsystemRegions);
+	 PointerSearch::SetMemoryRegions(_NEWsystemRegions);
 	 return connected;
  }
 
@@ -487,7 +488,7 @@ bool MungPlex::ProcessInformation::initConsoleConnection(const int connectionTyp
 		_usbGecko = std::make_shared<USBGecko>();
 		iConsoleConnectionWrapper = std::make_shared<USBGeckoConnectionWrapper>();
 
-		if (!iConsoleConnectionWrapper->Init(_usbGecko.get(), _gameEntities, _systemRegions)) //also establishes connection
+		if (!iConsoleConnectionWrapper->Init(_usbGecko.get(), _gameEntities, _NEWsystemRegions)) //also establishes connection
 			return false;
 	}break;
 	default:
@@ -506,6 +507,8 @@ bool MungPlex::ProcessInformation::initConsoleConnection(const int connectionTyp
 	setupCheats();
 	WatchControl::InitWatchFile();
 	DeviceControl::InitDevicesFile();
+	Search::SetMemoryRegions(_NEWsystemRegions);
+	PointerSearch::SetMemoryRegions(_NEWsystemRegions);
 	return true;
 }
 
@@ -543,7 +546,6 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	if (!GetInstance().initEmulator(emulatorIndex))
 		return false;
 	
-	__systemRegions.SetRegions(GetInstance()._systemRegions);
 	GetInstance()._exePath = GetInstance()._process.GetFilePath();
 	std::string msg("Connected to ");
 	msg.append(GetInstance()._processName + " (");
@@ -613,9 +615,7 @@ bool MungPlex::ProcessInformation::GetRereorderFlag()
 
 void MungPlex::ProcessInformation::RefreshRegionlistPC()
 {
-	GetInstance()._systemRegions.clear();
-	__systemRegions.Clear();
-
+	GetInstance()._NEWsystemRegions.clear();
 	int flags = 0;
 
 	if (GetInstance()._write || GetInstance()._execute)
@@ -649,11 +649,9 @@ void MungPlex::ProcessInformation::RefreshRegionlistPC()
 			label.append(": ");
 			int lj = region.GetBaseAddress<uint64_t>() < 0x100000000 ? 8 : 16;
 			label.append(ToHexString(region.GetBaseAddress<uint64_t>(), lj, false));
-			GetInstance()._systemRegions.emplace_back(label, region.GetBaseAddress<uint64_t>(), region.GetRegionSize(), region.GetBaseAddress<void*>());
+			GetInstance()._NEWsystemRegions.emplace_back(label, region.GetBaseAddress<uint64_t>(), region.GetRegionSize(), region.GetBaseAddress<void*>());
 		}
 	}
-
-	__systemRegions.SetRegions(GetInstance()._systemRegions);
 }
 
 std::string& MungPlex::ProcessInformation::GetProcessName()
@@ -693,9 +691,9 @@ bool* MungPlex::ProcessInformation::GetRangeFlagExecute()
 
 int MungPlex::ProcessInformation::GetRegionIndex(const uint64_t baseAddress)
 {
-	for (size_t i = 0; i < GetInstance()._systemRegions.size(); ++i)
+	for (size_t i = 0; i < GetInstance()._NEWsystemRegions.size(); ++i)
 	{
-		if (baseAddress >= GetInstance()._systemRegions[i].Base && baseAddress < GetInstance()._systemRegions[i].Base + GetInstance()._systemRegions[i].Size)
+		if (baseAddress >= GetInstance()._NEWsystemRegions[i].Base && baseAddress < GetInstance()._NEWsystemRegions[i].Base + GetInstance()._NEWsystemRegions[i].Size)
 			return i;
 	}
 
@@ -717,14 +715,9 @@ REGION_LIST& MungPlex::ProcessInformation::GetRegionList()
 	return GetInstance()._process.GetRegionList();
 }
 
-const MungPlex::RegionPairs& MungPlex::ProcessInformation::GetSystemRegionList_()
+const MungPlex::RegionCombo::Type& MungPlex::ProcessInformation::NEWGetSystemRegionList()
 {
-	return __systemRegions;
-}
-
-std::vector<MungPlex::SystemRegion>& MungPlex::ProcessInformation::GetSystemRegionList()
-{
-	return GetInstance()._systemRegions;
+	return GetInstance()._NEWsystemRegions;
 }
 
 bool MungPlex::ProcessInformation::IsConnectionValid()

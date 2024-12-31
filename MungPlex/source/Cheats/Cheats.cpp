@@ -503,7 +503,7 @@ void MungPlex::Cheats::copyMemory(const uint64_t source, const uint64_t destinat
 	if (sourceIndex == -1 || ProcessInformation::GetRegionIndex(destinationIndex + size) == -1)
 		return;
 
-	auto& regions = ProcessInformation::GetSystemRegionList();
+	auto& regions = ProcessInformation::NEWGetSystemRegionList();
 	void* src = static_cast<char*>(regions[sourceIndex].BaseLocationProcess) + source - regions[sourceIndex].Base;
 	void* dest = static_cast<char*>(regions[destinationIndex].BaseLocationProcess) + destination - regions[destinationIndex].Base;
 	

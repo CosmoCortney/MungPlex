@@ -1,7 +1,7 @@
 #include "mGBA_Impl.hpp"
 #include "BigNHelpers.hpp"
 
-bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
+bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
 {
 	bool romFound = false;
 	uint64_t bufLogo = 0;

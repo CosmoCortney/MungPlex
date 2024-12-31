@@ -1,7 +1,7 @@
 #include "BigNHelpers.hpp"
 #include "Dolphin_Impl.hpp"
 
-bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
+bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("Dolphin", true, false, 4, 4);
 	uint32_t temp = 0;

@@ -13,9 +13,6 @@ namespace MungPlex
     class PointerSearch
     {
     public:
-        static void DrawWindow();
-        static void SelectPreset(int presetIndex);
-
         PointerSearch();
         PointerSearch(const PointerSearch&) = delete;
         PointerSearch(PointerSearch&&) = delete;
@@ -26,6 +23,10 @@ namespace MungPlex
             static PointerSearch Instance;
             return Instance;
         }
+
+        static void DrawWindow();
+        static void SelectPreset(int presetIndex);
+        static void SetMemoryRegions(const RegionCombo::Type& regions);
 
     private:
         void drawList();
@@ -59,8 +60,9 @@ namespace MungPlex
         int _selectedInputType = 0;
         static const StringIdCombo::Type _inputFileTypes;
         StringIdCombo _inputFileTypeSelectCombo = StringIdCombo("Input File Type:", true, _inputFileTypes);
-        std::vector<SystemRegion> _regions{};
-        int _regionSelect = 0;
+        //std::vector<SystemRegion> _regions{};
+        RegionCombo _regionSelectCombo = RegionCombo("Region:", true);
+        //int _regionSelect = 0;
         bool _disableUI = false;
         // TODO This can probably be removed
         std::shared_ptr<bp::child> _pointerSearcherProcess;

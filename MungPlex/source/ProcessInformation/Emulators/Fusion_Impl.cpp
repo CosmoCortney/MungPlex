@@ -1,6 +1,6 @@
 #include "Fusion_Impl.hpp"
 
-bool MungPlex::Fusion::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
+bool MungPlex::Fusion::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("Fusion", true, false, 4, 1);
 	bool titleIDFound = false;

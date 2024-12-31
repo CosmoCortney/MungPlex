@@ -29,7 +29,7 @@ namespace MungPlex
         uint32_t _id = 0;
         std::string _windowTitle;
         bool _isOpen = false;
-        int _regionSelect = 0;
+        //int _regionSelect = 0;
         std::string _hexView;
         MemoryEditor _memEdit;
         InputInt<uint16_t> _readSizeInput = InputInt<uint16_t>("Bytes:", true, 256, 0x10, 0x100);
@@ -40,6 +40,7 @@ namespace MungPlex
         bool _validAddress = false;
         bool _rereorder = false;
         InputInt<uint64_t> _targetAddressInput = InputInt<uint64_t>("Go to Address:", true, 0, 0x10, 0x100);
+        RegionCombo _regionSelectCombo = RegionCombo("Region:", true);
 
         void drawControlPanel();
         void drawHexEditor();

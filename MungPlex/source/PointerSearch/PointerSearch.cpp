@@ -188,9 +188,8 @@ void MungPlex::PointerSearch::drawSettings()
 
         ImGui::Dummy(ImVec2(0.0f, ImGui::GetContentRegionAvail().y - 40.0f));
 
-        _regions = ProcessInformation::GetSystemRegionList();
-        SetUpPairCombo(ProcessInformation::GetSystemRegionList_(), &_regionSelect, 0.5f, 0.4f);
-        
+        _regionSelectCombo.Draw(0.5f, 0.4f);
+
         ImGui::SameLine();
         
         if (ImGui::Button("Dump"))
@@ -199,7 +198,7 @@ void MungPlex::PointerSearch::drawSettings()
             stream << R"(\MungPlex\Dumps\)";
             stream << ProcessInformation::GetPlatform() << '\\';
             stream << ProcessInformation::GetGameID() << '\\';
-            auto& [Label, Base, Size, BaseLocationProcess] = _regions[_regionSelect];
+            auto& [Label, Base, Size, BaseLocationProcess] = _regionSelectCombo.GetSelectedRegion();// _regions[_regionSelectCombo.GetSelectedIndex()];
             stream << std::uppercase << std::hex << Base << '_' << GetCurrentTimeString(YEAR | MONTH | DAY | HOUR | MINUTE | SECOND) << ".bin";
             std::wstring path = MT::Convert<std::string, std::wstring>(stream.str(), MT::UTF8, MT::UTF16LE);
             Xertz::SystemInfo::GetProcessInfo(ProcessInformation::GetPID()).DumpMemory(BaseLocationProcess, path, Size);
@@ -474,6 +473,11 @@ void MungPlex::PointerSearch::SelectPreset(const int presetIndex)
     GetInstance()._systemPresetSelectCombo.SetSelectedByIndex(presetIndex);
     GetInstance()._addressWidthSelectCombo.SetSelectedById(GetInstance()._systemPresetSelectCombo.GetSelectedId());
     GetInstance()._isBigEndian = GetInstance()._systemPresetSelectCombo.GetSelectedBool();
+}
+
+void MungPlex::PointerSearch::SetMemoryRegions(const RegionCombo::Type& regions)
+{
+    GetInstance()._regionSelectCombo.SetItems(regions);
 }
 
 bool MungPlex::PointerSearch::loadResults()

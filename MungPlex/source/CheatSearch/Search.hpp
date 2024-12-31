@@ -42,8 +42,9 @@ namespace MungPlex
         static void SetNativeAppSearchSettings();
         static void SetDefaultSearchSettings();
         static bool IsBusySearching();
+        static void SetMemoryRegions(const RegionCombo::Type& regions);
 
-        SignalCombo _RegionSelectSignalCombo;
+        /*SignalCombo _RegionSelectSignalCombo;
 
         std::function<void(const char*, InputInt<uint64_t>&)> Slot_RangeTextChanged = [](const char* in, InputInt<uint64_t>& out)
             {
@@ -60,24 +61,14 @@ namespace MungPlex
 #ifndef NDEBUG
                 std::cout << in << std::endl;
 #endif
-            };
+            };*/
 
         std::function<void()> Slot_IndexChanged = []()
-            {
-
-            };
-
-        std::function<void()> Slot_ItemCountChanged = []()
-            {
-
-            };
-
-        std::function<void()> Slot_TextChanged = []()
-            {
-                auto& region = ProcessInformation::GetSystemRegionList_().GetRegion(GetInstance()._currentRegionSelect);
-                GetInstance()._rangeStartInput.SetValue(region.Base);
-                GetInstance()._rangeEndInput.SetValue(region.Base + region.Size - 1);
-            };
+        {
+            auto& region = ProcessInformation::NEWGetSystemRegionList()[GetInstance()._currentRegionSelect];
+            GetInstance()._rangeStartInput.SetValue(region.Base);
+            GetInstance()._rangeEndInput.SetValue(region.Base + region.Size - 1);
+        };
 
     private:
         Search();
@@ -137,8 +128,8 @@ namespace MungPlex
         ImVec4 _pokeColorVec = { 0.0f, 0.0f, 0.0f, 1.0f };
 
         //range options
-        std::vector<SystemRegion> _regions{};
-        std::vector<SystemRegion> _dumpRegions{};
+        RegionCombo::Type _regions{};
+        RegionCombo::Type _dumpRegions{};
         int _currentRegionSelect = 0;
         bool _crossRegion = false;
         bool _rereorderRegion = false;
@@ -146,6 +137,7 @@ namespace MungPlex
         StringIdCombo _endiannessCombo = StringIdCombo("Endianness:", true, _endiannesses);
         InputInt<uint64_t> _rangeStartInput = InputInt<uint64_t>("Start at:", true, 0, 0, 0);
         InputInt<uint64_t> _rangeEndInput = InputInt<uint64_t>("End at:", true, 0, 0, 0);
+        RegionCombo _regionSelectCombo = RegionCombo("Region:", true);
 
         //results
         uint32_t _pagesAmountValue = 0;

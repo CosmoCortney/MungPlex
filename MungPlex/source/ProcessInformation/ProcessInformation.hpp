@@ -9,10 +9,7 @@
 
 namespace MungPlex
 {
-    struct SystemRegion;
     struct GameEntity;
-    class StringIdPairs;
-    class RegionPairs;
 
     class ProcessInformation
     {
@@ -69,8 +66,7 @@ namespace MungPlex
         static PROCESS_INFO& GetProcess();
         static MODULE_LIST& GetModuleList();
         static REGION_LIST& GetRegionList();
-        static const RegionPairs& GetSystemRegionList_();
-        static std::vector<SystemRegion>& GetSystemRegionList();
+        static const RegionCombo::Type& NEWGetSystemRegionList();
         static bool IsConnectionValid();
         static const StringIdCombo::Type& GetSystemList();
         static void SetWindowRef(GLFWwindow* window);
@@ -92,9 +88,9 @@ namespace MungPlex
                 return 0;
 
             return (addressType)(
-                reinterpret_cast<uint64_t>(GetInstance()._systemRegions[regionIndex].BaseLocationProcess)
+                reinterpret_cast<uint64_t>(GetInstance()._NEWsystemRegions[regionIndex].BaseLocationProcess)
                 + (uint64_t)address
-                - GetInstance()._systemRegions[regionIndex].Base);
+                - GetInstance()._NEWsystemRegions[regionIndex].Base);
         }
 
         template<typename dataType> static dataType ReadValue(const uint64_t address)
@@ -285,9 +281,8 @@ namespace MungPlex
         std::string _gameRegion;
         int32_t _addressWidth = 4;
         std::vector<GameEntity> _gameEntities;
-        std::vector<SystemRegion> _systemRegions;
+        RegionCombo::Type _NEWsystemRegions;
         std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
-        static RegionPairs __systemRegions;
         static const StringIdCombo::Type _emulators;
         static const StringIdCombo::Type _systems;
         static const StringIdCombo::Type _consoleConnectionTypes;

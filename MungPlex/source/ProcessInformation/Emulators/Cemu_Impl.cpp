@@ -1,6 +1,6 @@
 #include "Cemu_Impl.hpp"
 
-bool MungPlex::Cemu::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
+bool MungPlex::Cemu::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("Cemu", true, false, 4, 4);
 	bool titleIDFound = false;

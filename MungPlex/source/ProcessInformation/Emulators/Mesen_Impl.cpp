@@ -1,6 +1,6 @@
 #include "Mesen_Impl.hpp"
 
-bool MungPlex::Mesen::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
+bool MungPlex::Mesen::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("Mesen", false, false, 2, 1);
 	bool ramFound = false;
