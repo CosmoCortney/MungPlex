@@ -67,6 +67,8 @@ add_executable (MungPlex
     source/Helpers/WidgetHelpers/InputText.hpp
     source/Helpers/WidgetHelpers/IWidget.cpp
     source/Helpers/WidgetHelpers/IWidget.hpp
+    source/Helpers/WidgetHelpers/RegionCombo.cpp
+    source/Helpers/WidgetHelpers/RegionCombo.hpp
     source/Helpers/WidgetHelpers/StringIdBoolCombo.cpp
     source/Helpers/WidgetHelpers/StringIdBoolCombo.hpp
     source/Helpers/WidgetHelpers/StringIdCombo.cpp

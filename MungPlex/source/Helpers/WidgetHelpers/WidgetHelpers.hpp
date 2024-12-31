@@ -5,6 +5,7 @@
 #include "InputFloat.hpp"
 #include "InputInt.hpp"
 #include "InputText.hpp"
+#include "RegionCombo.hpp"
 #include "StringIdBoolCombo.hpp"
 #include "StringIdCombo.hpp"
 
