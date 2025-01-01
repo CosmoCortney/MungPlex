@@ -53,10 +53,10 @@ add_executable (MungPlex
     source/DeviceControl/LovenseToy.cpp
     source/DeviceControl/LovenseToy.hpp
     source/Helpers/BigNHelpers.hpp
+    source/Helpers/GameEntity.hpp
     source/Helpers/HelperFunctions.hpp
     source/Helpers/ResourcesHelpers.hpp
-    source/Helpers/Pairs.cpp
-    source/Helpers/Pairs.hpp
+    source/Helpers/SystemRegion.hpp
     source/Helpers/WidgetHelpers/DoubleStringIdCombo.cpp
     source/Helpers/WidgetHelpers/DoubleStringIdCombo.hpp
     source/Helpers/WidgetHelpers/ICombo.cpp
@@ -67,6 +67,8 @@ add_executable (MungPlex
     source/Helpers/WidgetHelpers/InputText.hpp
     source/Helpers/WidgetHelpers/IWidget.cpp
     source/Helpers/WidgetHelpers/IWidget.hpp
+    source/Helpers/WidgetHelpers/ProcessCombo.cpp
+    source/Helpers/WidgetHelpers/ProcessCombo.hpp
     source/Helpers/WidgetHelpers/RegionCombo.cpp
     source/Helpers/WidgetHelpers/RegionCombo.hpp
     source/Helpers/WidgetHelpers/StringIdBoolCombo.cpp
