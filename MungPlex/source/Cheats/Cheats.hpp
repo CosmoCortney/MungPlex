@@ -69,7 +69,7 @@ namespace MungPlex
             
         };
 
-        static const std::vector<std::pair<std::string, uint32_t>> _cheatTypes;
+        static const std::vector<StringIdCombo::VecType> _cheatTypes;
         StringIdCombo _cheatTypesCombo = StringIdCombo("Cheat Format:", true, _cheatTypes);
         InputText _cheatTitleInput = InputText("Title:", true, "", TITLE_LENGTH);
         InputText _hackerInput = InputText("Hacker(s):", true, "", HACKER_LENGTH);

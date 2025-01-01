@@ -1,12 +1,9 @@
-#include "imgui.h"
 #include "StringIdCombo.hpp"
 
-MungPlex::StringIdCombo::StringIdCombo(const std::string& label, const bool printLabel, const std::vector<std::pair<std::string, uint32_t>>& stringIdPairVec)
+MungPlex::StringIdCombo::StringIdCombo(const std::string& label, const bool printLabel, const std::vector<VecType>& stringIdPairVec)
 	: ICombo(label, printLabel)
 {
-	_stringPointers.reserve(stringIdPairVec.size());
-	_stringIdPairVec = stringIdPairVec;
-	assignPointers();
+	SetItems(stringIdPairVec);
 }
 
 MungPlex::StringIdCombo::StringIdCombo(const StringIdCombo& other)
@@ -29,18 +26,6 @@ MungPlex::StringIdCombo& MungPlex::StringIdCombo::operator=(StringIdCombo&& othe
 {
 	assign(other);
 	return *this;
-}
-
-bool MungPlex::StringIdCombo::Draw(const float paneWidth, const float labelPortion)
-{
-	static bool indexChanged = false;
-	DrawLabel(_label.c_str(), paneWidth, labelPortion, _printLabel, _showHelpText ? _helpText.c_str() : nullptr);
-	return ImGui::Combo(_id.c_str(), reinterpret_cast<int*>(&_selectedIndex), _stringPointers.data(), _stringPointers.size());
-
-	if (indexChanged)
-		callOnIndexChangedSlots();
-
-	return indexChanged;
 }
 
 const std::string& MungPlex::StringIdCombo::GetStdStringAt(const uint64_t index)
@@ -66,12 +51,15 @@ void MungPlex::StringIdCombo::SetSelectedById(const uint64_t id)
 	}
 }
 
-void MungPlex::StringIdCombo::SetItems(const std::vector<std::pair<std::string, uint32_t>>& stringIdPairVec)
+void MungPlex::StringIdCombo::SetItems(const std::vector<VecType>& stringIdPairVec)
 {
-	*this = StringIdCombo(_label, _printLabel, stringIdPairVec);
+	_stringPointers.reserve(stringIdPairVec.size());
+	_stringIdPairVec = stringIdPairVec;
+	assignPointers();
+	SetSelectedByIndex(0);
 }
 
-uint32_t MungPlex::StringIdCombo::GetSelectedId() const
+int32_t MungPlex::StringIdCombo::GetSelectedId() const
 {
 	return _stringIdPairVec[_selectedIndex].second;
 }
@@ -102,7 +90,7 @@ void MungPlex::StringIdCombo::Clear()
 	_stringIdPairVec.clear();
 }
 
-void MungPlex::StringIdCombo::PushBack(const std::pair<std::string, uint32_t>& stringIdPair)
+void MungPlex::StringIdCombo::PushBack(const VecType& stringIdPair)
 {
 	_stringIdPairVec.push_back(stringIdPair);
 	_stringPointers.push_back(_stringIdPairVec.back().first.c_str());

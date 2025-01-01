@@ -1,8 +1,7 @@
 #include "HelperFunctions.hpp"
-#include "imgui.h"
 #include "RegionCombo.hpp"
 
-MungPlex::RegionCombo::RegionCombo(const std::string& label, const bool printLabel, const Type& regionVec)
+MungPlex::RegionCombo::RegionCombo(const std::string& label, const bool printLabel, const std::vector<SystemRegion>& regionVec)
 	: ICombo(label, printLabel)
 {
 	SetItems(regionVec);
@@ -30,18 +29,6 @@ MungPlex::RegionCombo& MungPlex::RegionCombo::operator=(RegionCombo&& other) noe
 	return *this;
 }
 
-bool MungPlex::RegionCombo::Draw(const float paneWidth, const float labelPortion)
-{
-	static bool indexChanged = false;
-	DrawLabel(_label.c_str(), paneWidth, labelPortion, _printLabel, _showHelpText ? _helpText.c_str() : nullptr);
-	return ImGui::Combo(_id.c_str(), reinterpret_cast<int*>(&_selectedIndex), _stringPointers.data(), _stringPointers.size());
-
-	if (indexChanged)
-		callOnIndexChangedSlots();
-
-	return indexChanged;
-}
-
 const MungPlex::SystemRegion& MungPlex::RegionCombo::GetRegionAt(const uint64_t index)
 {
 	isInRange(index);
@@ -53,7 +40,7 @@ const MungPlex::SystemRegion& MungPlex::RegionCombo::GetSelectedRegion() const
 	return _regionVec[_selectedIndex];
 }
 
-void MungPlex::RegionCombo::SetItems(const Type& regionVec)
+void MungPlex::RegionCombo::SetItems(const std::vector<SystemRegion>& regionVec)
 {
 	_stringPointers.reserve(regionVec.size());
 	_regionVec = regionVec;

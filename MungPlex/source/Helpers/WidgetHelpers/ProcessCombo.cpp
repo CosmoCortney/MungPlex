@@ -1,4 +1,3 @@
-#include "imgui.h"
 #include "ProcessCombo.hpp"
 
 MungPlex::ProcessCombo::ProcessCombo(const std::string& label, const bool printLabel, const bool isAppliction)
@@ -39,18 +38,6 @@ void MungPlex::ProcessCombo::RefreshProcessInfo()
 	assignPointers();
 }
 
-bool MungPlex::ProcessCombo::Draw(const float paneWidth, const float labelPortion)
-{
-	static bool indexChanged = false;
-	DrawLabel(_label.c_str(), paneWidth, labelPortion, _printLabel, _showHelpText ? _helpText.c_str() : nullptr);
-	return ImGui::Combo(_id.c_str(), reinterpret_cast<int*>(&_selectedIndex), _stringPointers.data(), _stringPointers.size());
-
-	if (indexChanged)
-		callOnIndexChangedSlots();
-
-	return indexChanged;
-}
-
 const PROCESS_INFO& MungPlex::ProcessCombo::GetSelectedProcess() const
 {
 	if (_isApplication)
@@ -87,7 +74,7 @@ const std::string& MungPlex::ProcessCombo::GetSelectedStdString() const
 	return Xertz::SystemInfo::GetProcessInfoList()[_selectedIndex].GetProcessName();
 }
 
-uint32_t MungPlex::ProcessCombo::GetSelectedId() const
+int32_t MungPlex::ProcessCombo::GetSelectedId() const
 {
 	if (_isApplication)
 		return Xertz::SystemInfo::GetApplicationProcessInfoList()[_selectedIndex].GetPID();

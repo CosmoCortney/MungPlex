@@ -1,14 +1,14 @@
 #include "IDevice.hpp"
 #include "HelperFunctions.hpp"
 
-inline const MungPlex::StringIdCombo::Type MungPlex::IDevice::s_DeviceTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::IDevice::s_DeviceTypes =
 {
 	{
 		{ "Lovense", LOVENSE }
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::IDevice::s_ValueTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::IDevice::s_ValueTypes =
 {
 	{
 		{ "Int 8 (1 Byte)", INT8 },

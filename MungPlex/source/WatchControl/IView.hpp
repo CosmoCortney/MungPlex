@@ -16,9 +16,9 @@ namespace MungPlex
             INTEGRAL, FLOAT, BOOL, MOUSEPIANO, MAP2D, MAP3D, COLOR
         };
 
-        static const StringIdCombo::Type s_IntTypes;
-        static const StringIdCombo::Type s_FloatTypes;
-        static const StringIdCombo::Type s_SuperiorTypes;
+        static const std::vector<StringIdCombo::VecType> s_IntTypes;
+        static const std::vector<StringIdCombo::VecType> s_FloatTypes;
+        static const std::vector<StringIdCombo::VecType> s_SuperiorTypes;
 
         int GetID();
         nlohmann::json GetBasicJSON();

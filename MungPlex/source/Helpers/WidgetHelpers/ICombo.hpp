@@ -10,7 +10,7 @@ namespace MungPlex
     public:
         ICombo() = default;
         ICombo(const std::string& label, const bool printLabel = true) : IWidget(label, printLabel) {}
-        virtual bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f) = 0;
+        bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
         const uint64_t GetCount() const;
         const uint64_t GetSelectedIndex() const;
         void SetSelectedByIndex(const uint64_t index);
@@ -19,7 +19,7 @@ namespace MungPlex
         const char* const* GetCStringPointers() const;
         virtual const std::string& GetStdStringAt(const uint64_t index) = 0;
         virtual const std::string& GetSelectedStdString() const = 0;
-        virtual uint32_t GetSelectedId() const = 0;
+        virtual int32_t GetSelectedId() const = 0;
         virtual void PopBack(const uint64_t count) = 0;
         virtual void Clear() = 0;
         void ConnectOnIndexChangedSlot(const Slot slot);

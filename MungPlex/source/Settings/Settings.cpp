@@ -3,7 +3,7 @@
 #include "MungPlexConfig.hpp"
 #include <shlobj_core.h>
 
-inline const MungPlex::DoubleStringIdCombo::Type MungPlex::Settings::_colorSettings =
+inline const std::vector<MungPlex::DoubleStringIdCombo::VecType> MungPlex::Settings::_colorSettings =
 {
 	{
 		{ "Text", "Text", ImGuiCol_Text },

@@ -26,7 +26,7 @@ namespace MungPlex
 
         static void DrawWindow();
         static void SelectPreset(int presetIndex);
-        static void SetMemoryRegions(const RegionCombo::Type& regions);
+        static void SetMemoryRegions(const std::vector<SystemRegion>& regions);
 
     private:
         void drawList();
@@ -53,12 +53,12 @@ namespace MungPlex
         bool _printModuleNames = false;
         float _maxMemUtilizationFraction = 0.9f;
         InputInt<uint64_t> _maxPointerCountInput = InputInt<uint64_t>("Max. Pointer Count:", true, 100000, 1, 20);
-        static const StringIdBoolCombo::Type _systemPresets;
+        static const std::vector<StringIdBoolCombo::VecType> _systemPresets;
         StringIdBoolCombo _systemPresetSelectCombo = StringIdBoolCombo("System Preset:", true, _systemPresets);
-        static const StringIdCombo::Type _addressWidthTypes;
+        static const std::vector<StringIdCombo::VecType> _addressWidthTypes;
         StringIdCombo _addressWidthSelectCombo = StringIdCombo("Address Width:", true, _addressWidthTypes);
         int _selectedInputType = 0;
-        static const StringIdCombo::Type _inputFileTypes;
+        static const std::vector<StringIdCombo::VecType> _inputFileTypes;
         StringIdCombo _inputFileTypeSelectCombo = StringIdCombo("Input File Type:", true, _inputFileTypes);
         //std::vector<SystemRegion> _regions{};
         RegionCombo _regionSelectCombo = RegionCombo("Region:", true);

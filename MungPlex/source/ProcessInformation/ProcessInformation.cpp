@@ -23,7 +23,7 @@
 #include "WatchControl.hpp"
 #include <Windows.h>
 
-inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_emulators =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::ProcessInformation::_emulators =
 {
 	{
 		{ "Mesen", MESEN },
@@ -42,7 +42,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_emulat
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_systems =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::ProcessInformation::_systems =
 {
 	{
 		{ "NES", NES },
@@ -81,7 +81,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_system
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::ProcessInformation::_consoleConnectionTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::ProcessInformation::_consoleConnectionTypes =
 { 
 	{
 		{ "USB Gecko", CON_USBGecko }
@@ -563,12 +563,12 @@ bool MungPlex::ProcessInformation::ConnectToEmulator(const int emulatorIndex)
 	return true; 
 }
 
-const MungPlex::StringIdCombo::Type& MungPlex::ProcessInformation::GetEmulatorList()
+const std::vector<MungPlex::StringIdCombo::VecType>& MungPlex::ProcessInformation::GetEmulatorList()
 {
 	return _emulators;
 }
 
-const MungPlex::StringIdCombo::Type& MungPlex::ProcessInformation::GetConsoleConnectionTypeList()
+const std::vector<MungPlex::StringIdCombo::VecType>& MungPlex::ProcessInformation::GetConsoleConnectionTypeList()
 {
 	return _consoleConnectionTypes;
 }
@@ -715,7 +715,7 @@ REGION_LIST& MungPlex::ProcessInformation::GetRegionList()
 	return GetInstance()._process.GetRegionList();
 }
 
-const MungPlex::RegionCombo::Type& MungPlex::ProcessInformation::NEWGetSystemRegionList()
+const std::vector<MungPlex::SystemRegion>& MungPlex::ProcessInformation::NEWGetSystemRegionList()
 {
 	return GetInstance()._NEWsystemRegions;
 }
@@ -797,7 +797,7 @@ bool MungPlex::ProcessInformation::IsConnectionValid()
 	}
 }
 
-const MungPlex::StringIdCombo::Type& MungPlex::ProcessInformation::GetSystemList()
+const std::vector<MungPlex::StringIdCombo::VecType>& MungPlex::ProcessInformation::GetSystemList()
 {
 	return _systems;
 }

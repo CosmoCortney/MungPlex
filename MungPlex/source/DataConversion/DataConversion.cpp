@@ -6,7 +6,7 @@
 #include <utility>
 #include "Xertz.hpp"
 
-inline const MungPlex::StringIdCombo::Type MungPlex::DataConversion::_specializedColorTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::DataConversion::_specializedColorTypes =
 {
 	{
 		{ "RGBF (3 Floats)", LitColor::RGBF },
@@ -16,7 +16,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::DataConversion::_specialize
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::DataConversion::_floatTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::DataConversion::_floatTypes =
 {
 	{
 		{ "Single", FLOAT },
@@ -24,7 +24,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::DataConversion::_floatTypes
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::DataConversion::_intTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::DataConversion::_intTypes =
 {
 	{
 		{ "Int 16", INT16 },

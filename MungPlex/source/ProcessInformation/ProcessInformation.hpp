@@ -44,8 +44,8 @@ namespace MungPlex
         static bool ConnectToProcess(int processIndex);
         static bool ConnectToApplicationProcess(int applicationProcessIndex);
         static bool ConnectToRealConsole(const int type);
-        static const StringIdCombo::Type& GetEmulatorList();
-        static const StringIdCombo::Type& GetConsoleConnectionTypeList();
+        static const std::vector<StringIdCombo::VecType>& GetEmulatorList();
+        static const std::vector<StringIdCombo::VecType>& GetConsoleConnectionTypeList();
         static int32_t GetProcessType();
         static int32_t GetConsoleConnectionType();
         static int32_t GetPID();
@@ -67,9 +67,9 @@ namespace MungPlex
         static PROCESS_INFO& GetProcess();
         static MODULE_LIST& GetModuleList();
         static REGION_LIST& GetRegionList();
-        static const RegionCombo::Type& NEWGetSystemRegionList();
+        static const std::vector<SystemRegion>& NEWGetSystemRegionList();
         static bool IsConnectionValid();
-        static const StringIdCombo::Type& GetSystemList();
+        static const std::vector<StringIdCombo::VecType>& GetSystemList();
         static void SetWindowRef(GLFWwindow* window);
         static void ResetWindowTitle();
         static void* GetPointerFromPointerPathExpression(const std::vector<int64_t>& pointerPath, const bool useModule = false, const int64_t moduleAddress = 0);
@@ -79,19 +79,6 @@ namespace MungPlex
         template<typename addressType> static addressType GetModuleAddress(const std::wstring& moduleName)
         {
             return (addressType)GetInstance()._process.GetModuleAddress(moduleName);
-        }
-
-        template<typename addressType> static addressType EmuAddrToProcessAddr(addressType address)
-        {
-            int regionIndex = GetRegionIndex(address);
-
-            if (regionIndex < 0)
-                return 0;
-
-            return (addressType)(
-                reinterpret_cast<uint64_t>(GetInstance()._NEWsystemRegions[regionIndex].BaseLocationProcess)
-                + (uint64_t)address
-                - GetInstance()._NEWsystemRegions[regionIndex].Base);
         }
 
         template<typename dataType> static dataType ReadValue(const uint64_t address)
@@ -106,7 +93,7 @@ namespace MungPlex
                     if (GetRegionIndex(address) == -1)
                         return 0;
 
-                    readAddress = reinterpret_cast<void*>(EmuAddrToProcessAddr<uint64_t>(address));
+                    readAddress = reinterpret_cast<void*>(emuAddrToProcessAddr<uint64_t>(address));
                 } break;
                 case CONSOLE:
                 {
@@ -184,7 +171,7 @@ namespace MungPlex
                     if (GetRegionIndex(address) == -1)
                         return;
 
-                    writeAddress = reinterpret_cast<void*>(EmuAddrToProcessAddr<uint64_t>(address));
+                    writeAddress = reinterpret_cast<void*>(emuAddrToProcessAddr<uint64_t>(address));
                 } break;
                 case CONSOLE:
                 {
@@ -254,6 +241,100 @@ namespace MungPlex
             }
         }
 
+        static void Rereorder4BytesReorderedMemory(void* ptr, const uint64_t size)
+        {
+            uint32_t* swapPtr = reinterpret_cast<uint32_t*>(ptr);
+
+            for (uint64_t offset = 0; offset < (size >> 2); ++offset)
+            {
+                swapPtr[offset] = Xertz::SwapBytes<uint32_t>(swapPtr[offset]);
+            }
+        }
+
+        template<typename StringType> static bool WriteTextEx(const uint32_t pid, StringType text, const uint64_t address)
+        {
+            static uint32_t textLength = 0;
+            
+            if constexpr (std::is_same_v<StringType, char*>)
+            {
+                textLength = strlen(text);
+            }
+            else if constexpr (std::is_same_v<StringType, wchar_t*>)
+            {
+                textLength = wcslen(text) * 2;
+            }
+            else if constexpr (std::is_same_v<StringType, char32_t*>)
+            {
+                textLength = std::char_traits<char32_t>::length(text) * 4;
+            }
+            else
+                throw "Error: Unsupported string type.";
+                
+            if (text[textLength - 1] == '\n')
+                --textLength;
+
+            Xertz::SystemInfo::GetProcessInfo(pid).WriteMemoryFast(text, reinterpret_cast<void*>(address), textLength);
+            return true;
+        }
+
+        template<typename addressType> static addressType TranslatePtrTo4BytesReorderingPtr(addressType ptr)
+        {
+            uint64_t tempPtr;
+
+            if constexpr (std::is_same_v<uint64_t, addressType>)
+                tempPtr = ptr;
+            else
+                tempPtr = reinterpret_cast<uint64_t>(ptr);
+
+            switch (tempPtr & 0xF)
+            {
+            case 1: case 5: case 9: case 0xD:
+                ++tempPtr;
+                break;
+            case 2: case 6: case 0xA: case 0xE:
+                --tempPtr;
+                break;
+            case 3: case 7: case 0xB: case 0xF:
+                tempPtr -= 3;
+                break;
+            default: //0, 4, 8, C
+                tempPtr += 3;
+            }
+
+            if constexpr (std::is_same_v<uint64_t, addressType>)
+                return tempPtr;
+            else
+                return reinterpret_cast<addressType>(tempPtr);
+        }
+
+        template<typename dataType> static void WriteToReorderedRangeEx(const Xertz::ProcessInfo& process, dataType* in, void* writeAddress)
+        {
+            char* address = reinterpret_cast<char*>(writeAddress);
+            char* dest = reinterpret_cast<char*>(in);
+
+            for (int i = 0; i < sizeof(dataType); ++i)
+            {
+                char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
+                process.WriteMemoryFast(dest + i, reorderedAddress, 1);
+            }
+
+            return;
+        }
+
+        template<typename dataType> static void ReadFromReorderedRangeEx(const Xertz::ProcessInfo& process, dataType* out, void* readAddress)
+        {
+            char* address = reinterpret_cast<char*>(readAddress);
+            char* dest = reinterpret_cast<char*>(out);
+
+            for (int i = 0; i < sizeof(dataType); ++i)
+            {
+                char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
+                process.ReadMemoryFast(dest + i, reorderedAddress, 1);
+            }
+
+            return;
+        }
+
     private:
         ProcessInformation() = default;
         ~ProcessInformation() = default;
@@ -266,36 +347,48 @@ namespace MungPlex
             static ProcessInformation Instance;
             return Instance;
         }
-
+ 
+        //Misc.
         InputInt<uint32_t> _currentPageInput = InputInt<uint32_t>("Page:", true, 1, 1, 1);
-        int32_t _processType = NONE;
-        PROCESS_INFO _process;
-        bool _underlyingIsBigEndian = false;
-        bool _rereorderRegion = false;
-        int _alignment = 4;
         GLFWwindow* _window = nullptr;
-        std::string _gameID;
-        std::string _rpcGameID;
-        std::string _platform;
-        std::string _processName;
-        std::string _gameName;
-        std::string _gameRegion;
-        int32_t _addressWidth = 4;
-        std::vector<GameEntity> _gameEntities;
-        RegionCombo::Type _NEWsystemRegions;
-        std::vector<std::pair<std::string, size_t>> _labeledEmulatorRegions;
-        static const StringIdCombo::Type _emulators;
-        static const StringIdCombo::Type _systems;
-        static const StringIdCombo::Type _consoleConnectionTypes;
-        std::wstring _exePath;
+
+        //Emulator Connection
+        static const std::vector<StringIdCombo::VecType> _emulators;
+        bool _rereorderRegion = false;
+
+        //Native Connection
         bool _read = true;
         bool _write = true;
         bool _execute = false;
-        int _platformID = UNK;
-        int _connectionCheckValue = 0;
-        void* _connectionCheckPtr = nullptr;
+
+        //Console Connection
+        static const std::vector<StringIdCombo::VecType> _consoleConnectionTypes;
         int _currentConsoleConnectionType = CON_UNDEF;
         std::shared_ptr<USBGecko> _usbGecko;
+
+        //Console and Emulator Connection
+        std::vector<GameEntity> _gameEntities;
+        bool _underlyingIsBigEndian = false;
+
+        //Native and Emulator Connection
+        PROCESS_INFO _process;
+        std::string _processName;
+        std::wstring _exePath;
+
+        //All
+        static const std::vector<StringIdCombo::VecType> _systems;
+        int32_t _processType = NONE;
+        int _platformID = UNK;
+        int32_t _addressWidth = 4;
+        int _alignment = 4;
+        std::string _gameID;
+        std::string _rpcGameID;
+        std::string _platform;
+        std::string _gameName;
+        std::string _gameRegion;
+        std::vector<SystemRegion> _NEWsystemRegions;
+        int _connectionCheckValue = 0;
+        void* _connectionCheckPtr = nullptr;
 
         void drawModuleList();
         void drawRegionList();
@@ -309,5 +402,18 @@ namespace MungPlex
         void refreshModuleList();
         bool connectToProcessFR();
         std::string getPlatformNameFromId(const int id);
+
+        template<typename addressType> static addressType emuAddrToProcessAddr(addressType address)
+        {
+            int regionIndex = GetRegionIndex(address);
+
+            if (regionIndex < 0)
+                return 0;
+
+            return (addressType)(
+                reinterpret_cast<uint64_t>(GetInstance()._NEWsystemRegions[regionIndex].BaseLocationProcess)
+                + (uint64_t)address
+                - GetInstance()._NEWsystemRegions[regionIndex].Base);
+        }
     };
 }

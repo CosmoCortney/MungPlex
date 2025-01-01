@@ -13,7 +13,7 @@ namespace MungPlex
     {
         FloorString DocumentsPath = FloorString("", 512);
         float Scale = 1.2f;
-        static inline StringIdCombo::Type Windows =
+        static inline std::vector<StringIdCombo::VecType> Windows =
         {
             {
                 { "Search", 0 },
@@ -89,7 +89,7 @@ namespace MungPlex
              "Search" , "Dumps", "PointerSearch", "WatchControl", "Cheats", "DeviceControl"
         }; 
 
-        static const DoubleStringIdCombo::Type _colorSettings;
+        static const std::vector<DoubleStringIdCombo::VecType> _colorSettings;
         DoubleStringIdCombo _colorSetSelectCombo = DoubleStringIdCombo("Set Color:", true, _colorSettings);
 
         void drawGeneralSettings();

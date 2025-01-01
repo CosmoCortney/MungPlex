@@ -43,26 +43,7 @@ namespace MungPlex
         static void SetNativeAppSearchSettings();
         static void SetDefaultSearchSettings();
         static bool IsBusySearching();
-        static void SetMemoryRegions(const RegionCombo::Type& regions);
-
-        /*SignalCombo _RegionSelectSignalCombo;
-
-        std::function<void(const char*, InputInt<uint64_t>&)> Slot_RangeTextChanged = [](const char* in, InputInt<uint64_t>& out)
-            {
-                static uint64_t temp = 0;
-
-                if (in == nullptr)
-                    return;
-
-                std::stringstream stream;
-                stream << std::hex << std::string(in);
-                stream >> temp;
-                out.SetValue(temp);
-
-#ifndef NDEBUG
-                std::cout << in << std::endl;
-#endif
-            };*/
+        static void SetMemoryRegions(const std::vector<SystemRegion>& regions);
 
         std::function<void()> Slot_IndexChanged = []()
         {
@@ -95,15 +76,15 @@ namespace MungPlex
         bool _diableBecauseUnknownAndNotRangebased = false;
         bool _disableBecauseNoText = false;
         bool _caseSensitive = true;
-        static const StringIdCombo::Type _searchValueTypes;
+        static const std::vector<StringIdCombo::VecType> _searchValueTypes;
         StringIdCombo _searchValueTypesCombo = StringIdCombo("Value Type:", true, _searchValueTypes);
-        static const StringIdCombo::Type _searchPrimitiveTypes;
+        static const std::vector<StringIdCombo::VecType> _searchPrimitiveTypes;
         StringIdCombo _primitiveTypesCombo = StringIdCombo("Primitive Type:", true, _searchPrimitiveTypes);
-        static const StringIdCombo::Type _searchArrayTypes;
+        static const std::vector<StringIdCombo::VecType> _searchArrayTypes;
         StringIdCombo _arrayTypesCombo = StringIdCombo("Array Type:", true, _searchArrayTypes);
-        static const StringIdCombo::Type _searchColorTypes;
+        static const std::vector<StringIdCombo::VecType> _searchColorTypes;
         StringIdCombo _colorTypesCombo = StringIdCombo("Color Type:", true, _searchColorTypes);
-        StringIdCombo _textTypesCombo = StringIdCombo("Text Type:", true, TextTypes_);
+        StringIdCombo _textTypesCombo = StringIdCombo("Text Type:", true, s_TextTypes);
         bool _forceAlpha = false;
         bool _useColorWheel = false;
         std::wstring _resultsPath = {};
@@ -112,14 +93,14 @@ namespace MungPlex
         bool _busySearching = false;
 
         //search settings
-        static const StringIdCombo::Type _searchComparasionTypes;
+        static const std::vector<StringIdCombo::VecType> _searchComparasionTypes;
         StringIdCombo _searchComparasionTypeCombo = StringIdCombo("Comparison:", true, _searchComparasionTypes);
-        static const StringIdCombo::Type _intSearchConditionTypes;
+        static const std::vector<StringIdCombo::VecType> _intSearchConditionTypes;
         StringIdCombo _subsidiaryTypeSearchConditionsCombo = StringIdCombo("Condition:", true, _intSearchConditionTypes);
-        static const StringIdCombo::Type _floatSearchConditionTypes;
-        static const StringIdCombo::Type _arraySearchConditionTypes;
-        static const StringIdCombo::Type _colorSearchConditionTypes;
-        static const StringIdCombo::Type _textSearchConditionTypes;
+        static const std::vector<StringIdCombo::VecType> _floatSearchConditionTypes;
+        static const std::vector<StringIdCombo::VecType> _arraySearchConditionTypes;
+        static const std::vector<StringIdCombo::VecType> _colorSearchConditionTypes;
+        static const std::vector<StringIdCombo::VecType> _textSearchConditionTypes;
         InputText _knownValueInput = InputText("Value:", true, "", 256); //No InputInt because a string param to be parsed is needed
         InputText _secondaryKnownValueInput = InputText("Not applicable", true, "", 256); //same
         StringIdCombo _iterationsCombo = StringIdCombo("Counter Iteration:", true); 
@@ -129,12 +110,12 @@ namespace MungPlex
         ImVec4 _pokeColorVec = { 0.0f, 0.0f, 0.0f, 1.0f };
 
         //range options
-        RegionCombo::Type _regions{};
-        RegionCombo::Type _dumpRegions{};
+        std::vector<SystemRegion> _regions{};
+        std::vector<SystemRegion> _dumpRegions{};
         int _currentRegionSelect = 0;
         bool _crossRegion = false;
         bool _rereorderRegion = false;
-        static const std::vector<std::pair<std::string, uint32_t>> _endiannesses;
+        static const std::vector<StringIdCombo::VecType> _endiannesses;
         StringIdCombo _endiannessCombo = StringIdCombo("Endianness:", true, _endiannesses);
         InputInt<uint64_t> _rangeStartInput = InputInt<uint64_t>("Start at:", true, 0, 0, 0);
         InputInt<uint64_t> _rangeEndInput = InputInt<uint64_t>("End at:", true, 0, 0, 0);
@@ -249,13 +230,13 @@ namespace MungPlex
                     switch (_colorTypesCombo.GetSelectedId())
                     {
                         case MT::UTF16LE: case MT::UTF16BE:
-                            WriteTextEx(pid, pokeValue.GetString<wchar_t*>(_colorTypesCombo.GetSelectedId()), address);
+                            ProcessInformation::WriteTextEx(pid, pokeValue.GetString<wchar_t*>(_colorTypesCombo.GetSelectedId()), address);
                         break;
                         case MT::UTF32LE: case MT::UTF32BE:
-                            WriteTextEx(pid, pokeValue.GetString<char32_t*>(_colorTypesCombo.GetSelectedId()), address);
+                            ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char32_t*>(_colorTypesCombo.GetSelectedId()), address);
                             break;
                         default:
-                            WriteTextEx(pid, pokeValue.GetString<char*>(_colorTypesCombo.GetSelectedId()), address);
+                            ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char*>(_colorTypesCombo.GetSelectedId()), address);
                     }
                 }
 
@@ -276,13 +257,13 @@ namespace MungPlex
                     switch (_textTypesCombo.GetSelectedId())
                     {
                         case MT::UTF16LE: case MT::UTF16BE:
-                            success = WriteTextEx(pid, pokeValue.GetString<wchar_t*>(_colorTypesCombo.GetSelectedId()), address);
+                            success = ProcessInformation::WriteTextEx(pid, pokeValue.GetString<wchar_t*>(_colorTypesCombo.GetSelectedId()), address);
                         break;
                         case MT::UTF32LE: case MT::UTF32BE:
-                            success = WriteTextEx(pid, pokeValue.GetString<char32_t*>(_colorTypesCombo.GetSelectedId()), address);
+                            success = ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char32_t*>(_colorTypesCombo.GetSelectedId()), address);
                         break;
                         default:
-                            success = WriteTextEx(pid, pokeValue.GetString<char*>(_colorTypesCombo.GetSelectedId()), address);
+                            success = ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char*>(_colorTypesCombo.GetSelectedId()), address);
                     }
 
                     Log::LogInformation((std::string("Poked ") + _textTypesCombo.GetSelectedStdString() + " text value").c_str());

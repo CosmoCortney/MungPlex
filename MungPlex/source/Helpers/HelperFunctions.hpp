@@ -22,7 +22,7 @@ typedef MorphText MT;
 
 namespace MungPlex
 {
-    inline static const std::vector<std::pair<std::string, uint32_t>> TextTypes_ =
+    inline static const std::vector<std::pair<std::string, int32_t>> s_TextTypes =
     {
         {
             { "UTF-8", MT::UTF8 },
@@ -56,107 +56,6 @@ namespace MungPlex
             { "PKMN Gen I Japanese", MT::POKEMON_GEN1_JAPANESE }
         }
     };
-
-    template<typename addressType> static addressType TranslatePtrTo4BytesReorderingPtr(addressType ptr)
-    {
-        uint64_t tempPtr;
-
-        if constexpr (std::is_same_v<uint64_t, addressType>)
-            tempPtr = ptr;
-        else
-            tempPtr = reinterpret_cast<uint64_t>(ptr);
-
-        switch (tempPtr & 0xF)
-        {
-        case 1: case 5: case 9: case 0xD:
-            ++tempPtr;
-            break;
-        case 2: case 6: case 0xA: case 0xE:
-            --tempPtr;
-            break;
-        case 3: case 7: case 0xB: case 0xF:
-            tempPtr -= 3;
-            break;
-        default: //0, 4, 8, C
-            tempPtr += 3;
-        }
-
-        if constexpr (std::is_same_v<uint64_t, addressType>)
-            return tempPtr;
-        else
-            return reinterpret_cast<addressType>(tempPtr);
-    }
-
-    template<typename dataType> static void ReadFromReorderedRangeEx(const Xertz::ProcessInfo& process, dataType* out, void* readAddress)
-    {
-        char* address = reinterpret_cast<char*>(readAddress);
-        char* dest = reinterpret_cast<char*>(out);
-
-        for (int i = 0; i < sizeof(dataType); ++i)
-        {
-            char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
-            process.ReadMemoryFast(dest + i, reorderedAddress, 1);
-        }
-
-        return;
-    }
-
-    template<typename dataType> static void WriteToReorderedRangeEx(const Xertz::ProcessInfo& process, dataType* in, void* writeAddress)
-    {
-        char* address = reinterpret_cast<char*>(writeAddress);
-        char* dest = reinterpret_cast<char*>(in);
-
-        for (int i = 0; i < sizeof(dataType); ++i)
-        {
-            char* reorderedAddress = TranslatePtrTo4BytesReorderingPtr<char*>(address + i);
-            process.WriteMemoryFast(dest + i, reorderedAddress, 1);
-        }
-
-        return;
-    }
-
-    static void Rereorder4BytesReorderedMemory(void* ptr, const uint64_t size)
-    {
-        uint32_t* swapPtr = reinterpret_cast<uint32_t*>(ptr);
-
-        for (uint64_t offset = 0; offset < (size >> 2); ++offset)
-        {
-            swapPtr[offset] = Xertz::SwapBytes<uint32_t>(swapPtr[offset]);
-        }
-    }
-
-    static bool WriteTextEx(const uint32_t pid, char* text, const uint64_t address)
-    {
-        uint32_t textLength = strlen(text);
-
-        if (text[textLength - 1] == '\n')
-            --textLength;
-
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteMemoryFast(text, reinterpret_cast<void*>(address), textLength);
-        return true;
-    }
-
-    static bool WriteTextEx(const uint32_t pid, wchar_t* text, const uint64_t address)
-    {
-        uint32_t textLength = wcslen(text);
-
-        if (text[textLength - 1] == '\n')
-            --textLength;
-
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteMemoryFast(text, reinterpret_cast<void*>(address), textLength * 2);
-        return true;
-    }
-
-    static bool WriteTextEx(const uint32_t pid, char32_t* text, const uint64_t address)
-    {
-        uint32_t textLength = std::char_traits<char32_t>::length(text);
-
-        if (text[textLength - 1] == '\n')
-            --textLength;
-
-        Xertz::SystemInfo::GetProcessInfo(pid).WriteMemoryFast(text, reinterpret_cast<void*>(address), textLength * 4);
-        return true;
-    }
 
     static ImVec4 PackedColorToImVec4(const uint8_t* packedColor)
     {

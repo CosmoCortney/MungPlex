@@ -51,13 +51,13 @@ bool MungPlex::Project64::Init(const Xertz::ProcessInfo& process, std::vector<Ga
 		regions[1].Size = rSize;
 		found = true;
 		char tempID[5] = "";
-		ReadFromReorderedRangeEx(process, reinterpret_cast<uint32_t*>(tempID), romRegion + 0x3B);
+		ProcessInformation::ReadFromReorderedRangeEx(process, reinterpret_cast<uint32_t*>(tempID), romRegion + 0x3B);
 		_rpcGameID = _gameID = std::string(tempID);
 		_gameName.resize(20);
 		_gameRegion = GetRegionFromBigNRegionCode(_gameID[3]);
 
 		for (int i = 0; i <= 20; i += 4)
-			ReadFromReorderedRangeEx(process, reinterpret_cast<uint32_t*>(_gameName.data() + i), romRegion + 0x20 + i);
+			ProcessInformation::ReadFromReorderedRangeEx(process, reinterpret_cast<uint32_t*>(_gameName.data() + i), romRegion + 0x20 + i);
 
 		_gameName = RemoveSpacePadding(_gameName);
 		_platformID = ProcessInformation::N64;

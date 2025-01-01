@@ -1,12 +1,9 @@
-#include "imgui.h"
 #include "StringIdBoolCombo.hpp"
 
-MungPlex::StringIdBoolCombo::StringIdBoolCombo(const std::string& label, const bool printLabel, const Type& stringIdBoolPairVec)
+MungPlex::StringIdBoolCombo::StringIdBoolCombo(const std::string& label, const bool printLabel, const std::vector<VecType>& stringIdBoolPairVec)
 	: ICombo(label, printLabel)
 {
-	_stringPointers.reserve(stringIdBoolPairVec.size());
-	_stringIdBoolPairVec = stringIdBoolPairVec;
-	assignPointers();
+	SetItems(stringIdBoolPairVec);
 }
 
 MungPlex::StringIdBoolCombo::StringIdBoolCombo(const StringIdBoolCombo& other)
@@ -31,18 +28,6 @@ MungPlex::StringIdBoolCombo& MungPlex::StringIdBoolCombo::operator=(StringIdBool
 	return *this;
 }
 
-bool MungPlex::StringIdBoolCombo::Draw(const float paneWidth, const float labelPortion)
-{
-	static bool indexChanged = false;
-	DrawLabel(_label.c_str(), paneWidth, labelPortion, _printLabel, _showHelpText ? _helpText.c_str() : nullptr);
-	return ImGui::Combo(_id.c_str(), reinterpret_cast<int*>(&_selectedIndex), _stringPointers.data(), _stringPointers.size());
-
-	if (indexChanged)
-		callOnIndexChangedSlots();
-
-	return indexChanged;
-}
-
 const std::string& MungPlex::StringIdBoolCombo::GetStdStringAt(const uint64_t index)
 {
 	isInRange(index);
@@ -65,11 +50,11 @@ bool MungPlex::StringIdBoolCombo::GetSelectedBool() const
 	return std::get<bool>(_stringIdBoolPairVec[_selectedIndex]);
 }
 
-void MungPlex::StringIdBoolCombo::SetSelectedById(const uint32_t id)
+void MungPlex::StringIdBoolCombo::SetSelectedById(const int32_t id)
 {
 	for (uint64_t i = 0; i < _stringIdBoolPairVec.size(); ++i)
 	{
-		if (std::get<uint32_t>(_stringIdBoolPairVec[i]) == id)
+		if (std::get<int32_t>(_stringIdBoolPairVec[i]) == id)
 		{
 			SetSelectedByIndex(i);
 			return;
@@ -77,14 +62,17 @@ void MungPlex::StringIdBoolCombo::SetSelectedById(const uint32_t id)
 	}
 }
 
-void MungPlex::StringIdBoolCombo::SetItems(const Type& stringIdBoolPairVec)
+void MungPlex::StringIdBoolCombo::SetItems(const std::vector<VecType>& stringIdBoolPairVec)
 {
-	*this = StringIdBoolCombo(_label, _printLabel, stringIdBoolPairVec);
+	_stringPointers.reserve(stringIdBoolPairVec.size());
+	_stringIdBoolPairVec = stringIdBoolPairVec;
+	assignPointers();
+	SetSelectedByIndex(0);
 }
 
-uint32_t MungPlex::StringIdBoolCombo::GetSelectedId() const
+int32_t MungPlex::StringIdBoolCombo::GetSelectedId() const
 {
-	return std::get<uint32_t>(_stringIdBoolPairVec[_selectedIndex]);
+	return std::get<int32_t>(_stringIdBoolPairVec[_selectedIndex]);
 }
 
 void MungPlex::StringIdBoolCombo::PopBack(const uint64_t count)
@@ -113,7 +101,7 @@ void MungPlex::StringIdBoolCombo::Clear()
 	_stringIdBoolPairVec.clear();
 }
 
-void MungPlex::StringIdBoolCombo::PushBack(const std::tuple<std::string, uint32_t, bool>& stringIdPair)
+void MungPlex::StringIdBoolCombo::PushBack(const VecType& stringIdPair)
 {
 	_stringIdBoolPairVec.push_back(stringIdPair);
 	assignPointers();

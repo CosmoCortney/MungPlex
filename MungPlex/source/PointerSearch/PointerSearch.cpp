@@ -3,7 +3,7 @@
 #include "PointerSearch.hpp"
 #include "Settings.hpp"
 
-inline const MungPlex::StringIdBoolCombo::Type MungPlex::PointerSearch::_systemPresets =
+inline const std::vector<MungPlex::StringIdBoolCombo::VecType> MungPlex::PointerSearch::_systemPresets =
 {
     {
         { "NES", 2, false },
@@ -42,7 +42,7 @@ inline const MungPlex::StringIdBoolCombo::Type MungPlex::PointerSearch::_systemP
     }
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::PointerSearch::_addressWidthTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::PointerSearch::_addressWidthTypes =
 {
     {
         { "1 Byte", 1 },
@@ -52,7 +52,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::PointerSearch::_addressWidt
     }
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::PointerSearch::_inputFileTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::PointerSearch::_inputFileTypes =
 {
     {
         { "Memory Dump", 0 },
@@ -475,7 +475,7 @@ void MungPlex::PointerSearch::SelectPreset(const int presetIndex)
     GetInstance()._isBigEndian = GetInstance()._systemPresetSelectCombo.GetSelectedBool();
 }
 
-void MungPlex::PointerSearch::SetMemoryRegions(const RegionCombo::Type& regions)
+void MungPlex::PointerSearch::SetMemoryRegions(const std::vector<SystemRegion>& regions)
 {
     GetInstance()._regionSelectCombo.SetItems(regions);
 }

@@ -7,35 +7,27 @@ namespace MungPlex
     class RegionCombo : public ICombo
     {
     public:
-        typedef std::vector<SystemRegion> Type;
-        //RegionCombo() = default;
         RegionCombo(const std::string& label, const bool printLabel) : ICombo(label, printLabel) {}
-        RegionCombo(const std::string& label, const bool printLabel, const Type& regionVec);
-        //~RegionCombo() = default;
+        RegionCombo(const std::string& label, const bool printLabel, const std::vector<SystemRegion>& regionVec);
         RegionCombo(const RegionCombo& other);
         RegionCombo& operator=(const RegionCombo& other);
         RegionCombo(RegionCombo&& other) noexcept;
         RegionCombo& operator=(RegionCombo&& other) noexcept;
         const std::string& GetStdStringAt(const uint64_t index) { throw _err; }
         const std::string& GetSelectedStdString() const { throw _err; }
-        uint32_t GetSelectedId() const { throw _err; }
-
-        bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
+        int32_t GetSelectedId() const { throw _err; }
         const SystemRegion& GetRegionAt(const uint64_t index);
         const SystemRegion& GetSelectedRegion() const;
-        void SetItems(const Type& regionVec);
+        void SetItems(const std::vector<SystemRegion>& regionVec);
         void PopBack(const uint64_t count);
         void Clear();
         void PushBack(const SystemRegion& stringIdPair);
-        
-    protected:
 
     private:
         void assign(const RegionCombo& other);
         void assignPointers();
 
-        Type _regionVec{};
-       // std::vector<std::string> _labelVec;
+        std::vector<SystemRegion> _regionVec{};
         const std::string _err = "Function not defined.";
     };
 }

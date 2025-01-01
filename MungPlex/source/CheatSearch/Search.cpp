@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Search.hpp"
 
-inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchValueTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_searchValueTypes =
 {
 	{
 		{ "Primitive", PRIMITIVE },
@@ -12,7 +12,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchValueTypes =
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::Search::_endiannesses =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_endiannesses =
 {
 	{
 		{ "Little", LITTLE },
@@ -20,7 +20,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_endiannesses =
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchPrimitiveTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_searchPrimitiveTypes =
 {
 	{
 		{ "Int 8 (1 Byte)", INT8 },
@@ -32,7 +32,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchPrimitiveTyp
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchArrayTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_searchArrayTypes =
 {
 	{
 		{ "Int 8 (1 Byte)", INT8 },
@@ -42,7 +42,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchArrayTypes =
 	}
 }; //remove once Arrays support floats
 
-inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchColorTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_searchColorTypes =
 {
 	{
 		{ "RGB 888 (3 Bytes)", LitColor::RGB888 },
@@ -54,7 +54,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchColorTypes =
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::Search::_intSearchConditionTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_intSearchConditionTypes =
 {
     {
 		{ "Equal (==)", MemoryCompare::EQUAL },
@@ -72,7 +72,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_intSearchCondition
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::Search::_arraySearchConditionTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_arraySearchConditionTypes =
 {
 	{
 		{ "Equal (==)", MemoryCompare::EQUAL },
@@ -80,7 +80,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_arraySearchConditi
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::Search::_floatSearchConditionTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_floatSearchConditionTypes =
 {
 	{
 		{ "Equal (==)", MemoryCompare::EQUAL },
@@ -95,7 +95,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_floatSearchConditi
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::Search::_colorSearchConditionTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_colorSearchConditionTypes =
 {
 	{
 		{ "Equal (==)", MemoryCompare::EQUAL },
@@ -107,7 +107,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_colorSearchConditi
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type MungPlex::Search::_textSearchConditionTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_textSearchConditionTypes =
 {
 	{
 		{ "Equal (==)", MemoryCompare::EQUAL },
@@ -115,7 +115,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::Search::_textSearchConditio
 	}
 };
 
- inline const MungPlex::StringIdCombo::Type MungPlex::Search::_searchComparasionTypes =
+ inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_searchComparasionTypes =
 {
 	{
 		{ "Unknwon/Initial", 0 },
@@ -1878,7 +1878,7 @@ void MungPlex::Search::setUpAndIterate()
 			{
 			case ProcessInformation::CON_USBGecko:
 			{
-				//ProcessInformation::GetUsbGecko()->Read(buf.data(), dumpRegion.Base, dumpRegion.Size);
+				ProcessInformation::GetUsbGecko()->Read(buf.data(), dumpRegion.Base, dumpRegion.Size);
 			} break;
 			}
 		}
@@ -1887,7 +1887,7 @@ void MungPlex::Search::setUpAndIterate()
 			ProcessInformation::GetProcess().ReadMemoryFast(buf.data(), dumpRegion.BaseLocationProcess, dumpRegion.Size, 0x1000);
 		
 			if (_rereorderRegion)
-				Rereorder4BytesReorderedMemory(buf.data(), dumpRegion.Size);
+				ProcessInformation::Rereorder4BytesReorderedMemory(buf.data(), dumpRegion.Size);
 		}
 
 		MemoryCompare::MemDump dump(buf.data(), dumpRegion.Base, dumpRegion.Size);
@@ -1928,7 +1928,7 @@ bool MungPlex::Search::IsBusySearching()
 	return GetInstance()._busySearching;
 }
 
-void MungPlex::Search::SetMemoryRegions(const RegionCombo::Type& regions)
+void MungPlex::Search::SetMemoryRegions(const std::vector<SystemRegion>& regions)
 {
 	GetInstance()._regionSelectCombo.SetItems(regions);
 }

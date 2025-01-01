@@ -2,7 +2,7 @@
 #include "imgui.h"
 #include "ProcessInformation.hpp"
 
-inline const MungPlex::StringIdCombo::Type MungPlex::IView::s_IntTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::IView::s_IntTypes =
 {
 	{
 		{ "Int 8", ImGuiDataType_S8 },
@@ -16,7 +16,7 @@ inline const MungPlex::StringIdCombo::Type MungPlex::IView::s_IntTypes =
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type  MungPlex::IView::s_FloatTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType>  MungPlex::IView::s_FloatTypes =
 {
 	{
 		{ "Single", ImGuiDataType_Float },
@@ -24,7 +24,7 @@ inline const MungPlex::StringIdCombo::Type  MungPlex::IView::s_FloatTypes =
 	}
 };
 
-inline const MungPlex::StringIdCombo::Type  MungPlex::IView::s_SuperiorTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType>  MungPlex::IView::s_SuperiorTypes =
 {
 	{
 		{ "Integral", INTEGRAL },

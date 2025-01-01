@@ -9,7 +9,7 @@
 
 static float scale = 2.0f;
 
-inline const std::vector<std::pair<std::string, uint32_t>> MungPlex::Cheats::_cheatTypes =
+inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Cheats::_cheatTypes =
 {
 	{
 		{ "GCN Action Replay", CheatConvert::GCN_AR }
