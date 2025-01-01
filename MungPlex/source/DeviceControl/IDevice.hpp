@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/asio.hpp>
 #include "HelperFunctions.hpp"
 #include <string>
 #include <utility>

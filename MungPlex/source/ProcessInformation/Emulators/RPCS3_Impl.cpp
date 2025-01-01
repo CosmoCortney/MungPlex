@@ -1,6 +1,6 @@
 #include "RPCS3_Impl.hpp"
 
-bool MungPlex::RPcS3::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
+bool MungPlex::RPcS3::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("Rpcs3", true, false, 4, 4);
 	loadSystemInformationJSON("PS3", systemRegions);

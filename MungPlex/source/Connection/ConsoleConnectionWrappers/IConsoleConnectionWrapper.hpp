@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/asio.hpp>
 #include "ProcessInformation.hpp"
 
 namespace MungPlex

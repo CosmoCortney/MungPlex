@@ -4,12 +4,11 @@
 #include <boost/atomic.hpp>
 #include "MemoryViewer.hpp"
 #include "Discord.hpp"
-#include "StringIdCombo.hpp"
+#include "WidgetHelpers.hpp"
 
 namespace MungPlex
 {
     class MemoryViewer;
-    class StringIdCombo;
 
     class Connection
     {
@@ -33,8 +32,6 @@ namespace MungPlex
         }
 
         bool _connected = false;
-        int _selectedProcessIndex = 0;
-        int _selectedApplicationProcessIndex = 0;
         std::string _connectionMessage = "Not connected...";
         std::vector<MemoryViewer> _memoryViewers;
         DiscordRPC _discord;
@@ -42,6 +39,8 @@ namespace MungPlex
         boost::atomic<bool> _checkConnectionThreadFlag = false;
         StringIdCombo _emulatorSelectCombo = StringIdCombo("Emulator:", true);
         StringIdCombo _connectionTypeCombo = StringIdCombo("Connection Type:", true);
+        ProcessCombo _processSelectCombo = ProcessCombo("Process:", true, false);
+        ProcessCombo _applicationSelectCombo = ProcessCombo("Application:", true, true);
 
         void drawConnectionSelect();
         void startConnectionCheck();

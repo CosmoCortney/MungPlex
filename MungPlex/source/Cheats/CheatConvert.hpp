@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/asio.hpp>
 #include "examples/libs/emscripten/emscripten_mainloop_stub.h"
 #include "GLFW/glfw3.h"
 #include "imgui.h"

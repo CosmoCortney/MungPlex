@@ -1,6 +1,6 @@
 #include "IEmulator.hpp"
 
-bool MungPlex::IEmulator::loadSystemInformationJSON(const std::string& system, RegionCombo::Type& systemRegions)
+bool MungPlex::IEmulator::loadSystemInformationJSON(const std::string& system, std::vector<SystemRegion>& systemRegions)
 {
 	systemRegions.clear();
 	std::string buffer;
@@ -31,7 +31,7 @@ bool MungPlex::IEmulator::loadSystemInformationJSON(const std::string& system, R
 			int lj = base < 0x100000000 ? 8 : 16;
 			label.append(": ");
 			label.append(ToHexString(base, lj, false));
-			systemRegions.emplace_back(RegionCombo::SystemRegion(label, base, size));
+			systemRegions.emplace_back(SystemRegion(label, base, size));
 		}
 
 		if (regionsDoc.empty())

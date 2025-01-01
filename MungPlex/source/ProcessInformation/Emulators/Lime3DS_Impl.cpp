@@ -4,7 +4,7 @@
 #include <boost/iostreams/device/mapped_file.hpp>
 #include "Settings.hpp"
 
-bool MungPlex::Lime3DS::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
+bool MungPlex::Lime3DS::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("Lime3DS", false, false, 4, 4);
 	boost::filesystem::path gameInfoPath(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros() + "\\MungPlex\\CurrentGame.json");
@@ -45,12 +45,12 @@ bool MungPlex::Lime3DS::Init(const Xertz::ProcessInfo& process, std::vector<Game
 
 		for (int i = 0; i < basePtrs.size(); ++i)
 		{
-			/*RegionCombo::SystemRegion region;
+			SystemRegion region;
 			region.Label = std::string("FCRAM ").append(std::to_string(i + 1));
 			region.Base = std::strtoull(bases[i].c_str(), NULL, 16);
 			region.BaseLocationProcess = reinterpret_cast<void*>(std::strtoull(basePtrs[i].c_str(), NULL, 16));
 			region.Size = std::strtoull(sizes[i].c_str(), NULL, 16);
-			systemRegions.push_back(region);*/
+			systemRegions.push_back(region);
 		}
 	}
 	catch (const nlohmann::json::parse_error& exception)

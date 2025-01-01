@@ -1,5 +1,6 @@
 #pragma once
 #include <boost/asio.hpp>
+#include "GameEntity.hpp"
 #include <GLFW/glfw3.h>
 #include "HelperFunctions.hpp"
 #include <nlohmann/json.hpp>

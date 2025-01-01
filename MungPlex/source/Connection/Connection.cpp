@@ -173,22 +173,20 @@ void MungPlex::Connection::drawAppTabItem()
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 		static bool app = true;
 		static ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-		static ProcessInforPairs processInfoList("Process:");
-		static ProcessApplicationInforPairs applicationProcessInfoList("Application:");
 
 		if (ImGui::BeginTabBar("ProcessesTab", tab_bar_flags))
 		{
-			if (processInfoList.GetCount() == 0)
-				processInfoList.RefreshProcessInfo();
+			if (_processSelectCombo.GetCount() == 0)
+				_processSelectCombo.RefreshProcessInfo();
 
-			if (applicationProcessInfoList.GetCount() == 0)
-				applicationProcessInfoList.RefreshApplicationProcessInfo();
+			if (_applicationSelectCombo.GetCount() == 0)
+				_applicationSelectCombo.RefreshProcessInfo();
 
 			if (ImGui::BeginTabItem("Applications"))
 			{
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				app = true;
-				SetUpPairCombo(applicationProcessInfoList, &_selectedApplicationProcessIndex, 1.0f, 0.5f);
+				_applicationSelectCombo.Draw(1.0f, 0.5f);
 				ImGui::EndTabItem();
 			}
 
@@ -196,7 +194,7 @@ void MungPlex::Connection::drawAppTabItem()
 			{
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				app = false;
-				SetUpPairCombo(processInfoList, &_selectedProcessIndex, 1.0f, 0.5f);
+				_processSelectCombo.Draw(1.0f, 0.5f);
 				ImGui::EndTabItem();
 			}
 
@@ -211,9 +209,9 @@ void MungPlex::Connection::drawAppTabItem()
 		if (ImGui::Button("Connect"))
 		{
 			if (app)
-				_connected = MungPlex::ProcessInformation::ConnectToApplicationProcess(_selectedApplicationProcessIndex);
+				_connected = MungPlex::ProcessInformation::ConnectToApplicationProcess(_applicationSelectCombo.GetSelectedIndex());
 			else
-				_connected = MungPlex::ProcessInformation::ConnectToProcess(_selectedProcessIndex);
+				_connected = MungPlex::ProcessInformation::ConnectToProcess(_processSelectCombo.GetSelectedIndex());
 
 			if (_connected)
 			{

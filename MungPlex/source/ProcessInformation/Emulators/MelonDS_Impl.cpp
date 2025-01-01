@@ -1,7 +1,7 @@
 #include "BigNHelpers.hpp"
 #include "MelonDS_Impl.hpp"
 
-bool MungPlex::MelonDS::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
+bool MungPlex::MelonDS::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("melonDS", false, false, 4, 4);
 	bool romFound = false;

@@ -1,6 +1,6 @@
 #include "PCSX2_Impl.hpp"
 
-bool MungPlex::PCSx2::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
+bool MungPlex::PCSx2::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("Pcsx2", false, false, 4, 4);
 	REGION_LIST& regions = ProcessInformation::GetRegionList();

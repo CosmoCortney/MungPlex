@@ -1,7 +1,7 @@
 #include "Project64_Impl.hpp"
 #include "BigNHelpers.hpp"
 
-bool MungPlex::Project64::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& entities, RegionCombo::Type& regions)
+bool MungPlex::Project64::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& entities, std::vector<SystemRegion>& regions)
 {
 	ProcessInformation::SetMiscProcessInfo("Project64", true, true, 4, 4);
 	bool found = false;

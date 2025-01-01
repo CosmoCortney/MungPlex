@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/asio.hpp>
 #include <iostream>
 #include "../../Log.hpp"
 #include "Lovense.h"

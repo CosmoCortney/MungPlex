@@ -1,10 +1,12 @@
 #pragma once
+#include <boost/asio.hpp>
 #include "DoubleStringIdCombo.hpp"
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 #include "InputFloat.hpp"
 #include "InputInt.hpp"
 #include "InputText.hpp"
+#include "ProcessCombo.hpp"
 #include "RegionCombo.hpp"
 #include "StringIdBoolCombo.hpp"
 #include "StringIdCombo.hpp"

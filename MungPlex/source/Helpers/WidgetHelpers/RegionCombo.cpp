@@ -42,13 +42,13 @@ bool MungPlex::RegionCombo::Draw(const float paneWidth, const float labelPortion
 	return indexChanged;
 }
 
-const MungPlex::RegionCombo::SystemRegion& MungPlex::RegionCombo::GetRegionAt(const uint64_t index)
+const MungPlex::SystemRegion& MungPlex::RegionCombo::GetRegionAt(const uint64_t index)
 {
 	isInRange(index);
 	return _regionVec[index];
 }
 
-const MungPlex::RegionCombo::SystemRegion& MungPlex::RegionCombo::GetSelectedRegion() const
+const MungPlex::SystemRegion& MungPlex::RegionCombo::GetSelectedRegion() const
 {
 	return _regionVec[_selectedIndex];
 }
@@ -87,7 +87,7 @@ void MungPlex::RegionCombo::Clear()
 	_regionVec.clear();
 }
 
-void MungPlex::RegionCombo::PushBack(const RegionCombo::SystemRegion& stringIdPair)
+void MungPlex::RegionCombo::PushBack(const SystemRegion& stringIdPair)
 {
 	_regionVec.push_back(stringIdPair);
 	_stringPointers.push_back(_regionVec.back().Label.c_str());

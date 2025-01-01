@@ -1,6 +1,6 @@
 #include "No$PSX_Impl.hpp"
 
-bool MungPlex::No$PSX::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
+bool MungPlex::No$PSX::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("No$psx", false, false, 4, 1);
 	static const uint64_t ramFlag = 0x696C6F626D795300;

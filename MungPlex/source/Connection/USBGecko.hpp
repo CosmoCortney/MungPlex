@@ -10,6 +10,7 @@ The Project can be found here: https://github.com/MasterofGalaxies/geckowii
 */
 
 #pragma once
+#include <boost/asio.hpp>
 #include <iostream>
 #include <string>
 #include "ftd2xx.h"

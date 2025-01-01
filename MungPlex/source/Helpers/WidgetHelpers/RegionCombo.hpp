@@ -1,20 +1,13 @@
 #pragma once
 #include "ICombo.hpp"
+#include "SystemRegion.hpp"
 
 namespace MungPlex
 {
     class RegionCombo : public ICombo
     {
     public:
-        struct SystemRegion
-        {
-            std::string Label;
-            uint64_t Base;
-            uint64_t Size;
-            void* BaseLocationProcess = nullptr;
-        };
-
-        typedef std::vector<RegionCombo::SystemRegion> Type;
+        typedef std::vector<SystemRegion> Type;
         //RegionCombo() = default;
         RegionCombo(const std::string& label, const bool printLabel) : ICombo(label, printLabel) {}
         RegionCombo(const std::string& label, const bool printLabel, const Type& regionVec);
@@ -28,12 +21,12 @@ namespace MungPlex
         uint32_t GetSelectedId() const { throw _err; }
 
         bool Draw(const float paneWidth = 0.25f, const float labelPortion = 0.4f);
-        const RegionCombo::SystemRegion& GetRegionAt(const uint64_t index);
-        const RegionCombo::SystemRegion& GetSelectedRegion() const;
+        const SystemRegion& GetRegionAt(const uint64_t index);
+        const SystemRegion& GetSelectedRegion() const;
         void SetItems(const Type& regionVec);
         void PopBack(const uint64_t count);
         void Clear();
-        void PushBack(const RegionCombo::SystemRegion& stringIdPair);
+        void PushBack(const SystemRegion& stringIdPair);
         
     protected:
 

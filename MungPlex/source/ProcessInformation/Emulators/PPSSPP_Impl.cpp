@@ -1,6 +1,6 @@
 #include "PPSSPP_Impl.hpp"
 
-bool MungPlex::PpSsPp::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, RegionCombo::Type& systemRegions)
+bool MungPlex::PpSsPp::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("PPSSPP", false, false, 4, 4);
 	bool titleIDFound = false;
