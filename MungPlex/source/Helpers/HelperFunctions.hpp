@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/asio.hpp>
 #include <algorithm>
 #include <chrono>
 #include "Connection.hpp"
@@ -13,7 +14,6 @@
 #include "LitColor.hpp"
 #include "MorphText.hpp"
 #include "OperativeArray.hpp"
-#include "Pairs.hpp"
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,15 +22,6 @@ typedef MorphText MT;
 
 namespace MungPlex
 {
-    struct SystemRegion;
-
-    inline static const MungPlex::StringIdPairs TextTypes =
-    {
-        { "UTF-8",  "UTF-16 Little Endian", "UTF-16 Big Endian", "UTF-32 Little Endian", "UTF-32 Big Endian", "ASCII",  "ISO-8859-1 (Latin 1)", "ISO-8859-2 (Latin 2)", "ISO-8859-3 (Latin 3)", "ISO-8859-4 (Latin 4)", "ISO-8859-5 (Cyrillic)", "ISO-8859-6 (Arabic)", "ISO-8859-7 (Greek)",  "ISO-8859-8 (Hebrew)", "ISO-8859-9 (Turkish)", "ISO-8859-10 (Nordic)", "ISO-8859-11 (Thai)", "ISO-8859-13 (Baltic)", "ISO-8859-14 (Celtic)", "ISO-8859-15 (West European)", "ISO-8859-16 (South-East European)", "Shift-Jis CP932",  "KS X 1001 (EUC-KR)", "Jis X 0201 Full Width",  "Jis X 0201 Half Width",  "PKMN Gen I English",     "PKMN Gen I French/German",     "PKMN Gen I Italian/Spanish",     "PKMN Gen I Japanese" },
-        { MT::UTF8, MT::UTF16LE,            MT::UTF16BE,         MT::UTF32LE,            MT::UTF32BE,         MT::ASCII, MT::ISO_8859_1,        MT::ISO_8859_2,         MT::ISO_8859_3,         MT::ISO_8859_4,         MT::ISO_8859_5,          MT::ISO_8859_6,        MT::ISO_8859_7,        MT::ISO_8859_8,        MT::ISO_8859_9,         MT::ISO_8859_10,        MT::ISO_8859_11,      MT::ISO_8859_13,        MT::ISO_8859_14,        MT::ISO_8859_15,               MT::ISO_8859_16,                     MT::SHIFTJIS_CP932, MT::KS_X_1001,        MT::JIS_X_0201_FULLWIDTH, MT::JIS_X_0201_HALFWIDTH, MT::POKEMON_GEN1_ENGLISH, MT::POKEMON_GEN1_FRENCH_GERMAN, MT::POKEMON_GEN1_ITALIAN_SPANISH, MT::POKEMON_GEN1_JAPANESE },
-        "Text Types:"
-    };
-
     inline static const std::vector<std::pair<std::string, uint32_t>> TextTypes_ =
     {
         {
@@ -443,12 +434,6 @@ namespace MungPlex
             ImGui::PushItemWidth(absoluteWidth);
     }
 
-    static bool SetUpPairCombo(const IPairs& pairs, int* currentSelect, const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true, const char* helpText = nullptr)
-    {
-        PrepareWidgetLabel(pairs.GetLabelCString(), paneWidth, labelPortion, printLabel, helpText);
-        return ImGui::Combo(pairs.GetComboLabelCString(), currentSelect, pairs.GetData(), pairs.GetCount());
-    }
-
     static void SetUpSliderFloat(const std::string& name, float* val, const float min, const float max, const char* format = "%3f", const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true, const char* helpText = nullptr)
     {
         PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
@@ -534,7 +519,7 @@ namespace MungPlex
         }
     };
 
-    class SignalCombo //yes I know this is against the purpose of ImGui. But it makes my life easier here. Please don't call the code cops
+   /* class SignalCombo //yes I know this is against the purpose of ImGui. But it makes my life easier here. Please don't call the code cops
     {
     public:
         typedef std::function<void()> Slot;
@@ -595,7 +580,7 @@ namespace MungPlex
         {
             _slotsOnTextChanged.emplace_back(slot);
         }
-    };
+    };*/
 
     inline std::filesystem::path GetResourcesFilePath(const std::filesystem::path& resourceFileName)
     {
