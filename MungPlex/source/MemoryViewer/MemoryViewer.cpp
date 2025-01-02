@@ -85,12 +85,12 @@ void MungPlex::MemoryViewer::drawControlPanel()
 
         if (processType != ProcessInformation::NATIVE) ImGui::EndDisabled();
 
-        if (_targetAddressInput.Draw(1.0f, 0.4f))
+        if (_targetAddressInput.Draw(1.0f, 0.4f, true))
         {
             processBufferAddress();
         }
 
-        if (_readSizeInput.Draw(1.0f, 0.4f, true))
+        if (_readSizeInput.Draw(1.0f, 0.4f))
         {
             if (_readSizeInput.GetValue() < 0x10)
                 _readSizeInput.SetValue(0x10);
