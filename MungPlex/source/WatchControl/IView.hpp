@@ -31,7 +31,7 @@ namespace MungPlex
         std::wstring _moduleW = std::wstring(32, '\0');
         InputText _moduleInput = InputText("Module:", false, "", 32);
         InputText _pointerPathInput = InputText("Pointer Path:", true, "", 256);
-        InputText _labelInput = InputText("Title:", true, "", 128);
+        InputText _labelInput = InputText("Title:", false, "", 128);
         StringIdCombo _floatTypeSelectCombo = StringIdCombo("Float Type:", true, IView::s_FloatTypes);
         StringIdCombo _intTypeSelectCombo = StringIdCombo("Int Type:", true, IView::s_IntTypes);
         std::vector<int64_t> _pointerPath;
@@ -58,5 +58,6 @@ namespace MungPlex
     private:
         bool drawGeneralSetup(const float itemWidth, const float itemHeight, const int type);
         void drawPointerPathSetup(const float itemWidth, const float itemHeight, const int type);
+        bool drawActiveCheckBox();
     };
 }

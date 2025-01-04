@@ -42,21 +42,34 @@ int MungPlex::IView::GetID()
 bool MungPlex::IView::DrawSetup(const float itemWidth, const float itemHeight, const int type)
 {
 	static bool res = false;
+	ImGui::Dummy(ImVec2(0.0f, 5.0f));
+	res = drawActiveCheckBox();
+	ImGui::SameLine();
 
 	switch (type)
 	{
 	case ViewTypes::FLOAT:
-		ImGui::SeparatorText("Float View");
+		ImGui::SeparatorText("Float View:");
 		break;
 	case ViewTypes::BOOL:
-		ImGui::SeparatorText("Bool View");
+		ImGui::SeparatorText("Bool View:");
 		break;
 	case ViewTypes::MOUSEPIANO:
-		ImGui::SeparatorText("DIP Switch View");
+		ImGui::SeparatorText("DIP Switch View:");
 		break;
 	default: //ViewTypes::Integral
-		ImGui::SeparatorText("Integral View");
+		ImGui::SeparatorText("Integral View:");
 	}
+
+	ImGui::SameLine();
+	_labelInput.Draw(0.25f, 0.2f);
+	ImGui::SameLine();
+
+	if (ImGui::Button("Delete"))
+		_delete = true;
+
+	if (type == ViewTypes::MAP3D)
+		return true;
 
 	ImGui::BeginChild("child_Setup", ImVec2(itemWidth * 0.5f, itemHeight * 1.5f));
 	{
@@ -77,24 +90,7 @@ bool MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHe
 
 	ImGui::BeginChild("child_setup", ImVec2(itemWidth * 0.15f, itemHeight * 1.5f), true);
 	{
-		_labelInput.Draw(1.0f, 0.3f);
 		_enableSignal = _disableSignal = false;
-
-		if (ImGui::Checkbox("Active", &_active))
-		{
-			res = true;
-
-			if (_active)
-			{
-				ParsePointerPath(_pointerPath, _pointerPathInput.GetStdStringNoZeros());
-
-				if(_useModulePath)
-					_moduleAddress = ProcessInformation::GetModuleAddress<uint64_t>(_moduleW);
-			}
-
-			_enableSignal = _active;
-			_disableSignal = !_enableSignal;
-		}
 
 		switch (type)
 		{
@@ -114,12 +110,6 @@ bool MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHe
 			break;
 		}
 
-		if (ImGui::Button("Delete"))
-		{
-			_delete = true;
-		}
-
-		ImGui::SameLine();
 		ImGui::Checkbox("Write", &_freeze);
 	}
 	ImGui::EndChild();
@@ -156,6 +146,29 @@ void MungPlex::IView::drawPointerPathSetup(const float itemWidth, const float it
 		ImGui::InputScalar("## - ", addrType, &_rangeMax, NULL, NULL, format.c_str());
 	}
 	ImGui::EndChild();
+}
+
+bool MungPlex::IView::drawActiveCheckBox()
+{
+	static bool res = false;
+
+	if (ImGui::Checkbox("##Active", &_active))
+	{
+		res = true;
+
+		if (_active)
+		{
+			ParsePointerPath(_pointerPath, _pointerPathInput.GetStdStringNoZeros());
+
+			if (_useModulePath)
+				_moduleAddress = ProcessInformation::GetModuleAddress<uint64_t>(_moduleW);
+		}
+
+		_enableSignal = _active;
+		_disableSignal = !_enableSignal;
+	}
+
+	return res;
 }
 
 nlohmann::json MungPlex::IView::GetBasicJSON()
