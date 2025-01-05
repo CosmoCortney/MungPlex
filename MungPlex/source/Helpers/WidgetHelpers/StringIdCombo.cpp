@@ -34,6 +34,12 @@ const std::string& MungPlex::StringIdCombo::GetStdStringAt(const uint64_t index)
 	return _stringIdPairVec[index].first;
 }
 
+const int32_t MungPlex::StringIdCombo::GetIdAt(const uint64_t index)
+{
+	isInRange(index);
+	return _stringIdPairVec[index].second;
+}
+
 const std::string& MungPlex::StringIdCombo::GetSelectedStdString() const
 {
 	return _stringIdPairVec[_selectedIndex].first;

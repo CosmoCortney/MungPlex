@@ -14,6 +14,7 @@ namespace MungPlex
         StringIdCombo(StringIdCombo&& other) noexcept;
         StringIdCombo& operator=(StringIdCombo&& other) noexcept;
         const std::string& GetStdStringAt(const uint64_t index);
+        const int32_t GetIdAt(const uint64_t index);
         const std::string& GetSelectedStdString() const;
         void SetSelectedById(const uint64_t id);
         void SetItems(const std::vector<std::pair<std::string, int32_t>>& stringIdPairVec, const bool setIndexLast = false);
