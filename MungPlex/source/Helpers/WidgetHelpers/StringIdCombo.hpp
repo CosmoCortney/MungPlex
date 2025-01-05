@@ -20,7 +20,7 @@ namespace MungPlex
         int32_t GetSelectedId() const;
         void PopBack(const uint64_t count);
         void Clear();
-        void PushBack(const std::pair<std::string, int32_t>& stringIdPair);
+        void PushBack(const VecType& stringIdPair);
 
     private:
         void assign(const StringIdCombo& other);

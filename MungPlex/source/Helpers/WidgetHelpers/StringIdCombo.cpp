@@ -96,7 +96,7 @@ void MungPlex::StringIdCombo::Clear()
 void MungPlex::StringIdCombo::PushBack(const VecType& stringIdPair)
 {
 	_stringIdPairVec.push_back(stringIdPair);
-	_stringPointers.push_back(_stringIdPairVec.back().first.c_str());
+	assignPointers();
 }
 
 void MungPlex::StringIdCombo::assign(const StringIdCombo& other)

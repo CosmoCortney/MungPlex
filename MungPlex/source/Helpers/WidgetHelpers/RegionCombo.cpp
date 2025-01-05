@@ -80,7 +80,7 @@ void MungPlex::RegionCombo::Clear()
 void MungPlex::RegionCombo::PushBack(const SystemRegion& stringIdPair)
 {
 	_regionVec.push_back(stringIdPair);
-	_stringPointers.push_back(_regionVec.back().Label.c_str());
+	assignPointers();
 }
 
 void MungPlex::RegionCombo::assign(const RegionCombo& other)
