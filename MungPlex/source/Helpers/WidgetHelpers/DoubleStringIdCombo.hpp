@@ -19,7 +19,7 @@ namespace MungPlex
         std::string& GetIdentifierStdStringAt(const uint64_t index);
         const std::string& GetSelectedIdentifierStdString() const;
         void SetSelectedById(const int32_t id);
-        void SetItems(const std::vector<VecType>& stringIdPairVec);
+        void SetItems(const std::vector<VecType>& stringIdPairVec, const bool setIndexLast = false);
         int32_t GetSelectedId() const;
         void PopBack(const uint64_t count);
         void Clear();

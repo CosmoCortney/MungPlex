@@ -40,12 +40,15 @@ const MungPlex::SystemRegion& MungPlex::RegionCombo::GetSelectedRegion() const
 	return _regionVec[_selectedIndex];
 }
 
-void MungPlex::RegionCombo::SetItems(const std::vector<SystemRegion>& regionVec)
+void MungPlex::RegionCombo::SetItems(const std::vector<SystemRegion>& regionVec, const bool setIndexLast)
 {
-	_stringPointers.reserve(regionVec.size());
 	_regionVec = regionVec;
 	assignPointers();
-	SetSelectedByIndex(0);
+
+	if (setIndexLast)
+		SetSelectedByIndex(_stringPointers.size() - 1);
+	else
+		SetSelectedByIndex(0);
 }
 
 void MungPlex::RegionCombo::PopBack(const uint64_t count)
@@ -95,6 +98,9 @@ void MungPlex::RegionCombo::assign(const RegionCombo& other)
 
 void MungPlex::RegionCombo::assignPointers()
 {
+	_stringPointers.clear();
+	_stringPointers.reserve(_regionVec.size());
+
 	for (auto& elem : _regionVec)
 		_stringPointers.push_back(elem.Label.c_str());
 }

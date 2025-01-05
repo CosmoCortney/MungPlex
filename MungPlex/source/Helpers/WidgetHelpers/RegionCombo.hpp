@@ -18,7 +18,7 @@ namespace MungPlex
         int32_t GetSelectedId() const { throw _err; }
         const SystemRegion& GetRegionAt(const uint64_t index);
         const SystemRegion& GetSelectedRegion() const;
-        void SetItems(const std::vector<SystemRegion>& regionVec);
+        void SetItems(const std::vector<SystemRegion>& regionVec, const bool setIndexLast = false);
         void PopBack(const uint64_t count);
         void Clear();
         void PushBack(const SystemRegion& stringIdPair);

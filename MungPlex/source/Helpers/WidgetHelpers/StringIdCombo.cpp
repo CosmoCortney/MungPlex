@@ -51,12 +51,15 @@ void MungPlex::StringIdCombo::SetSelectedById(const uint64_t id)
 	}
 }
 
-void MungPlex::StringIdCombo::SetItems(const std::vector<VecType>& stringIdPairVec)
+void MungPlex::StringIdCombo::SetItems(const std::vector<VecType>& stringIdPairVec, const bool setIndexLast)
 {
-	_stringPointers.reserve(stringIdPairVec.size());
 	_stringIdPairVec = stringIdPairVec;
 	assignPointers();
-	SetSelectedByIndex(0);
+
+	if(setIndexLast)
+		SetSelectedByIndex(_stringIdPairVec.size() - 1);
+	else
+		SetSelectedByIndex(0);
 }
 
 int32_t MungPlex::StringIdCombo::GetSelectedId() const
@@ -111,6 +114,9 @@ void MungPlex::StringIdCombo::assign(const StringIdCombo& other)
 
 void MungPlex::StringIdCombo::assignPointers()
 {
+	_stringPointers.clear();
+	_stringPointers.reserve(_stringIdPairVec.size());
+
 	for (auto& elem : _stringIdPairVec)
 		_stringPointers.push_back(elem.first.c_str());
 }
