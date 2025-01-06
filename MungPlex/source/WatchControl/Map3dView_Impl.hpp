@@ -30,14 +30,16 @@ namespace MungPlex
         StringIdCombo _itemSelectCombo = StringIdCombo("Map Settings:", true);
 
         //pointer setup
+        std::vector<InputInt<uint64_t>> _rangeBeginningInput;
+        std::vector<InputInt<uint64_t>> _rangeEndInput;
         std::vector<std::wstring> _moduleWVec;
         std::vector<InputText> _moduleInputVec;
         std::vector<InputText> _pointerPathInputVec;
         std::vector<std::vector<int64_t>> _pointerPathVecVec;
         std::vector<bool> _useModulePathVec;
         std::vector<uint64_t> _moduleAddressVec;
-        std::vector<uint64_t> _rangeMinVec;
-        std::vector<uint64_t> _rangeMaxVec;
+        //std::vector<uint64_t> _rangeMinVec;
+        //std::vector<uint64_t> _rangeMaxVec;
 
         //value setup
         const ImVec4 _defaultMeshFaceColor = { 0.564706f, 0.0f, 0.831373f, 1.0f };

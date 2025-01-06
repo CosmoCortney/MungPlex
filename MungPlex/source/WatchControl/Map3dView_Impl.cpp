@@ -90,9 +90,9 @@ void MungPlex::Map3dView::Draw()
 		drawGeneralSetup(itemWidth * 0.15f, itemHeight * 3.0f);
 		ImGui::SameLine();
 
-		drawPointerPathSetup(itemWidth * 0.5f, itemHeight * 3.0f);
+		drawPointerPathSetup(itemWidth * 0.45f, itemHeight * 3.0f);
 			ImGui::SameLine();
-		drawValueSetup(itemWidth * 0.35f, itemHeight * 3.0f);
+		drawValueSetup(itemWidth * 0.4f, itemHeight * 3.0f);
 	
 
 
@@ -133,8 +133,8 @@ void MungPlex::Map3dView::assign(const Map3dView& other)
 	_pointerPathVecVec = other._pointerPathVecVec;
 	_useModulePathVec = other._useModulePathVec;
 	_moduleAddressVec = other._moduleAddressVec;
-	_rangeMinVec = other._rangeMinVec;
-	_rangeMaxVec = other._rangeMaxVec;
+	_rangeBeginningInput = other._rangeBeginningInput;
+	_rangeEndInput = other._rangeEndInput;
 	_coordinatesVecVecVec = other._coordinatesVecVecVec;
 }
 
@@ -163,7 +163,7 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 		{
 			case MESH:
 			{
-				_objPathInputVec[index].Draw(0.9f, 0.4f);
+				_objPathInputVec[index].Draw(0.85f, 0.4f);
 				ImGui::SameLine();
 				
 				if(ImGui::Button("Load"))
@@ -393,17 +393,9 @@ void MungPlex::Map3dView::drawPointerPathSetup(const float itemWidth, const floa
 		if (_pointerPathInputVec[index].Draw(1.0f, 0.3f))
 			ParsePointerPath(_pointerPathVecVec[index], _pointerPathInputVec[index].GetStdStringNoZeros());
 
-		int addrType = ProcessInformation::GetAddressWidth() == 8 ? ImGuiDataType_U64 : ImGuiDataType_U32;
-		std::string format = ProcessInformation::GetAddressWidth() == 8 ? "%016X" : "%08X";
-		ImGui::Text("Target Addr Range:");
+		_rangeBeginningInput[index].Draw(0.65f, 0.4f, true);
 		ImGui::SameLine();
-		ImGui::SetNextItemWidth(itemWidth * 0.1f);
-		ImGui::InputScalar("##Target addr range:", addrType, &_rangeMinVec[index], NULL, NULL, format.c_str());
-		ImGui::SameLine();
-		ImGui::Text(" - ");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 2.0f);
-		ImGui::InputScalar("## - ", addrType, &_rangeMaxVec[index], NULL, NULL, format.c_str());
+		_rangeEndInput[index].Draw(1.f, 0.4f, true);
 	}
 	if (disable) ImGui::EndDisabled();
 	ImGui::EndChild();
@@ -516,12 +508,12 @@ void MungPlex::Map3dView::initNewitem()
 	_itemSelectCombo.SetItems(_items, true);
 	_moduleWVec.push_back(std::wstring(128, L'\0'));
 	_moduleInputVec.emplace_back("Module:", true, "", 128);
+	_rangeBeginningInput.emplace_back("Safe Range:", true, 0);
+	_rangeEndInput.emplace_back(" - ", false, 0);
 	_pointerPathInputVec.emplace_back("Pointer Path:", true, "", 256);
 	_pointerPathVecVec.push_back({});
 	_useModulePathVec.push_back(false);
 	_moduleAddressVec.push_back(0);
-	_rangeMinVec.push_back(0);
-	_rangeMaxVec.push_back(0);
 	_objPathInputVec.emplace_back("OBJ Path:", true, "", 512);;
 	_fillColorVec.push_back(_defaultMeshFaceColor);
 	_lineColorVec.push_back(_defaultMeshLineColor);
