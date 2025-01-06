@@ -11,6 +11,7 @@
 #include "imgui_internal.h"
 #include "GLFW/glfw3.h"
 #include <iostream>
+#include "Map3dView_Impl.hpp"
 #include "MousePianoView_Impl.hpp"
 #include "MungPlexConfig.hpp"
 #include "nlohmann/json.hpp"
@@ -43,7 +44,7 @@ namespace MungPlex
             return Instance;
         }
 
-        std::vector<std::pair<int, std::variant<IntegralView, FloatView, BoolView, MousePianoView>>> _views;
+        std::vector<std::pair<int, std::variant<IntegralView, FloatView, BoolView, MousePianoView, Map3dView>>> _views;
         std::vector<int> _ids;
         std::wstring _currentFile;
         std::string _placeholderFile = "{\"Watchlist\":[]}";

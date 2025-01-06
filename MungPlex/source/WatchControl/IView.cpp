@@ -30,7 +30,8 @@ inline const std::vector<MungPlex::StringIdCombo::VecType>  MungPlex::IView::s_S
 		{ "Integral", INTEGRAL },
 		{ "Float", FLOAT },
 		{ "Bool", BOOL },
-		{ "DIP Switch", MOUSEPIANO }
+		{ "DIP Switch", MOUSEPIANO },
+		{ "3D Map", MAP3D }
 	}
 };
 
@@ -42,9 +43,13 @@ int MungPlex::IView::GetID()
 bool MungPlex::IView::DrawSetup(const float itemWidth, const float itemHeight, const int type)
 {
 	static bool res = false;
-	ImGui::Dummy(ImVec2(0.0f, 5.0f));
-	res = drawActiveCheckBox();
-	ImGui::SameLine();
+
+	if(type != ViewTypes::MAP3D)
+	{
+		ImGui::Dummy(ImVec2(0.0f, 5.0f));
+		res = drawActiveCheckBox();
+		ImGui::SameLine();
+	}
 
 	switch (type)
 	{
@@ -56,6 +61,9 @@ bool MungPlex::IView::DrawSetup(const float itemWidth, const float itemHeight, c
 		break;
 	case ViewTypes::MOUSEPIANO:
 		ImGui::SeparatorText("DIP Switch View:");
+		break;
+	case ViewTypes::MAP3D:
+		ImGui::SeparatorText("3D Map:");
 		break;
 	default: //ViewTypes::Integral
 		ImGui::SeparatorText("Integral View:");

@@ -7,6 +7,13 @@ project ("MungPlex")
 set(CMAKE_CXX_STANDARD 23)
 add_subdirectory ("MungPlex")
 
+if (CMAKE_CXX_COMPILER_VERSION)
+    message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER}")
+    message(STATUS "C++ Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
+else()
+    message(WARNING "C++ Compiler version information is not available.")
+endif()
+
 #Download and install Lovense SDK
 set(LOVENSE_SDK_VERSION "3.1.4" CACHE STRING "Lovense SDK Version")
 set(LOVENSE_SDK_FOLDER "${CMAKE_SOURCE_DIR}/MungPlex/source/DeviceControl/lovense-win-sdk-${LOVENSE_SDK_VERSION}" CACHE STRING "Lovense SDK Path")
@@ -110,6 +117,8 @@ target_include_directories(MungPlex PRIVATE
     "include/MemoryCompare/include/MorphText/MorphText"
     "include/ImGuiFileDialog"
     "include/ImGui_MemoryEditor/imgui_memory_editor"
+    "include/implot/"
+    "include/implot3d/"
     "MungPlex/source/ftdi/CDM-v${FT_LIB_VERSION}-WHQL-Certified"
     "MungPlex/source/DeviceControl"
     "MungPlex/source/Cheats"

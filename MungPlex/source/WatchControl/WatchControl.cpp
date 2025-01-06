@@ -14,7 +14,7 @@ void MungPlex::WatchControl::DrawWindow()
 	static bool stateSet = false;
 
 	if (ImGui::Begin("Watch & Control"))
-	{
+	{/*
 		if (!Connection::IsConnected())
 			ImGui::BeginDisabled();
 		else
@@ -24,12 +24,12 @@ void MungPlex::WatchControl::DrawWindow()
 				Connection::GetDiscordRichPresence().SetRichPresenceState("Value Watch & Control");
 				stateSet = true;
 			}
-		}
+		}*/
 
 		GetInstance().drawList();
 
-		if (!Connection::IsConnected())
-			ImGui::EndDisabled();
+//		if (!Connection::IsConnected())
+	//		ImGui::EndDisabled();
 	}
 	else
 		stateSet = false;
@@ -65,6 +65,9 @@ bool MungPlex::WatchControl::saveList()
 				break;
 				case IView::MOUSEPIANO:
 					jsonData["Watchlist"].emplace_back(std::get<MousePianoView>(_views[i].second).GetJSON());
+					break;
+				case IView::MAP3D:
+					jsonData["Watchlist"].emplace_back(std::get<Map3dView>(_views[i].second).GetJSON());
 					break;
 				default: //IView::INTEGRAL
 					jsonData["Watchlist"].emplace_back(std::get<IntegralView>(_views[i].second).GetJSON());
@@ -139,6 +142,9 @@ void MungPlex::WatchControl::InitWatchFile()
 			case IView::MOUSEPIANO:
 				GetInstance()._views.emplace_back(IView::MOUSEPIANO, MousePianoView(i, watchList[i]));
 				break;
+			case IView::MAP3D:
+				GetInstance()._views.emplace_back(IView::MAP3D, Map3dView(i, watchList[i]));
+				break;
 			default: //IView::INTEGRAL
 				GetInstance()._views.emplace_back(IView::INTEGRAL, IntegralView(i, watchList[i]));
 			}
@@ -187,6 +193,9 @@ void MungPlex::WatchControl::drawList()
 			case IView::MOUSEPIANO:
 				_views.emplace_back(IView::MOUSEPIANO, MousePianoView(_ids.back()));
 				break;
+			case IView::MAP3D:
+				_views.emplace_back(IView::MAP3D, Map3dView(_ids.back()));
+				break;
 			default: //IView::INTEGRAL
 				_views.emplace_back(IView::INTEGRAL, IntegralView(_ids.back()));
 			}
@@ -209,6 +218,9 @@ void MungPlex::WatchControl::drawList()
 				break;
 			case IView::MOUSEPIANO:
 				std::get<MousePianoView>(_views[i].second).Draw();
+				break;
+			case IView::MAP3D:
+				std::get<Map3dView>(_views[i].second).Draw();
 				break;
 			default: //IView::INTEGRAL
 				std::get<IntegralView>(_views[i].second).Draw();
@@ -242,6 +254,13 @@ void MungPlex::WatchControl::DeleteItem(const int id)
 			break;
 		case IView::MOUSEPIANO:
 			if (std::get<MousePianoView>(views[i].second).GetID() == id)
+			{
+				views.erase(views.begin() + i);
+				return;
+			}
+			break;
+		case IView::MAP3D:
+			if (std::get<Map3dView>(views[i].second).GetID() == id)
 			{
 				views.erase(views.begin() + i);
 				return;

@@ -124,6 +124,8 @@ add_executable (MungPlex
     source/WatchControl/IView.hpp
     source/WatchControl/MousePianoView_Impl.cpp
     source/WatchControl/MousePianoView_Impl.hpp
+    source/WatchControl/Map3dView_Impl.cpp
+    source/WatchControl/Map3dView_Impl.hpp
     source/WatchControl/WatchControl.cpp
     source/WatchControl/WatchControl.hpp
     ../include/imgui/imgui.cpp
@@ -154,6 +156,18 @@ add_executable (MungPlex
     ../include/Xertz/SystemInfo.cpp
     ../include/ImGuiFileDialog/ImGuiFileDialog.h
     ../include/ImGuiFileDialog/ImGuiFileDialog.cpp
+    ../include/ImGui_MemoryEditor/imgui_memory_editor/imgui_memory_editor.h
+    ../include/implot3d/implot3d.cpp
+    ../include/implot3d/implot3d.h
+    ../include/implot3d/implot3d_demo.cpp
+    ../include/implot3d/implot3d_internal.h
+    ../include/implot3d/implot3d_items.cpp
+    ../include/implot3d/implot3d_meshes.cpp
+    ../include/implot/implot.cpp
+    ../include/implot/implot.h
+    ../include/implot/implot_demo.cpp
+    ../include/implot/implot_internal.h
+    ../include/implot/implot_items.cpp
     ../include/ImGui_MemoryEditor/imgui_memory_editor/imgui_memory_editor.h
     ${LOVENSE_SDK_FOLDER}/WinSDK_Release/includes/Lovense.h
     ${LOVENSE_SDK_FOLDER}/WinSDK_Release/includes/LovenseDef.h

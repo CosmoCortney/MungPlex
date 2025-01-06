@@ -10,6 +10,8 @@
 #include "ContextMenu.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "implot.h"
+#include "implot3d.h"
 #include <iostream>
 #include "Log.hpp"
 #include "MungPlexConfig.hpp"
@@ -64,6 +66,9 @@ int main()
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImPlot::CreateContext();
+	ImPlot3D::CreateContext();
+
 	auto& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -105,9 +110,13 @@ int main()
 	ImFontConfig cfg;
 
 #ifndef NDEBUG
-	bool show_demo_window = true;
+	bool showDemoWindow = true;
+	bool showPlotDemo = true;
+	bool showPlot3dDemo = true;
 #else
-	bool show_demo_window = false;
+	bool showDemoWindow = false;
+	bool showPlotDemo = false;
+	bool showPlot3dDemo = false;
 #endif
 
 	const bool fontsLoaded = MungPlex::LoadFonts(io, cfg, MungPlex::Settings::GetGeneralSettings().Scale * 20.0f);
@@ -165,9 +174,11 @@ int main()
 			MungPlex::ContextMenu::GetMemoryViews()[i].DrawWindow();
 		}
 
-		if (show_demo_window)
+		if (showDemoWindow)
 		{
-			ImGui::ShowDemoWindow(&show_demo_window);
+			ImGui::ShowDemoWindow(&showDemoWindow);
+			ImPlot::ShowDemoWindow(&showPlotDemo);
+			ImPlot3D::ShowDemoWindow(&showPlot3dDemo);
 		}
 
 		static bool setFocus = true; //this seems weird but is required to set the default window focus
@@ -196,6 +207,10 @@ int main()
 		glfwSwapBuffers(window);
 	}
 	
+	ImPlot3D::DestroyContext();
+	ImPlot::DestroyContext();
+	ImGui::DestroyContext();
+
 	clearSearchResultsDir();
 	return EXIT_SUCCESS;
 }
