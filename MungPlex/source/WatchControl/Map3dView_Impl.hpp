@@ -59,6 +59,8 @@ namespace MungPlex
         std::vector<std::string> _3dPlotNames;
         double _axisLimit = 0.0;
         bool _setAxisLimit = false;
+        const static std::vector<StringIdCombo::VecType> _markerTypes;
+        std::vector<StringIdCombo> _markerTypeSelectCombo;
 
         //misc.
         boost::thread _processValueThread;

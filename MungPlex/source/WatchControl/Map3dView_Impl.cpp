@@ -14,6 +14,23 @@ inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Map3dView::
 	}
 };
 
+inline const std::vector < MungPlex::StringIdCombo::VecType> MungPlex::Map3dView::_markerTypes =
+{
+	{
+		{ "Circle", ImPlot3DMarker_Circle },
+		{ "Square", ImPlot3DMarker_Square },
+		{ "Diamond", ImPlot3DMarker_Diamond },
+		{ "Up", ImPlot3DMarker_Up },
+		{ "Down", ImPlot3DMarker_Down },
+		{ "Left", ImPlot3DMarker_Left },
+		{ "Right", ImPlot3DMarker_Right },
+		{ "Cross", ImPlot3DMarker_Cross },
+		{ "Plus", ImPlot3DMarker_Plus },
+		{ "Asterisk", ImPlot3DMarker_Asterisk },
+		//{ "Count", ImPlot3DMarker_COUNT }
+	}
+};
+
 MungPlex::Map3dView::Map3dView(const int id)
 {
 	_id = id;
@@ -182,7 +199,7 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 			} break;
 			case SCATTER:
 			{
-				if(_scatterCountVec[index].Draw(1.0f, 0.4f))
+				if(_scatterCountVec[index].Draw(0.5f, 0.4f))
 				{
 					if (_scatterCountVec[index].GetValue() < 1)
 						_scatterCountVec[index].SetValue(1);
@@ -190,11 +207,15 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 					resizeCoordinatesVec(index, _scatterCountVec[index].GetValue());
 				}
 
+				ImGui::SameLine();
+
 				_scatterOffsetVec[index].Draw(1.0f, 0.4f, true);
 
 
-					ImGui::ColorEdit4("##MarkerColorScatter", (float*)&_markerColorVec[index]);
-				
+				_markerTypeSelectCombo[index].Draw(0.25f, 0.4f);
+				ImGui::SameLine();
+				ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+				ImGui::ColorEdit4("##MarkerColorScatter", (float*)&_markerColorVec[index]);
 #
 			} break;
 		}
@@ -252,7 +273,7 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 					}
 				}
 
-				ImPlot3D::SetNextMarkerStyle(ImPlot3DMarker_Circle, 6.0f, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
+				ImPlot3D::SetNextMarkerStyle(_markerTypeSelectCombo[i].GetSelectedId(), 6.0f, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
 				ImPlot3D::PlotScatter(_3dPlotNames[i].c_str(), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCountVec[i].GetValue());
 			}
 			}
@@ -514,10 +535,11 @@ void MungPlex::Map3dView::initNewitem()
 	_meshesIndecies.push_back({});
 	_colorPickerEnablerVec.push_back({ true, false, false });
 	_coordinatesVecVecVec.push_back({ { 0.0f }, { 0.0f }, { 0.0f } });
-	_scatterCountVec.emplace_back("Scatter Count:", true, 1);
-	_scatterOffsetVec.emplace_back("Offset to Next:", true, 0);
+	_scatterCountVec.emplace_back("Count:", true, 1);
+	_scatterOffsetVec.emplace_back("Offset:", true, 0);
 	_scatterColorVec.push_back({});
 	_3dPlotNames.push_back("plot " + std::to_string(_3dPlotNames.size()));
+	_markerTypeSelectCombo.emplace_back("Marker Type:", false, _markerTypes);
 }
 
 void MungPlex::Map3dView::resizeCoordinatesVec(const uint64_t index, const uint64_t count)
