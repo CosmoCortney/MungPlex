@@ -230,13 +230,13 @@ namespace MungPlex
                     switch (_colorTypesCombo.GetSelectedId())
                     {
                         case MT::UTF16LE: case MT::UTF16BE:
-                            ProcessInformation::WriteTextEx(pid, pokeValue.GetString<wchar_t*>(_colorTypesCombo.GetSelectedId()), address);
+                            ProcessInformation::WriteTextEx(pid, pokeValue.GetString<wchar_t*>(_textTypesCombo.GetSelectedId()), address);
                         break;
                         case MT::UTF32LE: case MT::UTF32BE:
-                            ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char32_t*>(_colorTypesCombo.GetSelectedId()), address);
+                            ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char32_t*>(_textTypesCombo.GetSelectedId()), address);
                             break;
                         default:
-                            ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char*>(_colorTypesCombo.GetSelectedId()), address);
+                            ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char*>(_textTypesCombo.GetSelectedId()), address);
                     }
                 }
 
@@ -257,13 +257,13 @@ namespace MungPlex
                     switch (_textTypesCombo.GetSelectedId())
                     {
                         case MT::UTF16LE: case MT::UTF16BE:
-                            success = ProcessInformation::WriteTextEx(pid, pokeValue.GetString<wchar_t*>(_colorTypesCombo.GetSelectedId()), address);
+                            success = ProcessInformation::WriteTextEx(pid, pokeValue.GetString<wchar_t*>(_textTypesCombo.GetSelectedId()), address);
                         break;
                         case MT::UTF32LE: case MT::UTF32BE:
-                            success = ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char32_t*>(_colorTypesCombo.GetSelectedId()), address);
+                            success = ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char32_t*>(_textTypesCombo.GetSelectedId()), address);
                         break;
                         default:
-                            success = ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char*>(_colorTypesCombo.GetSelectedId()), address);
+                            success = ProcessInformation::WriteTextEx(pid, pokeValue.GetString<char*>(_textTypesCombo.GetSelectedId()), address);
                     }
 
                     Log::LogInformation((std::string("Poked ") + _textTypesCombo.GetSelectedStdString() + " text value").c_str());
