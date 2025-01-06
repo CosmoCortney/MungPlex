@@ -228,7 +228,7 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 	
 	ImGui::BeginChild("esdrftgf", ImGui::GetContentRegionAvail());
 
-	if (ImPlot3D::BeginPlot("##plot twist", ImGui::GetContentRegionAvail()))
+	if (ImPlot3D::BeginPlot("##plot twist", ImGui::GetContentRegionAvail(), _clippingOn ? 0 : ImPlot3DFlags_NoClip))
 	{
 		if (_setAxisLimit)
 		{
@@ -341,15 +341,13 @@ bool MungPlex::Map3dView::drawGeneralSetup(const float itemWidth, const float it
 
 		_plotTypeSelectCombo.Draw(1.0f, 0.0f);
 
+		ImGui::Checkbox("Clipping", &_clippingOn);
 
-		if (_plotTypeSelectCombo.GetCount() > 0)
-		{
-			_itemSelectCombo.Draw(1.0f, 0.65f);		
+		_itemSelectCombo.Draw(1.0f, 0.65f);		
 			
-			if (ImGui::Button("Delete Selected Item"))
-			{
+		if (ImGui::Button("Delete Selected Item"))
+		{
 
-			}
 		}
 	}
 	ImGui::EndChild();

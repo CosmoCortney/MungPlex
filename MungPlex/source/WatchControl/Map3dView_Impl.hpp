@@ -61,6 +61,7 @@ namespace MungPlex
         bool _setAxisLimit = false;
         const static std::vector<StringIdCombo::VecType> _markerTypes;
         std::vector<StringIdCombo> _markerTypeSelectCombo;
+        bool _clippingOn = false;
 
         //misc.
         boost::thread _processValueThread;
