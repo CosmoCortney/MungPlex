@@ -102,6 +102,7 @@ namespace MungPlex
         static const std::vector<StringIdCombo::VecType> _colorSearchConditionTypes;
         static const std::vector<StringIdCombo::VecType> _textSearchConditionTypes;
         InputText _knownValueInput = InputText("Value:", true, "", 256); //No InputInt because a string param to be parsed is needed
+        InputTextMultiline _knownValueTextInput = InputTextMultiline("Text:", true, "", 512);
         InputText _secondaryKnownValueInput = InputText("Not applicable", true, "", 256); //same
         StringIdCombo _iterationsCombo = StringIdCombo("Counter Iteration:", true); 
         uint32_t _iterationCount = 0;
@@ -132,6 +133,7 @@ namespace MungPlex
         bool _pokePrevious = false;
         std::vector<char> _pokeValue;
         InputText  _pokeValueInput = InputText("Value:", true, "", 256); //No InputInt because a string param to be parsed is needed
+        InputTextMultiline _pokeValueTextInput = InputTextMultiline("Value:", true, "", 512);
         uint64_t _pokeAddress = 0;
         InputText  _pokeAddressInput = InputText("Address:", true, "", 16); //No InputInt because non-numeral information might be displayed
         std::tuple<uint64_t, int> _searchStats;
@@ -196,7 +198,7 @@ namespace MungPlex
         template<typename addressType> bool pokeText()
         {
             const int pid = ProcessInformation::GetPID();
-            const std::string pokeTextp = _pokeValueInput.GetStdStringNoZeros();
+            const std::string pokeTextp = _pokeValueTextInput.GetStdStringNoZeros();
             MorphText pokeValue(pokeTextp);
             auto& results = MemoryCompare::MemCompare::GetResults();
 

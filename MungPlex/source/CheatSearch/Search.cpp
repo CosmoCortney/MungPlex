@@ -224,7 +224,7 @@ void MungPlex::Search::drawValueTypeOptions()
 						_subsidiaryTypeSearchConditionsCombo.SetItems(_colorSearchConditionTypes);
 						break;
 					case TEXT:
-						_knownValueInput.SetLabel("Text:");
+						_knownValueTextInput.SetText("");
 						_subsidiaryTypeSearchConditionsCombo.SetItems(_textSearchConditionTypes);
 						break;
 					default:
@@ -493,7 +493,7 @@ void MungPlex::Search::drawTextSearchOptions()
 	ImGui::BeginGroup();
 	{
 		if (_diableBecauseUnknownAndNotRangebased) ImGui::BeginDisabled();
-			_knownValueInput.Draw(1.0f, 0.4f);
+			_knownValueTextInput.Draw(1.0f, 0.4f);
 		if (_diableBecauseUnknownAndNotRangebased) ImGui::EndDisabled();
 
 		ImGui::Checkbox("Case Sensitive", &_caseSensitive);
@@ -623,10 +623,17 @@ void MungPlex::Search::drawResultsArea()
 				{
 					_pokeAddressInput.Draw(1.0f, 0.2f);
 
-					if (_pokeValueInput.Draw(1.0f, 0.2f))
+					if (_searchValueTypesCombo.GetSelectedId() == TEXT)
 					{
-						if(_searchValueTypesCombo.GetSelectedId() == COLOR)
-							LitColorExpressionToImVec4(_pokeValueInput.GetCString(), &_pokeColorVec);
+						_pokeValueTextInput.Draw(1.0f, 0.2f);
+					}
+					else
+					{
+						if (_pokeValueInput.Draw(1.0f, 0.2f))
+						{
+							if (_searchValueTypesCombo.GetSelectedId() == COLOR)
+								LitColorExpressionToImVec4(_pokeValueInput.GetCString(), &_pokeColorVec);
+						}
 					}
 				}
 				ImGui::EndGroup();
@@ -953,7 +960,7 @@ void MungPlex::Search::prepareLiveUpdateValueList()
 		} break;
 		case TEXT:
 		{
-			updateValuesSize = _knownValueInput.GetStdStringNoZeros().size();
+			updateValuesSize = _knownValueTextInput.GetStdStringNoZeros().size();
 
 			switch (_textTypesCombo.GetSelectedId())
 			{
@@ -1739,7 +1746,11 @@ void MungPlex::Search::drawResultsTable()
 		if (rowClicked)
 		{
 			_pokeAddressInput.SetText(tempAddress.StdStrNoLeadinZeros());
-			_pokeValueInput.SetText(tempValue.StdStrNoLeadinZeros());
+
+			if (_searchValueTypesCombo.GetSelectedId() == TEXT)
+				_pokeValueTextInput.SetText(tempValue.StdStrNoLeadinZeros());
+			else
+				_pokeValueInput.SetText(tempValue.StdStrNoLeadinZeros());
 
 			if (_searchValueTypesCombo.GetSelectedId() == COLOR)
 				LitColorExpressionToImVec4(_pokeValueInput.GetCString(), &_pokeColorVec);
@@ -1831,7 +1842,13 @@ void MungPlex::Search::setUpAndIterate()
 		subsidiaryDatatype = _primitiveTypesCombo.GetSelectedId();
 	}
 
-	std::string tempprimary = _knownValueInput.GetStdStringNoZeros();
+	std::string tempprimary;
+	
+	if(_searchValueTypesCombo.GetSelectedId() == TEXT)
+		tempprimary = _knownValueTextInput.GetStdStringNoZeros();
+	else
+		tempprimary = _knownValueInput.GetStdStringNoZeros();
+
 	std::string tempsecondary = _secondaryKnownValueInput.GetStdStringNoZeros();
 
 	if (_iterationCount < 1)
