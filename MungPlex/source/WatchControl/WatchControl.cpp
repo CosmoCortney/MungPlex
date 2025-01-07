@@ -76,7 +76,7 @@ bool MungPlex::WatchControl::saveList()
 		}
 		else
 		{
-			jsonData["Watchlist"].emplace_back("");
+			jsonData["Watchlist"] = nlohmann::json::array();
 		}
 
 		file << "\xEF\xBB\xBF"; //write BOM
