@@ -87,10 +87,10 @@ void MungPlex::Map3dView::Draw()
 
 		DrawSetup(0.0f, 0.0f, IView::MAP3D); //only draws separator line
 			
-		drawGeneralSetup(itemWidth * 0.15f, itemHeight * 3.0f);
+		drawGeneralSetup(itemWidth * 0.175f, itemHeight * 3.0f);
 		ImGui::SameLine();
 
-		drawPointerPathSetup(itemWidth * 0.45f, itemHeight * 3.0f);
+		drawPointerPathSetup(itemWidth * 0.425f, itemHeight * 3.0f);
 			ImGui::SameLine();
 		drawValueSetup(itemWidth * 0.4f, itemHeight * 3.0f);
 	
@@ -223,7 +223,10 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 				ImGui::SameLine();
 				ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 				ImGui::ColorEdit4("##MarkerColorScatter", (float*)&_markerColorVec[index]);
-#
+				ImGui::Text("Marker Offset:");
+				ImGui::SameLine();
+				ImGui::SliderFloat3("##Offset", (float*)_markerOffset[index].data(), -50.0f, 50.0f, "%.1f");
+				_coordinateDisplacements[index].Draw(0.5f, 0.5f);
 			} break;
 		}
 	}
@@ -237,6 +240,11 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 
 	if (ImPlot3D::BeginPlot("##plot twist", ImGui::GetContentRegionAvail(), _clippingOn ? 0 : ImPlot3DFlags_NoClip))
 	{
+		ImPlot3D::SetupAxes("--- X ---", "--- Y ---", "--- Z ---",  
+			_axesFlipFlags[0] ? ImPlot3DAxisFlags_Invert : 0, 
+			_axesFlipFlags[1] ? ImPlot3DAxisFlags_Invert : 0,
+			_axesFlipFlags[2] ? ImPlot3DAxisFlags_Invert : 0);
+
 		if (_setAxisLimit)
 		{
 			ImPlot3D::SetupAxesLimits(-_axisLimit, _axisLimit, -_axisLimit, _axisLimit, -_axisLimit, _axisLimit, ImPlot3DCond_Always);
@@ -265,11 +273,11 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 
 				ImPlot3D::PlotMesh(_plotNameInputVec[i].GetCString(), _meshes[i].get(), reinterpret_cast<const uint32_t*>(_meshesIndecies[i].data()), _mesheVertCounts[i], _meshesIndecies[i].size());
 				break;
-			default: 
+			default:
 				if (_coordinatesVecVecVec[i].size() != 3)
 					break;
 
-				ImPlot3D::SetNextMarkerStyle(_markerTypeSelectCombo[i].GetSelectedId(), 6.0f, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
+				ImPlot3D::SetNextMarkerStyle(_markerTypeSelectCombo[i].GetSelectedId(), _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
 				ImPlot3D::PlotScatter(_plotNameInputVec[i].GetCString(), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCountVec[i].GetValue());
 			}
 		} 
@@ -286,8 +294,11 @@ void MungPlex::Map3dView::processValue()
 
 		for (uint64_t i = 0; i < _itemSelectCombo.GetCount(); ++i)
 		{
+			if (_itemSelectCombo.GetIdAt(i) == MESH)
+				continue;
+
 			if (_coordinatesVecVecVec[i].size() != 3)
-				break;
+				continue;
 
 			static uint64_t addr = 0;
 			addr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPathVecVec[i], _useModulePathVec[i], _moduleAddressVec[i]));
@@ -299,7 +310,10 @@ void MungPlex::Map3dView::processValue()
 			{
 				for (uint64_t y = 0; y < _scatterCountVec[i].GetValue(); ++y)
 				{
-					_coordinatesVecVecVec[i][coo][y] = ProcessInformation::ReadValue<float>(addr + _scatterOffsetVec[i].GetValue() * y + coo * 4);
+					_coordinatesVecVecVec[i][coo][y] = ProcessInformation::ReadValue<float>(addr 
+						+ _scatterOffsetVec[i].GetValue() * y										//add next object's coordinate location
+						+ coo * _coordinateDisplacements[i].GetValue())								//add displacement between coordinates
+						+ _markerOffset[i][coo];													//add optional marker offset
 				}
 			}
 		}
@@ -331,23 +345,38 @@ bool MungPlex::Map3dView::drawGeneralSetup(const float itemWidth, const float it
 
 	ImGui::BeginChild("child_setup", ImVec2(itemWidth, itemHeight), true);
 	{
-
-
-		if (ImGui::Button("Add Item"))
+		if (ImGui::Button("Add Layer"))
 			initNewitem();
 
 		ImGui::SameLine();
 
 		_plotTypeSelectCombo.Draw(1.0f, 0.0f);
 
-		ImGui::Checkbox("Clipping", &_clippingOn);
+		_itemSelectCombo.Draw(0.7f, 0.4f);
 
-		_itemSelectCombo.Draw(1.0f, 0.65f);		
+		ImGui::SameLine();
 			
-		if (ImGui::Button("Delete Selected Item"))
+		if (ImGui::Button("Delete"))
 		{
 
 		}
+
+		SetUpSliderFloat("Marker Size", &_markerSize, 1.0f, 15.0f, "Marker Size", 0.5f, 0.0f, false);
+
+		if (ImGui::IsItemActive() || ImGui::IsItemHovered())
+			ImGui::SetTooltip("%.1f", _markerSize);
+
+		ImGui::SameLine();
+		ImGui::Checkbox("Clipping", &_clippingOn);
+
+		ImGui::Text("Flip:");
+		static bool test = false;
+		ImGui::SameLine();
+		ImGui::Checkbox("X", &_axesFlipFlags[0]);
+		ImGui::SameLine();
+		ImGui::Checkbox("Y", &_axesFlipFlags[1]);
+		ImGui::SameLine();
+		ImGui::Checkbox("Z", &_axesFlipFlags[2]);
 	}
 	ImGui::EndChild();
 
@@ -414,7 +443,6 @@ bool MungPlex::Map3dView::drawActiveCheckBox()
 			{
 				for (int i = 0; i < _pointerPathInputVec.size(); ++i)
 				{
-					_pointerPathVecVec.push_back({});
 					ParsePointerPath(_pointerPathVecVec[i], _pointerPathInputVec[i].GetStdStringNoZeros());
 
 					if (_useModulePathVec[i])
@@ -502,7 +530,7 @@ bool MungPlex::Map3dView::loadOBJ(const std::string& path, std::shared_ptr<ImPlo
 void MungPlex::Map3dView::initNewitem()
 {
 	int plotTypeId = _plotTypeSelectCombo.GetSelectedId();
-	_items.emplace_back(std::to_string(_items.size()+1), plotTypeId);
+	_items.emplace_back(std::to_string(_items.size() + 1), plotTypeId);
 	_itemSelectCombo.SetItems(_items, true);
 	_moduleWVec.push_back(std::wstring(128, L'\0'));
 	_moduleInputVec.emplace_back("Module:", true, "", 128);
@@ -526,8 +554,10 @@ void MungPlex::Map3dView::initNewitem()
 	_scatterCountVec.emplace_back("Count:", true, 1);
 	_scatterOffsetVec.emplace_back("Offset:", true, 0);
 	_scatterColorVec.push_back({});
-	_plotNameInputVec.emplace_back("Name:", true, std::string("pllot " + std::to_string(_plotNameInputVec.size()+1)));
+	_plotNameInputVec.emplace_back("Name:", true, std::string("pllot " + std::to_string(_plotNameInputVec.size() + 1)));
 	_markerTypeSelectCombo.emplace_back("Marker Type:", false, _markerTypes);
+	_markerOffset.push_back({ 0.0f, 0.0f, 0.0f });
+	_coordinateDisplacements.emplace_back("Displacement", true, 4, 4, 16);
 }
 
 void MungPlex::Map3dView::resizeCoordinatesVec(const uint64_t index, const uint64_t count)

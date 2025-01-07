@@ -27,7 +27,7 @@ namespace MungPlex
         static const std::vector<StringIdCombo::VecType> _plotTypes;
         StringIdCombo _plotTypeSelectCombo = StringIdCombo("Type:", false, _plotTypes);
         std::vector<StringIdCombo::VecType> _items;
-        StringIdCombo _itemSelectCombo = StringIdCombo("Map Settings:", true);
+        StringIdCombo _itemSelectCombo = StringIdCombo("Layer:", true);
 
         //pointer setup
         std::vector<InputInt<uint64_t>> _rangeBeginningInput;
@@ -38,8 +38,6 @@ namespace MungPlex
         std::vector<std::vector<int64_t>> _pointerPathVecVec;
         std::vector<bool> _useModulePathVec;
         std::vector<uint64_t> _moduleAddressVec;
-        //std::vector<uint64_t> _rangeMinVec;
-        //std::vector<uint64_t> _rangeMaxVec;
 
         //value setup
         const ImVec4 _defaultMeshFaceColor = { 0.564706f, 0.0f, 0.831373f, 1.0f };
@@ -64,7 +62,12 @@ namespace MungPlex
         const static std::vector<StringIdCombo::VecType> _markerTypes;
         std::vector<StringIdCombo> _markerTypeSelectCombo;
         bool _clippingOn = false;
-        
+        float _markerSize = 6.0f;
+        std::vector<std::array<float, 3>> _markerOffset;
+        bool _flipX = false;
+        std::array<bool, 3> _axesFlipFlags = { false, false, false };
+        std::vector<InputInt<int64_t>> _coordinateDisplacements;
+
         //misc.
         boost::thread _processValueThread;
         boost::atomic<bool> _processValueThreadFlag = false;
