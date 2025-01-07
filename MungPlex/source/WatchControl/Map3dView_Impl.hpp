@@ -58,13 +58,13 @@ namespace MungPlex
         std::vector<InputInt<uint16_t>> _scatterCountVec;
         std::vector<InputInt<uint64_t>> _scatterOffsetVec;
         std::vector<ImVec4> _scatterColorVec;
-        std::vector<std::string> _3dPlotNames;
+        std::vector<InputText> _plotNameInputVec;
         double _axisLimit = 0.0;
         bool _setAxisLimit = false;
         const static std::vector<StringIdCombo::VecType> _markerTypes;
         std::vector<StringIdCombo> _markerTypeSelectCombo;
         bool _clippingOn = false;
-
+        
         //misc.
         boost::thread _processValueThread;
         boost::atomic<bool> _processValueThreadFlag = false;

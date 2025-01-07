@@ -163,13 +163,17 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 		{
 			case MESH:
 			{
-				_objPathInputVec[index].Draw(0.85f, 0.4f);
+				_objPathInputVec[index].Draw(0.45f, 0.4f);
 				ImGui::SameLine();
 				
 				if(ImGui::Button("Load"))
 				{
 					_setAxisLimit = loadOBJ(_objPathInputVec[index].GetStdStringNoZeros(), _meshes[index], _mesheVertCounts[index], _meshesIndecies[index]);
 				}
+
+				ImGui::SameLine();
+
+				_plotNameInputVec[index].Draw(1.0f, 0.3f);
 
 				ImGui::Checkbox("Mesh Color", &_colorPickerEnablerVec[index][0]);
 
@@ -199,7 +203,7 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 			} break;
 			case SCATTER:
 			{
-				if(_scatterCountVec[index].Draw(0.5f, 0.4f))
+				if(_scatterCountVec[index].Draw(0.33f, 0.3f))
 				{
 					if (_scatterCountVec[index].GetValue() < 1)
 						_scatterCountVec[index].SetValue(1);
@@ -209,8 +213,11 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 
 				ImGui::SameLine();
 
-				_scatterOffsetVec[index].Draw(1.0f, 0.4f, true);
+				_scatterOffsetVec[index].Draw(0.5f, 0.3f, true);
 
+				ImGui::SameLine();
+
+				_plotNameInputVec[index].Draw(1.0f, 0.3f);
 
 				_markerTypeSelectCombo[index].Draw(0.25f, 0.4f);
 				ImGui::SameLine();
@@ -256,40 +263,17 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 				else
 					ImPlot3D::SetNextMarkerStyle(ImPlot3DMarker_Circle, 3, _colorDisable, IMPLOT3D_AUTO, _colorDisable);
 
-				ImPlot3D::PlotMesh(_3dPlotNames[i].c_str(), _meshes[i].get(), reinterpret_cast<const uint32_t*>(_meshesIndecies[i].data()), _mesheVertCounts[i], _meshesIndecies[i].size());
+				ImPlot3D::PlotMesh(_plotNameInputVec[i].GetCString(), _meshes[i].get(), reinterpret_cast<const uint32_t*>(_meshesIndecies[i].data()), _mesheVertCounts[i], _meshesIndecies[i].size());
 				break;
 			default: 
-			{
 				if (_coordinatesVecVecVec[i].size() != 3)
 					break;
 
-				uint64_t addr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPathVecVec[i], _useModulePathVec[i], _moduleAddressVec[i]));
-
-				for (uint64_t coo = 0; coo < 3; ++coo)
-				{
-					for (uint64_t y = 0; y < _scatterCountVec[i].GetValue(); ++y)
-					{
-						_coordinatesVecVecVec[i][coo][y] = ProcessInformation::ReadValue<float>(addr + _scatterOffsetVec[i].GetValue() * y + coo * 4);
-					}
-				}
-
 				ImPlot3D::SetNextMarkerStyle(_markerTypeSelectCombo[i].GetSelectedId(), 6.0f, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
-				ImPlot3D::PlotScatter(_3dPlotNames[i].c_str(), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCountVec[i].GetValue());
+				ImPlot3D::PlotScatter(_plotNameInputVec[i].GetCString(), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCountVec[i].GetValue());
 			}
-			}
-		}
-
-
-		/*
-						_scatterCountVec[index].Draw(1.0f, 0.4f);
-
-				_scatterOffsetVec[index].Draw(1.0f, 0.4f, true);
-		
-		*/
-		
-		
-		
-			ImPlot3D::EndPlot();
+		} 
+		ImPlot3D::EndPlot();
 	}
 	ImGui::EndChild();
 }
@@ -299,11 +283,25 @@ void MungPlex::Map3dView::processValue()
 	while (_processValueThreadFlag)
 	{
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(13));
-		uint64_t valptr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPath, _useModulePath, _moduleAddress));
 
-		if ((valptr >= _rangeMin && valptr < _rangeMax) || _pointerPath.size() == 1)
+		for (uint64_t i = 0; i < _itemSelectCombo.GetCount(); ++i)
 		{
-			
+			if (_coordinatesVecVecVec[i].size() != 3)
+				break;
+
+			static uint64_t addr = 0;
+			addr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPathVecVec[i], _useModulePathVec[i], _moduleAddressVec[i]));
+
+			if ((addr < _rangeMin || addr > _rangeMax) && _pointerPathVecVec[i].size() != 1)
+				continue;
+
+			for (uint64_t coo = 0; coo < 3; ++coo)
+			{
+				for (uint64_t y = 0; y < _scatterCountVec[i].GetValue(); ++y)
+				{
+					_coordinatesVecVecVec[i][coo][y] = ProcessInformation::ReadValue<float>(addr + _scatterOffsetVec[i].GetValue() * y + coo * 4);
+				}
+			}
 		}
 	}
 }
@@ -323,6 +321,8 @@ void MungPlex::Map3dView::manageProcessValueThread()
 		_processValueThread = boost::thread(&MungPlex::Map3dView::processValue, this);
 		_processValueThreadFlag = true;
 	}
+
+	_enableSignal = _disableSignal = false;
 }
 
 bool MungPlex::Map3dView::drawGeneralSetup(const float itemWidth, const float itemHeight)
@@ -331,7 +331,6 @@ bool MungPlex::Map3dView::drawGeneralSetup(const float itemWidth, const float it
 
 	ImGui::BeginChild("child_setup", ImVec2(itemWidth, itemHeight), true);
 	{
-		_enableSignal = _disableSignal = false;
 
 
 		if (ImGui::Button("Add Item"))
@@ -411,10 +410,8 @@ bool MungPlex::Map3dView::drawActiveCheckBox()
 
 		if (_active)
 		{
-			if (_pointerPathVecVec.size() != _pointerPathInputVec.size()
-				|| _pointerPathVecVec.size() != _moduleWVec.size()
-				|| _pointerPathVecVec.size() != _useModulePathVec.size())
-
+			if (_pointerPathVecVec.size() == _pointerPathInputVec.size() && _pointerPathVecVec.size() == _moduleWVec.size() && _pointerPathVecVec.size() == _useModulePathVec.size())
+			{
 				for (int i = 0; i < _pointerPathInputVec.size(); ++i)
 				{
 					_pointerPathVecVec.push_back({});
@@ -423,6 +420,7 @@ bool MungPlex::Map3dView::drawActiveCheckBox()
 					if (_useModulePathVec[i])
 						_moduleAddressVec[i] = ProcessInformation::GetModuleAddress<uint64_t>(_moduleWVec[i]);
 				}
+			}
 		}
 
 		_enableSignal = _active;
@@ -528,7 +526,7 @@ void MungPlex::Map3dView::initNewitem()
 	_scatterCountVec.emplace_back("Count:", true, 1);
 	_scatterOffsetVec.emplace_back("Offset:", true, 0);
 	_scatterColorVec.push_back({});
-	_3dPlotNames.push_back("plot " + std::to_string(_3dPlotNames.size()));
+	_plotNameInputVec.emplace_back("Name:", true, std::string("pllot " + std::to_string(_plotNameInputVec.size()+1)));
 	_markerTypeSelectCombo.emplace_back("Marker Type:", false, _markerTypes);
 }
 
