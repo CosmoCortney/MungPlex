@@ -133,8 +133,8 @@ void MungPlex::Map3dView::assign(const Map3dView& other)
 	_pointerPathVecVec = other._pointerPathVecVec;
 	_useModulePathVec = other._useModulePathVec;
 	_moduleAddressVec = other._moduleAddressVec;
-	_rangeBeginningInput = other._rangeBeginningInput;
-	_rangeEndInput = other._rangeEndInput;
+	_rangeBeginnings = other._rangeBeginnings;
+	_rangeEnds = other._rangeEnds;
 	_coordinatesVecVecVec = other._coordinatesVecVecVec;
 }
 
@@ -203,17 +203,17 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 			} break;
 			case SCATTER:
 			{
-				if(_scatterCountVec[index].Draw(0.33f, 0.3f))
+				if(_scatterCounts.Draw(0.33f, 0.3f))
 				{
-					if (_scatterCountVec[index].GetValue() < 1)
-						_scatterCountVec[index].SetValue(1);
+					if (_scatterCounts.GetSelectedValue() < 1)
+						_scatterCounts.SetSelectedValue(1);
 
-					resizeCoordinatesVec(index, _scatterCountVec[index].GetValue());
+					resizeCoordinatesVec(index, _scatterCounts.GetSelectedValue());
 				}
 
 				ImGui::SameLine();
 
-				_scatterOffsetVec[index].Draw(0.5f, 0.3f, true);
+				_scatterOffsets.Draw(0.5f, 0.3f, true);
 
 				ImGui::SameLine();
 
@@ -226,7 +226,7 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 				ImGui::Text("Marker Offset:");
 				ImGui::SameLine();
 				ImGui::SliderFloat3("##Offset", (float*)_markerOffset[index].data(), -50.0f, 50.0f, "%.1f");
-				_coordinateDisplacements[index].Draw(0.5f, 0.5f);
+				_coordinateDisplacements.Draw(0.5f, 0.5f);
 			} break;
 		}
 	}
@@ -278,7 +278,7 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 					break;
 
 				ImPlot3D::SetNextMarkerStyle(_markerTypeSelectCombo[i].GetSelectedId(), _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
-				ImPlot3D::PlotScatter(_plotNameInputVec[i].GetCString(), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCountVec[i].GetValue());
+				ImPlot3D::PlotScatter(_plotNameInputVec[i].GetCString(), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCounts.GetValueAt(i));
 			}
 		} 
 		ImPlot3D::EndPlot();
@@ -308,11 +308,11 @@ void MungPlex::Map3dView::processValue()
 
 			for (uint64_t coo = 0; coo < 3; ++coo)
 			{
-				for (uint64_t y = 0; y < _scatterCountVec[i].GetValue(); ++y)
+				for (uint64_t y = 0; y < _scatterCounts.GetValueAt(i); ++y)
 				{
 					_coordinatesVecVecVec[i][coo][y] = ProcessInformation::ReadValue<float>(addr 
-						+ _scatterOffsetVec[i].GetValue() * y										//add next object's coordinate location
-						+ coo * _coordinateDisplacements[i].GetValue())								//add displacement between coordinates
+						+ _scatterOffsets.GetValueAt(i) * y										    //add next object's coordinate location
+						+ coo * _coordinateDisplacements.GetValueAt(i))								//add displacement between coordinates
 						+ _markerOffset[i][coo];													//add optional marker offset
 				}
 			}
@@ -352,7 +352,8 @@ bool MungPlex::Map3dView::drawGeneralSetup(const float itemWidth, const float it
 
 		_plotTypeSelectCombo.Draw(1.0f, 0.0f);
 
-		_itemSelectCombo.Draw(0.7f, 0.4f);
+		if (_itemSelectCombo.Draw(0.7f, 0.4f))
+			setItemIndices(_itemSelectCombo.GetSelectedIndex());
 
 		ImGui::SameLine();
 			
@@ -421,9 +422,9 @@ void MungPlex::Map3dView::drawPointerPathSetup(const float itemWidth, const floa
 		if (_pointerPathInputVec[index].Draw(1.0f, 0.3f))
 			ParsePointerPath(_pointerPathVecVec[index], _pointerPathInputVec[index].GetStdStringNoZeros());
 
-		_rangeBeginningInput[index].Draw(0.65f, 0.4f, true);
+		_rangeBeginnings.Draw(0.65f, 0.4f, true);
 		ImGui::SameLine();
-		_rangeEndInput[index].Draw(1.f, 0.4f, true);
+		_rangeEnds.Draw(1.f, 0.4f, true);
 	}
 	if (disable) ImGui::EndDisabled();
 	ImGui::EndChild();
@@ -534,8 +535,8 @@ void MungPlex::Map3dView::initNewitem()
 	_itemSelectCombo.SetItems(_items, true);
 	_moduleWVec.push_back(std::wstring(128, L'\0'));
 	_moduleInputVec.emplace_back("Module:", true, "", 128);
-	_rangeBeginningInput.emplace_back("Safe Range:", true, 0);
-	_rangeEndInput.emplace_back(" - ", false, 0);
+	_rangeBeginnings.PushBack(0);
+	_rangeEnds.PushBack(0);
 	_pointerPathInputVec.emplace_back("Pointer Path:", true, "", 256);
 	_pointerPathVecVec.push_back({});
 	_useModulePathVec.push_back(false);
@@ -551,13 +552,14 @@ void MungPlex::Map3dView::initNewitem()
 	_meshesIndecies.push_back({});
 	_colorPickerEnablerVec.push_back({ true, false, false });
 	_coordinatesVecVecVec.push_back({ { 0.0f }, { 0.0f }, { 0.0f } });
-	_scatterCountVec.emplace_back("Count:", true, 1);
-	_scatterOffsetVec.emplace_back("Offset:", true, 0);
+	_scatterCounts.PushBack(1);
+	_scatterOffsets.PushBack(0);
 	_scatterColorVec.push_back({});
 	_plotNameInputVec.emplace_back("Name:", true, std::string("pllot " + std::to_string(_plotNameInputVec.size() + 1)));
 	_markerTypeSelectCombo.emplace_back("Marker Type:", false, _markerTypes);
 	_markerOffset.push_back({ 0.0f, 0.0f, 0.0f });
-	_coordinateDisplacements.emplace_back("Displacement", true, 4, 4, 16);
+	_coordinateDisplacements.PushBack(4);
+	setItemIndices(_itemSelectCombo.GetSelectedIndex());
 }
 
 void MungPlex::Map3dView::resizeCoordinatesVec(const uint64_t index, const uint64_t count)
@@ -579,4 +581,13 @@ void MungPlex::Map3dView::resizeCoordinatesVec(const uint64_t index, const uint6
 		_coordinatesVecVecVec[index][1].push_back(0.0f);
 		_coordinatesVecVecVec[index][2].push_back(0.0f);
 	}
+}
+
+void MungPlex::Map3dView::setItemIndices(const uint64_t index)
+{
+	_coordinateDisplacements.SelectByIndex(index);
+	_scatterCounts.SelectByIndex(index);
+	_scatterOffsets.SelectByIndex(index);
+	_rangeBeginnings.SelectByIndex(index);
+	_rangeEnds.SelectByIndex(index);
 }

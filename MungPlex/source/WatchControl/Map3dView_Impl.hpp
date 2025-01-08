@@ -30,8 +30,8 @@ namespace MungPlex
         StringIdCombo _itemSelectCombo = StringIdCombo("Layer:", true);
 
         //pointer setup
-        std::vector<InputInt<uint64_t>> _rangeBeginningInput;
-        std::vector<InputInt<uint64_t>> _rangeEndInput;
+        InputVectorInt<uint64_t> _rangeBeginnings = InputVectorInt<uint64_t>("Safe Range:", true, {});
+        InputVectorInt<uint64_t> _rangeEnds = InputVectorInt<uint64_t>(" - ", false, {});
         std::vector<std::wstring> _moduleWVec;
         std::vector<InputText> _moduleInputVec;
         std::vector<InputText> _pointerPathInputVec;
@@ -53,8 +53,8 @@ namespace MungPlex
         std::vector<std::vector<uint32_t>> _meshesIndecies;
         std::vector<std::array<bool, 3>> _colorPickerEnablerVec;
         std::vector<std::vector<std::vector<float>>> _coordinatesVecVecVec;
-        std::vector<InputInt<uint16_t>> _scatterCountVec;
-        std::vector<InputInt<uint64_t>> _scatterOffsetVec;
+        InputVectorInt<uint64_t> _scatterCounts = InputVectorInt<uint64_t>("Count:", true, {});
+        InputVectorInt<uint64_t> _scatterOffsets = InputVectorInt<uint64_t>("Offset:", true, {}, 4, 16);
         std::vector<ImVec4> _scatterColorVec;
         std::vector<InputText> _plotNameInputVec;
         double _axisLimit = 0.0;
@@ -66,7 +66,7 @@ namespace MungPlex
         std::vector<std::array<float, 3>> _markerOffset;
         bool _flipX = false;
         std::array<bool, 3> _axesFlipFlags = { false, false, false };
-        std::vector<InputInt<int64_t>> _coordinateDisplacements;
+        InputVectorInt<int64_t> _coordinateDisplacements = InputVectorInt<int64_t>("Displacement:", true, {}, 4, 16);
 
         //misc.
         boost::thread _processValueThread;
@@ -83,5 +83,6 @@ namespace MungPlex
         bool loadOBJ(const std::string& path, std::shared_ptr<ImPlot3DPoint>& mesh, uint32_t& vertCount, std::vector<uint32_t>& indices);
         void initNewitem();
         void resizeCoordinatesVec(const uint64_t index, const uint64_t count);
+        void setItemIndices(const uint64_t index);
     };
 }
