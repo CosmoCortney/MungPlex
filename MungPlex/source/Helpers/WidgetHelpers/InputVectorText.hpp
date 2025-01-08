@@ -28,6 +28,7 @@ namespace MungPlex
 		const char* GetCStringAt(const uint64_t index);
 		char* GetSelectedData();
 		char* GetDataAt(const uint64_t index);
+		uint64_t GetCount() const;
 		void AppendTextAt(const std::string& text, const uint64_t index);
 		void AppendSelectedText(const std::string& text);
 		void SetLabel(const std::string& label);

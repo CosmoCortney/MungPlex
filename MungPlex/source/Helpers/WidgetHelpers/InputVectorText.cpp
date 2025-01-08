@@ -110,6 +110,11 @@ char* MungPlex::InputVectorText::GetDataAt(const uint64_t index)
 	return _texts[index].data();
 }
 
+uint64_t MungPlex::InputVectorText::GetCount() const
+{
+	return _texts.size();
+}
+
 void MungPlex::InputVectorText::AppendTextAt(const std::string& text, const uint64_t index)
 {
 	isInRange(index);
