@@ -128,8 +128,8 @@ void MungPlex::Map3dView::assign(const Map3dView& other)
 	_typeSelect = other._typeSelect;
 
 	_moduleWVec = other._moduleWVec;
-	_moduleInputVec = other._moduleInputVec;
-	_pointerPathInputVec = other._pointerPathInputVec;
+	_moduleInputs = other._moduleInputs;
+	_pointerPathInputs = other._pointerPathInputs;
 	_pointerPathVecVec = other._pointerPathVecVec;
 	_useModulePathVec = other._useModulePathVec;
 	_moduleAddressVec = other._moduleAddressVec;
@@ -163,17 +163,17 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 		{
 			case MESH:
 			{
-				_objPathInputVec[index].Draw(0.45f, 0.4f);
+				_objPaths.Draw(0.45f, 0.4f);
 				ImGui::SameLine();
 				
 				if(ImGui::Button("Load"))
 				{
-					_setAxisLimit = loadOBJ(_objPathInputVec[index].GetStdStringNoZeros(), _meshes[index], _mesheVertCounts[index], _meshesIndecies[index]);
+					_setAxisLimit = loadOBJ(_objPaths.GetStdStringNoZerosAt(index), _meshes[index], _mesheVertCounts[index], _meshesIndecies[index]);
 				}
 
 				ImGui::SameLine();
 
-				_plotNameInputVec[index].Draw(1.0f, 0.3f);
+				_plotNames.Draw(1.0f, 0.3f);
 
 				ImGui::Checkbox("Mesh Color", &_colorPickerEnablerVec[index][0]);
 
@@ -217,7 +217,7 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 
 				ImGui::SameLine();
 
-				_plotNameInputVec[index].Draw(1.0f, 0.3f);
+				_plotNames.Draw(1.0f, 0.3f);
 
 				_markerTypeSelectCombo[index].Draw(0.25f, 0.4f);
 				ImGui::SameLine();
@@ -271,14 +271,14 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 				else
 					ImPlot3D::SetNextMarkerStyle(ImPlot3DMarker_Circle, 3, _colorDisable, IMPLOT3D_AUTO, _colorDisable);
 
-				ImPlot3D::PlotMesh(_plotNameInputVec[i].GetCString(), _meshes[i].get(), reinterpret_cast<const uint32_t*>(_meshesIndecies[i].data()), _mesheVertCounts[i], _meshesIndecies[i].size());
+				ImPlot3D::PlotMesh(_plotNames.GetCStringAt(i), _meshes[i].get(), reinterpret_cast<const uint32_t*>(_meshesIndecies[i].data()), _mesheVertCounts[i], _meshesIndecies[i].size());
 				break;
 			default:
 				if (_coordinatesVecVecVec[i].size() != 3)
 					break;
 
 				ImPlot3D::SetNextMarkerStyle(_markerTypeSelectCombo[i].GetSelectedId(), _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
-				ImPlot3D::PlotScatter(_plotNameInputVec[i].GetCString(), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCounts.GetValueAt(i));
+				ImPlot3D::PlotScatter(_plotNames.GetCStringAt(i), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCounts.GetValueAt(i));
 			}
 		} 
 		ImPlot3D::EndPlot();
@@ -416,11 +416,11 @@ void MungPlex::Map3dView::drawPointerPathSetup(const float itemWidth, const floa
 
 		ImGui::SameLine();
 		if (!useModulePath) ImGui::BeginDisabled();
-		_moduleInputVec[index].Draw(1.0f, 0.0f);
+		_moduleInputs.Draw(1.0f, 0.0f);
 		if (!useModulePath) ImGui::EndDisabled();
 
-		if (_pointerPathInputVec[index].Draw(1.0f, 0.3f))
-			ParsePointerPath(_pointerPathVecVec[index], _pointerPathInputVec[index].GetStdStringNoZeros());
+		if (_pointerPathInputs.Draw(1.0f, 0.3f))
+			ParsePointerPath(_pointerPathVecVec[index], _pointerPathInputs.GetStdStringNoZerosAt(index));
 
 		_rangeBeginnings.Draw(0.65f, 0.4f, true);
 		ImGui::SameLine();
@@ -440,15 +440,12 @@ bool MungPlex::Map3dView::drawActiveCheckBox()
 
 		if (_active)
 		{
-			if (_pointerPathVecVec.size() == _pointerPathInputVec.size() && _pointerPathVecVec.size() == _moduleWVec.size() && _pointerPathVecVec.size() == _useModulePathVec.size())
+			for (int i = 0; i < _pointerPathInputs.GetCount(); ++i)
 			{
-				for (int i = 0; i < _pointerPathInputVec.size(); ++i)
-				{
-					ParsePointerPath(_pointerPathVecVec[i], _pointerPathInputVec[i].GetStdStringNoZeros());
+				ParsePointerPath(_pointerPathVecVec[i], _pointerPathInputs.GetStdStringNoZerosAt(i));
 
-					if (_useModulePathVec[i])
-						_moduleAddressVec[i] = ProcessInformation::GetModuleAddress<uint64_t>(_moduleWVec[i]);
-				}
+				if (_useModulePathVec[i])
+					_moduleAddressVec[i] = ProcessInformation::GetModuleAddress<uint64_t>(_moduleWVec[i]);
 			}
 		}
 
@@ -534,14 +531,14 @@ void MungPlex::Map3dView::initNewitem()
 	_items.emplace_back(std::to_string(_items.size() + 1), plotTypeId);
 	_itemSelectCombo.SetItems(_items, true);
 	_moduleWVec.push_back(std::wstring(128, L'\0'));
-	_moduleInputVec.emplace_back("Module:", true, "", 128);
+	_moduleInputs.PushBack("");
 	_rangeBeginnings.PushBack(0);
 	_rangeEnds.PushBack(0);
-	_pointerPathInputVec.emplace_back("Pointer Path:", true, "", 256);
+	_pointerPathInputs.PushBack("");
 	_pointerPathVecVec.push_back({});
 	_useModulePathVec.push_back(false);
 	_moduleAddressVec.push_back(0);
-	_objPathInputVec.emplace_back("OBJ Path:", true, "", 512);;
+	_objPaths.PushBack("");
 	_fillColorVec.push_back(_defaultMeshFaceColor);
 	_lineColorVec.push_back(_defaultMeshLineColor);
 	_markerColorVec.push_back(_defaultMeshMarkerColor);
@@ -555,7 +552,7 @@ void MungPlex::Map3dView::initNewitem()
 	_scatterCounts.PushBack(1);
 	_scatterOffsets.PushBack(0);
 	_scatterColorVec.push_back({});
-	_plotNameInputVec.emplace_back("Name:", true, std::string("pllot " + std::to_string(_plotNameInputVec.size() + 1)));
+	_plotNames.PushBack(std::string("plot " + std::to_string(_plotNames.GetCount() + 1)));
 	_markerTypeSelectCombo.emplace_back("Marker Type:", false, _markerTypes);
 	_markerOffset.push_back({ 0.0f, 0.0f, 0.0f });
 	_coordinateDisplacements.PushBack(4);
@@ -590,4 +587,8 @@ void MungPlex::Map3dView::setItemIndices(const uint64_t index)
 	_scatterOffsets.SelectByIndex(index);
 	_rangeBeginnings.SelectByIndex(index);
 	_rangeEnds.SelectByIndex(index);
+	_moduleInputs.SelectByIndex(index);
+	_pointerPathInputs.SelectByIndex(index);
+	_objPaths.SelectByIndex(index);
+	_plotNames.SelectByIndex(index);
 }

@@ -33,8 +33,8 @@ namespace MungPlex
         InputVectorInt<uint64_t> _rangeBeginnings = InputVectorInt<uint64_t>("Safe Range:", true, {});
         InputVectorInt<uint64_t> _rangeEnds = InputVectorInt<uint64_t>(" - ", false, {});
         std::vector<std::wstring> _moduleWVec;
-        std::vector<InputText> _moduleInputVec;
-        std::vector<InputText> _pointerPathInputVec;
+        InputVectorText _moduleInputs = InputVectorText("Module:", true, {}, 128);
+        InputVectorText _pointerPathInputs = InputVectorText("Pointer Path:", true, {}, 256);
         std::vector<std::vector<int64_t>> _pointerPathVecVec;
         std::vector<bool> _useModulePathVec;
         std::vector<uint64_t> _moduleAddressVec;
@@ -44,7 +44,7 @@ namespace MungPlex
         const ImVec4 _defaultMeshLineColor = { 1.0f, 1.0f, 1.0f, 1.0f };
         const ImVec4 _defaultMeshMarkerColor = { 0.0f, 0.827451f, 1.0f, 1.0f };
         const ImVec4 _colorDisable = { 0.0f, 0.0f, 0.0f, 0.0f };
-        std::vector<InputText> _objPathInputVec;
+        InputVectorText _objPaths = InputVectorText("OBJ Path:", true, {}, 512);
         std::vector<ImVec4> _fillColorVec;
         std::vector<ImVec4> _lineColorVec;
         std::vector<ImVec4> _markerColorVec;
@@ -56,7 +56,7 @@ namespace MungPlex
         InputVectorInt<uint64_t> _scatterCounts = InputVectorInt<uint64_t>("Count:", true, {});
         InputVectorInt<uint64_t> _scatterOffsets = InputVectorInt<uint64_t>("Offset:", true, {}, 4, 16);
         std::vector<ImVec4> _scatterColorVec;
-        std::vector<InputText> _plotNameInputVec;
+        InputVectorText _plotNames = InputVectorText("Name:", true, {}, 64);
         double _axisLimit = 0.0;
         bool _setAxisLimit = false;
         const static std::vector<StringIdCombo::VecType> _markerTypes;
