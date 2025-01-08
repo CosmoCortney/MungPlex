@@ -6,6 +6,7 @@
 #include "InputFloat.hpp"
 #include "InputInt.hpp"
 #include "InputText.hpp"
+#include "InputVectorInt.hpp"
 #include "ProcessCombo.hpp"
 #include "RegionCombo.hpp"
 #include "StringIdBoolCombo.hpp"
