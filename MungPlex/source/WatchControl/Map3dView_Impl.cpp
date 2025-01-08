@@ -209,6 +209,7 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 						_scatterCounts.SetSelectedValue(1);
 
 					resizeCoordinatesVec(index, _scatterCounts.GetSelectedValue());
+					_trackLines[index] = false;
 				}
 
 				ImGui::SameLine();
@@ -217,7 +218,8 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 
 				ImGui::SameLine();
 
-				_plotNames.Draw(1.0f, 0.3f);
+				if(_plotNames.Draw(1.0f, 0.3f))
+					_linePlotNames[index] = _plotNames.GetStdStringNoZerosAt(index) + " lines";
 
 				_markerTypeSelectCombo[index].Draw(0.25f, 0.4f);
 				ImGui::SameLine();
@@ -227,6 +229,17 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 				ImGui::SameLine();
 				ImGui::SliderFloat3("##Offset", (float*)_markerOffset[index].data(), -50.0f, 50.0f, "%.1f");
 				_coordinateDisplacements.Draw(0.5f, 0.5f);
+
+				static bool trackHistory = false;
+				trackHistory = _trackLines[index];
+				ImGui::SameLine();
+
+				if (ImGui::Checkbox("Track History", &trackHistory))
+				{
+					_trackLines[index] = trackHistory;
+					resizeLinesVec(index);
+					_frameCount[index] = 0;
+				}
 			} break;
 		}
 	}
@@ -277,6 +290,27 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 				if (_coordinatesVecVecVec[i].size() != 3)
 					break;
 
+				if (_trackLines[i])
+				{
+					if (_frameCount[i] >= _maxFrames)
+						_linePlotRotate[i] = true;
+
+					for (uint64_t sCounts = 0; sCounts < _scatterCounts.GetValueAt(i); ++sCounts)
+					{
+						ImPlot3D::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2);
+						ImPlot3D::PlotLine(_linePlotNames[i].c_str(), _linesVecVecVecVec[i][0][sCounts].data(), _linesVecVecVecVec[i][1][sCounts].data(), _linesVecVecVecVec[i][2][sCounts].data(), _frameCount[i], ImPlot3DLineFlags_None);
+						
+						if (_linePlotRotate[i])
+						{
+							ImPlot3D::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2);
+							ImPlot3D::PlotLine(_linePlotNames[i].c_str(), _linesVecVecVecVec[i][0][sCounts].data() + _frameCount[i], _linesVecVecVecVec[i][1][sCounts].data() + _frameCount[i], _linesVecVecVecVec[i][2][sCounts].data() + _frameCount[i], _maxFrames - _frameCount[i], ImPlot3DLineFlags_None);
+						}
+
+						ImPlot3D::SetNextMarkerStyle(_markerTypeSelectCombo[i].GetSelectedId(), _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
+						ImPlot3D::PlotScatter(_plotNames.GetCStringAt(i), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCounts.GetValueAt(i));
+					}
+				}
+
 				ImPlot3D::SetNextMarkerStyle(_markerTypeSelectCombo[i].GetSelectedId(), _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
 				ImPlot3D::PlotScatter(_plotNames.GetCStringAt(i), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCounts.GetValueAt(i));
 			}
@@ -308,13 +342,29 @@ void MungPlex::Map3dView::processValue()
 
 			for (uint64_t coo = 0; coo < 3; ++coo)
 			{
-				for (uint64_t y = 0; y < _scatterCounts.GetValueAt(i); ++y)
+				for (uint64_t sCounts = 0; sCounts < _scatterCounts.GetValueAt(i); ++sCounts)
 				{
-					_coordinatesVecVecVec[i][coo][y] = ProcessInformation::ReadValue<float>(addr 
-						+ _scatterOffsets.GetValueAt(i) * y										    //add next object's coordinate location
+					_coordinatesVecVecVec[i][coo][sCounts] = ProcessInformation::ReadValue<float>(addr
+						+ _scatterOffsets.GetValueAt(i) * sCounts								    //add next object's coordinate location
 						+ coo * _coordinateDisplacements.GetValueAt(i))								//add displacement between coordinates
 						+ _markerOffset[i][coo];													//add optional marker offset
 				}
+			}
+
+			if (_trackLines[i])
+			{
+				if (_frameCount[i] >= _maxFrames)
+					_frameCount[i] = 0;
+
+				for (uint64_t coo = 0; coo < 3; ++coo)
+				{
+					for (uint64_t sCounts = 0; sCounts < _scatterCounts.GetValueAt(i); ++sCounts)
+					{
+						_linesVecVecVecVec[i][coo][sCounts][_frameCount[i]] = _coordinatesVecVecVec[i][coo][sCounts];
+					}
+				}
+
+					++_frameCount[i];
 			}
 		}
 	}
@@ -446,6 +496,8 @@ bool MungPlex::Map3dView::drawActiveCheckBox()
 
 				if (_useModulePathVec[i])
 					_moduleAddressVec[i] = ProcessInformation::GetModuleAddress<uint64_t>(_moduleWVec[i]);
+
+				_linePlotRotate[i] = false;
 			}
 		}
 
@@ -557,6 +609,11 @@ void MungPlex::Map3dView::initNewitem()
 	_markerOffset.push_back({ 0.0f, 0.0f, 0.0f });
 	_coordinateDisplacements.PushBack(4);
 	setItemIndices(_itemSelectCombo.GetSelectedIndex());
+	_trackLines.push_back(false);
+	_linesVecVecVecVec.push_back({ {{}}, {{}}, {{}} });
+	_frameCount.push_back(0);
+	_linePlotRotate.push_back(false);
+	_linePlotNames.push_back("plot " + std::to_string(_plotNames.GetCount()) + " lines");
 }
 
 void MungPlex::Map3dView::resizeCoordinatesVec(const uint64_t index, const uint64_t count)
@@ -591,4 +648,24 @@ void MungPlex::Map3dView::setItemIndices(const uint64_t index)
 	_pointerPathInputs.SelectByIndex(index);
 	_objPaths.SelectByIndex(index);
 	_plotNames.SelectByIndex(index);
+}
+
+void MungPlex::Map3dView::resizeLinesVec(const uint64_t index)
+{
+	_linesVecVecVecVec[index].clear();
+
+	if (_trackLines[index])
+	{
+		for (uint64_t coords = 0; coords < 3; ++coords)
+		{
+			_linesVecVecVecVec[index].push_back({});
+			_linesVecVecVecVec[index].back().resize(_scatterCounts.GetValueAt(index));
+
+			for (uint64_t sCount = 0; sCount < _scatterCounts.GetValueAt(index); ++sCount)
+			{
+				_linesVecVecVecVec[index][coords][sCount].push_back({});
+				_linesVecVecVecVec[index][coords][sCount].resize(_maxFrames);
+			}
+		}
+	}
 }

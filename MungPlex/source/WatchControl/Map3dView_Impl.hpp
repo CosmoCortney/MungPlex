@@ -67,6 +67,12 @@ namespace MungPlex
         bool _flipX = false;
         std::array<bool, 3> _axesFlipFlags = { false, false, false };
         InputVectorInt<int64_t> _coordinateDisplacements = InputVectorInt<int64_t>("Displacement:", true, {}, 4, 16);
+        std::vector<bool> _trackLines;
+        std::vector<std::vector<std::vector<std::vector<float>>>> _linesVecVecVecVec;
+        std::vector<uint32_t> _frameCount;
+        std::vector<bool> _linePlotRotate;
+        std::vector<std::string> _linePlotNames;
+        const uint32_t _maxFrames = 1200;
 
         //misc.
         boost::thread _processValueThread;
@@ -84,5 +90,6 @@ namespace MungPlex
         void initNewitem();
         void resizeCoordinatesVec(const uint64_t index, const uint64_t count);
         void setItemIndices(const uint64_t index);
+        void resizeLinesVec(const uint64_t index);
     };
 }
