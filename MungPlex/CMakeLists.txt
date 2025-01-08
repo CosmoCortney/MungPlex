@@ -65,6 +65,8 @@ add_executable (MungPlex
     source/Helpers/WidgetHelpers/InputText.cpp
     source/Helpers/WidgetHelpers/InputText.hpp
     source/Helpers/WidgetHelpers/InputVectorInt.hpp
+    source/Helpers/WidgetHelpers/InputVectorText.cpp
+    source/Helpers/WidgetHelpers/InputVectorText.hpp
     source/Helpers/WidgetHelpers/IWidget.cpp
     source/Helpers/WidgetHelpers/IWidget.hpp
     source/Helpers/WidgetHelpers/ProcessCombo.cpp
