@@ -379,31 +379,31 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 			case MemoryCompare::BETWEEN:
 			{
 				_knownValueInput.SetLabel("Lowest:");
-				_knownValueInput.SetLabel("Highest:");
+				_secondaryKnownValueInput.SetLabel("Highest:");
 				disableSecondaryValueText = false;
 			} break;
 			case MemoryCompare::NOT_BETWEEN:
 			{
 				_knownValueInput.SetLabel("Below:");
-				_knownValueInput.SetLabel("Above:");
+				_secondaryKnownValueInput.SetLabel("Above:");
 				disableSecondaryValueText = false;
 			} break;
 			case MemoryCompare::INCREASED_BY:
 			{
 				_knownValueInput.SetLabel("Increased by:");
-				_knownValueInput.SetLabel("Not applicable");
+				_secondaryKnownValueInput.SetLabel("Not applicable");
 				disableSecondaryValueText = true;
 			} break;
 			case MemoryCompare::DECREASED_BY:
 			{
 				_knownValueInput.SetLabel("Decreased by:");
-				_knownValueInput.SetLabel("Not applicable");
+				_secondaryKnownValueInput.SetLabel("Not applicable");
 				disableSecondaryValueText = true;
 			} break;
 			default:
 			{
 				_knownValueInput.SetLabel("Value:");
-				_knownValueInput.SetLabel("Not applicable");
+				_secondaryKnownValueInput.SetLabel("Not applicable");
 				disableSecondaryValueText = true;
 			}
 		}
