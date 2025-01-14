@@ -56,7 +56,7 @@ bool MungPlex::DiscordRPC::createCore()
 	if (_core != nullptr)
 		_core->~Core();
 
-	discord::Result result = discord::Core::Create(1175421760892567552, DiscordCreateFlags_Default, &_core);
+	discord::Result result = discord::Core::Create(1175421760892567552, DiscordCreateFlags_NoRequireDiscord, &_core);
 	return result == discord::Result::Ok;
 }
 
