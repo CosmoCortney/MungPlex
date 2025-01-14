@@ -13,6 +13,7 @@
 #include <iostream>
 #include "LitColor.hpp"
 #include "MorphText.hpp"
+#include "nlohmann/json.hpp"
 #include "OperativeArray.hpp"
 #include <sstream>
 #include <stdio.h>
@@ -56,6 +57,18 @@ namespace MungPlex
             { "PKMN Gen I Japanese", MT::POKEMON_GEN1_JAPANESE }
         }
     };
+
+    static ImVec4 GetColorVecFromJson(const nlohmann::json& colorJson)
+    {
+        ImVec4 color;
+
+        color.x = colorJson[0].get<float>();
+        color.y = colorJson[1].get<float>();
+        color.z = colorJson[2].get<float>();
+        color.w = colorJson[3].get<float>();
+
+        return color;
+    }
 
     static ImVec4 PackedColorToImVec4(const uint8_t* packedColor)
     {

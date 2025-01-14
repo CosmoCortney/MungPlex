@@ -464,7 +464,7 @@ void MungPlex::Settings::setUi(const nlohmann::json& uiJson)
 
 		if (uiJson["Colors"].contains(entity))
 		{
-			style.Colors[_colorSetSelectCombo.GetIdAt(i)] = getColorVec(uiJson["Colors"][entity][0]);
+			style.Colors[_colorSetSelectCombo.GetIdAt(i)] = GetColorVecFromJson(uiJson["Colors"][entity][0]);
 		}
 	}
 }
@@ -481,18 +481,6 @@ void MungPlex::Settings::resetSettings()
 	_defaultActiveWindowCombo.SetSelectedByIndex(0);
 	_generalSettings.EnableRichPresence = false;
 	saveSettings();
-}
-
-ImVec4 MungPlex::Settings::getColorVec(const nlohmann::json& colorJson) const
-{
-	ImVec4 color;
-
-	color.x = colorJson[0].get<float>();
-	color.y = colorJson[1].get<float>();
-	color.z = colorJson[2].get<float>();
-	color.w = colorJson[3].get<float>();
-
-	return color;
 }
 
 nlohmann::json MungPlex::Settings::generateColorsJson()
