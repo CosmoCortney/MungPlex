@@ -14,7 +14,7 @@ void MungPlex::WatchControl::DrawWindow()
 	static bool stateSet = false;
 
 	if (ImGui::Begin("Watch & Control"))
-	{/*
+	{
 		if (!Connection::IsConnected())
 			ImGui::BeginDisabled();
 		else
@@ -24,12 +24,12 @@ void MungPlex::WatchControl::DrawWindow()
 				Connection::GetDiscordRichPresence().SetRichPresenceState("Value Watch & Control");
 				stateSet = true;
 			}
-		}*/
+		}
 
 		GetInstance().drawList();
 
-//		if (!Connection::IsConnected())
-	//		ImGui::EndDisabled();
+		if (!Connection::IsConnected())
+			ImGui::EndDisabled();
 	}
 	else
 		stateSet = false;

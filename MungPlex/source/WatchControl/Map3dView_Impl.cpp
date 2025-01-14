@@ -1,3 +1,4 @@
+#include "Helperfunctions.hpp"
 #include "Map3dView_Impl.hpp"
 #include "Settings.hpp"
 #include "WatchControl.hpp"
@@ -37,11 +38,63 @@ MungPlex::Map3dView::Map3dView(const int id)
 	_idText = std::to_string(id);
 }
 
-MungPlex::Map3dView::Map3dView(const int id, const nlohmann::json elem)
+MungPlex::Map3dView::Map3dView(const int id, const nlohmann::json& elem)
 {
+	_items.clear();
+	_itemSelectCombo.Clear();
+	_rangeBeginnings.Clear();
+	_rangeEnds.Clear();
+	_moduleInputs.Clear();
+	_pointerPathInputs.Clear();
+	_useModulePathVec.clear();
+	_objPaths.Clear();
+	_fillColorVec.clear();
+	_lineColorVec.clear();
+	_markerColorVec.clear();
+	_colorPickerEnablerVec.clear();
+	_scatterCounts.Clear();
+	_scatterOffsets.Clear();
+	_plotNames.Clear();
+	_markerOffset.clear();
+	_coordinateDisplacements.Clear();
+	_trackLines.clear();
+	_markerTypeSelects.clear();
 	_id = id;
 	_idText = std::to_string(id);
-	SetBasicMembers(elem);
+	_labelInput.SetText(elem["Title"]);
+	_clippingOn = elem["ClippingOn"];
+	_markerSize = elem["MarkerSize"];
+	_axesFlipFlags = elem["FlipAxes"];
+	uint64_t count = elem["ItemCount"];
+	const nlohmann::json items = elem["Items"];
+
+	for (int i = 0; i < count; ++i)
+	{
+		_plotTypeSelectCombo.SetSelectedById(items["ItemTypes"][i]);
+		initNewitem();
+		_rangeBeginnings.SetValueAt(items["RangeBeginnings"][i], i);
+		_rangeEnds.SetValueAt(items["RangeEnds"][i], i);
+		_moduleInputs.SetValueAt(items["Modules"][i], i);
+		_pointerPathInputs.SetValueAt(items["PointerPaths"][i], i);
+		_useModulePathVec[i] = items["UseModule"][i];
+		_objPaths.SetValueAt(items["ObjPaths"][i], i);
+		_fillColorVec[i] = GetColorVecFromJson(items["FillColors"][i]);
+		_lineColorVec[i] = GetColorVecFromJson(items["LineColors"][i]);
+		_markerColorVec[i] = GetColorVecFromJson(items["MarkerColors"][i]);
+		_colorPickerEnablerVec[i] = items["EnableColorPickers"][i];
+		_scatterCounts.SetValueAt(items["ScatterCounts"][i], i);
+		_scatterOffsets.SetValueAt(items["ScatterOffset"][i], i);
+		_plotNames.SetValueAt(items["PlotNames"][i], i);
+		_markerOffset[i] = items["MarkerOffsets"][i];
+		_coordinateDisplacements.SetValueAt(items["Displacements"][i], i);
+		_trackLines[i] = items["TrackLines"][i];
+		_markerTypeSelects[i] = items["MarkerTypes"][i];
+
+		if (_plotTypeSelectCombo.GetSelectedId() == MESH)
+			_setAxisLimit = loadOBJ(_objPaths.GetStdStringNoZerosAt(i), _meshes[i], _mesheVertCounts[i], _meshesIndecies[i]);
+	}
+
+	_active = elem["Active"];
 }
 
 MungPlex::Map3dView::Map3dView(const Map3dView& other)
@@ -66,15 +119,6 @@ MungPlex::Map3dView& MungPlex::Map3dView::operator=(Map3dView&& other) noexcept
 	return *this;
 }
 
-nlohmann::json MungPlex::Map3dView::GetJSON()
-{
-	nlohmann::json elemJson = GetBasicJSON();
-
-	elemJson["Type"] = IView::MAP3D;
-
-	return elemJson;
-}
-
 void MungPlex::Map3dView::Draw()
 {
 	float itemWidth = ImGui::GetContentRegionAvail().x;
@@ -94,8 +138,6 @@ void MungPlex::Map3dView::Draw()
 			ImGui::SameLine();
 		drawValueSetup(itemWidth * 0.4f, itemHeight * 3.0f);
 	
-
-
 		drawPlotArea(itemWidth, itemHeight * 25.0f);
 	}
 	ImGui::EndChild();
@@ -105,6 +147,39 @@ void MungPlex::Map3dView::Draw()
 		WatchControl::DeleteItem(_id);
 		_delete = false;
 	}
+}
+
+nlohmann::json MungPlex::Map3dView::GetJSON()
+{
+	nlohmann::json elemJson;
+	elemJson["Type"] = IView::MAP3D;
+	elemJson["Title"] = _labelInput.GetStdStringNoZeros();
+	elemJson["Active"] = _active;
+	elemJson["ClippingOn"] = _clippingOn;
+	elemJson["MarkerSize"] = _markerSize;
+	elemJson["FlipAxes"] = _axesFlipFlags;
+	elemJson["ItemCount"] = _itemSelectCombo.GetCount();
+	nlohmann::json arrs;
+	arrs["ItemTypes"] =  _itemSelectCombo.GetAllIds();
+	arrs["RangeBeginnings"] = _rangeBeginnings.GetAll();
+	arrs["RangeEnds"] = _rangeEnds.GetAll();
+	arrs["Modules"] = _moduleInputs.GetAllStdStringNoZeros();
+	arrs["PointerPaths"] = _pointerPathInputs.GetAllStdStringNoZeros();
+	arrs["UseModule"] = _useModulePathVec;
+	arrs["ObjPaths"] = _objPaths.GetAllStdStringNoZeros();
+	arrs["FillColors"] = imVec4VecToStdVec(_fillColorVec);
+	arrs["LineColors"] = imVec4VecToStdVec(_lineColorVec);
+	arrs["MarkerColors"] = imVec4VecToStdVec(_markerColorVec);
+	arrs["EnableColorPickers"] = _colorPickerEnablerVec;
+	arrs["ScatterCounts"] = _scatterCounts.GetAll();
+	arrs["ScatterOffset"] = _scatterOffsets.GetAll();
+	arrs["PlotNames"] = _plotNames.GetAllStdStringNoZeros();
+	arrs["MarkerOffsets"] = _markerOffset;
+	arrs["Displacements"] = _coordinateDisplacements.GetAll();
+	arrs["TrackLines"] = _trackLines;
+	arrs["MarkerTypes"] = _markerTypeSelects;
+	elemJson["Items"] = arrs;
+	return elemJson;
 }
 
 void MungPlex::Map3dView::assign(const Map3dView& other)
@@ -127,15 +202,44 @@ void MungPlex::Map3dView::assign(const Map3dView& other)
 	_rangeMax = other._rangeMax;
 	_typeSelect = other._typeSelect;
 
+	_items = other._items;
+	_plotTypeSelectCombo = other._plotTypeSelectCombo;
+	_itemSelectCombo = other._itemSelectCombo;
+	_clippingOn = other._clippingOn;
+	_markerSize = other._markerSize;
+	_axesFlipFlags = other._axesFlipFlags;
+	_rangeBeginnings = other._rangeBeginnings;
+	_rangeEnds = other._rangeEnds;
 	_moduleWVec = other._moduleWVec;
 	_moduleInputs = other._moduleInputs;
 	_pointerPathInputs = other._pointerPathInputs;
 	_pointerPathVecVec = other._pointerPathVecVec;
 	_useModulePathVec = other._useModulePathVec;
 	_moduleAddressVec = other._moduleAddressVec;
-	_rangeBeginnings = other._rangeBeginnings;
-	_rangeEnds = other._rangeEnds;
+	_objPaths = other._objPaths;
+	_fillColorVec = other._fillColorVec;
+	_lineColorVec = other._lineColorVec;
+	_markerColorVec = other._markerColorVec;
+	_meshes = other._meshes;
+	_mesheVertCounts = other._mesheVertCounts;
+	_meshesIndecies = other._meshesIndecies;
+	_colorPickerEnablerVec = other._colorPickerEnablerVec;
 	_coordinatesVecVecVec = other._coordinatesVecVecVec;
+	_scatterCounts = other._scatterCounts;
+	_scatterOffsets = other._scatterOffsets;
+	_scatterColorVec = other._scatterColorVec;
+	_plotNames = other._plotNames;
+	_axisLimit = other._axisLimit;
+	_setAxisLimit = other._setAxisLimit;
+	_markerTypeSelectCombo = other._markerTypeSelectCombo;
+	_markerOffset = other._markerOffset;
+	_coordinateDisplacements = other._coordinateDisplacements;
+	_trackLines = other._trackLines;
+	_linesVecVecVecVec = other._linesVecVecVecVec;
+	_frameCount = other._frameCount;
+	_linePlotRotate = other._linePlotRotate;
+	_linePlotNames = other._linePlotNames;
+	_markerTypeSelects = other._markerTypeSelects;
 }
 
 void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float itemHeight, const int type)
@@ -221,7 +325,7 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 				if(_plotNames.Draw(1.0f, 0.3f))
 					_linePlotNames[index] = _plotNames.GetStdStringNoZerosAt(index) + " lines";
 
-				_markerTypeSelectCombo[index].Draw(0.25f, 0.4f);
+				_markerTypeSelectCombo.Draw(0.25f, 0.4f);
 				ImGui::SameLine();
 				ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 				ImGui::ColorEdit4("##MarkerColorScatter", (float*)&_markerColorVec[index]);
@@ -306,12 +410,12 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 							ImPlot3D::PlotLine(_linePlotNames[i].c_str(), _linesVecVecVecVec[i][0][sCounts].data() + _frameCount[i], _linesVecVecVecVec[i][1][sCounts].data() + _frameCount[i], _linesVecVecVecVec[i][2][sCounts].data() + _frameCount[i], _maxFrames - _frameCount[i], ImPlot3DLineFlags_None);
 						}
 
-						ImPlot3D::SetNextMarkerStyle(_markerTypeSelectCombo[i].GetSelectedId(), _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
+						ImPlot3D::SetNextMarkerStyle(_markerTypeSelects[i], _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
 						ImPlot3D::PlotScatter(_plotNames.GetCStringAt(i), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCounts.GetValueAt(i));
 					}
 				}
 
-				ImPlot3D::SetNextMarkerStyle(_markerTypeSelectCombo[i].GetSelectedId(), _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
+				ImPlot3D::SetNextMarkerStyle(_markerTypeSelects[i], _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
 				ImPlot3D::PlotScatter(_plotNames.GetCStringAt(i), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCounts.GetValueAt(i));
 			}
 		} 
@@ -407,10 +511,12 @@ bool MungPlex::Map3dView::drawGeneralSetup(const float itemWidth, const float it
 
 		ImGui::SameLine();
 			
-		if (ImGui::Button("Delete"))
+		if (_itemSelectCombo.GetCount() == 0) ImGui::BeginDisabled();
 		{
-
+			if (ImGui::Button("Delete"))
+				deleteItem(_itemSelectCombo.GetSelectedIndex());
 		}
+		if (_itemSelectCombo.GetCount() == 0) ImGui::EndDisabled();
 
 		SetUpSliderFloat("Marker Size", &_markerSize, 1.0f, 15.0f, "Marker Size", 0.5f, 0.0f, false);
 
@@ -450,9 +556,9 @@ void MungPlex::Map3dView::drawPointerPathSetup(const float itemWidth, const floa
 		return;
 	}
 
-	useModulePath = _useModulePathVec[index]; //mind elements of bool vecs are not addressable
 	disable = _itemSelectCombo.GetSelectedId() == MESH;
 	index = _itemSelectCombo.GetSelectedIndex();
+	useModulePath = _useModulePathVec[index]; //mind elements of bool vecs are not addressable
 
 	if (disable) ImGui::BeginDisabled();
 	{
@@ -580,7 +686,11 @@ bool MungPlex::Map3dView::loadOBJ(const std::string& path, std::shared_ptr<ImPlo
 void MungPlex::Map3dView::initNewitem()
 {
 	int plotTypeId = _plotTypeSelectCombo.GetSelectedId();
-	_items.emplace_back(std::to_string(_items.size() + 1), plotTypeId);
+	_items.emplace_back("", plotTypeId);
+
+	for (int i = 0; i < _items.size(); ++i)
+		_items[i].first = std::to_string(i + 1);
+
 	_itemSelectCombo.SetItems(_items, true);
 	_moduleWVec.push_back(std::wstring(128, L'\0'));
 	_moduleInputs.PushBack("");
@@ -605,7 +715,7 @@ void MungPlex::Map3dView::initNewitem()
 	_scatterOffsets.PushBack(0);
 	_scatterColorVec.push_back({});
 	_plotNames.PushBack(std::string("plot " + std::to_string(_plotNames.GetCount() + 1)));
-	_markerTypeSelectCombo.emplace_back("Marker Type:", false, _markerTypes);
+	_markerTypeSelects.push_back(0);
 	_markerOffset.push_back({ 0.0f, 0.0f, 0.0f });
 	_coordinateDisplacements.PushBack(4);
 	setItemIndices(_itemSelectCombo.GetSelectedIndex());
@@ -648,6 +758,7 @@ void MungPlex::Map3dView::setItemIndices(const uint64_t index)
 	_pointerPathInputs.SelectByIndex(index);
 	_objPaths.SelectByIndex(index);
 	_plotNames.SelectByIndex(index);
+	_markerTypeSelectCombo.SetSelectedByIndex(index);
 }
 
 void MungPlex::Map3dView::resizeLinesVec(const uint64_t index)
@@ -668,4 +779,53 @@ void MungPlex::Map3dView::resizeLinesVec(const uint64_t index)
 			}
 		}
 	}
+}
+
+std::vector<std::vector<float>> MungPlex::Map3dView::imVec4VecToStdVec(const std::vector<ImVec4>& vec4)
+{
+	std::vector<std::vector<float>> ret;
+
+	for (auto& temp : vec4)
+		ret.push_back({ temp.x, temp.y, temp.z, temp.w });
+
+	return ret;
+}
+
+void MungPlex::Map3dView::deleteItem(const uint64_t index)
+{
+	_items.erase(_items.begin() + index);
+	_itemSelectCombo.DeleteItemAt(index);
+	_rangeBeginnings.DeleteItemAt(index);
+	_rangeEnds.DeleteItemAt(index);
+	_moduleWVec.erase(_moduleWVec.begin() + index);
+	_moduleInputs.DeleteItemAt(index);
+	_pointerPathInputs.DeleteItemAt(index);
+	_pointerPathVecVec.erase(_pointerPathVecVec.begin() + index);
+	_useModulePathVec.erase(_useModulePathVec.begin() + index);
+	_moduleAddressVec.erase(_moduleAddressVec.begin() + index);
+	_objPaths.DeleteItemAt(index);
+	_fillColorVec.erase(_fillColorVec.begin() + index);
+	_lineColorVec.erase(_lineColorVec.begin() + index);
+	_markerColorVec.erase(_markerColorVec.begin() + index);
+	_meshes.erase(_meshes.begin() + index);
+	_mesheVertCounts.erase(_mesheVertCounts.begin() + index);
+	_meshesIndecies.erase(_meshesIndecies.begin() + index);
+	_colorPickerEnablerVec.erase(_colorPickerEnablerVec.begin() + index);
+	_coordinatesVecVecVec.erase(_coordinatesVecVecVec.begin() + index);
+	_scatterCounts.DeleteItemAt(index);
+	_scatterOffsets.DeleteItemAt(index);
+	_scatterColorVec.erase(_scatterColorVec.begin() + index);
+	_plotNames.DeleteItemAt(index);
+	_markerTypeSelectCombo.DeleteItemAt(index);
+	_markerTypeSelects.erase(_markerTypeSelects.begin() + index);
+	_markerOffset.erase(_markerOffset.begin() + index);
+	_coordinateDisplacements.DeleteItemAt(index);
+	_trackLines.erase(_trackLines.begin() + index);
+	_linesVecVecVecVec.erase(_linesVecVecVecVec.begin() + index);
+	_frameCount.erase(_frameCount.begin() + index);
+	_linePlotRotate.erase(_linePlotRotate.begin() + index);
+	_linePlotNames.erase(_linePlotNames.begin() + index);
+
+	for (int i = 0; i < _items.size(); ++i)
+		_items[i].first = std::to_string(i + 1);
 }

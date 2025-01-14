@@ -11,7 +11,7 @@ namespace MungPlex
     {
     public:
         Map3dView(const int id);
-        Map3dView(const int id, const nlohmann::json elem);
+        Map3dView(const int id, const nlohmann::json& elem);
         Map3dView(const Map3dView& other);
         Map3dView& operator=(const Map3dView& other);
         Map3dView(Map3dView&& other) noexcept;
@@ -21,13 +21,16 @@ namespace MungPlex
         nlohmann::json GetJSON();
 
     private:
-        enum PlotTypes { SCATTER, MESH, LINE };
+        enum PlotTypes { SCATTER, MESH };
 
         //general setup
         static const std::vector<StringIdCombo::VecType> _plotTypes;
         StringIdCombo _plotTypeSelectCombo = StringIdCombo("Type:", false, _plotTypes);
         std::vector<StringIdCombo::VecType> _items;
         StringIdCombo _itemSelectCombo = StringIdCombo("Layer:", true);
+        bool _clippingOn = false;
+        float _markerSize = 6.0f;
+        std::array<bool, 3> _axesFlipFlags = { false, false, false };
 
         //pointer setup
         InputVectorInt<uint64_t> _rangeBeginnings = InputVectorInt<uint64_t>("Safe Range:", true, {});
@@ -40,10 +43,10 @@ namespace MungPlex
         std::vector<uint64_t> _moduleAddressVec;
 
         //value setup
-        const ImVec4 _defaultMeshFaceColor = { 0.564706f, 0.0f, 0.831373f, 1.0f };
-        const ImVec4 _defaultMeshLineColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-        const ImVec4 _defaultMeshMarkerColor = { 0.0f, 0.827451f, 1.0f, 1.0f };
-        const ImVec4 _colorDisable = { 0.0f, 0.0f, 0.0f, 0.0f };
+        inline static const ImVec4 _defaultMeshFaceColor = { 0.564706f, 0.0f, 0.831373f, 1.0f };
+        inline static const ImVec4 _defaultMeshLineColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+        inline static const ImVec4 _defaultMeshMarkerColor = { 0.0f, 0.827451f, 1.0f, 1.0f };
+        inline static const ImVec4 _colorDisable = { 0.0f, 0.0f, 0.0f, 0.0f };
         InputVectorText _objPaths = InputVectorText("OBJ Path:", true, {}, 512);
         std::vector<ImVec4> _fillColorVec;
         std::vector<ImVec4> _lineColorVec;
@@ -59,20 +62,17 @@ namespace MungPlex
         InputVectorText _plotNames = InputVectorText("Name:", true, {}, 64);
         double _axisLimit = 0.0;
         bool _setAxisLimit = false;
-        const static std::vector<StringIdCombo::VecType> _markerTypes;
-        std::vector<StringIdCombo> _markerTypeSelectCombo;
-        bool _clippingOn = false;
-        float _markerSize = 6.0f;
+        static const std::vector<StringIdCombo::VecType> _markerTypes;
+        StringIdCombo _markerTypeSelectCombo = StringIdCombo("Marker Type:", false, _markerTypes);
+        std::vector<int32_t> _markerTypeSelects;
         std::vector<std::array<float, 3>> _markerOffset;
-        bool _flipX = false;
-        std::array<bool, 3> _axesFlipFlags = { false, false, false };
         InputVectorInt<int64_t> _coordinateDisplacements = InputVectorInt<int64_t>("Displacement:", true, {}, 4, 16);
         std::vector<bool> _trackLines;
         std::vector<std::vector<std::vector<std::vector<float>>>> _linesVecVecVecVec;
         std::vector<uint32_t> _frameCount;
         std::vector<bool> _linePlotRotate;
         std::vector<std::string> _linePlotNames;
-        const uint32_t _maxFrames = 1200;
+        static const uint32_t _maxFrames = 1200;
 
         //misc.
         boost::thread _processValueThread;
@@ -91,5 +91,7 @@ namespace MungPlex
         void resizeCoordinatesVec(const uint64_t index, const uint64_t count);
         void setItemIndices(const uint64_t index);
         void resizeLinesVec(const uint64_t index);
+        std::vector<std::vector<float>> imVec4VecToStdVec(const std::vector<ImVec4>& vec4);
+        void deleteItem(const uint64_t index);
     };
 }
