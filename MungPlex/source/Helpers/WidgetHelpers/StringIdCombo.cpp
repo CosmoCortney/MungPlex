@@ -78,6 +78,13 @@ void MungPlex::StringIdCombo::SetItems(const std::vector<VecType>& stringIdPairV
 		SetSelectedByIndex(0);
 }
 
+void MungPlex::StringIdCombo::SetItemAt(const VecType& item, const uint64_t index)
+{
+	isInRange(index);
+	_stringIdPairVec[index] = item;
+	assignPointers();
+}
+
 int32_t MungPlex::StringIdCombo::GetSelectedId() const
 {
 	return _stringIdPairVec[_selectedIndex].second;
