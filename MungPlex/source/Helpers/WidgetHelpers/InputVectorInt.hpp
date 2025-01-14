@@ -111,6 +111,11 @@ namespace MungPlex
 			return _values[index];
 		}
 
+		std::vector<intType> GetAll() const
+		{
+			return _values;
+		}
+
 		std::string ToStringSelected(const bool hex = false)
 		{
 			std::stringstream stream;

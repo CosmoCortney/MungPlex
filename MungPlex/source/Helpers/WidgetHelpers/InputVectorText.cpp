@@ -99,6 +99,21 @@ const char* MungPlex::InputVectorText::GetCStringAt(const uint64_t index)
 	return _texts[index].c_str();
 }
 
+std::vector<std::string> MungPlex::InputVectorText::GetAllStdString() const
+{
+	return _texts;
+}
+
+std::vector<std::string> MungPlex::InputVectorText::GetAllStdStringNoZeros() const
+{
+	std::vector<std::string> res;
+
+	for (auto& temp : _texts)
+		res.push_back(temp.c_str());
+
+	return res;
+}
+
 char* MungPlex::InputVectorText::GetSelectedData()
 {
 	return _texts[_selectedIndex].data();

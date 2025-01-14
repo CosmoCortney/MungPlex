@@ -26,6 +26,8 @@ namespace MungPlex
 		std::string GetStdStringNoZerosAt(const uint64_t index);
 		const char* GetSelectedCString() const;
 		const char* GetCStringAt(const uint64_t index);
+		std::vector<std::string> GetAllStdString() const;
+		std::vector<std::string> GetAllStdStringNoZeros() const;
 		char* GetSelectedData();
 		char* GetDataAt(const uint64_t index);
 		uint64_t GetCount() const;
