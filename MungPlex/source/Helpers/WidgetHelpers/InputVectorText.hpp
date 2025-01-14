@@ -40,6 +40,8 @@ namespace MungPlex
 		uint64_t GetMaxLength() const;
 		void PushBack(const std::string text);
 		void ConnectOnTextChanged(const Slot slot);
+		void Clear();
+		void DeleteItemAt(const uint64_t index);
 
 	protected:
 		std::vector<std::string> _texts;

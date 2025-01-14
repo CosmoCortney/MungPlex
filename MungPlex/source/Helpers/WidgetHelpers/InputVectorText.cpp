@@ -190,6 +190,23 @@ void MungPlex::InputVectorText::ConnectOnTextChanged(const Slot slot)
 	_slotsOnTextChanged.emplace_back(slot);
 }
 
+void MungPlex::InputVectorText::Clear()
+{
+	_texts.clear();
+	_selectedIndex = 0;
+	_maxLength = 256;
+	_textFlags = ImGuiInputTextFlags_None;
+}
+
+void MungPlex::InputVectorText::DeleteItemAt(const uint64_t index)
+{
+	isInRange(index);
+	_texts.erase(_texts.begin() + index);
+
+	if (_selectedIndex >= _texts.size())
+		_selectedIndex = _texts.size() - 1;
+}
+
 void MungPlex::InputVectorText::assign(const InputVectorText& other)
 {
 	_texts = other._texts;

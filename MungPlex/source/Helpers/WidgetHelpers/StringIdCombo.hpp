@@ -24,6 +24,7 @@ namespace MungPlex
         void PopBack(const uint64_t count);
         void Clear();
         void PushBack(const VecType& stringIdPair);
+        void DeleteItemAt(const int64_t index);
 
     private:
         void assign(const StringIdCombo& other);

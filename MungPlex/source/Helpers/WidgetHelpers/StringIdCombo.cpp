@@ -115,6 +115,16 @@ void MungPlex::StringIdCombo::PushBack(const VecType& stringIdPair)
 	assignPointers();
 }
 
+void MungPlex::StringIdCombo::DeleteItemAt(const int64_t index)
+{
+	isInRange(index);
+	_stringIdPairVec.erase(_stringIdPairVec.begin() + index);
+	assignPointers();
+
+	if (_selectedIndex >= _stringIdPairVec.size())
+		_selectedIndex = _stringIdPairVec.size() - 1;
+}
+
 void MungPlex::StringIdCombo::assign(const StringIdCombo& other)
 {
 	_helpText = other._helpText;

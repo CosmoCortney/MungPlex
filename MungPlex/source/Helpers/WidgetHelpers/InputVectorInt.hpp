@@ -138,6 +138,24 @@ namespace MungPlex
 			_values.push_back(value);
 		}
 
+		void Clear()
+		{
+			_values.clear();
+			_selectedIndex = 0;
+			_stepLow = 0;
+			_stepHigh = 0;
+			_textFlags = ImGuiInputTextFlags_None;
+		}
+
+		void DeleteItemAt(const int64_t index)
+		{
+			isInRange(index);
+			_values.erase(_values.begin() + index);
+
+			if (_selectedIndex >= _values.size())
+				_selectedIndex = _values.size() - 1;
+		}
+
 	private:
 		std::vector<intType> _values;
 		uint64_t _selectedIndex = 0;
