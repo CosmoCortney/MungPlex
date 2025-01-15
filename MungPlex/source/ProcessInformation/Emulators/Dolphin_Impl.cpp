@@ -5,6 +5,7 @@ bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<Game
 {
 	ProcessInformation::SetMiscProcessInfo("Dolphin", true, false, 4, 4);
 	uint32_t temp = 0;
+	uint32_t tempSize = 0;
 	uint32_t flagGCN = 0;
 	uint32_t flagWii = 0;
 	char tempID[7] = "";
@@ -50,20 +51,22 @@ bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<Game
 
 	for (const auto& _region : ProcessInformation::GetRegionList())
 	{
-		if (_region.GetRegionSize() != 0x2000000)
+		if (_region.GetRegionSize() < 0x2000000)
 			continue;
 
-		memoryFound = true;
 		mainMemRegion = _region.GetBaseAddress<char*>();;
-		process.ReadMemoryFast(&temp, mainMemRegion + 0x28, 4);
+		process.ReadMemoryFast(&tempSize, mainMemRegion + 0x28, 4);
+
+		tempSize = std::byteswap(tempSize);
+
+		if (tempSize < 0x01800000 || tempSize > 0x04000000)
+			continue;
+
 		process.ReadMemoryFast(&flagGCN, mainMemRegion + 0x18, 4);
 		process.ReadMemoryFast(&flagWii, mainMemRegion + 0x1C, 4);
-
-		if (temp != 0x8001)
-			continue;
-
 		_connectionCheckPtr = _region.GetBaseAddress<void*>();
 		process.ReadMemoryFast(&_connectionCheckValue, _connectionCheckPtr, 4);
+		memoryFound = true;
 		break;
 	}
 
@@ -84,13 +87,14 @@ bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<Game
 		_platformID = ProcessInformation::GAMECUBE;
 		loadSystemInformationJSON("GameCube", systemRegions);
 		systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(mainMemRegion);
+		systemRegions[0].Size = tempSize;
 		entitiesFound = obtainGameEntities("GameCubeTriforceWii", gameEntities);
 		return entitiesFound;
 	}
 
 	for (const auto& region : ProcessInformation::GetRegionList())
 	{
-		if (region.GetRegionSize() != 0x4000000)
+		if (region.GetRegionSize() < 0x4000000)
 			continue;
 
 		unsigned char temp;
@@ -100,7 +104,9 @@ bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<Game
 		{
 			loadSystemInformationJSON("Wii", systemRegions);
 			systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(mainMemRegion);
+			systemRegions[0].Size = tempSize;
 			systemRegions[1].BaseLocationProcess = region.GetBaseAddress<void*>();
+			systemRegions[1].Size = region.GetRegionSize();
 			entitiesFound = obtainGameEntities("GameCubeTriforceWii", gameEntities);
 			break;
 		}
