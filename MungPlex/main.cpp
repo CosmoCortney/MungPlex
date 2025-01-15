@@ -39,8 +39,7 @@ void key_callback(GLFWwindow* window, const int key, const int scancode, const i
 
 void clearSearchResultsDir()
 {
-	const std::string temp = MungPlex::Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros() + R"(\MungPlex\Search)";
-	const std::wstring path = MorphText::Convert<std::string, std::wstring>(temp, MT::UTF8, MT::UTF16LE);
+	const std::string path = MungPlex::Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros() + R"(\MungPlex\Search)";
 
 	if (std::filesystem::is_directory(path))
 	{
@@ -49,7 +48,7 @@ void clearSearchResultsDir()
 	}
 	else
 	{
-		const std::string err = "Error clearing Search Path: " + MorphText::Convert<std::wstring, std::string>(path, MorphText::UTF16LE, MorphText::UTF8);
+		const std::string err = "Error clearing Search Path: " + path;
 #ifndef NDEBUG
 		std::cout << err << '\n';
 #endif
@@ -203,7 +202,6 @@ int main()
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 		glfwSwapBuffers(window);
 	}
 	

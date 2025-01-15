@@ -88,9 +88,10 @@ bool MungPlex::WatchControl::saveList()
 
 void MungPlex::WatchControl::InitWatchFile()
 {
-	GetInstance()._currentFile = MT::Convert<std::string, std::wstring>(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros(), MT::UTF8, MT::UTF16LE) + L"\\MungPlex\\WatchControl\\"
-		+ MT::Convert<std::string, std::wstring>(ProcessInformation::GetPlatform(), MT::UTF8, MT::UTF16LE) + L"\\"
-		+ MT::Convert<std::string, std::wstring>(ProcessInformation::GetGameID(), MT::UTF8, MT::UTF16LE) + L".json";
+	GetInstance()._currentFile = Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros() 
+		+ R"(\MungPlex\WatchControl\)"
+		+ ProcessInformation::GetPlatform() + R"(\)"
+		+ ProcessInformation::GetGameID() + ".json";
 
 	if (!std::filesystem::exists(GetInstance()._currentFile))
 	{
