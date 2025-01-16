@@ -6,6 +6,8 @@ bool MungPlex::MelonDS::Init(const Xertz::ProcessInfo& process, std::vector<Game
 	ProcessInformation::SetMiscProcessInfo("melonDS", false, false, 4, 4);
 	bool romFound = false;
 	static const uint64_t romFlag = 0x21A29A6951AEFF24;
+	static uint64_t romRegionBase = 0;
+
 	//find ROM
 	for (const auto& region : ProcessInformation::GetRegionList())
 	{
@@ -27,6 +29,7 @@ bool MungPlex::MelonDS::Init(const Xertz::ProcessInfo& process, std::vector<Game
 			_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[romBase + 0xC]);
 			_gameRegion = GetRegionFromBigNRegionCode(_gameID[3]);
 			uint32_t titleOffset = *reinterpret_cast<uint32_t*>(&buf[romBase + 0x68]);
+			romRegionBase = region.GetBaseAddress<uint64_t>();
 
 			if (_gameID[3] == 'J')
 				titleOffset += 0x240;
@@ -52,7 +55,13 @@ bool MungPlex::MelonDS::Init(const Xertz::ProcessInfo& process, std::vector<Game
 	//find RAM
 	for (const auto& region : ProcessInformation::GetRegionList())
 	{
-		if (region.GetRegionSize() != 0x10F0000)
+		if (region.GetBaseAddress<uint64_t>() <= romRegionBase)
+			continue;
+
+		if (region.GetRegionSize() < 0x1000000)
+			continue;
+		
+		if (region.GetRegionSize() > 0x2000000)
 			continue;
 
 		loadSystemInformationJSON("NDS", systemRegions);
