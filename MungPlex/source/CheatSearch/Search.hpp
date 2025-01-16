@@ -47,7 +47,7 @@ namespace MungPlex
 
         std::function<void()> Slot_IndexChanged = []()
         {
-            auto& region = ProcessInformation::NEWGetSystemRegionList()[GetInstance()._currentRegionSelect];
+            auto& region = ProcessInformation::GetSystemRegionList()[GetInstance()._regionSelectCombo.GetSelectedIndex()];
             GetInstance()._rangeStartInput.SetValue(region.Base);
             GetInstance()._rangeEndInput.SetValue(region.Base + region.Size - 1);
         };

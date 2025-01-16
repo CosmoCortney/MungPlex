@@ -152,7 +152,7 @@ void MungPlex::MemoryViewer::drawHexEditor()
 
 void MungPlex::MemoryViewer::SetUpByRegionSelect(const int index)
 {
-    _regionSelectCombo.SetItems(ProcessInformation::NEWGetSystemRegionList());
+    _regionSelectCombo.SetItems(ProcessInformation::GetSystemRegionList());
     _targetAddressInput.SetValue(_regionSelectCombo.GetRegionAt(index).Base);
     processBufferAddress();
 }
@@ -171,7 +171,7 @@ void MungPlex::MemoryViewer::processBufferAddress()
         return;
     }
 
-    for (auto& region : ProcessInformation::NEWGetSystemRegionList())
+    for (auto& region : ProcessInformation::GetSystemRegionList())
     {
         if (_targetAddressInput.GetValue() >= region.Base && _targetAddressInput.GetValue() < (region.Base + region.Size))
         {

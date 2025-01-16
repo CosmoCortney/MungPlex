@@ -67,7 +67,7 @@ namespace MungPlex
         static PROCESS_INFO& GetProcess();
         static MODULE_LIST& GetModuleList();
         static REGION_LIST& GetRegionList();
-        static const std::vector<SystemRegion>& NEWGetSystemRegionList();
+        static const std::vector<SystemRegion>& GetSystemRegionList();
         static bool IsConnectionValid();
         static const std::vector<StringIdCombo::VecType>& GetSystemList();
         static void SetWindowRef(GLFWwindow* window);
@@ -386,7 +386,7 @@ namespace MungPlex
         std::string _platform;
         std::string _gameName;
         std::string _gameRegion;
-        std::vector<SystemRegion> _NEWsystemRegions;
+        std::vector<SystemRegion> _systemRegions;
         int _connectionCheckValue = 0;
         void* _connectionCheckPtr = nullptr;
 
@@ -411,9 +411,9 @@ namespace MungPlex
                 return 0;
 
             return (addressType)(
-                reinterpret_cast<uint64_t>(GetInstance()._NEWsystemRegions[regionIndex].BaseLocationProcess)
+                reinterpret_cast<uint64_t>(GetInstance()._systemRegions[regionIndex].BaseLocationProcess)
                 + (uint64_t)address
-                - GetInstance()._NEWsystemRegions[regionIndex].Base);
+                - GetInstance()._systemRegions[regionIndex].Base);
         }
     };
 }

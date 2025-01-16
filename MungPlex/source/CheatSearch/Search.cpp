@@ -125,11 +125,6 @@ inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_te
 
 MungPlex::Search::Search()
 {
-	//_RegionSelectSignalCombo.ConnectOnIndexChanged(Slot_IndexChanged);
-	//_RegionSelectSignalCombo.ConnectOnItemCountChanged(Slot_ItemCountChanged);
-	//_RegionSelectSignalCombo.ConnectOnTextChanged(Slot_TextChanged);
-	//_rangeStartInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeStartInput.GetData(), std::ref(_rangeStartValue)));
-	//_rangeEndInput.ConnectOnTextChanged(std::bind(Slot_RangeTextChanged, _rangeEndInput.GetData(), std::ref(_rangeEndValue)));
 	_regionSelectCombo.ConnectOnIndexChangedSlot(Slot_IndexChanged);
 	_selectedIndices.resize(_maxResultsPerPageInput.GetValue());
 	_alignmentValueInput.SetHelpText("This value specifies the increment of the next address to be scanned. 1 means that the following value to be scanned is the at the current address + 1. Here are some recommendations for each value type: Int8/Text/Color/Array<Int8> - 1, Int16/Color/Array<Int16> - 2, Int32/Int64/Float/Double/Color/Array<Int32>/Array<Int64> - 4. Systems that use less than 4MBs of RAM (PS1, SNES, MegaDrive, ...) should always consider an alignment of 1, despite the value recommendations.", true);
@@ -567,7 +562,7 @@ void MungPlex::Search::drawSearchOptions()
 		if (ImGui::Button("Search"))
 		{
 			if(_iterationCount < 1)
-				_regions = ProcessInformation::NEWGetSystemRegionList();
+				_regions = ProcessInformation::GetSystemRegionList();
 
 			_searchActive = true;
 
