@@ -1,3 +1,4 @@
+#include "BigSHelpers.hpp"
 #include "PPSSPP_Impl.hpp"
 
 bool MungPlex::PpSsPp::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
@@ -21,15 +22,18 @@ bool MungPlex::PpSsPp::Init(const Xertz::ProcessInfo& process, std::vector<GameE
 	{
 		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
 
-		if (wTitleBuf.find(L"PPSSPP") == std::wstring::npos)
+		if (wTitleBuf.find(L"PPSSPP v") == std::wstring::npos)
 			continue;
 
 		int pos = wTitleBuf.find(L"-");
 		_rpcGameID = _gameID = MT::Convert<std::wstring, std::string>(wTitleBuf.substr(pos + 2, 9), MT::UTF16LE, MT::UTF8);
 		_gameName = MT::Convert<std::wstring, std::string>(wTitleBuf.substr(pos + 14), MT::UTF16LE, MT::UTF8);
-		//std::cout << _gameID << std::endl;
-		//std::cout << _gameName << std::endl;
+#ifndef NDEBUG
+		std::cout << _gameID << std::endl;
+		std::cout << _gameName << std::endl;
+#endif
 		_platformID = ProcessInformation::PSP;
+		_gameRegion = GetRegionFromBigSRegionCode(_gameID[2]);
 		return true;
 	}
 
