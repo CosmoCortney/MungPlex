@@ -53,6 +53,7 @@ add_executable (MungPlex
     source/DeviceControl/LovenseToy.cpp
     source/DeviceControl/LovenseToy.hpp
     source/Helpers/BigNHelpers.hpp
+    source/Helpers/BigSHelpers.hpp
     source/Helpers/GameEntity.hpp
     source/Helpers/HelperFunctions.hpp
     source/Helpers/SystemRegion.hpp
