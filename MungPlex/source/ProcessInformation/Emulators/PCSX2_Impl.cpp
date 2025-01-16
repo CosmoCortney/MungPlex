@@ -38,11 +38,39 @@ bool MungPlex::PCSx2::Init(const Xertz::ProcessInfo& process, std::vector<GameEn
 			if (buf[offset] != ramFlag)
 				continue;
 
-			_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[offset + 7]);
-			idFound = true;
-			_connectionCheckValue = *reinterpret_cast<int*>(&buf[offset + 7]);
-			_connectionCheckPtr = exeAddr + offset + 7;
+			for (uint64_t idOff = 1; idOff < 0x20; ++idOff)
+			{
+				_rpcGameID = _gameID = reinterpret_cast<char*>(&buf[offset + idOff]);
+
+				if (_gameID.front() != 'S')
+					continue;
+
+				idFound = true;
+				_connectionCheckValue = *reinterpret_cast<int*>(&buf[offset + idOff]);
+				_connectionCheckPtr = exeAddr + offset + idOff;
+				
+				switch (_gameID[2])
+				{
+				case 'U':
+					_gameRegion = "NTSC-U";
+					break;
+				case 'E':
+					_gameRegion = "PAL";
+					break;
+				case 'P': case 'A':	case 'K':
+					_gameRegion = "NTSC-J";
+					break;
+				default:
+					_gameRegion = "Any/UNK";
+				}
+
+				break;
+			}
+
+			break;
 		}
+
+		break;
 	}
 
 	if (!idFound)
@@ -59,8 +87,16 @@ bool MungPlex::PCSx2::Init(const Xertz::ProcessInfo& process, std::vector<GameEn
 		if (pid != process.GetPID())
 			continue;
 
+		_gameName.clear();
 		GetWindowTextW(wHandle, wTitleBuf.data(), 512);
-		_gameName = MT::Convert<wchar_t*, std::string>(wTitleBuf.c_str(), MT::UTF16LE, MT::UTF8);
+		_gameName = MT::Convert<std::wstring, std::string>(wTitleBuf.c_str(), MT::UTF16LE, MT::UTF8);
+		
+		if (_gameName.empty())
+			continue;
+
+		if (_gameName.find("pcsx2") != std::string::npos)
+			continue;
+
 		_platformID = ProcessInformation::PS2;
 		return true;
 	}
