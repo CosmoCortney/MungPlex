@@ -1,3 +1,4 @@
+#include "BigSHelpers.hpp"
 #include "RPCS3_Impl.hpp"
 
 bool MungPlex::RPcS3::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
@@ -28,21 +29,7 @@ bool MungPlex::RPcS3::Init(const Xertz::ProcessInfo& process, std::vector<GameEn
 		gameIdFound = true;
 		_connectionCheckValue = *reinterpret_cast<int*>(&buf[offset - 0xDC]);
 		_connectionCheckPtr = exeAddr + offset - 0xDC;
-
-		switch (_gameID[2])
-		{
-		case 'U':
-			_gameRegion = "NTSC-U";
-			break;
-		case 'E':
-			_gameRegion = "PAL";
-			break;
-		case 'P': case 'A':	case 'K':
-			_gameRegion = "NTSC-J";
-			break;
-		default:
-			_gameRegion = "Any/UNK";
-		}
+		_gameRegion = GetRegionFromBigSRegionCode(_gameID[2]);
 	}
 
 	if (!gameIdFound)

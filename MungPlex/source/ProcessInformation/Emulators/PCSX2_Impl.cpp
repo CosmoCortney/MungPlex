@@ -1,3 +1,4 @@
+#include "BigSHelpers.hpp"
 #include "PCSX2_Impl.hpp"
 
 bool MungPlex::PCSx2::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
@@ -48,22 +49,7 @@ bool MungPlex::PCSx2::Init(const Xertz::ProcessInfo& process, std::vector<GameEn
 				idFound = true;
 				_connectionCheckValue = *reinterpret_cast<int*>(&buf[offset + idOff]);
 				_connectionCheckPtr = exeAddr + offset + idOff;
-				
-				switch (_gameID[2])
-				{
-				case 'U':
-					_gameRegion = "NTSC-U";
-					break;
-				case 'E':
-					_gameRegion = "PAL";
-					break;
-				case 'P': case 'A':	case 'K':
-					_gameRegion = "NTSC-J";
-					break;
-				default:
-					_gameRegion = "Any/UNK";
-				}
-
+				_gameRegion = GetRegionFromBigSRegionCode(_gameID[2]);
 				break;
 			}
 
