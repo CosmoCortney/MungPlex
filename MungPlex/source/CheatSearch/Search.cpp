@@ -327,8 +327,8 @@ void MungPlex::Search::drawRangeOptions()
 				}
 				else
 				{
-					_rangeStartInput.SetValue(_regions[_currentRegionSelect].Base);
-					_rangeEndInput.SetValue(_regions[_currentRegionSelect].Base + _regions[_currentRegionSelect].Size - 1);
+					_rangeStartInput.SetValue(_regions[_regionSelectCombo.GetSelectedIndex()].Base);
+					_rangeEndInput.SetValue(_regions[_regionSelectCombo.GetSelectedIndex()].Base + _regions[_regionSelectCombo.GetSelectedIndex()].Size - 1);
 				}
 			}
 
@@ -760,7 +760,9 @@ void MungPlex::Search::updateLivePreview()
 		for (int row = 0; row < rows; ++row)
 		{
 			static uint64_t address = 0;
-			uint64_t addressIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue() + row;
+			static uint64_t currentPageTemp = 0;
+			currentPageTemp = _currentPageInput.GetValue();
+			uint64_t addressIndex = (currentPageTemp == 0 ? 0 : currentPageTemp - 1) * _maxResultsPerPageInput.GetValue() + row;
 			uint8_t* updateArrayPtr = _updateValues.data();
 
 			switch (ProcessInformation::GetAddressWidth())
@@ -1679,7 +1681,9 @@ void MungPlex::Search::drawResultsTable()
 		static FloorString buf("", 1024);
 		static int addressTextWidth = ProcessInformation::GetAddressWidth() > 4 ? 16 : 8;
 		static int64_t pageIndex;
-		pageIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue();
+		static uint64_t currentPageTemp = 0;
+		currentPageTemp = _currentPageInput.GetValue();
+		pageIndex = (currentPageTemp == 0 ? 0 : currentPageTemp - 1) * _maxResultsPerPageInput.GetValue();
 
 		if (pageIndex < 0)
 			pageIndex = 0;
@@ -1766,7 +1770,7 @@ void MungPlex::Search::generateDumpRegionMap()
 	}
 	else
 	{
-		emplaceDumpRegion(_currentRegionSelect);
+		emplaceDumpRegion(_regionSelectCombo.GetSelectedIndex());
 	}
 }
 

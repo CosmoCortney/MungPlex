@@ -113,7 +113,6 @@ namespace MungPlex
         //range options
         std::vector<SystemRegion> _regions{};
         std::vector<SystemRegion> _dumpRegions{};
-        int _currentRegionSelect = 0;
         bool _crossRegion = false;
         bool _rereorderRegion = false;
         static const std::vector<StringIdCombo::VecType> _endiannesses;
