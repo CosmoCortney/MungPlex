@@ -14,7 +14,7 @@ bool MungPlex::Cemu::Init(const Xertz::ProcessInfo& process, std::vector<GameEnt
 		char* mainBase = region.GetBaseAddress<char*>();
 		systemRegions[0].BaseLocationProcess = reinterpret_cast<void*>(mainBase);
 		systemRegions[1].BaseLocationProcess = reinterpret_cast<void*>(mainBase + 0x0E000000);
-
+		break;
 
 		//old title id fetch code, just keep it in case it might be needed again
 		/*if (!(region.GetRegionSize() == 0x1E000 && !titleIDFound))
@@ -69,9 +69,13 @@ bool MungPlex::Cemu::Init(const Xertz::ProcessInfo& process, std::vector<GameEnt
 		_gameRegion = MT::Convert<std::wstring, std::string>(wTitle.substr(pos + 1, 2), MT::UTF16LE, MT::UTF8);
 		_gameName = MT::Convert<std::wstring, std::string>(wTitle.substr(0, pos - 1), MT::UTF16LE, MT::UTF8);
 		wTitle = wTitle.substr(wTitle.find(L"v"));
-		_rpcGameID = _gameID.append("-" + MT::Convert<std::wstring, std::string>(wTitle.substr(0, wTitle.find(L"]"))), MT::UTF16LE, MT::UTF8);
-		//std::cout << _gameID << std::endl;
-		//std::cout << _gameName << std::endl;
+		wTitle = wTitle.substr(0, wTitle.find(L"]"));
+		_rpcGameID = _gameID.append("-" + MT::Convert<std::wstring, std::string>(wTitle, MT::UTF16LE, MT::UTF8));
+#ifndef NDEBUG
+		std::cout << _gameID << std::endl;
+		std::cout << _gameName << std::endl;
+#endif
+
 		_platformID = ProcessInformation::WIIU;
 		return true && obtainGameEntities("WiiU", gameEntities);
 	}

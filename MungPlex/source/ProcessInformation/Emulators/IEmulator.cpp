@@ -63,6 +63,10 @@ bool MungPlex::IEmulator::obtainGameEntities(const std::string& systemName, std:
 	try
 	{
 		auto doc = nlohmann::json::parse(jsonstr);
+
+		if (!doc.contains(systemName))
+			return false;
+
 		auto& entities = doc["Entities"][systemName];
 
 		for (auto& gameEntity : entities)
@@ -76,7 +80,7 @@ bool MungPlex::IEmulator::obtainGameEntities(const std::string& systemName, std:
 		}
 
 		if (entities.empty())
-			return false;
+			return true; //no entities might be valid!
 	}
 	catch (const nlohmann::json::parse_error& exception)
 	{
