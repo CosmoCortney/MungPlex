@@ -320,6 +320,9 @@ void MungPlex::Search::drawRangeOptions()
 
 			if (ImGui::Checkbox("Cross-Region", &_crossRegion))
 			{
+				if (_regions.empty())
+					_regions = ProcessInformation::GetSystemRegionList();
+
 				if (_crossRegion)
 				{
 					_rangeStartInput.SetValue(_regions.front().Base);
