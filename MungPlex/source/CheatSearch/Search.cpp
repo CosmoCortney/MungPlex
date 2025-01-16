@@ -1949,6 +1949,7 @@ bool MungPlex::Search::IsBusySearching()
 
 void MungPlex::Search::SetMemoryRegions(const std::vector<SystemRegion>& regions)
 {
+	GetInstance()._regions = regions;
 	GetInstance()._regionSelectCombo.SetItems(regions);
 }
 
