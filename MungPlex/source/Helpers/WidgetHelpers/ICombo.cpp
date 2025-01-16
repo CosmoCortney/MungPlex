@@ -5,7 +5,7 @@ bool MungPlex::ICombo::Draw(const float paneWidth, const float labelPortion)
 {
 	static bool indexChanged = false;
 	DrawLabel(_label.c_str(), paneWidth, labelPortion, _printLabel, _showHelpText ? _helpText.c_str() : nullptr);
-	return ImGui::Combo(_id.c_str(), reinterpret_cast<int*>(&_selectedIndex), _stringPointers.data(), _stringPointers.size());
+	indexChanged = ImGui::Combo(_id.c_str(), reinterpret_cast<int*>(&_selectedIndex), _stringPointers.data(), _stringPointers.size());
 
 	if (indexChanged)
 		callOnIndexChangedSlots();
