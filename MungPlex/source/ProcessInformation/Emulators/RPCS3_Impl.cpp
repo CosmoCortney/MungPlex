@@ -9,7 +9,7 @@ bool MungPlex::RPcS3::Init(const Xertz::ProcessInfo& process, std::vector<GameEn
 	systemRegions[2].BaseLocationProcess = reinterpret_cast<void*>(0x340000000);
 	systemRegions[3].BaseLocationProcess = reinterpret_cast<void*>(0x350000000);
 
-	uint32_t bufSize = 0x1000000;
+	uint32_t bufSize = 0x10000000;
 	char* exeAddr = reinterpret_cast<char*>(process.GetModuleAddress(L"rpcs3.exe") + 0x5000000);
 	std::vector<char> buf(bufSize);
 	process.ReadMemoryFast(buf.data(), exeAddr, bufSize);
@@ -28,6 +28,21 @@ bool MungPlex::RPcS3::Init(const Xertz::ProcessInfo& process, std::vector<GameEn
 		gameIdFound = true;
 		_connectionCheckValue = *reinterpret_cast<int*>(&buf[offset - 0xDC]);
 		_connectionCheckPtr = exeAddr + offset - 0xDC;
+
+		switch (_gameID[2])
+		{
+		case 'U':
+			_gameRegion = "NTSC-U";
+			break;
+		case 'E':
+			_gameRegion = "PAL";
+			break;
+		case 'P': case 'A':	case 'K':
+			_gameRegion = "NTSC-J";
+			break;
+		default:
+			_gameRegion = "Any/UNK";
+		}
 	}
 
 	if (!gameIdFound)
