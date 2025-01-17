@@ -209,28 +209,29 @@
     "GB": {
       "Regions": [
         {
-          "Label": "ROM",
-          "Base": "0",
-          "Size": "0"
-        },
-        {
           "Label": "WRAM",
           "Base": "0xC000",
           "Size": "0x2000"
+        },
+        {
+          "Label": "ROM",
+          "Base": "0x10000000",
+          "Size": "0"
         }
       ]
     },
     "GBC": {
       "Regions": [
-        {
-          "Label": "ROM",
-          "Base": "0",
-          "Size": "0"
-        },
+
         {
           "Label": "WRAM",
           "Base": "0xC000",
           "Size": "0x2000"
+        },
+        {
+          "Label": "ROM",
+          "Base": "0x10000000",
+          "Size": "0"
         }
       ]
     },

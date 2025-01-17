@@ -22,17 +22,17 @@ bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEnt
 			if (typeFlag == 0x80 || typeFlag == 0xC0)
 			{
 				loadSystemInformationJSON("GBC", systemRegions);
-				ProcessInformation::SetMiscProcessInfo("GBC", false, false, 2, 1);
+				ProcessInformation::SetMiscProcessInfo("GBC", false, false, 4, 1);
 				_platformID = ProcessInformation::GBC;
 			}
 			else
 			{
 				loadSystemInformationJSON("GB", systemRegions);
-				ProcessInformation::SetMiscProcessInfo("GB", false, false, 2, 1);
+				ProcessInformation::SetMiscProcessInfo("GB", false, false, 4, 1);
 				_platformID = ProcessInformation::GB;
 			}
 
-			std::string title(16, '\0');
+			std::string title(_platformID == ProcessInformation::GB ? 16 : 15, '\0');
 			process.ReadMemorySafe(title.data(), romBasePtr + 0x134, 16);
 			_gameName = title;
 
@@ -42,8 +42,8 @@ bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEnt
 
 			uint32_t romSize = 0;
 			process.ReadMemorySafe(&romSize, romBasePtr + 0x148, 1);
-			systemRegions[0].BaseLocationProcess = romBasePtr;
-			systemRegions[0].Size = 0x8000 * (1 << romSize);
+			systemRegions[1].BaseLocationProcess = romBasePtr;
+			systemRegions[1].Size = 0x8000 * (1 << romSize);
 			romFound = true;
 			break;
 		}
@@ -90,16 +90,20 @@ bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEnt
 			if (!(region.GetType() & MEM_PRIVATE))
 				continue;
 
+			if (!(region.GetState() & MEM_COMMIT))
+				continue;
+
 			if (region.GetRegionSize() != 0x8000)
 				continue;
 
-			//the second or region of size 0x8000 is the RAM
-			systemRegions[1].BaseLocationProcess = region.GetBaseAddress<void*>();
+			//the second or so region of size 0x8000 is the RAM
+			systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
 			obtainGameEntities("GB", gameEntities);
 			return true;
 		}
 	}
 
+	//Get GBA RAM
 	for (const auto& region : ProcessInformation::GetRegionList())
 	{
 		uint64_t tempBaseAddr = region.GetBaseAddress<uint64_t>();
