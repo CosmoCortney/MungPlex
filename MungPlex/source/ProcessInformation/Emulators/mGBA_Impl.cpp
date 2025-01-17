@@ -8,7 +8,7 @@ bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEnt
 
 	for (const auto& region : ProcessInformation::GetRegionList())
 	{
-		if (!(region.GetProtect() & PAGE_READWRITE))
+		if (!(region.GetProtect()))
 			continue;
 
 		uint8_t* romBasePtr = region.GetBaseAddress<uint8_t*>();
@@ -104,10 +104,10 @@ bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEnt
 	{
 		uint64_t tempBaseAddr = region.GetBaseAddress<uint64_t>();
 
-		if (tempBaseAddr < 0x10000000000)
+		if (tempBaseAddr < 0x14000000000)
 			continue;
 
-		if (tempBaseAddr > 0x100000000000)
+		if (tempBaseAddr > 0x150000000000)
 			return false;
 
 		if (!(region.GetProtect() & PAGE_READWRITE))
