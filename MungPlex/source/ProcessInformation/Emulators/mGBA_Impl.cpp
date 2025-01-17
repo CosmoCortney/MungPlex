@@ -55,18 +55,14 @@ bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEnt
 			ProcessInformation::SetMiscProcessInfo("GameBoy Advance", false, false, 4, 4);
 			loadSystemInformationJSON("GBA", systemRegions);
 			_platformID = ProcessInformation::GBA;
-			systemRegions[1].BaseLocationProcess = romBasePtr;
-
 			std::string title(12, '\0');
 			process.ReadMemorySafe(title.data(), romBasePtr + 0xA0, 12);
 			_gameName = title;
-
 			std::string id(6, '\0');
 			process.ReadMemorySafe(id.data(), romBasePtr + 0xAC, 6);
 			_rpcGameID = _gameID = id;
-
 			_gameRegion = GetRegionFromBigNRegionCode(id[3]);
-			systemRegions[0].BaseLocationProcess = romBasePtr;
+			systemRegions[2].BaseLocationProcess = romBasePtr;
 			romFound = true;
 			obtainGameEntities("GBA", gameEntities);
 			break;
@@ -125,6 +121,7 @@ bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEnt
 
 		//the second or region of size 0x48000 is the RAM
 		systemRegions[0].BaseLocationProcess = region.GetBaseAddress<void*>();
+		systemRegions[1].BaseLocationProcess = region.GetBaseAddress<char*>() + 0x4000;
 		return true;
 	}
 
