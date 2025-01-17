@@ -134,8 +134,8 @@ void MungPlex::MemoryViewer::drawHexEditor()
 
                     if (_memEdit.DrawContents(_hexView.data(), _readSizeInput.GetValue(), _targetAddressInput.GetValue(), NULL, nullptr, false, 0, &byteWriteOffset))
                     {
-                        //USBGecko* gecko = ProcessInformation::GetUsbGecko();
-                        //gecko->Poke<char>(_hexView[byteWriteOffset], byteWriteOffset + _targetAddressInput.GetValue());
+                        USBGecko* gecko = ProcessInformation::GetUsbGecko();
+                        gecko->Poke<char>(_hexView[byteWriteOffset], byteWriteOffset + _targetAddressInput.GetValue());
                         refreshMemory();
                     }
                 } break;
