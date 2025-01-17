@@ -1,7 +1,7 @@
 # CMakeList.txt : CMake project for MungPlex, include source and define
 # project specific logic here.
 cmake_minimum_required (VERSION 3.16)
-project(MungPlex VERSION 2.7.0)
+project(MungPlex VERSION 2.8.0)
 
 #if (MSVC)
 #    add_compile_options(/W4 /WX)
