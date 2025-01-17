@@ -573,6 +573,9 @@ void MungPlex::Search::drawSearchOptions()
 				_searchThread.join();
 
 			_searchThread = boost::thread(&MungPlex::Search::performSearch, this);
+
+			if (_iterationCount <= 1)
+				_currentPageInput.SetValue(1);
 		}
 
 		ImGui::SameLine();
@@ -582,11 +585,13 @@ void MungPlex::Search::drawSearchOptions()
 		if (disableResetButton) ImGui::BeginDisabled();
 		if (ImGui::Button("Reset"))
 		{
+			_updateThreadFlag = false;
+			_searchActive = false;
+			_currentPageInput.SetValue(1);
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(_liveUpdateMilliseconds*2));
 			MemoryCompare::MemCompare::Reset();
 			_iterationCount = 0;
 			_iterationsCombo.Clear();
-			_searchActive = false;
-			_currentPageInput.SetValue(0);
 		}
 		if (disableResetButton) ImGui::EndDisabled();
 
