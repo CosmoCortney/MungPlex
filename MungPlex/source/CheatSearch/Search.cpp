@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <algorithm>
 #include "Search.hpp"
 
@@ -768,10 +768,8 @@ void MungPlex::Search::updateLivePreview()
 		for (int row = 0; row < rows; ++row)
 		{
 			static uint64_t address = 0;
-			static uint64_t currentPageTemp = 0;
-			currentPageTemp = _currentPageInput.GetValue();
-			uint64_t addressIndex = (currentPageTemp == 0 ? 0 : currentPageTemp - 1) * _maxResultsPerPageInput.GetValue() + row;
 			uint8_t* updateArrayPtr = _updateValues.data();
+			uint64_t addressIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue() + row;
 
 			switch (ProcessInformation::GetAddressWidth())
 			{
@@ -1689,9 +1687,7 @@ void MungPlex::Search::drawResultsTable()
 		static FloorString buf("", 1024);
 		static int addressTextWidth = ProcessInformation::GetAddressWidth() > 4 ? 16 : 8;
 		static int64_t pageIndex;
-		static uint64_t currentPageTemp = 0;
-		currentPageTemp = _currentPageInput.GetValue();
-		pageIndex = (currentPageTemp == 0 ? 0 : currentPageTemp - 1) * _maxResultsPerPageInput.GetValue();
+		pageIndex = (_currentPageInput.GetValue() - 1) * _maxResultsPerPageInput.GetValue();
 
 		if (pageIndex < 0)
 			pageIndex = 0;
