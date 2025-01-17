@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <algorithm>
 #include "Search.hpp"
 
@@ -763,7 +763,12 @@ void MungPlex::Search::updateLivePreview()
 		if (_currentPageInput.GetValue() < _pagesAmountValue)
 			rows = _maxResultsPerPageInput.GetValue();
 		else
+		{
 			rows = MemoryCompare::MemCompare::GetResultCount() % _maxResultsPerPageInput.GetValue();
+
+			if (rows == 0)
+				rows = _maxResultsPerPageInput.GetValue();
+		}
 
 		for (int row = 0; row < rows; ++row)
 		{
