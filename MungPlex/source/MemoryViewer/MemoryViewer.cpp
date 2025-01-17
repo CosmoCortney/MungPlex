@@ -192,8 +192,8 @@ void MungPlex::MemoryViewer::refreshMemory()
     {
         case ProcessInformation::CON_USBGecko:
         {
-            //USBGecko* gecko = ProcessInformation::GetUsbGecko();
-            //gecko->Read(_hexView.data(), _targetAddressInput.GetValue(), _readSizeInput.GetValue());
+            USBGecko* gecko = ProcessInformation::GetUsbGecko();
+            gecko->Read(_hexView.data(), _targetAddressInput.GetValue(), _readSizeInput.GetValue());
         } break;
     }
 }
