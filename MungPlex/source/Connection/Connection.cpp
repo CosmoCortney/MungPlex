@@ -298,7 +298,7 @@ void MungPlex::Connection::drawDisconnectButton()
 }
 
 void MungPlex::Connection::drawProcessControl()
-{/*
+{
 	if (ProcessInformation::GetProcessType() != ProcessInformation::CONSOLE)
 		return;
 
@@ -329,5 +329,5 @@ void MungPlex::Connection::drawProcessControl()
 	}
 
 	if (!Connection::IsConnected() || busySearching)
-		ImGui::EndDisabled();*/
+		ImGui::EndDisabled();
 }
