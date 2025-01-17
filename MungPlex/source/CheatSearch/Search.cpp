@@ -756,7 +756,7 @@ void MungPlex::Search::updateLivePreview()
 {
 	static int rows = 0;
 
-	if (Connection::IsConnected())
+	if (Connection::IsConnected() && MemoryCompare::MemCompare::GetResultCount() > 0)
 	{
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(_liveUpdateMilliseconds));
 
