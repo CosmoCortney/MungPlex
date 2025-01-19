@@ -92,6 +92,7 @@ MungPlex::Map3dView::Map3dView(const int id, const nlohmann::json& elem)
 		_markerTypeSelects[i] = items["MarkerTypes"][i];
 		_markerSizeSlider.SetLabelDecimal("Marker Size: %.1F");
 		_markerTypeSelectCombo.SetSelectedById(_markerTypeSelects[i]);
+		_linePlotNames[i] = _plotNames.GetStdStringNoZerosAt(i) + " lines";
 
 		if (_plotTypeSelectCombo.GetSelectedId() == MESH)
 			_setAxisLimit = loadOBJ(_objPaths.GetStdStringNoZerosAt(i), _meshes[i], _mesheVertCounts[i], _meshesIndecies[i]);
