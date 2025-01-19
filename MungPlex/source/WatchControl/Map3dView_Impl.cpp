@@ -91,6 +91,7 @@ MungPlex::Map3dView::Map3dView(const int id, const nlohmann::json& elem)
 		_trackLines[i] = items["TrackLines"][i];
 		_markerTypeSelects[i] = items["MarkerTypes"][i];
 		_markerSizeSlider.SetLabelDecimal("Marker Size: %.1F");
+		_markerTypeSelectCombo.SetSelectedById(_markerTypeSelects[i]);
 
 		if (_plotTypeSelectCombo.GetSelectedId() == MESH)
 			_setAxisLimit = loadOBJ(_objPaths.GetStdStringNoZerosAt(i), _meshes[i], _mesheVertCounts[i], _meshesIndecies[i]);
@@ -327,7 +328,9 @@ void MungPlex::Map3dView::drawValueSetup(const float itemWidth, const float item
 				if(_plotNames.Draw(1.0f, 0.3f))
 					_linePlotNames[index] = _plotNames.GetStdStringNoZerosAt(index) + " lines";
 
-				_markerTypeSelectCombo.Draw(0.25f, 0.4f);
+				if(_markerTypeSelectCombo.Draw(0.25f, 0.4f))
+					_markerTypeSelects[index] = _markerTypeSelectCombo.GetSelectedId();
+
 				ImGui::SameLine();
 				ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 				ImGui::ColorEdit4("##MarkerColorScatter", (float*)&_markerColorVec[index]);
@@ -520,7 +523,7 @@ bool MungPlex::Map3dView::drawGeneralSetup(const float itemWidth, const float it
 		}
 		if (_itemSelectCombo.GetCount() == 0) ImGui::EndDisabled();
 
-		_markerSizeSlider.Draw(1.0f, 0.0f);
+		_markerSizeSlider.Draw(0.5f, 0.0f);
 
 		if (ImGui::IsItemActive() || ImGui::IsItemHovered())
 			ImGui::SetTooltip("%.1f", _markerSizeSlider.GetValue());
