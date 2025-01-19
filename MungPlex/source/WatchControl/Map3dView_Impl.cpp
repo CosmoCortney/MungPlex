@@ -95,6 +95,19 @@ MungPlex::Map3dView::Map3dView(const int id, const nlohmann::json& elem)
 
 		if (_plotTypeSelectCombo.GetSelectedId() == MESH)
 			_setAxisLimit = loadOBJ(_objPaths.GetStdStringNoZerosAt(i), _meshes[i], _mesheVertCounts[i], _meshesIndecies[i]);
+		else if (_plotTypeSelectCombo.GetSelectedId() == SCATTER)
+		{
+			if (_coordinatesVecVecVec[i].empty())
+				throw "Coordinates matrix should've been set by initNewitem(), but it's not!";
+
+			for (int coo = 0; coo < 3; ++coo)
+			{
+				_coordinatesVecVecVec[i][coo].resize(_scatterCounts.GetValueAt(i));
+
+				if(_coordinatesVecVecVec[i][coo].empty())
+					throw "Empty coordinates vector!";
+			}
+		}
 	}
 
 	_active = elem["Active"];
@@ -442,6 +455,9 @@ void MungPlex::Map3dView::processValue()
 
 			if (_coordinatesVecVecVec[i].size() != 3)
 				continue;
+
+			if (_coordinatesVecVecVec[i][0].size() != _scatterCounts.GetValueAt(i))
+				throw "Scatters improperly set!";
 
 			static uint64_t addr = 0;
 			addr = reinterpret_cast<uint64_t>(ProcessInformation::GetPointerFromPointerPathExpression(_pointerPathVecVec[i], _useModulePathVec[i], _moduleAddressVec[i]));
