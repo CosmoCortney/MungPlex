@@ -11,7 +11,6 @@ namespace MungPlex
         Slider<float> _sliderF = Slider<float>("Adjust:", false, 0.0f, -1.0f, 1.0f, ImGuiSliderFlags_None);
         InputFloat<double> _inputD = InputFloat<double>("Value:", false, 0.0, 0.0, 0.0, 6);
         InputFloat<float> _inputF = InputFloat<float>("Value:", false, 0.0f, 0.0f, 0.0f, 6);
-        bool DoublePrecision;
         bool _useSlider = false;
         int64_t _min;
         int64_t _max;

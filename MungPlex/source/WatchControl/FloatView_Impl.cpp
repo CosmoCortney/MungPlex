@@ -116,7 +116,6 @@ void MungPlex::FloatView::assign(const FloatView& other)
 
 	_sliderD = other._sliderD;
 	_sliderF = other._sliderF;
-	DoublePrecision = other.DoublePrecision;
 	_useSlider = other._useSlider;
 	_min = other._min;
 	_max = other._max;
