@@ -346,21 +346,6 @@ namespace MungPlex
             ImGui::PushItemWidth(absoluteWidth);
     }
 
-    static void SetUpSliderFloat(const std::string& name, float* val, const float min, const float max, const char* format = "%3f", const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true, const char* helpText = nullptr)
-    {
-        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
-        ImGui::SliderFloat(("##" + name).c_str(), val, min, max, format, NULL);
-        ImGui::PopItemWidth();
-    }
-
-    static bool SetUpSliderInt(const std::string& name, int* val, const int min, const int max, const char* format = "%d", const float paneWidth = 0.25f, const float labelPortion = 0.4f, bool printLabel = true, const char* helpText = nullptr)
-    {
-        PrepareWidgetLabel(name, paneWidth, labelPortion, printLabel, helpText);
-        bool ret = ImGui::SliderInt(("##" + name).c_str(), val, min, max, format, NULL);
-        ImGui::PopItemWidth();
-        return ret;
-    }
-
     static void SetUpLableText(const std::string& name, const char* text, const size_t bufSize, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
     {
         PrepareWidgetLabel(name, paneWidth, labelPortion, true);
@@ -430,69 +415,6 @@ namespace MungPlex
                 _str.resize(_floor);
         }
     };
-
-   /* class SignalCombo //yes I know this is against the purpose of ImGui. But it makes my life easier here. Please don't call the code cops
-    {
-    public:
-        typedef std::function<void()> Slot;
-
-    private:
-        int _index = 0;
-        int _itemCount = 0;
-        std::string _text = "";
-        std::vector<Slot> _slotsOnIndexChanged{};
-        std::vector<Slot> _slotsOnItemCountChanged{};
-        std::vector<Slot> _slotsOnTextChanged{};
-
-    public:
-        SignalCombo() {}
-        void Draw(const IPairs& pair, int& select, const float paneWidth = 0.25f, const float labelPortion = 0.4f)
-        {
-            if (pair.GetCount() > 0)
-            {
-                if (_slotsOnIndexChanged.size() > 0 && _index != select)
-                {
-                    for (const auto& slot : _slotsOnIndexChanged)
-                        slot();
-
-                    _index = select;
-                }
-
-                if (_slotsOnItemCountChanged.size() > 0 && _itemCount != pair.GetCount())
-                {
-                    for (const auto& slot : _slotsOnItemCountChanged)
-                        slot();
-
-                    _itemCount = pair.GetCount();
-                }
-
-                if (_slotsOnTextChanged.size() > 0 && _text.compare(pair.GetData()[_index]) != 0)//todo: make this using a boolean flag instead
-                {
-                    for (const auto& slot : _slotsOnTextChanged)
-                        slot();
-
-                    _text = pair.GetData()[_index];
-                }
-
-            }
-            SetUpPairCombo(pair, &select, paneWidth, labelPortion);
-        }
-
-        void ConnectOnIndexChanged(const Slot slot)
-        {
-            _slotsOnIndexChanged.emplace_back(slot);
-        }
-
-        void ConnectOnItemCountChanged(const Slot slot)
-        {
-            _slotsOnItemCountChanged.emplace_back(slot);
-        }
-
-        void ConnectOnTextChanged(const Slot slot)
-        {
-            _slotsOnTextChanged.emplace_back(slot);
-        }
-    };*/
 
     inline std::filesystem::path GetResourcesFilePath(const std::filesystem::path& resourceFileName)
     {

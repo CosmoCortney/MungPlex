@@ -98,7 +98,7 @@ bool MungPlex::IView::drawGeneralSetup(const float itemWidth, const float itemHe
 
 	ImGui::BeginChild("child_setup", ImVec2(itemWidth * 0.15f, itemHeight * 1.5f), true);
 	{
-		_enableSignal = _disableSignal = false;
+		//_enableSignal = _disableSignal = false;
 
 		switch (type)
 		{
@@ -222,4 +222,11 @@ void MungPlex::IView::SetBasicMembers(const nlohmann::json elem)
 		if (i < elem["PointerPath"].size() - 1)
 			_pointerPathInput.AppendText(", ");
 	}
+
+	if (_active)
+	{
+		_enableSignal = _active;
+		_disableSignal = !_enableSignal;
+	}
+
 }

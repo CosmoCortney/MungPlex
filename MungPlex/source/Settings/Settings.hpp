@@ -83,6 +83,7 @@ namespace MungPlex
         InputInt<uint32_t> _defaultAlignmentInput = InputInt<uint32_t>("Default Alignment:", true, 4, 1, 1);
         InputInt<uint32_t> _cheatsDefaultIntervalInput = InputInt<uint32_t>("Default Intervsl:", true, 60, 1, 10);
         StringIdCombo _defaultActiveWindowCombo = StringIdCombo("Deefault Active Window:", true, GeneralSettings::Windows);
+		Slider<float> _scaleSlider = Slider<float>("Scale:", true, 1.2f, 0.5f, 2.0f, ImGuiSliderFlags_Logarithmic);
 
         const std::vector<std::string> _featureDirs
         {

@@ -250,7 +250,9 @@ void MungPlex::Settings::drawGeneralSettings()
 			if (_documentsPathInput.Draw(1.0f, 0.2f))
 				_generalSettings.DocumentsPath = _documentsPathInput.GetStdStringNoZeros();
 
-			SetUpSliderFloat("UI Scale:", &_generalSettings.Scale, 0.65f, 2.0f, "%3f", 1.0f, 0.2f, true, "If the UI looks off you can change the scale. Changes take effect after restarting!");
+			_scaleSlider.SetValue(_generalSettings.Scale);
+			if(_scaleSlider.Draw(1.0f, 0.2f))
+				_generalSettings.Scale = _scaleSlider.GetValue();
 
 			//ImGui::SameLine();
 			

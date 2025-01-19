@@ -118,7 +118,8 @@ MungPlex::Cheats::Cheats()
 	_lua.set_exception_handler(&luaExceptionHandler);
 
 	_cheatList = Settings::GetCheatsSettings().DefaultCheatList;
-	_perSecond = Settings::GetCheatsSettings().DefaultInterval;
+	_intervalSlider.SetValue(Settings::GetCheatsSettings().DefaultInterval);
+	_intervalSlider.SetLabelIntDec("Execute cheats %d times per second");
 	_documentsPath = MT::Convert<std::string, std::wstring>(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros(), MT::UTF8, MT::UTF16LE);
 
 	//initCheatFile();
@@ -875,7 +876,7 @@ void MungPlex::Cheats::DrawControl()
 		
 		ImGui::BeginGroup();
 		{
-			SetUpSliderInt("Interval:", &_perSecond, 1, 240, "%d", 0.5f, 0.15f);
+			_intervalSlider.Draw(0.5f, 0.15f);
 
 			if (ImGui::Button(_executeCheats ? "Terminate Cheats" : "Apply Cheats"))
 			{
@@ -930,7 +931,7 @@ void MungPlex::Cheats::cheatRoutine()
 		{
 			for (const auto& cheat : _luaCheats)
 			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _perSecond));
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _intervalSlider.GetValue()));
 				_lua.safe_script(cheat.Lua.c_str(), sol::script_pass_on_error);
 			}
 		}
@@ -952,7 +953,7 @@ void MungPlex::Cheats::cheatRoutine()
 
 		while (_executeCheats)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _perSecond));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _intervalSlider.GetValue()));
 			_lua.safe_script(_textCheatLuaInput.GetCString(), sol::script_pass_on_error);
 		}
 	}

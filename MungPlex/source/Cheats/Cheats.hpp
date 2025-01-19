@@ -77,7 +77,6 @@ namespace MungPlex
         InputTextMultiline _textCheatDescriptionInput = InputTextMultiline("Description:", true, "", DESCRIPTION_LENGTH);
         std::wstring _cheatListPath;
         sol::state _lua{};
-        int _perSecond = 60;
         bool _executeCheats = false;
         bool _cheatList = false;
         std::thread _cheatThread;
@@ -95,6 +94,7 @@ namespace MungPlex
         bool _disableEditButtons = false;
         std::stringstream _logStream;
         int _selectedCheatType = 0;
+		Slider<int32_t> _intervalSlider = Slider<int32_t>("Interval", false, 60, 1, 240);
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
         void copyCheatToInformationBox(int index);

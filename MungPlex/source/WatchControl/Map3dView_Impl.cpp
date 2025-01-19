@@ -36,6 +36,7 @@ MungPlex::Map3dView::Map3dView(const int id)
 {
 	_id = id;
 	_idText = std::to_string(id);
+	_markerSizeSlider.SetLabelDecimal("Marker Size: %.1F");
 }
 
 MungPlex::Map3dView::Map3dView(const int id, const nlohmann::json& elem)
@@ -63,7 +64,7 @@ MungPlex::Map3dView::Map3dView(const int id, const nlohmann::json& elem)
 	_idText = std::to_string(id);
 	_labelInput.SetText(elem["Title"]);
 	_clippingOn = elem["ClippingOn"];
-	_markerSize = elem["MarkerSize"];
+	_markerSizeSlider.SetValue(elem["MarkerSize"]);
 	_axesFlipFlags = elem["FlipAxes"];
 	uint64_t count = elem["ItemCount"];
 	const nlohmann::json items = elem["Items"];
@@ -89,6 +90,7 @@ MungPlex::Map3dView::Map3dView(const int id, const nlohmann::json& elem)
 		_coordinateDisplacements.SetValueAt(items["Displacements"][i], i);
 		_trackLines[i] = items["TrackLines"][i];
 		_markerTypeSelects[i] = items["MarkerTypes"][i];
+		_markerSizeSlider.SetLabelDecimal("Marker Size: %.1F");
 
 		if (_plotTypeSelectCombo.GetSelectedId() == MESH)
 			_setAxisLimit = loadOBJ(_objPaths.GetStdStringNoZerosAt(i), _meshes[i], _mesheVertCounts[i], _meshesIndecies[i]);
@@ -156,7 +158,7 @@ nlohmann::json MungPlex::Map3dView::GetJSON()
 	elemJson["Title"] = _labelInput.GetStdStringNoZeros();
 	elemJson["Active"] = _active;
 	elemJson["ClippingOn"] = _clippingOn;
-	elemJson["MarkerSize"] = _markerSize;
+	elemJson["MarkerSize"] = _markerSizeSlider.GetValue();
 	elemJson["FlipAxes"] = _axesFlipFlags;
 	elemJson["ItemCount"] = _itemSelectCombo.GetCount();
 	nlohmann::json arrs;
@@ -206,7 +208,7 @@ void MungPlex::Map3dView::assign(const Map3dView& other)
 	_plotTypeSelectCombo = other._plotTypeSelectCombo;
 	_itemSelectCombo = other._itemSelectCombo;
 	_clippingOn = other._clippingOn;
-	_markerSize = other._markerSize;
+	_markerSizeSlider = other._markerSizeSlider;
 	_axesFlipFlags = other._axesFlipFlags;
 	_rangeBeginnings = other._rangeBeginnings;
 	_rangeEnds = other._rangeEnds;
@@ -410,12 +412,12 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 							ImPlot3D::PlotLine(_linePlotNames[i].c_str(), _linesVecVecVecVec[i][0][sCounts].data() + _frameCount[i], _linesVecVecVecVec[i][1][sCounts].data() + _frameCount[i], _linesVecVecVecVec[i][2][sCounts].data() + _frameCount[i], _maxFrames - _frameCount[i], ImPlot3DLineFlags_None);
 						}
 
-						ImPlot3D::SetNextMarkerStyle(_markerTypeSelects[i], _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
+						ImPlot3D::SetNextMarkerStyle(_markerTypeSelects[i], _markerSizeSlider.GetValue(), _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
 						ImPlot3D::PlotScatter(_plotNames.GetCStringAt(i), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCounts.GetValueAt(i));
 					}
 				}
 
-				ImPlot3D::SetNextMarkerStyle(_markerTypeSelects[i], _markerSize, _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
+				ImPlot3D::SetNextMarkerStyle(_markerTypeSelects[i], _markerSizeSlider.GetValue(), _markerColorVec[i], IMPLOT3D_AUTO, _markerColorVec[i]);
 				ImPlot3D::PlotScatter(_plotNames.GetCStringAt(i), _coordinatesVecVecVec[i][0].data(), _coordinatesVecVecVec[i][1].data(), _coordinatesVecVecVec[i][2].data(), _scatterCounts.GetValueAt(i));
 			}
 		} 
@@ -518,10 +520,10 @@ bool MungPlex::Map3dView::drawGeneralSetup(const float itemWidth, const float it
 		}
 		if (_itemSelectCombo.GetCount() == 0) ImGui::EndDisabled();
 
-		SetUpSliderFloat("Marker Size", &_markerSize, 1.0f, 15.0f, "Marker Size", 0.5f, 0.0f, false);
+		_markerSizeSlider.Draw(1.0f, 0.0f);
 
 		if (ImGui::IsItemActive() || ImGui::IsItemHovered())
-			ImGui::SetTooltip("%.1f", _markerSize);
+			ImGui::SetTooltip("%.1f", _markerSizeSlider.GetValue());
 
 		ImGui::SameLine();
 		ImGui::Checkbox("Clipping", &_clippingOn);

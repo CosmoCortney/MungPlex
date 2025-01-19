@@ -72,7 +72,7 @@ namespace MungPlex
         bool _hex = false;
         bool _cached = false;
         bool _disableUndo = false;
-        float _precision = 100.0f;
+		Slider<float> _precisionSlider = Slider<float>("Precision:", true, 100.0f, 75.0f, 100.0f, ImGuiSliderFlags_Logarithmic);
         bool _diableBecauseUnknownAndNotRangebased = false;
         bool _disableBecauseNoText = false;
         bool _caseSensitive = true;

@@ -51,7 +51,7 @@ namespace MungPlex
         InputInt<uint32_t> _maxPointerDepthInput = InputInt<uint32_t>("Max. Pointer Depth:", true, 1, 1, 1);
         bool _printVisitedAddresses = false;
         bool _printModuleNames = false;
-        float _maxMemUtilizationFraction = 0.9f;
+		Slider<float> _maxMemUtilizationFraction = Slider<float>("Max. Memory Utilization Fraction:", false, 0.95f, 0.1f, 1.0f, ImGuiSliderFlags_None);
         InputInt<uint64_t> _maxPointerCountInput = InputInt<uint64_t>("Max. Pointer Count:", true, 100000, 1, 20);
         static const std::vector<StringIdBoolCombo::VecType> _systemPresets;
         StringIdBoolCombo _systemPresetSelectCombo = StringIdBoolCombo("System Preset:", true, _systemPresets);
@@ -60,9 +60,7 @@ namespace MungPlex
         int _selectedInputType = 0;
         static const std::vector<StringIdCombo::VecType> _inputFileTypes;
         StringIdCombo _inputFileTypeSelectCombo = StringIdCombo("Input File Type:", true, _inputFileTypes);
-        //std::vector<SystemRegion> _regions{};
         RegionCombo _regionSelectCombo = RegionCombo("Region:", true);
-        //int _regionSelect = 0;
         bool _disableUI = false;
         // TODO This can probably be removed
         std::shared_ptr<bp::child> _pointerSearcherProcess;

@@ -136,6 +136,7 @@ MungPlex::Search::Search()
 	_hex = Settings::GetSearchSettings().DefaultValuesHex;
 	_resultsPath = MT::Convert<std::string, std::wstring>(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros(), MT::UTF8, MT::UTF16LE) + L"\\MungPlex\\Search\\";
 	setFormatting();
+	_precisionSlider.SetLabelDecimal("%.2F %%");
 }
 
 void MungPlex::Search::DrawWindow()
@@ -421,7 +422,7 @@ void MungPlex::Search::drawPrimitiveSearchOptions()
 		_secondaryKnownValueInput.Draw(1.0f, 0.4f);
 
 	if (_primitiveTypesCombo.GetSelectedId() >= FLOAT)
-		SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 1.0f, 0.4f);
+		_precisionSlider.Draw(1.0f, 0.4f);
 }
 
 void MungPlex::Search::drawArraySearchOptions()
@@ -457,7 +458,7 @@ void MungPlex::Search::drawColorSearchOptions()
 			if(_knownValueInput.Draw(1.0f, 0.4f))
 				LitColorExpressionToImVec4(_knownValueInput.GetCString(), &_searchColorVec);
 
-		SetUpSliderFloat("Precision (%%):", &_precision, 75.0f, 100.0f, "%0.2f", 1.0f, 0.4f);
+		_precisionSlider.Draw(1.0f, 0.4f);
 	}
 	ImGui::EndGroup();
 }
@@ -1889,7 +1890,7 @@ void MungPlex::Search::setUpAndIterate()
 	if (_hex)
 		iterationFlags |= MemoryCompare::HEX;
 
-	MemoryCompare::MemCompare::NewIteration(_subsidiaryTypeSearchConditionsCombo.GetSelectedId(), _iterationsCombo.GetSelectedIndex() + 1, tempprimary, tempsecondary, _precision / 100.0f, iterationFlags);
+	MemoryCompare::MemCompare::NewIteration(_subsidiaryTypeSearchConditionsCombo.GetSelectedId(), _iterationsCombo.GetSelectedIndex() + 1, tempprimary, tempsecondary, _precisionSlider.GetValue() / 100.0f, iterationFlags);
 
 	generateDumpRegionMap();
 

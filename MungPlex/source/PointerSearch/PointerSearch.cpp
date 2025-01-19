@@ -73,6 +73,7 @@ MungPlex::PointerSearch::PointerSearch()
     _maxPointerDepthInput.SetHelpText("Maximum pointer level depth. A value of 1 means a single pointer redirection is considered. Values bigger than 1 mean that pointers may redirect to other pointers. This value can be the same as \"Minimum Pointer Depth\" if you don't want any extra depth. A higher value will increase the results count but also scan time.", true);
     _maxPointerCountInput.SetHelpText("Maximum amount of pointers to be generated. Smaller values may decrease scan time and but also the likeability to find working pointer paths.", true);
     _addressWidthSelectCombo.SetHelpText("Address width of the dump's system.", true);
+    _maxMemUtilizationFraction.SetLabelDecimal("Max. Memory Utilization Fraction: %.2F");
 }
 
 void MungPlex::PointerSearch::DrawWindow()
@@ -141,7 +142,7 @@ void MungPlex::PointerSearch::drawSettings()
 
         _addressWidthSelectCombo.Draw(1.0f, 0.3f);
         _resultsPathInput.Draw(1.0f, 0.3f);
-        SetUpSliderFloat("Max. Memory Utilization Fraction:", &_maxMemUtilizationFraction, 0.1f, 0.95f, "%2f", 1.0f, 0.5f);
+		_maxMemUtilizationFraction.Draw(1.0f, 0.3f);
         _maxPointerCountInput.Draw(1.0f, 0.3f);
         //_inputFileTypeSelectCombo.Draw(1.0f, 0.3f); todo
 
@@ -441,7 +442,7 @@ void MungPlex::PointerSearch::generateArgument() // TODO Implement the missing f
     _args.emplace_back("--store-memory-pointers-file-path");
     _args.push_back(_resultsPathInput.GetStdStringNoZeros());
     _args.emplace_back("--maximum-memory-utilization-fraction");
-    _args.push_back(std::to_string(_maxMemUtilizationFraction));
+    _args.push_back(std::to_string(_maxMemUtilizationFraction.GetValue()));
     _args.emplace_back("--file-extensions");
     _args.emplace_back(".bin");
     _args.emplace_back(".raw");

@@ -29,7 +29,7 @@ namespace MungPlex
         std::vector<StringIdCombo::VecType> _items;
         StringIdCombo _itemSelectCombo = StringIdCombo("Layer:", true);
         bool _clippingOn = false;
-        float _markerSize = 6.0f;
+		Slider<float> _markerSizeSlider = Slider<float>("Marker Size:", false, 6.0f, 1.0f, 15.0f, ImGuiSliderFlags_None);
         std::array<bool, 3> _axesFlipFlags = { false, false, false };
 
         //pointer setup
