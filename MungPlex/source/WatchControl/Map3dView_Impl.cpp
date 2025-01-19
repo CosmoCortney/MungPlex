@@ -369,7 +369,7 @@ void MungPlex::Map3dView::drawPlotArea(const float itemWidth, const float itemHe
 
 		if (_setAxisLimit)
 		{
-			ImPlot3D::SetupAxesLimits(-_axisLimit, _axisLimit, -_axisLimit, _axisLimit, -_axisLimit, _axisLimit, ImPlot3DCond_Always);
+			ImPlot3D::SetupAxesLimits(-_axisLimit, _axisLimit, -_axisLimit, _axisLimit, -_axisLimit, _axisLimit, ImPlot3DCond_Once);
 			_setAxisLimit = false;
 		}
 
