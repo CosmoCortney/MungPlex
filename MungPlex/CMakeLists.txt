@@ -74,6 +74,7 @@ add_executable (MungPlex
     source/Helpers/WidgetHelpers/ProcessCombo.hpp
     source/Helpers/WidgetHelpers/RegionCombo.cpp
     source/Helpers/WidgetHelpers/RegionCombo.hpp
+    source/Helpers/WidgetHelpers/Slider.hpp
     source/Helpers/WidgetHelpers/StringIdBoolCombo.cpp
     source/Helpers/WidgetHelpers/StringIdBoolCombo.hpp
     source/Helpers/WidgetHelpers/StringIdCombo.cpp

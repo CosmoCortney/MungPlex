@@ -10,6 +10,7 @@
 #include "InputVectorText.hpp"
 #include "ProcessCombo.hpp"
 #include "RegionCombo.hpp"
+#include "Slider.hpp"
 #include "StringIdBoolCombo.hpp"
 #include "StringIdCombo.hpp"
 
