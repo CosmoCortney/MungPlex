@@ -194,7 +194,6 @@ find_package(OpenGL REQUIRED)
 target_link_libraries(MungPlex PRIVATE
     glfw
     OpenGL::GL
-    sol2
     ${LUA_LIBRARIES}
     ${CPP_GAME_SDK}
     ${DISCORD_GAME_SDK_LIB}
@@ -242,9 +241,11 @@ set_target_properties(MungPlex PROPERTIES
     CXX_EXTENSIONS NO
 )
 
+find_path(SOL2_INCLUDE_DIRS "sol/abort.hpp")
 target_include_directories(MungPlex PRIVATE 
     ${CMAKE_BINARY_DIR}
     ${LUA_INCLUDE_DIR}
+    ${SOL2_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
 )
 

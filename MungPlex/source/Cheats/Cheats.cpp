@@ -918,7 +918,7 @@ void MungPlex::Cheats::cheatRoutine()
 			pfr = _lua.safe_script(cheat.Lua.c_str(), sol::script_pass_on_error);
 			if (!pfr.valid())
 			{
-				sol_c_assert(!pfr.valid());
+				//sol_c_assert(!pfr.valid());
 				const sol::error err = pfr;
 				Log::LogInformation(err.what());
 				_executeCheats = false;
@@ -943,7 +943,7 @@ void MungPlex::Cheats::cheatRoutine()
 
 		if (!pfr.valid())
 		{
-			sol_c_assert(!pfr.valid());
+			//sol_c_assert(!pfr.valid());
 			const sol::error err = pfr;
 			Log::LogInformation(err.what());
 			_executeCheats = false;
