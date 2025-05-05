@@ -118,7 +118,7 @@ inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_te
  inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_searchComparasionTypes =
 {
 	{
-		{ "Unknwon/Initial", 0 },
+		{ "Unknown/Initial", 0 },
 		{ "Known Value", MemoryCompare::KNOWN }
 	}
 };
