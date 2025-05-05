@@ -94,6 +94,7 @@ namespace MungPlex
         bool _disableEditButtons = false;
         std::stringstream _logStream;
         int _selectedCheatType = 0;
+		bool _disableCheatSourceSelect = false;
 		Slider<int32_t> _intervalSlider = Slider<int32_t>("Interval", false, 60, 1, 240);
 
         static int luaExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description);
@@ -109,6 +110,7 @@ namespace MungPlex
         void drawCheatConverter();
         void cheatRoutine();
         bool convertToLua();
+        void checkAndSetCheatSourceSelect();
 
         static double readFromRAM(int type, uint64_t address); //legacy function to keep older cheats functioning
         static bool readBool(const uint64_t address);

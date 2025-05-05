@@ -121,7 +121,6 @@ MungPlex::Cheats::Cheats()
 	_intervalSlider.SetValue(Settings::GetCheatsSettings().DefaultInterval);
 	_intervalSlider.SetLabelIntDec("Execute cheats %d times per second");
 	_documentsPath = MT::Convert<std::string, std::wstring>(Settings::GetGeneralSettings().DocumentsPath.StdStrNoLeadinZeros(), MT::UTF8, MT::UTF16LE);
-
 	//initCheatFile();
 }
 
@@ -732,6 +731,7 @@ void MungPlex::Cheats::DrawCheatList()
 				if (ImGui::Checkbox(_checkBoxIDs[i].c_str(), &_luaCheats[i].Checked))
 				{
 					_unsavedChangesCheatList = true;
+					checkAndSetCheatSourceSelect();
 				}
 
 				ImGui::SameLine();
@@ -864,11 +864,15 @@ void MungPlex::Cheats::DrawControl()
 
 		ImGui::BeginGroup();
 		{
-			if (ImGui::RadioButton("Cheat List", _cheatList))
-				_cheatList = true;
+			if (_disableCheatSourceSelect) ImGui::BeginDisabled();
+			{
+				if (ImGui::RadioButton("Cheat List", _cheatList))
+					_cheatList = true;
 
-			if (ImGui::RadioButton("Text Cheat", !_cheatList))
-				_cheatList = false;
+				if (ImGui::RadioButton("Text Cheat", !_cheatList))
+					_cheatList = false;
+			}
+			if (_disableCheatSourceSelect) ImGui::EndDisabled();
 		}
 		ImGui::EndGroup();
 
@@ -1048,6 +1052,8 @@ void MungPlex::Cheats::InitCheatFile()
 	{
 		std::cerr << "Failed parsing Lua Cheat: " << exception.what() << std::endl;
 	}
+
+	GetInstance().checkAndSetCheatSourceSelect();
 }
 
 int MungPlex::Cheats::luaExceptionHandler(lua_State* L, const sol::optional<const std::exception&> exception, const sol::string_view description)
@@ -1186,6 +1192,22 @@ bool MungPlex::Cheats::convertToLua()
 		default:
 			return 0;
 	}
+}
+
+void MungPlex::Cheats::checkAndSetCheatSourceSelect()
+{
+	bool anyChecked = false;
+
+	for (auto& cheat : _luaCheats)
+		anyChecked |= cheat.Checked;
+
+	if (!anyChecked)
+	{
+		_cheatList = false;
+		_disableCheatSourceSelect = true;
+	}
+	else
+		_disableCheatSourceSelect = false;
 }
 
 void MungPlex::Cheats::updateConnectionInfo()
