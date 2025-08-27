@@ -3,6 +3,7 @@
 bool MungPlex::Yuzu::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {
 	ProcessInformation::SetMiscProcessInfo("Yuzu", false, false, 8, 4);
+	loadSystemInformationJSON("SWITCH", systemRegions);
 	std::wstring wTitleBuf(512, L'\0');
 	std::wstring gTitle;
 	std::wstring version;
