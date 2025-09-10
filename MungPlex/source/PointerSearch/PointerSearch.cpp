@@ -278,12 +278,11 @@ void MungPlex::PointerSearch::drawResults()
 std::string MungPlex::PointerSearch::execute_external_process(const std::string& command, const std::vector<std::string>& arguments) 
 {
     boost::asio::io_context io_context;
-    boost::process::ipstream output_stream;
+    bp::ipstream output_stream;
     std::ostringstream result;
     std::future<void> read_output;
 
-    boost::process::child process(command, boost::process::args(arguments),
-        (boost::process::std_out & boost::process::std_err) > output_stream, io_context);
+    bp::child process(command, arguments, (bp::std_out & bp::std_err) > output_stream, io_context);
 
     // Read output asynchronously
     read_output = std::async(std::launch::async, [&] {

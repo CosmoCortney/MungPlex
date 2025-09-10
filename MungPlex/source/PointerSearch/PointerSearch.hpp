@@ -1,6 +1,8 @@
 #pragma once
-#include <boost/asio.hpp>
-#include <boost/process.hpp>
+
+#include <boost/process/v1/async.hpp>
+#include <boost/process/v1/child.hpp>
+#include <boost/process/v1/io.hpp>
 #include <memory>
 #include "ProcessInformation.hpp"
 #include <string>
@@ -8,7 +10,7 @@
 
 namespace MungPlex
 {
-    namespace bp = boost::process;
+    namespace bp = boost::process::v1;
 
     class PointerSearch
     {
