@@ -175,7 +175,7 @@ namespace MungPlex
     static const std::string GetStringFormatting(const int valueType, const bool isSigned, const bool hex)
     {
         if (valueType == FLOAT || valueType == DOUBLE)
-            return "%.4f";
+            return "%.10f";
 
         if (hex)
         {

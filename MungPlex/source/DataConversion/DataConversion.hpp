@@ -41,7 +41,7 @@ namespace MungPlex
         InputInt<uint32_t> _bigEndianInput32 = InputInt<uint32_t>("Big Endian:", true, 0, 0, 0);
         InputInt<uint64_t> _bigEndianInput64 = InputInt<uint64_t>("Big Endian:", true, 0, 0, 0);
         InputTextMultiline _plainTextInput = InputTextMultiline("Plain Text:", true, "", 512);
-        InputFloat<float> _floatSingleConvertInput = InputFloat<float>("Float:", true, 1.0f, 0.1f, 1.0f, 6);
+        InputFloat<float> _floatSingleConvertInput = InputFloat<float>("Float:", true, 1.0f, 0.1f, 1.0f, 10);
         InputFloat<double> _floatDoubleConvertInput = InputFloat<double>("Double:", true, 1.0, 0.1, 1.0, 10);
         StringIdCombo _intTypesCombo = StringIdCombo("Int Type:", true, _intTypes);
         StringIdCombo _floatTypesCombo = StringIdCombo("Float Type:", true, _floatTypes);
