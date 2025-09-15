@@ -81,6 +81,28 @@ namespace MungPlex
             return (addressType)GetInstance()._process.GetModuleAddress(moduleName);
         }
 
+        template<typename ptrType> static void DumpMemory(ptrType buf, const void* processBaseAddress, const uint64_t sizeInBytes)
+        {
+            if (GetInstance()._processType == (int32_t)CONSOLE)
+            {
+                switch (GetInstance()._currentConsoleConnectionType)
+                {
+                case CON_USBGecko:
+                    if (!GetInstance()._usbGecko->IsConnectedAndReady())
+                    {
+                        return;
+                    }
+
+                    GetInstance()._usbGecko->Read(reinterpret_cast<char*>(buf), (uint64_t)processBaseAddress, sizeInBytes);
+                    return;
+                default:
+                    return;
+                }
+            }
+            else
+                ProcessInformation::GetProcess().ReadMemorySafe(buf, processBaseAddress, sizeInBytes, 0);
+        }
+
         template<typename dataType> static dataType ReadValue(const uint64_t address)
         {
             void* readAddress = nullptr;
