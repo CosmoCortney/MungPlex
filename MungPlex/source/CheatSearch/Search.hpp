@@ -44,6 +44,7 @@ namespace MungPlex
         static void SetDefaultSearchSettings();
         static bool IsBusySearching();
         static void SetMemoryRegions(const std::vector<SystemRegion>& regions);
+		static bool FindWaveTable(std::vector<float>& extremes, std::vector<float>& results, void* processTableLoction);
 
         std::function<void()> Slot_IndexChanged = []()
         {

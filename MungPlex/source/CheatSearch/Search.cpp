@@ -1960,6 +1960,101 @@ void MungPlex::Search::SetMemoryRegions(const std::vector<SystemRegion>& regions
 	GetInstance()._regionSelectCombo.SetItems(regions);
 }
 
+bool MungPlex::Search::FindWaveTable(std::vector<float>& extremes, std::vector<float>& results, void* processTableLoction)
+{
+	std::vector<float> buf;
+	bool ascending = false;
+	static const uint32_t minFinds = 512;
+	uint32_t finds = 0;
+	static const float tolerance = 0;//0.0000005f;
+	uint64_t offset = 0;
+	uint32_t regionIndex = -1;
+
+	for (auto& region : ProcessInformation::GetSystemRegionList())
+	{
+		++regionIndex;
+		buf.clear();
+		buf.resize(region.Size / sizeof(float));
+		ProcessInformation::DumpMemory(buf.data(), region.BaseLocationProcess, region.Size);
+
+		if (ProcessInformation::UnderlyingIsBigEndian() && !ProcessInformation::GetRereorderFlag())
+		{
+			for (uint64_t i = 0; i < buf.size(); ++i)
+				buf[i] = Xertz::SwapBytes(buf[i]);
+		}
+
+		uint64_t bufIndex = 1;
+		for (int i = 1; i < extremes.size(); ++i)
+		{
+			if (bufIndex >= buf.size())
+				return false;
+
+			ascending = extremes[i-1] < extremes[i];
+
+			for (; bufIndex < buf.size(); ++bufIndex)
+			{
+				if ((buf[bufIndex - 1] == buf[bufIndex])
+					|| (buf[bufIndex - 1] < 0.0f && buf[bufIndex - 1] > -0.0000000004656613f) //0.0000000004656613f is 0x30000000, just to ensure...
+					|| (buf[bufIndex - 1] > 0.0f && buf[bufIndex - 1] < 0.0000000004656613f)) //...only possible floats will be computed
+				{
+					finds = 0;
+					continue;
+				}
+
+				if (ascending)
+				{
+					if (buf[bufIndex - 1] < extremes[i - 1] || buf[bufIndex - 1] > extremes[i])
+					{
+						finds = 0;
+						continue;
+					}
+
+					if (buf[bufIndex - 1] + tolerance < buf[bufIndex])
+						++finds;
+					else
+					{
+						if (finds < minFinds)
+						{
+							finds = 0;
+							continue;
+						}
+						break;
+					}
+				}
+				else
+				{
+					if (buf[bufIndex - 1] > extremes[i - 1] || buf[bufIndex - 1] < extremes[i])
+					{ 
+						finds = 0;
+						continue;
+					}
+
+					if (buf[bufIndex - 1] - tolerance > buf[bufIndex])
+						++finds;
+					else
+					{
+						if (finds < minFinds)
+						{
+							finds = 0;
+							continue;
+						}
+						break;
+					}
+				}
+
+				offset = bufIndex;
+			}
+		}
+	}
+
+	++finds;  // increase, these two because indexing started 1 index ahead
+	++offset; //-^
+	results.resize(finds);
+	memcpy_s(results.data(), results.size() * sizeof(float), &buf[offset - finds], finds * sizeof(float));
+	processTableLoction = reinterpret_cast<void*>(ProcessInformation::GetSystemRegionList()[regionIndex].Base + (offset - finds) * sizeof(float));
+	return finds;
+}
+
 void MungPlex::Search::setRecommendedValueSettings(const int valueType)
 {
 	setFormatting();
