@@ -103,6 +103,28 @@ namespace MungPlex
                 ProcessInformation::GetProcess().ReadMemorySafe(buf, processBaseAddress, sizeInBytes, 0);
         }
 
+        template<typename ptrType> static void PatchMemory(ptrType data, void* processBaseAddress, const uint64_t sizeInBytes)
+        {
+            if (GetInstance()._processType == (int32_t)CONSOLE)
+            {
+                switch (GetInstance()._currentConsoleConnectionType)
+                {
+                case CON_USBGecko:
+                    if (!GetInstance()._usbGecko->IsConnectedAndReady())
+                    {
+                        return;
+                    }
+
+                    GetInstance()._usbGecko->Write(reinterpret_cast<char*>(data), (uint64_t)processBaseAddress, sizeInBytes);
+                    return;
+                default:
+                    return;
+                }
+            }
+            else
+                ProcessInformation::GetProcess().WriteMemorySafe(data, processBaseAddress, sizeInBytes, 0);
+        }
+
         template<typename dataType> static dataType ReadValue(const uint64_t address)
         {
             void* readAddress = nullptr;
