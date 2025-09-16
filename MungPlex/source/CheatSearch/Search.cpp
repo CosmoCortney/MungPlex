@@ -1960,7 +1960,7 @@ void MungPlex::Search::SetMemoryRegions(const std::vector<SystemRegion>& regions
 	GetInstance()._regionSelectCombo.SetItems(regions);
 }
 
-bool MungPlex::Search::FindWaveTable(std::vector<float>& extremes, std::vector<float>& results, void* processTableLoction)
+bool MungPlex::Search::FindWaveTable(std::vector<float>& extremes, std::vector<float>& results, uint64_t& processTableOffset, int32_t& regionIndex)
 {
 	std::vector<float> buf;
 	bool ascending = false;
@@ -1968,7 +1968,7 @@ bool MungPlex::Search::FindWaveTable(std::vector<float>& extremes, std::vector<f
 	uint32_t finds = 0;
 	static const float tolerance = 0;//0.0000005f;
 	uint64_t offset = 0;
-	uint32_t regionIndex = -1;
+	regionIndex = -1;
 
 	for (auto& region : ProcessInformation::GetSystemRegionList())
 	{
@@ -2051,7 +2051,7 @@ bool MungPlex::Search::FindWaveTable(std::vector<float>& extremes, std::vector<f
 	++offset; //-^
 	results.resize(finds);
 	memcpy_s(results.data(), results.size() * sizeof(float), &buf[offset - finds], finds * sizeof(float));
-	processTableLoction = reinterpret_cast<void*>(ProcessInformation::GetSystemRegionList()[regionIndex].Base + (offset - finds) * sizeof(float));
+	processTableOffset = (offset - finds) * sizeof(float);
 	return finds;
 }
 
