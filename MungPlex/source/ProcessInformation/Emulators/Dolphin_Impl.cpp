@@ -64,6 +64,10 @@ bool MungPlex::Dolphin::Init(const Xertz::ProcessInfo& process, std::vector<Game
 
 		process.ReadMemoryFast(&flagGCN, mainMemRegion + 0x18, 4);
 		process.ReadMemoryFast(&flagWii, mainMemRegion + 0x1C, 4);
+
+		if (flagGCN == 0 && flagWii == 0)
+			continue;
+
 		_connectionCheckPtr = _region.GetBaseAddress<void*>();
 		process.ReadMemoryFast(&_connectionCheckValue, _connectionCheckPtr, 4);
 		memoryFound = true;
