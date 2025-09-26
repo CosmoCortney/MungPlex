@@ -7,6 +7,18 @@
 
 namespace MungPlex
 {
+    static std::vector<std::string> SplitString(const std::string& str, const char delimiter)
+    {
+        std::vector<std::string> elements;
+        std::stringstream ss(str);
+        std::string tempItem;
+
+        while (std::getline(ss, tempItem, delimiter))
+            elements.push_back(tempItem);
+
+        return elements;
+	}
+
     //Removes all instances of the characters in charsToRemove from stringToEdit
 	static void RemoveChars(std::string& stringToEdit, const char* charsToRemove)
     {
