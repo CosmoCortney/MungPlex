@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <array>
+#include "StringHelpers.hpp"
 
 inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Map3dView::_plotTypes =
 {

@@ -2,6 +2,7 @@
 #include "../../Log.hpp"
 #include "PointerSearch.hpp"
 #include "Settings.hpp"
+#include "StringHelpers.hpp"
 
 inline const std::vector<MungPlex::StringIdBoolCombo::VecType> MungPlex::PointerSearch::_systemPresets =
 {

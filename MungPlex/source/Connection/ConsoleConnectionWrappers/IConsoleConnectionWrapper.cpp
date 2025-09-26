@@ -1,4 +1,5 @@
 #include "IConsoleConnectionWrapper.hpp"
+#include <StringHelpers.hpp>
 
 bool MungPlex::IConsoleConnectionWrapper::obtainGameEntities(const std::string& systemName, std::vector<GameEntity>& gameEntities, char* memDump, const bool bigEndian, const uint64_t baseAddress)
 {

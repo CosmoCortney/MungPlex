@@ -1,5 +1,6 @@
 #include "mGBA_Impl.hpp"
 #include "BigNHelpers.hpp"
+#include <StringHelpers.hpp>
 
 bool MungPlex::MGBA::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {

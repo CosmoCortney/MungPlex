@@ -19,6 +19,7 @@
 #include "ProcessInformation.hpp"
 #include "Project64_Impl.hpp"
 #include "Search.hpp"
+#include <StringHelpers.hpp>
 #include "USBGeckoConnectionWrapper_Impl.hpp"
 #include "WatchControl.hpp"
 #include <Windows.h>

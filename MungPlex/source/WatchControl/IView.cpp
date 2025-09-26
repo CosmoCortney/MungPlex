@@ -1,6 +1,7 @@
 #include "IView.hpp"
 #include "imgui.h"
 #include "ProcessInformation.hpp"
+#include "StringHelpers.hpp"
 
 inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::IView::s_IntTypes =
 {

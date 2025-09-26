@@ -1,4 +1,5 @@
 #include "Mesen_Impl.hpp"
+#include "StringHelpers.hpp"
 
 bool MungPlex::Mesen::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {

@@ -1,5 +1,6 @@
 #include "Project64_Impl.hpp"
 #include "BigNHelpers.hpp"
+#include "StringHelpers.hpp"
 
 bool MungPlex::Project64::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& entities, std::vector<SystemRegion>& regions)
 {

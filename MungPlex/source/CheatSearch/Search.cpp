@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <algorithm>
 #include "Search.hpp"
+#include <StringHelpers.hpp>
 
 inline const std::vector<MungPlex::StringIdCombo::VecType> MungPlex::Search::_searchValueTypes =
 {

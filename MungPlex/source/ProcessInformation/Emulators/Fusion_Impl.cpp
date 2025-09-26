@@ -1,4 +1,5 @@
 #include "Fusion_Impl.hpp"
+#include "StringHelpers.hpp"
 
 bool MungPlex::Fusion::Init(const Xertz::ProcessInfo& process, std::vector<GameEntity>& gameEntities, std::vector<SystemRegion>& systemRegions)
 {

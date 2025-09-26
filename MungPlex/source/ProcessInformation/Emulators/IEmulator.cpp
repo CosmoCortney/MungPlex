@@ -1,4 +1,5 @@
 #include "IEmulator.hpp"
+#include <StringHelpers.hpp>
 
 bool MungPlex::IEmulator::loadSystemInformationJSON(const std::string& system, std::vector<SystemRegion>& systemRegions)
 {

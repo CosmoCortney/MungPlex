@@ -56,6 +56,7 @@ add_executable (MungPlex
     source/Helpers/BigSHelpers.hpp
     source/Helpers/GameEntity.hpp
     source/Helpers/HelperFunctions.hpp
+    source/Helpers/StringHelpers.hpp
     source/Helpers/SystemRegion.hpp
     source/Helpers/WidgetHelpers/DoubleStringIdCombo.cpp
     source/Helpers/WidgetHelpers/DoubleStringIdCombo.hpp
