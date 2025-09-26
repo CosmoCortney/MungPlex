@@ -81,13 +81,10 @@ namespace MungPlex
 
         if (removeAll)
         {
-            for (int i = 0; i < input.size(); ++i)
-            {
-                if (input[i] != 0x20)
-                    output += input[i];
-            }
+			output = input;
+            output.erase(remove_if(output.begin(), output.end(), isspace), output.end());
         }
-        else
+		else //only remove leading/trailing, and duplicate (except first) spaces
         {
             for (int i = 0; i < input.size() - 1; ++i)
             {
