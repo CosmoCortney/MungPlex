@@ -32,7 +32,8 @@ inline const std::vector<MungPlex::StringIdCombo::VecType>  MungPlex::IView::s_S
 		{ "Float", FLOAT },
 		{ "Bool", BOOL },
 		{ "DIP Switch", MOUSEPIANO },
-		{ "3D Map", MAP3D }
+		{ "3D Map", MAP3D },
+		{ "Wave", WAVE }
 	}
 };
 
@@ -45,7 +46,7 @@ bool MungPlex::IView::DrawSetup(const float itemWidth, const float itemHeight, c
 {
 	static bool res = false;
 
-	if(type != ViewTypes::MAP3D)
+	if(type != ViewTypes::MAP3D && type != ViewTypes::WAVE)
 	{
 		ImGui::Dummy(ImVec2(0.0f, 5.0f));
 		res = drawActiveCheckBox();
@@ -66,6 +67,9 @@ bool MungPlex::IView::DrawSetup(const float itemWidth, const float itemHeight, c
 	case ViewTypes::MAP3D:
 		ImGui::SeparatorText("3D Map:");
 		break;
+	case ViewTypes::WAVE:
+		ImGui::SeparatorText("Wave View:");
+		break;
 	default: //ViewTypes::Integral
 		ImGui::SeparatorText("Integral View:");
 	}
@@ -77,7 +81,7 @@ bool MungPlex::IView::DrawSetup(const float itemWidth, const float itemHeight, c
 	if (ImGui::Button("Delete"))
 		_delete = true;
 
-	if (type == ViewTypes::MAP3D)
+	if (type == ViewTypes::MAP3D || ViewTypes::WAVE)
 		return true;
 
 	ImGui::BeginChild("child_Setup", ImVec2(itemWidth * 0.5f, itemHeight * 1.5f));

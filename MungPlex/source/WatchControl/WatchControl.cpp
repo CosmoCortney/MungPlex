@@ -69,6 +69,9 @@ bool MungPlex::WatchControl::saveList()
 				case IView::MAP3D:
 					jsonData["Watchlist"].emplace_back(std::get<Map3dView>(_views[i].second).GetJSON());
 					break;
+				case IView::WAVE:
+					jsonData["Watchlist"].emplace_back(std::get<WaveView>(_views[i].second).GetJSON());
+					break;
 				default: //IView::INTEGRAL
 					jsonData["Watchlist"].emplace_back(std::get<IntegralView>(_views[i].second).GetJSON());
 				}
@@ -146,6 +149,9 @@ void MungPlex::WatchControl::InitWatchFile()
 			case IView::MAP3D:
 				GetInstance()._views.emplace_back(IView::MAP3D, Map3dView(i, watchList[i]));
 				break;
+			case IView::WAVE:
+				GetInstance()._views.emplace_back(IView::WAVE, WaveView(i, watchList[i]));
+				break;
 			default: //IView::INTEGRAL
 				GetInstance()._views.emplace_back(IView::INTEGRAL, IntegralView(i, watchList[i]));
 			}
@@ -197,6 +203,9 @@ void MungPlex::WatchControl::drawList()
 			case IView::MAP3D:
 				_views.emplace_back(IView::MAP3D, Map3dView(_ids.back()));
 				break;
+			case IView::WAVE:
+				_views.emplace_back(IView::WAVE, WaveView(_ids.back()));
+				break;
 			default: //IView::INTEGRAL
 				_views.emplace_back(IView::INTEGRAL, IntegralView(_ids.back()));
 			}
@@ -222,6 +231,9 @@ void MungPlex::WatchControl::drawList()
 				break;
 			case IView::MAP3D:
 				std::get<Map3dView>(_views[i].second).Draw();
+				break;
+			case IView::WAVE:
+				std::get<WaveView>(_views[i].second).Draw();
 				break;
 			default: //IView::INTEGRAL
 				std::get<IntegralView>(_views[i].second).Draw();
@@ -262,6 +274,13 @@ void MungPlex::WatchControl::DeleteItem(const int id)
 			break;
 		case IView::MAP3D:
 			if (std::get<Map3dView>(views[i].second).GetID() == id)
+			{
+				views.erase(views.begin() + i);
+				return;
+			}
+			break;
+		case IView::WAVE:
+			if (std::get<WaveView>(views[i].second).GetID() == id)
 			{
 				views.erase(views.begin() + i);
 				return;

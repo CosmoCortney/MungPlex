@@ -13,7 +13,7 @@ namespace MungPlex
     public:
         enum ViewTypes
         {
-            INTEGRAL, FLOAT, BOOL, MOUSEPIANO, MAP2D, MAP3D, COLOR
+            INTEGRAL, FLOAT, BOOL, MOUSEPIANO, MAP2D, MAP3D, COLOR, WAVE
         };
 
         static const std::vector<StringIdCombo::VecType> s_IntTypes;
@@ -54,10 +54,10 @@ namespace MungPlex
         virtual void drawPlotArea(const float itemWidth, const float itemHeight, const int type) = 0;
         virtual void processValue() = 0;
         virtual void manageProcessValueThread() = 0;
+        void drawPointerPathSetup(const float itemWidth, const float itemHeight, const int type);
 
     private:
         bool drawGeneralSetup(const float itemWidth, const float itemHeight, const int type);
-        void drawPointerPathSetup(const float itemWidth, const float itemHeight, const int type);
         bool drawActiveCheckBox();
     };
 }

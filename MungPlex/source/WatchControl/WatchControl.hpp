@@ -20,6 +20,7 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include "WaveView_Impl.hpp"
 #include "Xertz.hpp"
 
 namespace MungPlex
@@ -44,7 +45,7 @@ namespace MungPlex
             return Instance;
         }
 
-        std::vector<std::pair<int, std::variant<IntegralView, FloatView, BoolView, MousePianoView, Map3dView>>> _views;
+        std::vector<std::pair<int, std::variant<IntegralView, FloatView, BoolView, MousePianoView, Map3dView, WaveView>>> _views;
         std::vector<int> _ids;
         std::string _currentFile;
         std::string _placeholderFile = "{\"Watchlist\":[]}";

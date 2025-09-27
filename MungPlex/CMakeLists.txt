@@ -134,6 +134,8 @@ add_executable (MungPlex
     source/WatchControl/Map3dView_Impl.hpp
     source/WatchControl/WatchControl.cpp
     source/WatchControl/WatchControl.hpp
+    source/WatchControl/WaveView_Impl.cpp
+    source/WatchControl/WaveView_Impl.hpp
     ../include/imgui/imgui.cpp
     ../include/imgui/imgui_demo.cpp
     ../include/imgui/imgui_draw.cpp
