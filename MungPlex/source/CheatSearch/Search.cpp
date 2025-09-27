@@ -1979,10 +1979,7 @@ bool MungPlex::Search::FindWaveTable(std::vector<float>& extremes, std::vector<f
 		ProcessInformation::DumpMemory(buf.data(), reinterpret_cast<void*>(region.Base), region.Size);
 
 		if (ProcessInformation::UnderlyingIsBigEndian() && !ProcessInformation::GetRereorderFlag())
-		{
-			for (uint64_t i = 0; i < buf.size(); ++i)
-				buf[i] = Xertz::SwapBytes(buf[i]);
-		}
+			buf = SwapBytesVector<float>(buf);
 
 		uint64_t bufIndex = 1;
 		for (int i = 1; i < extremes.size(); ++i)

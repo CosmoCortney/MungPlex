@@ -164,6 +164,16 @@ namespace MungPlex
         }
     }
 
+    template<typename T> static std::vector<T> SwapBytesVector(const std::vector<T>& vec)
+    {
+        std::vector res = vec;
+
+        for (T& item : res)
+			item = Xertz::SwapBytes<T>(item);
+
+        return res;
+    }
+
     static void CenteredText(std::string text)
     {
         float windowWidth = ImGui::GetContentRegionAvail().x;
