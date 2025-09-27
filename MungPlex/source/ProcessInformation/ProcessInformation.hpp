@@ -81,7 +81,7 @@ namespace MungPlex
             return (addressType)GetInstance()._process.GetModuleAddress(moduleName);
         }
 
-        template<typename ptrType> static void DumpMemory(ptrType buf, const void* processBaseAddress, const uint64_t sizeInBytes)
+        template<typename ptrType> static void DumpMemory(ptrType buf, void* processBaseAddress, const uint64_t sizeInBytes)
         {
             if (GetInstance()._processType == (int32_t)CONSOLE)
             {
@@ -100,7 +100,12 @@ namespace MungPlex
                 }
             }
             else
+            {
+                if (GetInstance()._processType == EMULATOR)
+                    processBaseAddress = emuAddrToProcessAddr<void*>(processBaseAddress);
+
                 ProcessInformation::GetProcess().ReadMemorySafe(buf, processBaseAddress, sizeInBytes, 0);
+            }
         }
 
         template<typename ptrType> static void PatchMemory(ptrType data, void* processBaseAddress, const uint64_t sizeInBytes)
