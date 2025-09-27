@@ -449,7 +449,7 @@ namespace MungPlex
 
         template<typename addressType> static addressType emuAddrToProcessAddr(addressType address)
         {
-            int regionIndex = GetRegionIndex(address);
+            int regionIndex = GetRegionIndex((uint64_t)address);
 
             if (regionIndex < 0)
                 return 0;
