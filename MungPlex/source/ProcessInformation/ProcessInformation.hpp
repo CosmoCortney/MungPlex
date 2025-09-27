@@ -122,7 +122,12 @@ namespace MungPlex
                 }
             }
             else
+            {
+                if(GetInstance()._processType == EMULATOR)
+					processBaseAddress = emuAddrToProcessAddr<void*>(processBaseAddress);
+
                 ProcessInformation::GetProcess().WriteMemorySafe(data, processBaseAddress, sizeInBytes, 0);
+            }
         }
 
         template<typename dataType> static dataType ReadValue(const uint64_t address)
